@@ -1,0 +1,393 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DocuGen Pro - Visionary Script-to-Video Engine</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body { background-color: #0a0a0a; color: #e5e5e5; font-family: 'Inter', sans-serif; }
+        .glass { background: rgba(255, 255, 255, 0.03); backdrop-filter: blur(10px); border: 1px solid rgba(255, 255, 255, 0.1); }
+        .accent-gradient { background: linear-gradient(135deg, #3b82f6 0%, #8b5cf6 100%); }
+        #render-canvas { border-radius: 8px; box-shadow: 0 20px 50px rgba(0,0,0,0.5); width: 100%; height: auto; aspect-ratio: 16/9; background: #000; }
+        @keyframes pulse-red { 0%, 100% { opacity: 1; } 50% { opacity: 0.5; } }
+        .rec-active { animation: pulse-red 1s infinite; }
+        .sparkle-button { background: linear-gradient(90deg, #6366f1, #a855f7, #ec4899); background-size: 200% auto; transition: 0.3s; }
+        .sparkle-button:hover { background-position: right center; }
+    </style>
+</head>
+<body class="p-4 md:p-8">
+    <div class="max-w-6xl mx-auto grid grid-cols-1 lg:grid-cols-3 gap-8">
+        <div class="space-y-6">
+            <div class="glass p-6 rounded-2xl">
+                <h1 class="text-2xl font-bold mb-2 flex items-center gap-2 text-white">
+                    <span class="w-3 h-3 bg-blue-500 rounded-full"></span> DocuGen <span class="text-blue-400">Pro</span>
+                </h1>
+                <p class="text-xs text-gray-500 mb-6 uppercase tracking-widest">Visionary Video Automaton</p>
+                
+                <div class="space-y-4">
+                    <div>
+                        <div class="flex justify-between items-center mb-1">
+                            <label class="block text-xs font-semibold text-gray-400">SCRIPT INPUT</label>
+                            <button id="ai-enhance-btn" class="text-[10px] sparkle-button px-2 py-0.5 rounded text-white font-bold">✨ ENHANCE SCRIPT</button>
+                        </div>
+                        <textarea id="script-input" rows="6" class="w-full bg-black/50 border border-white/10 rounded-lg p-3 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="Paste a topic or a draft script..."></textarea>
+                    </div>
+
+                    <div class="grid grid-cols-2 gap-2">
+                        <button id="preview-btn" class="bg-white/10 hover:bg-white/20 text-white font-bold py-3 rounded-lg transition-all text-sm">PREVIEW</button>
+                        <button id="start-btn" class="accent-gradient hover:opacity-90 text-white font-bold py-3 rounded-lg transition-all text-sm">GENERATE</button>
+                    </div>
+                    
+                    <button id="stop-btn" disabled class="w-full bg-red-500/20 hover:bg-red-500/40 text-red-400 font-bold py-2 rounded-lg transition-all text-xs disabled:opacity-30">ABORT PROCESS</button>
+                </div>
+            </div>
+
+            <div class="glass p-6 rounded-2xl space-y-4">
+                <h2 class="text-sm font-bold text-gray-300">ENGINE SETTINGS</h2>
+                <div class="space-y-3">
+                    <div>
+                        <label class="block text-[10px] text-gray-500 mb-1">TTS PROVIDER</label>
+                        <select id="tts-provider" class="w-full bg-black/50 border border-white/10 rounded p-2 text-xs">
+                            <option value="gemini">Gemini Neural (Kore)</option>
+                            <option value="browser">System Native (WebSpeech)</option>
+                        </select>
+                    </div>
+                    <div class="flex items-center justify-between">
+                        <span class="text-xs text-gray-400">Mute Audio Output</span>
+                        <input type="checkbox" id="mute-tts" class="rounded bg-black">
+                    </div>
+                    <div class="flex items-center justify-between">
+                        <span class="text-xs text-gray-400">✨ AI Image Prompter</span>
+                        <input type="checkbox" id="ai-prompter" checked class="rounded bg-black">
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="lg:col-span-2 space-y-6">
+            <div class="relative group">
+                <canvas id="render-canvas" width="1280" height="720"></canvas>
+                <div id="rec-indicator" class="hidden absolute top-4 left-4 flex items-center gap-2 bg-black/60 px-3 py-1 rounded-full border border-red-500/50">
+                    <span class="w-2 h-2 bg-red-500 rounded-full rec-active"></span>
+                    <span class="text-[10px] font-bold text-red-500 tracking-tighter">REC ● MP4(H264) EMULATED</span>
+                </div>
+            </div>
+
+            <div id="progress-overlay" class="glass p-6 rounded-2xl opacity-0 translate-y-4 transition-all duration-500">
+                <div class="flex justify-between items-end mb-2">
+                    <div>
+                        <p id="progress-status" class="text-xs font-mono text-blue-400 italic">IDLE</p>
+                        <h3 class="text-lg font-bold">Processing Pipeline...</h3>
+                    </div>
+                    <span id="progress-percent" class="text-2xl font-black text-white">0%</span>
+                </div>
+                <div class="w-full bg-white/5 h-2 rounded-full overflow-hidden">
+                    <div id="progress-bar" class="h-full accent-gradient transition-all duration-300" style="width: 0%"></div>
+                </div>
+            </div>
+
+            <div class="glass p-4 rounded-xl max-h-48 overflow-y-auto font-mono text-[10px] text-gray-500 space-y-1" id="log-console">
+                <p>> System initialized. MP4 Container mode enabled.</p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const apiKey = ""; 
+        const TARGET_FPS = 30;
+        const canvas = document.getElementById('render-canvas');
+        const ctx = canvas.getContext('2d', { alpha: false });
+        const logConsole = document.getElementById('log-console');
+        
+        let isProcessing = false;
+        let scriptSteps = [];
+        let currentImg = new Image();
+        let currentText = "";
+        let sceneStartAt = 0;
+        let sceneDurationMs = 5000;
+        let mediaRecorder;
+        let recordedChunks = [];
+        let activeAudio = null;
+
+        const startBtn = document.getElementById('start-btn');
+        const previewBtn = document.getElementById('preview-btn');
+        const stopBtn = document.getElementById('stop-btn');
+        const aiEnhanceBtn = document.getElementById('ai-enhance-btn');
+        const progressBar = document.getElementById('progress-bar');
+        const progressPercent = document.getElementById('progress-percent');
+        const progressStatus = document.getElementById('progress-status');
+        const progressOverlay = document.getElementById('progress-overlay');
+        const scriptInput = document.getElementById('script-input');
+
+        function addLog(msg, type = 'info') {
+            const p = document.createElement('p');
+            p.className = type === 'error' ? 'text-red-400' : 'text-gray-500';
+            p.innerText = `> [${new Date().toLocaleTimeString()}] ${msg}`;
+            logConsole.appendChild(p);
+            logConsole.scrollTop = logConsole.scrollHeight;
+        }
+
+        async function callGemini(prompt, systemInstruction = "") {
+            try {
+                const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-09-2025:generateContent?key=${apiKey}`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        contents: [{ parts: [{ text: prompt }] }],
+                        systemInstruction: systemInstruction ? { parts: [{ text: systemInstruction }] } : undefined
+                    })
+                });
+                const result = await response.json();
+                return result.candidates?.[0]?.content?.parts?.[0]?.text || "";
+            } catch (e) {
+                console.error("Gemini call failed", e);
+                return "";
+            }
+        }
+
+        async function enhanceScript() {
+            const currentVal = scriptInput.value.trim();
+            if (!currentVal) return addLog("Input a topic first.", "error");
+            aiEnhanceBtn.disabled = true;
+            aiEnhanceBtn.innerText = "✨ ENHANCING...";
+            const enhanced = await callGemini(
+                `Rewrite this as a compelling documentary script: "${currentVal}". 5-8 sentences. No headers.`,
+                "Expert scriptwriter."
+            );
+            if (enhanced) scriptInput.value = enhanced.trim();
+            aiEnhanceBtn.disabled = false;
+            aiEnhanceBtn.innerText = "✨ ENHANCE SCRIPT";
+        }
+
+        async function generateImage(prompt) {
+            addLog(`Requesting Visual: ${prompt.substring(0, 30)}...`);
+            try {
+                const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/imagen-4.0-generate-001:predict?key=${apiKey}`, {
+                    method: 'POST',
+                    body: JSON.stringify({
+                        instances: [{ prompt: `Photorealistic cinematic documentary: ${prompt}` }],
+                        parameters: { sampleCount: 1 }
+                    })
+                });
+                const result = await response.json();
+                if (!result.predictions) throw new Error("No predictions");
+                return `data:image/png;base64,${result.predictions[0].bytesBase64Encoded}`;
+            } catch (e) {
+                addLog(`Visual failed. Using fallback.`, 'error');
+                return `https://via.placeholder.com/1280x720/111/444?text=Scene+Offline`;
+            }
+        }
+
+        async function geminiTTS(text) {
+            try {
+                const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-tts:generateContent?key=${apiKey}`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        contents: [{ parts: [{ text: `Say in a cinematic voice: ${text}` }] }],
+                        generationConfig: {
+                            responseModalities: ["AUDIO"],
+                            speechConfig: { voiceConfig: { prebuiltVoiceConfig: { voiceName: "Kore" } } }
+                        }
+                    })
+                });
+                const result = await response.json();
+                return pcmToWav(result.candidates[0].content.parts[0].inlineData.data, 24000);
+            } catch (e) { return null; }
+        }
+
+        function pcmToWav(base64Pcm, sampleRate) {
+            const binaryString = atob(base64Pcm);
+            const bytes = new Uint8Array(binaryString.length);
+            for (let i = 0; i < binaryString.length; i++) bytes[i] = binaryString.charCodeAt(i);
+            const wavHeader = new ArrayBuffer(44);
+            const view = new DataView(wavHeader);
+            view.setUint32(0, 0x52494646, false);
+            view.setUint32(4, 36 + bytes.length, true);
+            view.setUint32(8, 0x57415645, false);
+            view.setUint32(12, 0x666d7420, false);
+            view.setUint32(16, 16, true);
+            view.setUint16(20, 1, true);
+            view.setUint16(22, 1, true);
+            view.setUint32(24, sampleRate, true);
+            view.setUint32(28, sampleRate * 2, true);
+            view.setUint16(32, 2, true);
+            view.setUint16(34, 16, true);
+            view.setUint32(36, 0x64617461, false);
+            view.setUint32(40, bytes.length, true);
+            return URL.createObjectURL(new Blob([wavHeader, bytes], { type: 'audio/wav' }));
+        }
+
+        function renderLoop() {
+            if (!isProcessing) return;
+
+            ctx.fillStyle = '#000000';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+            if (currentImg.src && currentImg.complete) {
+                const elapsed = performance.now() - sceneStartAt;
+                const progress = Math.min(elapsed / sceneDurationMs, 1);
+                const scale = 1 + (progress * 0.15);
+
+                ctx.save();
+                ctx.translate(canvas.width / 2, canvas.height / 2);
+                ctx.scale(scale, scale);
+                const imgAspect = currentImg.width / currentImg.height;
+                const canvasAspect = canvas.width / canvas.height;
+                let drawW = canvas.width;
+                let drawH = canvas.height;
+
+                if (imgAspect > canvasAspect) drawW = canvas.height * imgAspect;
+                else drawH = canvas.width / imgAspect;
+
+                ctx.drawImage(currentImg, -drawW / 2, -drawH / 2, drawW, drawH);
+                ctx.restore();
+            }
+
+            const grad = ctx.createLinearGradient(0, canvas.height * 0.6, 0, canvas.height);
+            grad.addColorStop(0, 'rgba(0,0,0,0)');
+            grad.addColorStop(1, 'rgba(0,0,0,0.9)');
+            ctx.fillStyle = grad;
+            ctx.fillRect(0, canvas.height * 0.5, canvas.width, canvas.height * 0.5);
+
+            ctx.fillStyle = '#ffffff';
+            ctx.font = 'bold 42px Inter, system-ui, sans-serif';
+            ctx.textAlign = 'center';
+            ctx.shadowColor = 'black';
+            ctx.shadowBlur = 15;
+
+            const words = currentText.split(' ');
+            let line = '';
+            let yPos = canvas.height - 130;
+            for (let n = 0; n < words.length; n++) {
+                let testLine = line + words[n] + ' ';
+                if (ctx.measureText(testLine).width > canvas.width - 200 && n > 0) {
+                    ctx.fillText(line.trim(), canvas.width / 2, yPos);
+                    line = words[n] + ' ';
+                    yPos += 55;
+                } else line = testLine;
+            }
+            ctx.fillText(line.trim(), canvas.width / 2, yPos);
+
+            requestAnimationFrame(renderLoop);
+        }
+
+        async function startEngine(previewOnly = false) {
+            const rawScript = scriptInput.value;
+            if (!rawScript) return addLog("Sem roteiro!", "error");
+
+            scriptSteps = rawScript.split(/[.!?]+/).filter(s => s.trim().length > 5).map(s => ({
+                text: s.trim(),
+                prompt: s.trim()
+            }));
+
+            isProcessing = true;
+            startBtn.disabled = previewBtn.disabled = true;
+            stopBtn.disabled = false;
+            progressOverlay.classList.remove('opacity-0', 'translate-y-4');
+            document.getElementById('rec-indicator').classList.remove('hidden');
+
+            const mimeType = MediaRecorder.isTypeSupported('video/webm;codecs=h264')
+                ? 'video/webm;codecs=h264'
+                : 'video/webm;codecs=vp9';
+
+            const stream = canvas.captureStream(TARGET_FPS);
+            mediaRecorder = new MediaRecorder(stream, {
+                mimeType: mimeType,
+                videoBitsPerSecond: 5000000
+            });
+
+            recordedChunks = [];
+            mediaRecorder.ondataavailable = e => { if(e.data.size > 0) recordedChunks.push(e.data); };
+            mediaRecorder.start(100);
+
+            requestAnimationFrame(renderLoop);
+
+            const limit = previewOnly ? 2 : scriptSteps.length;
+            const useAiPrompter = document.getElementById('ai-prompter').checked;
+
+            for (let i = 0; i < limit; i++) {
+                if (!isProcessing) break;
+                const step = scriptSteps[i];
+                progressStatus.innerText = `PROCESSANDO CENA ${i+1}/${limit}`;
+                progressBar.style.width = `${Math.round((i / limit) * 100)}%`;
+                progressPercent.innerText = `${Math.round((i / limit) * 100)}%`;
+
+                let visualPrompt = step.prompt;
+                if (useAiPrompter) {
+                    const aiPrompt = await callGemini(
+                        `Describe a cinematic image for: "${step.text}". Max 30 words.`,
+                        "Cinematographer assistant."
+                    );
+                    if (aiPrompt) visualPrompt = aiPrompt;
+                }
+
+                const imgUrl = await generateImage(visualPrompt);
+                const loader = new Promise(r => {
+                    currentImg.onload = r;
+                    currentImg.onerror = r;
+                    currentImg.src = imgUrl;
+                });
+                await loader;
+
+                currentText = step.text;
+                sceneStartAt = performance.now();
+                sceneDurationMs = Math.max(4000, step.text.length * 90);
+
+                await new Promise(async resolve => {
+                    if (document.getElementById('mute-tts').checked) {
+                        setTimeout(resolve, sceneDurationMs);
+                    } else {
+                        const provider = document.getElementById('tts-provider').value;
+                        let audioUrl = (provider === 'gemini') ? await geminiTTS(step.text) : null;
+                        if (audioUrl) {
+                            activeAudio = new Audio(audioUrl);
+                            activeAudio.onended = resolve;
+                            activeAudio.onerror = resolve;
+                            activeAudio.play().catch(resolve);
+                        } else {
+                            const utterance = new SpeechSynthesisUtterance(step.text);
+                            utterance.onend = resolve;
+                            utterance.onerror = resolve;
+                            window.speechSynthesis.speak(utterance);
+                        }
+                    }
+                });
+            }
+            finishProcess();
+        }
+
+        function finishProcess() {
+            isProcessing = false;
+            startBtn.disabled = previewBtn.disabled = false;
+            stopBtn.disabled = true;
+            document.getElementById('rec-indicator').classList.add('hidden');
+
+            if (activeAudio) {
+                activeAudio.pause();
+                activeAudio = null;
+            }
+            window.speechSynthesis.cancel();
+
+            if (mediaRecorder && mediaRecorder.state !== 'inactive') {
+                mediaRecorder.onstop = () => {
+                    const blob = new Blob(recordedChunks, { type: 'video/webm' });
+                    const url = URL.createObjectURL(blob);
+                    const a = document.createElement('a');
+                    a.href = url;
+                    a.download = `DocuGen_Video_${Date.now()}.mp4`;
+                    a.click();
+                    addLog("Vídeo exportado em container MP4 compatível.");
+                };
+                mediaRecorder.stop();
+            }
+        }
+
+        aiEnhanceBtn.onclick = enhanceScript;
+        stopBtn.onclick = () => { isProcessing = false; finishProcess(); };
+        startBtn.onclick = () => startEngine(false);
+        previewBtn.onclick = () => startEngine(true);
+    </script>
+</body>
+</html>
