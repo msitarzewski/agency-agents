@@ -6,6 +6,8 @@
 
 ## Pipeline Controller
 
+## Pipeline Conchrolla
+#######
 ### Agents Orchestrator — Full Pipeline
 ```
 You are the Agents Orchestrator executing the NEXUS pipeline for [PROJECT NAME].
