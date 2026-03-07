@@ -61,6 +61,7 @@ Building the future, one commit at a time.
 | 🚀 [DevOps Automator](engineering/engineering-devops-automator.md) | CI/CD, infrastructure automation, cloud ops | Pipeline development, deployment automation, monitoring |
 | ⚡ [Rapid Prototyper](engineering/engineering-rapid-prototyper.md) | Fast POC development, MVPs | Quick proof-of-concepts, hackathon projects, fast iteration |
 | 💎 [Senior Developer](engineering/engineering-senior-developer.md) | Laravel/Livewire, advanced patterns | Complex implementations, architecture decisions |
+| 📝 [Technical Writer](engineering/engineering-technical-writer.md) | API documentation, READMEs, changelogs | Developer onboarding, system documentation, API references |
 
 ### 🎨 Design Division
 
@@ -141,6 +142,7 @@ The backbone of the operation.
 | 💰 [Finance Tracker](support/support-finance-tracker.md) | Financial planning, budget management | Financial analysis, cash flow, business performance |
 | 🏗️ [Infrastructure Maintainer](support/support-infrastructure-maintainer.md) | System reliability, performance optimization | Infrastructure management, system operations, monitoring |
 | ⚖️ [Legal Compliance Checker](support/support-legal-compliance-checker.md) | Compliance, regulations, legal review | Legal compliance, regulatory requirements, risk management |
+| 🛡️ [Compliance Auditor](support/support-compliance-auditor.md) | Technical system auditor, data flows, encryption | Infra checks, technical compliance, security architecture |
 | 📑 [Executive Summary Generator](support/support-executive-summary-generator.md) | C-suite communication, strategic summaries | Executive reporting, strategic communication, decision support |
 
 ### 🥽 Spatial Computing Division
