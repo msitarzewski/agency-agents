@@ -27,11 +27,16 @@ Born from a Reddit thread and months of iteration, **The Agency** is a growing c
 ### Option 1: Use with Claude Code (Recommended)
 
 ```bash
-# Copy agents to your Claude Code directory
-cp -r agency-agents/* ~/.claude/agents/
+# Copy all agents to your Claude Code agents directory
+./scripts/install.sh --tool claude-code
 
-# Now activate any agent in your Claude Code sessions:
-# "Hey Claude, activate Frontend Developer mode and help me build a React component"
+# Or manually copy a category
+cp engineering/*.md ~/.claude/agents/
+```
+
+Then activate any agent in your Claude Code sessions:
+```
+Hey Claude, activate Frontend Developer mode and help me build a React component
 ```
 
 ### Option 2: Use as Reference
