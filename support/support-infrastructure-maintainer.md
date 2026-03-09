@@ -289,7 +289,9 @@ LOG_FILE="/var/log/backup.log"
 RETENTION_DAYS=30
 ENCRYPTION_KEY="/etc/backup/backup.key"
 S3_BUCKET="company-backups"
-NOTIFICATION_WEBHOOK="https://hooks.slack.com/services/YOUR/WEBHOOK/URL"
+# IMPORTANT: This is a template example. Replace with your actual webhook URL before use.
+# Never commit real webhook URLs to version control.
+NOTIFICATION_WEBHOOK="${SLACK_WEBHOOK_URL:?Set SLACK_WEBHOOK_URL environment variable}"
 
 # Logging function
 log() {

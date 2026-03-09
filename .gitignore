@@ -62,3 +62,14 @@ scratch/
 notes/
 TODO.md
 NOTES.md
+
+# Generated integration files — run scripts/convert.sh to regenerate locally
+# The scripts/ and integrations/*/README.md files ARE committed; only generated
+# agent/skill files are excluded.
+integrations/antigravity/agency-*/
+integrations/gemini-cli/skills/
+integrations/gemini-cli/gemini-extension.json
+integrations/opencode/agent/
+integrations/cursor/rules/
+integrations/aider/CONVENTIONS.md
+integrations/windsurf/.windsurfrules

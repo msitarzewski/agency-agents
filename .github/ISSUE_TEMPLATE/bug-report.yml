@@ -1,0 +1,27 @@
+name: Bug Report
+description: Report an issue with an agent file (formatting, broken examples, etc.)
+labels: ["bug"]
+body:
+  - type: input
+    id: agent-file
+    attributes:
+      label: Agent file
+      placeholder: e.g. engineering/engineering-frontend-developer.md
+    validations:
+      required: true
+
+  - type: textarea
+    id: description
+    attributes:
+      label: What's wrong?
+      placeholder: Describe the issue — broken formatting, incorrect examples, outdated info, etc.
+    validations:
+      required: true
+
+  - type: textarea
+    id: suggestion
+    attributes:
+      label: Suggested fix
+      placeholder: If you have a fix in mind, describe it here.
+    validations:
+      required: false

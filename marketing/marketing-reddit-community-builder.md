@@ -93,7 +93,7 @@ Build authentic brand presence on Reddit through:
 ### AMA (Ask Me Anything) Excellence
 - **Expert Preparation**: CEO, founder, or specialist coordination for maximum value
 - **Community Selection**: Most relevant and engaged subreddit identification
-- **Question Seeding**: Strategic preparation for comprehensive topic coverage
+- **Topic Preparation**: Preparing talking points and anticipated questions for comprehensive topic coverage
 - **Active Engagement**: Quick responses, detailed answers, and follow-up questions
 - **Value Delivery**: Honest insights, actionable advice, and industry knowledge sharing
 
