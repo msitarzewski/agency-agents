@@ -35,18 +35,42 @@ content_pillars:
   - "Performance & Measurement — tracking what works, attribution, cutting waste"
   - "Digital Transformation — AI roadmaps, adoption, governance for mid-market"
 active_platforms:
-  - blog            # primary SEO channel
-  - linkedin        # strongest current channel — B2B audience (LinkedIn Authority Builder)
-  - twitter         # @orchideadigital
-  - instagram       # @orchidea.digital
+  - blog            # primary SEO channel → Framer CMS via N8N
+  - linkedin        # strongest B2B channel → LinkedIn API via N8N
+  - twitter         # @orchideadigital → Twitter API via N8N
+  - instagram       # @orchidea.digital → Instagram Graph API via N8N
+  - facebook        # Meta company page → Facebook Pages API via N8N
+  - email           # weekly newsletter → ConvertKit broadcast via N8N
 linkedin_config:
   company_page: "orchidea-digital"
   executive_personal_brand: "Dylan Angloher"    # CEO — highest-reach personal brand
   formats: [document_carousel, article, company_posts, executive_post]
   newsletter: false                              # set to true + name when launched
+email_config:
+  provider: convertkit
+  segment: "Newsletter subscribers"
+  send_day: Friday
+  send_time: "8:00am EST"
+  cta_default: "book a demo"                    # override per cycle in plan
+  sequence_tags:
+    - clicked_demo_cta: "demo-nurture"
+    - clicked_article: "engaged-reader"
+publishing_config:
+  approval_tool: airtable
+  airtable_base: "Content Pipeline"
+  airtable_table: "Content Queue"
+  automation: n8n
+  n8n_trigger: "Status = Approved"
+  publishing_destinations:
+    blog: "Framer CMS API"
+    linkedin: "LinkedIn API"
+    twitter: "Twitter API"
+    instagram: "Instagram Graph API"
+    facebook: "Facebook Pages API"
+    email: "ConvertKit API"
 weekly_output_target:
   pillar_posts: 1
-  platform_packages: 4    # LinkedIn + Twitter + Instagram + Reddit (blog is the pillar, not a "package")
+  platform_packages: 6    # LinkedIn + Twitter + Instagram + Facebook + Email + Reddit (blog is the pillar)
 constraints: >
   Never position as "cheap" — frame as high-ROI and "95% less than a full
   team." Do not use competitor names negatively. Avoid AI hype language
@@ -85,6 +109,16 @@ instagram:
   save_rate_pct: 3.0
   reach_per_post: 800
   reel_completion_rate_pct: 35
+
+facebook:
+  engagement_rate_pct: 2.0
+  reach_per_post: 500
+
+email:
+  open_rate_pct: 35.0                  # industry B2B SaaS avg ~25% — target above
+  click_through_rate_pct: 4.0
+  unsubscribe_rate_pct: 0.3            # flag if any send exceeds this
+  list_growth_monthly_pct: 10.0
 
 # FILL IN current metrics if you have them — these override the defaults above
 current_actuals:

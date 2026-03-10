@@ -237,9 +237,9 @@ Draft: [paste 4a output]
 Deliver: Optimized draft + change summary.
 ```
 
-**4c — Platform Adaptation** (all five in parallel, after 4b approved)
+**4c — Platform Adaptation** (all six in parallel, after 4b approved)
 
-Run all five simultaneously:
+Run all six simultaneously:
 
 **LinkedIn Authority Builder**:
 ```
@@ -293,19 +293,65 @@ Source: [key insights from 4b article]
 Deliver: 3 subreddit plans + post titles + comment seeding strategy.
 ```
 
+**Email Newsletter**:
+```
+Activate Email Newsletter.
+Source article: [paste 4b optimized article]
+Audience intelligence brief: [paste Phase 2b Growth Hacker output]
+Brand: orchidea.digital — automated marketing platform for startups
+Audience: [from state file]
+Brand voice: [from state file]
+CTA for this week: [from approved plan — book a demo / read full article / download]
+Send time: Friday 8:00am EST
+ConvertKit segment: [from state file]
+
+Write the weekly newsletter broadcast:
+1. 2 subject line options (A/B test)
+2. Preview text
+3. Full email body (300-400 words)
+4. P.S. line
+Do not copy-paste from the article — rewrite natively for email's one-to-one tone.
+```
+
 **4d — Publishing Calendar** (Social Media Strategist, after all 4c outputs)
 ```
 Activate Social Media Strategist.
-Platform packages: [paste all 4c outputs — LinkedIn, Twitter, Instagram, TikTok, Reddit]
+Platform packages: [paste all 4c outputs — LinkedIn, Twitter, Instagram, TikTok, Reddit, Email]
 Proposed schedule: [from approved plan]
 Brand: [from state file]
 
 Note: LinkedIn is the primary B2B channel — give it the best time slots
 (Tue–Thu, 8–10am). Sequence LinkedIn document carousel and Twitter thread
 so they amplify each other (same topic, different formats, 24–48h apart).
+Email goes out Friday morning — all social content should be live before then
+to give subscribers something to explore.
 
 Deliver: Final coordinated publishing calendar + engagement monitoring priorities
 + pinned response templates + publishing checklist.
+```
+
+**4e — Airtable Handoff** (Publishing Connector, after 4d calendar is finalized)
+
+> This is the last step before human review. The Publishing Connector formats everything into Airtable records. Once you approve records in Airtable, N8N routes each piece to its publishing destination automatically.
+
+```
+Activate Publishing Connector.
+
+Cycle: [N]
+Week of: [DATE]
+
+Content packages:
+- Blog post: [paste 4b SEO-optimized article]
+- LinkedIn package: [paste LinkedIn Authority Builder output]
+- Twitter package: [paste Twitter Engager output]
+- Instagram package: [paste Instagram Curator output]
+- Facebook post: [paste if platform is active in state file]
+- Email newsletter: [paste Email Newsletter output]
+- Publishing calendar: [paste Social Media Strategist output from 4d]
+
+Format all pieces into Airtable Content Queue records per the schema.
+Output summary table first, then full record details.
+All records should be set to Status = Pending Review.
 ```
 
 ---
@@ -336,6 +382,11 @@ After the full publishing window closes, collect metrics from each platform and 
 | TikTok | Shares | [B] | [T] | [A] | +/-X% | +/-X% |
 | Reddit | Upvotes | [B] | [T] | [A] | +/-X% | +/-X% |
 | Reddit | Outbound clicks | [B] | [T] | [A] | +/-X% | +/-X% |
+| Facebook | Engagement rate | [B] | [T] | [A] | +/-X% | +/-X% |
+| Facebook | Reach | [B] | [T] | [A] | +/-X% | +/-X% |
+| Email | Open rate | [B] | [T] | [A] | +/-X% | +/-X% |
+| Email | Click-through rate | [B] | [T] | [A] | +/-X% | +/-X% |
+| Email | Unsubscribe rate | [B] | [T] | [A] | +/-X% | +/-X% |
 
 ## A/B Test Result
 - **Hypothesis**: [from plan]
@@ -364,6 +415,8 @@ After the full publishing window closes, collect metrics from each platform and 
 | Carousel: [topic] | Instagram | [URL] | Live |
 | [Video title] | TikTok | [URL] | Live |
 | [Post title] | Reddit | [URL] | Live |
+| [Post title] | Facebook | [URL] | Live |
+| [Subject line] | Email (ConvertKit) | [broadcast URL] | Sent |
 
 ## Optimization Signals for Next Cycle
 1. **Double down**: [format/topic/platform + data evidence]
