@@ -342,6 +342,89 @@ Create TikTok content package. Remember outputs tagged for this project and soci
 
 No copy-paste. Agents pick up where the previous one left off.
 
+## Running This Weekly with Self-Optimization
+
+The workflow above is the manual version — useful for understanding what each agent does. For ongoing weekly operation with automatic optimization and human review checkpoints, use the **Content Engine Weekly Runner** instead.
+
+### What the Weekly Runner Adds
+
+| Capability | Manual Workflow | Weekly Runner |
+|------------|----------------|---------------|
+| Performance analysis | Manual review | Automatic — reads state file, compares to benchmarks |
+| Optimization signals | You decide | Data-driven — formats/topics adjusted based on last cycle |
+| Human approval gate | Optional | Required — plan presented before any production starts |
+| Results reporting | You compile | Automatic — structured report at end of each cycle |
+| State persistence | You track | Written back to `content-engine-state.md` each cycle |
+| Pattern learning | You remember | Synthesized into cumulative learnings every 4 cycles |
+
+### Setup (One-Time)
+
+**1. Fill out the state file**
+
+Copy `examples/content-engine-state.md` into your project root and fill in the Brand Configuration and Benchmarks sections:
+
+```bash
+cp examples/content-engine-state.md content-engine-state.md
+# Edit content-engine-state.md with your brand details
+```
+
+**2. Activate the runner each Monday**
+
+```
+Activate Content Engine Weekly Runner.
+State file: content-engine-state.md. Week of [YYYY-MM-DD]. Cycle 1.
+Run the full cycle. Stop at Checkpoint 1 for plan approval, stop at Checkpoint 2 for results review.
+```
+
+### The Weekly Loop
+
+```
+Monday morning
+    ↓
+Runner reads state file → analyzes last week's data → runs parallel research
+    ↓
+⏸ CHECKPOINT 1: Weekly plan delivered to you for review
+    ↓
+You: Approve / Approve with changes / Reject with direction
+    ↓
+Runner executes full content pipeline (article → SEO → platform packages → publishing calendar)
+    ↓
+Friday–Sunday: Content goes live, you collect metrics
+    ↓
+⏸ CHECKPOINT 2: Results report delivered to you for review
+    ↓
+You: Confirm / add context / provide direction change
+    ↓
+Runner writes results to state file
+    ↓
+Repeat next Monday with smarter brief
+```
+
+### What You See at Each Checkpoint
+
+**Checkpoint 1 — Weekly Plan** (Monday, before production)
+- This week's pillar topic and keyword target
+- What's changing from last week and why (data-backed)
+- Platform formats and optimization changes per platform
+- The A/B test hypothesis for the cycle
+- Full publishing schedule
+- Success criteria with targets
+
+**Checkpoint 2 — Results Report** (End of week, before state write)
+- Performance vs. benchmark table for every platform
+- A/B test result with confidence rating
+- What worked and what didn't with root cause hypotheses
+- Optimization signals for next cycle
+
+### Compounding Over Time
+
+The engine gets measurably better as cycles accumulate:
+
+- **Cycles 1-3**: Establishing baselines, first learnings
+- **Cycles 4-8**: Optimization signals start compounding, cumulative learnings synthesized
+- **Cycles 8-16**: Clear content cluster authority building, winning formats locked in
+- **Cycle 16+**: Predictable traffic growth, highly optimized platform mix
+
 ## Scaling the Engine
 
 Once the weekly cycle is running smoothly, scale with:

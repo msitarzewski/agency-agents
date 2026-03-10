@@ -59,6 +59,14 @@ These examples answer the question: *"What does it actually look like when the f
 
 **Key takeaway:** Research runs in parallel, platform adaptation runs in parallel, and the analytics review at the end feeds directly back into the next cycle — compounding the engine's effectiveness over time.
 
+**For ongoing weekly operation** with self-optimization and human approval gates, use `marketing-content-engine-weekly-runner.md` with the `content-engine-state.md` config file. The runner reads last week's performance, generates an optimized plan for user review, executes on approval, and writes results back to state — closing the loop automatically each week.
+
+### [content-engine-state.md](./content-engine-state.md)
+
+**What:** The persistent state file for the content engine. Stores brand config, performance benchmarks, weekly cycle logs, cumulative learnings, and approval history.
+
+**How to use:** Copy this file into your project root, fill in Brand Configuration and Benchmarks, then reference it in every Content Engine Weekly Runner activation. The runner appends to it automatically each cycle — you never lose your optimization history.
+
 ## Adding New Examples
 
 If you run an interesting multi-agent exercise, consider adding it here. Good examples show:
