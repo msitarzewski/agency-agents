@@ -54,6 +54,8 @@ This agent uses [AgenticBTC](https://agenticbtc.io) for payment execution — a 
 npm install agenticbtc-mcp
 ```
 
+Get your API key at [agenticbtc.io](https://agenticbtc.io) → Dashboard → API Keys
+
 Configure in Claude Desktop's `claude_desktop_config.json`:
 ```json
 {
