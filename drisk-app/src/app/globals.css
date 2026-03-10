@@ -1,0 +1,326 @@
+/**
+ * DRISK Platform — Design System
+ * Technical Architecture & UX Foundation
+ * Source: project-docs/drisk-architecture.md
+ */
+
+/* ==========================================================================
+   LIGHT THEME (Default)
+   ========================================================================== */
+
+:root {
+  /* Background */
+  --bg-primary: #ffffff;
+  --bg-secondary: #f8fafc;
+  --bg-tertiary: #f1f5f9;
+
+  /* Text */
+  --text-primary: #0f172a;
+  --text-secondary: #64748b;
+  --text-muted: #94a3b8;
+
+  /* Border */
+  --border-color: #e2e8f0;
+  --border-color-strong: #cbd5e1;
+
+  /* Brand Colors */
+  --primary-400: #38bdf8;
+  --primary-500: #0ea5e9;
+  --primary-600: #0284c7;
+  --primary-700: #0369a1;
+
+  --secondary-400: #94a3b8;
+  --secondary-500: #64748b;
+  --secondary-600: #475569;
+
+  --accent-500: #f59e0b;
+  --accent-600: #d97706;
+
+  /* Risk Band Colors */
+  --risk-low: #22c55e;
+  --risk-low-bg: rgba(34, 197, 94, 0.15);
+  --risk-moderate: #eab308;
+  --risk-moderate-bg: rgba(234, 179, 8, 0.15);
+  --risk-high: #f97316;
+  --risk-high-bg: rgba(249, 115, 22, 0.15);
+  --risk-very-high: #ef4444;
+  --risk-very-high-bg: rgba(239, 68, 68, 0.15);
+  --risk-critical: #b91c1c;
+  --risk-critical-bg: rgba(185, 28, 28, 0.15);
+
+  /* Semantic */
+  --success: #22c55e;
+  --warning: #f59e0b;
+  --error: #ef4444;
+  --info: #0ea5e9;
+
+  /* Typography Scale */
+  --text-xs: 0.75rem;    /* 12px */
+  --text-sm: 0.875rem;  /* 14px */
+  --text-base: 1rem;    /* 16px */
+  --text-lg: 1.125rem;  /* 18px */
+  --text-xl: 1.25rem;   /* 20px */
+  --text-2xl: 1.5rem;   /* 24px */
+  --text-3xl: 1.875rem; /* 30px */
+
+  --font-primary: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  --font-mono: ui-monospace, 'Cascadia Code', 'Source Code Pro', monospace;
+
+  --line-height-tight: 1.25;
+  --line-height-normal: 1.5;
+  --line-height-relaxed: 1.75;
+
+  /* Spacing System (4px base) */
+  --space-1: 0.25rem;   /* 4px */
+  --space-2: 0.5rem;    /* 8px */
+  --space-3: 0.75rem;   /* 12px */
+  --space-4: 1rem;      /* 16px */
+  --space-6: 1.5rem;    /* 24px */
+  --space-8: 2rem;      /* 32px */
+  --space-12: 3rem;     /* 48px */
+  --space-16: 4rem;     /* 64px */
+
+  /* Layout */
+  --container-sm: 640px;
+  --container-md: 768px;
+  --container-lg: 1024px;
+  --container-xl: 1280px;
+
+  /* Shadows */
+  --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+  --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+  --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+
+  /* Transitions */
+  --transition-fast: 150ms ease;
+  --transition-normal: 300ms ease;
+  --transition-slow: 500ms ease;
+}
+
+/* ==========================================================================
+   DARK THEME
+   ========================================================================== */
+
+[data-theme="dark"] {
+  --bg-primary: #0f172a;
+  --bg-secondary: #1e293b;
+  --bg-tertiary: #334155;
+
+  --text-primary: #f8fafc;
+  --text-secondary: #94a3b8;
+  --text-muted: #64748b;
+
+  --border-color: #334155;
+  --border-color-strong: #475569;
+
+  --primary-400: #38bdf8;
+  --primary-500: #0ea5e9;
+  --primary-600: #0284c7;
+  --primary-700: #0369a1;
+
+  --secondary-400: #94a3b8;
+  --secondary-500: #64748b;
+  --secondary-600: #475569;
+
+  --accent-500: #f59e0b;
+  --accent-600: #d97706;
+
+  --risk-low: #4ade80;
+  --risk-low-bg: rgba(74, 222, 128, 0.15);
+  --risk-moderate: #facc15;
+  --risk-moderate-bg: rgba(250, 204, 21, 0.15);
+  --risk-high: #fb923c;
+  --risk-high-bg: rgba(251, 146, 60, 0.15);
+  --risk-very-high: #f87171;
+  --risk-very-high-bg: rgba(248, 113, 113, 0.15);
+  --risk-critical: #dc2626;
+  --risk-critical-bg: rgba(220, 38, 38, 0.15);
+
+  --success: #4ade80;
+  --warning: #facc15;
+  --error: #f87171;
+  --info: #38bdf8;
+
+  --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.3);
+  --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.3), 0 2px 4px -2px rgb(0 0 0 / 0.2);
+  --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.3), 0 4px 6px -4px rgb(0 0 0 / 0.2);
+}
+
+/* ==========================================================================
+   System Theme Preference (prefers-color-scheme)
+   ========================================================================== */
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg-primary: #0f172a;
+    --bg-secondary: #1e293b;
+    --bg-tertiary: #334155;
+
+    --text-primary: #f8fafc;
+    --text-secondary: #94a3b8;
+    --text-muted: #64748b;
+
+    --border-color: #334155;
+    --border-color-strong: #475569;
+
+    --risk-low: #4ade80;
+    --risk-low-bg: rgba(74, 222, 128, 0.15);
+    --risk-moderate: #facc15;
+    --risk-moderate-bg: rgba(250, 204, 21, 0.15);
+    --risk-high: #fb923c;
+    --risk-high-bg: rgba(251, 146, 60, 0.15);
+    --risk-very-high: #f87171;
+    --risk-very-high-bg: rgba(248, 113, 113, 0.15);
+    --risk-critical: #dc2626;
+    --risk-critical-bg: rgba(220, 38, 38, 0.15);
+
+    --success: #4ade80;
+    --warning: #facc15;
+    --error: #f87171;
+    --info: #38bdf8;
+
+    --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.3);
+    --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.3), 0 2px 4px -2px rgb(0 0 0 / 0.2);
+    --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.3), 0 4px 6px -4px rgb(0 0 0 / 0.2);
+  }
+}
+
+/* ==========================================================================
+   Base Typography
+   ========================================================================== */
+
+body {
+  font-family: var(--font-primary);
+  font-size: var(--text-base);
+  line-height: var(--line-height-normal);
+  color: var(--text-primary);
+  background-color: var(--bg-primary);
+  transition: background-color var(--transition-normal), color var(--transition-normal);
+}
+
+.text-heading-1 {
+  font-size: var(--text-3xl);
+  font-weight: 700;
+  line-height: var(--line-height-tight);
+  margin-bottom: var(--space-6);
+}
+
+.text-heading-2 {
+  font-size: var(--text-2xl);
+  font-weight: 600;
+  line-height: var(--line-height-tight);
+  margin-bottom: var(--space-4);
+}
+
+.text-heading-3 {
+  font-size: var(--text-xl);
+  font-weight: 600;
+  line-height: var(--line-height-tight);
+  margin-bottom: var(--space-3);
+}
+
+/* ==========================================================================
+   Layout Components
+   ========================================================================== */
+
+.container {
+  width: 100%;
+  max-width: var(--container-lg);
+  margin: 0 auto;
+  padding: 0 var(--space-4);
+}
+
+.grid-2-col {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--space-8);
+}
+
+.grid-3-col {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: var(--space-6);
+}
+
+@media (max-width: 768px) {
+  .grid-2-col,
+  .grid-3-col {
+    grid-template-columns: 1fr;
+    gap: var(--space-6);
+  }
+}
+
+/* ==========================================================================
+   Theme Toggle
+   ========================================================================== */
+
+.theme-toggle {
+  display: inline-flex;
+  align-items: center;
+  background: var(--bg-secondary);
+  border: 1px solid var(--border-color);
+  border-radius: 24px;
+  padding: 4px;
+  transition: all var(--transition-normal);
+}
+
+.theme-toggle-option {
+  padding: 8px 12px;
+  border-radius: 20px;
+  font-size: var(--text-sm);
+  font-weight: 500;
+  color: var(--text-secondary);
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  transition: all var(--transition-fast);
+}
+
+.theme-toggle-option:hover {
+  color: var(--text-primary);
+}
+
+.theme-toggle-option.active {
+  background: var(--primary-500);
+  color: white;
+}
+
+/* ==========================================================================
+   Risk Band Badges
+   ========================================================================== */
+
+.badge-risk-low {
+  background: var(--risk-low-bg);
+  color: var(--risk-low);
+}
+
+.badge-risk-moderate {
+  background: var(--risk-moderate-bg);
+  color: var(--risk-moderate);
+}
+
+.badge-risk-high {
+  background: var(--risk-high-bg);
+  color: var(--risk-high);
+}
+
+.badge-risk-very-high {
+  background: var(--risk-very-high-bg);
+  color: var(--risk-very-high);
+}
+
+.badge-risk-critical {
+  background: var(--risk-critical-bg);
+  color: var(--risk-critical);
+}
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  body {
+    background-color: var(--bg-primary);
+    color: var(--text-primary);
+    font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  }
+}
