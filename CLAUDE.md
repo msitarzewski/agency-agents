@@ -53,10 +53,15 @@ Before acting on ANY client task:
   AGENTS.md         — Which agent type to use for which task
   WORKFLOW.md       — Day-to-day agency SOPs
 
-/agency-agents/     — Agent configuration and persona files
+/design/
+  DESIGN-TEAM.md    — Full design team guide (agents, pipeline, tools)
+  templates/        — Video script + image brief templates
+  briefs/           — Active creative briefs
+  output/           — Agent-produced scripts, storyboards, image prompts
+
+/agency-agents/     — Agent configuration and persona files (100+ confirmed active)
 /marketing/         — Marketing frameworks and templates
 /strategy/          — Strategy documents and briefs
-/design/            — Visual direction, brand guidelines
 /content/           — Long-form content and editorial
 /scripts/           — Automation scripts
 ```
@@ -70,6 +75,7 @@ Use the Agent tool with these subagent types for specific tasks:
 | Task | Agent Type |
 |---|---|
 | Write tweets, threads, captions, copy | `Content Creator` |
+| @telcoinTAO tweets, threads, real-time engagement | `Twitter Engager` |
 | Build social media strategy, editorial calendar | `Social Media Strategist` |
 | Research competitors, market trends, news | `Trend Researcher` |
 | Deep codebase/repo exploration | `Explore` |
@@ -79,8 +85,17 @@ Use the Agent tool with these subagent types for specific tasks:
 | Community replies, support messaging | `Support Responder` |
 | Data analysis, performance metrics | `Analytics Reporter` |
 | Developer-facing content, docs | `Technical Writer` |
-| Visual content direction, image prompts | `Image Prompt Engineer` |
+| **DESIGN — visual narrative, storyboards, video direction** | `Visual Storyteller` |
+| **DESIGN — AI image prompts (Midjourney/DALL-E/Flux)** | `Image Prompt Engineer` |
+| **DESIGN — human-featuring images (representation-safe)** | `Inclusive Visuals Specialist` |
+| **DESIGN — TikTok scripts, hooks, short-form video** | `TikTok Strategist` |
+| **DESIGN — Instagram Reels, Stories, visual captions** | `Instagram Curator` |
+| **DESIGN — autonomous carousel generate + publish** | `Carousel Growth Engine` |
+| **DESIGN — personality, delight, creative edge** | `Whimsy Injector` |
 | Campaign execution tracking | `Project Shepherd` |
+
+**Full design team guide**: `design/DESIGN-TEAM.md`
+**Templates**: `design/templates/` (video script, image brief)
 
 **Parallelization rule**: launch multiple agents simultaneously for independent subtasks (e.g., write 3 tweet threads for different audiences at the same time).
 
