@@ -305,7 +305,7 @@ Source: TELx Council recap (week of Mar 10, 2026)
 
 ### @telcoinTAO (X/Twitter)
 - Primary official account for Telcoin Association
-- Silver Sponsor of DC Blockchain Summit (2025 confirmed; 2026 TBC — verify)
+- Bronze Sponsor of DC Blockchain Summit 2026 (March 17–18, Washington DC) — confirmed via summit sponsor page Mar 11, 2026 (Silver in 2025, Bronze in 2026)
 - Content: Roadmap updates, governance announcements, network milestones
 
 ### Reddit: r/telcoin
@@ -401,7 +401,7 @@ Source: TAN Council recap (week of Mar 10, 2026)
 ## 8. THINGS TO VERIFY BEFORE PUBLISHING
 
 - [x] Mainnet timeline/phases — confirmed from roadmap.telcoin.network (March 10, 2026)
-- [ ] 2026 DC Blockchain Summit sponsorship tier (Silver confirmed for 2025; confirm 2026)
+- [x] 2026 DC Blockchain Summit sponsorship tier — Bronze (confirmed Mar 11, 2026)
 - [ ] Wallet V5 exact launch date
 - [ ] Which specific MNOs have committed as mainnet validators
 - [ ] Current TVL in TELx (check telx.network/pools)
