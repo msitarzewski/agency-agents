@@ -462,7 +462,7 @@ The Agency works natively with Claude Code, and ships conversion + install scrip
 - **[Cursor](https://cursor.sh)** — `.mdc` rule files → `.cursor/rules/`
 - **[Aider](https://aider.chat)** — single `CONVENTIONS.md` → `./CONVENTIONS.md`
 - **[Windsurf](https://codeium.com/windsurf)** — single `.windsurfrules` → `./.windsurfrules`
-- **[OpenClaw](https://openclaw.com)** — `SOUL.md` + `AGENTS.md` + `IDENTITY.md` per agent
+- **[OpenClaw](https://github.com/openclaw/openclaw)** — `SOUL.md` + `AGENTS.md` + `IDENTITY.md` per agent
 
 ---
 
