@@ -17,6 +17,46 @@ This file is updated automatically after every agency session. It tracks what co
 
 ---
 
+## Standing Intelligence Sources (sweep every session, Phase 0)
+
+These are monitored daily. Output files saved to `campaign/research/intel-*.md`.
+
+### X/Twitter — $TEL Social Listening
+- **Search terms**: `$TEL`, `Telcoin`, `@telcoinTAO`, `Telcoin Network`, `eUSD Telcoin`
+- **Purpose**: Community sentiment, unanswered questions, narratives forming, content gaps
+- **Output**: `campaign/research/intel-x-YYYY-MM-DD.md`
+- **Rule**: Community questions surfaced here get turned into content the same day when possible
+
+### YouTube — @TelcoinTAO Streams & Videos
+- **Channel**: https://www.youtube.com/@TelcoinTAO
+- **Purpose**: Repurpose streams into threads, forum posts, and social clips. Monitor for
+  new uploads, council recordings, AMAs, and announcements. Extract viewer questions from comments.
+- **Output**: `campaign/research/intel-youtube-YYYY-MM-DD.md`
+- **Rule**: Every new stream or video must be repurposed into at least 2 content pieces
+  (thread + forum post minimum). Council recordings always get a recap thread.
+- **Repurposing formats**:
+  - Long stream → 5-tweet thread (key insight) + forum.telcoin.org recap post
+  - AMA / Q&A → community Q&A content (answer the top 3 questions publicly)
+  - Short announcement video → single tweet + image brief for visual team
+  - Council recording → governance recap thread for @telcoinTAO
+
+### Market & Ecosystem
+- **Topics**: TEL token news, stablecoin regulation, remittance market, GSMA blockchain, competing L1s
+- **Output**: `campaign/research/intel-market-YYYY-MM-DD.md`
+- **Rule**: Competitor moves get positioning content (no direct attacks, anchor to Telcoin strengths)
+
+---
+
+## YouTube Content Log
+
+*(Track what's been repurposed so we don't duplicate. Updated each session.)*
+
+| Video/Stream Title | Upload Date | Repurposed? | Output Files |
+|---|---|---|---|
+| — | — | Not yet logged | First session will populate this |
+
+---
+
 ## Content Performance Log
 
 *(Updated after each session. Format: date | content type | topic | what worked / what to repeat)*

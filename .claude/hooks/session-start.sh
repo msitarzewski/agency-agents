@@ -41,10 +41,19 @@ $(find "$CLAUDE_PROJECT_DIR/campaign/execution" -name "*.md" -newer "$CLAUDE_PRO
 ## Upcoming Triggers (from research file)
 $(grep -A 1 "Mar 12\|Mar 18\|April\|Late March" "$CLAUDE_PROJECT_DIR/campaign/research/TELCOIN-RESEARCH.md" 2>/dev/null | head -20 || echo "Check TELCOIN-RESEARCH.md section 7")
 
+## Intel Files from Previous Sessions
+$(ls "$CLAUDE_PROJECT_DIR/campaign/research/intel-"*.md 2>/dev/null | tail -6 || echo "None yet — Phase 0 will generate today's intel")
+
+## YouTube Channel
+https://www.youtube.com/@TelcoinTAO — check for new streams/videos every session
+
+## X Social Listening
+Search: \$TEL, Telcoin, @telcoinTAO, Telcoin Network, eUSD Telcoin
+
 ## Instruction
 Read CLAUDE.md, campaign/AGENCY-MEMORY.md, and this file.
-Then follow scripts/daily-agency-run.md to run today's session.
-Start with Phase 1 (Morning Briefing) immediately.
+Then follow scripts/daily-agency-run.md — start with Phase 0 (Intelligence Sweep) immediately.
+Phase 0 runs 3 Trend Researcher agents in parallel before anything else.
 EOF
 
 echo "Agency session started for $TODAY. Context written to $EXEC_DIR/SESSION-CONTEXT.md"
