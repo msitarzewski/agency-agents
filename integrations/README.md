@@ -21,17 +21,17 @@ supported agentic coding tools.
 # Install for all detected tools automatically
 ./scripts/install.sh
 
-# Install for a specific tool
+# Install a specific home-scoped tool
 ./scripts/install.sh --tool antigravity
 ./scripts/install.sh --tool gemini-cli
 ./scripts/install.sh --tool copilot
-./scripts/install.sh --tool opencode
 ./scripts/install.sh --tool openclaw
-./scripts/install.sh --tool cursor
-./scripts/install.sh --tool aider
-./scripts/install.sh --tool windsurf
 ./scripts/install.sh --tool claude-code
 ```
+
+For project-scoped tools such as OpenCode, Cursor, Aider, and Windsurf, run
+the installer from your target project root as shown in the tool-specific
+sections below.
 
 ## Regenerating Integration Files
 
@@ -113,6 +113,14 @@ See [opencode/README.md](opencode/README.md) for details.
 
 Each agent becomes an OpenClaw workspace containing `SOUL.md`, `AGENTS.md`,
 and `IDENTITY.md`.
+
+Before installing, generate the OpenClaw workspaces:
+
+```bash
+./scripts/convert.sh --tool openclaw
+```
+
+Then install them:
 
 ```bash
 ./scripts/install.sh --tool openclaw

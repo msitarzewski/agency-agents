@@ -5,6 +5,12 @@ and `IDENTITY.md` files. The installer copies each workspace into
 `~/.openclaw/agency-agents/` and registers it when the `openclaw` CLI is
 available.
 
+Before installing, generate the OpenClaw workspaces:
+
+```bash
+./scripts/convert.sh --tool openclaw
+```
+
 ## Install
 
 ```bash

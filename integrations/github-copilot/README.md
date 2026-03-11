@@ -1,7 +1,7 @@
 # GitHub Copilot Integration
 
-The Agency works natively with GitHub Copilot. No conversion needed — agents work
-natively with the existing `.md` + YAML frontmatter format.
+The Agency works with GitHub Copilot out of the box. No conversion needed —
+agents use the existing `.md` + YAML frontmatter format.
 
 ## Install
 
