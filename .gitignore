@@ -73,4 +73,5 @@ integrations/opencode/agents/
 integrations/cursor/rules/
 integrations/aider/CONVENTIONS.md
 integrations/windsurf/.windsurfrules
-integrations/openclaw/
+integrations/openclaw/*
+!integrations/openclaw/README.md
