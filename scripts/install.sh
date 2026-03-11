@@ -268,7 +268,7 @@ install_claude_code() {
   mkdir -p "$dest"
   local dir f first_line
   for dir in design engineering game-development marketing paid-media product project-management \
-              testing support spatial-computing specialized; do
+              sales-revenue testing support spatial-computing specialized; do
     [[ -d "$REPO_ROOT/$dir" ]] || continue
     while IFS= read -r -d '' f; do
       first_line="$(head -1 "$f")"
@@ -286,7 +286,7 @@ install_copilot() {
   mkdir -p "$dest"
   local dir f first_line
   for dir in design engineering marketing product project-management \
-              testing support spatial-computing specialized; do
+              sales-revenue testing support spatial-computing specialized; do
     [[ -d "$REPO_ROOT/$dir" ]] || continue
     while IFS= read -r -d '' f; do
       first_line="$(head -1 "$f")"

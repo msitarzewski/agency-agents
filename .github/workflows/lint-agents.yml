@@ -10,6 +10,7 @@ on:
       - 'paid-media/**'
       - 'product/**'
       - 'project-management/**'
+      - 'sales-revenue/**'
       - 'testing/**'
       - 'support/**'
       - 'spatial-computing/**'

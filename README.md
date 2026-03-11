@@ -137,6 +137,17 @@ Building the right thing at the right time.
 | 🔍 [Trend Researcher](product/product-trend-researcher.md) | Market intelligence, competitive analysis | Market research, opportunity assessment, trend identification |
 | 💬 [Feedback Synthesizer](product/product-feedback-synthesizer.md) | User feedback analysis, insights extraction | Feedback analysis, user insights, product priorities |
 
+### 💼 Sales & Revenue Division
+
+Turning prospects into partners and pipeline into predictable revenue.
+
+| Agent | Specialty | When to Use |
+|-------|-----------|-------------|
+| 🎯 [Sales Engineer](sales-revenue/sales-revenue-sales-engineer.md) | Technical pre-sales, demos, POCs, RFP responses | Enterprise deal support, technical evaluations, solution architecture |
+| 📈 [Revenue Operations Analyst](sales-revenue/sales-revenue-revops-analyst.md) | CRM optimization, forecasting, pipeline analytics | Revenue forecasting, CRM hygiene, cross-functional alignment |
+| 🤝 [Customer Success Manager](sales-revenue/sales-revenue-customer-success.md) | Adoption, retention, expansion, health scoring | Post-sale engagement, churn prevention, account growth |
+| 💼 [Account Strategist](sales-revenue/sales-revenue-account-strategist.md) | Deal strategy, stakeholder mapping, competitive positioning | Complex enterprise sales cycles, high-value deal orchestration |
+
 ### 🎬 Project Management Division
 
 Keeping the trains running on time (and under budget).
