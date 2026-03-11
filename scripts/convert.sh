@@ -133,26 +133,26 @@ HEREDOC
 resolve_opencode_color() {
   local c="$1"
   case "$c" in
-    cyan)           echo "#00FFFF" ;;
-    blue)           echo "#3498DB" ;;
-    green)          echo "#2ECC71" ;;
-    red)            echo "#E74C3C" ;;
-    purple)         echo "#9B59B6" ;;
-    orange)         echo "#F39C12" ;;
-    teal)           echo "#008080" ;;
-    indigo)         echo "#6366F1" ;;
-    pink)           echo "#E84393" ;;
-    gold)           echo "#EAB308" ;;
-    amber)          echo "#F59E0B" ;;
-    neon-green)     echo "#10B981" ;;
-    neon-cyan)      echo "#06B6D4" ;;
-    metallic-blue)  echo "#3B82F6" ;;
-    yellow)         echo "#EAB308" ;;
-    violet)         echo "#8B5CF6" ;;
-    rose)           echo "#F43F5E" ;;
-    lime)           echo "#84CC16" ;;
-    gray)           echo "#6B7280" ;;
-    fuchsia)        echo "#D946EF" ;;
+    cyan)           echo '"#00FFFF"' ;;
+    blue)           echo '"#3498DB"' ;;
+    green)          echo '"#2ECC71"' ;;
+    red)            echo '"#E74C3C"' ;;
+    purple)         echo '"#9B59B6"' ;;
+    orange)         echo '"#F39C12"' ;;
+    teal)           echo '"#008080"' ;;
+    indigo)         echo '"#6366F1"' ;;
+    pink)           echo '"#E84393"' ;;
+    gold)           echo '"#EAB308"' ;;
+    amber)          echo '"#F59E0B"' ;;
+    neon-green)     echo '"#10B981"' ;;
+    neon-cyan)      echo '"#06B6D4"' ;;
+    metallic-blue)  echo '"#3B82F6"' ;;
+    yellow)         echo '"#EAB308"' ;;
+    violet)         echo '"#8B5CF6"' ;;
+    rose)           echo '"#F43F5E"' ;;
+    lime)           echo '"#84CC16"' ;;
+    gray)           echo '"#6B7280"' ;;
+    fuchsia)        echo '"#D946EF"' ;;
     *)              echo "$c" ;;       # already hex or unknown — pass through
   esac
 }
