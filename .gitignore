@@ -75,3 +75,4 @@ integrations/aider/CONVENTIONS.md
 integrations/windsurf/.windsurfrules
 integrations/openclaw/*
 !integrations/openclaw/README.md
+integrations/kiro/skills/
