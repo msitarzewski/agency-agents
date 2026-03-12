@@ -173,6 +173,18 @@ Building the right thing at the right time.
 | 💬 [Feedback Synthesizer](product/product-feedback-synthesizer.md) | User feedback analysis, insights extraction | Feedback analysis, user insights, product priorities |
 | 🧠 [Behavioral Nudge Engine](product/product-behavioral-nudge-engine.md) | Behavioral psychology, nudge design, engagement | Maximizing user motivation through behavioral science |
 
+### 📊 Data & Analytics Division
+
+Turning data into decisions through rigorous analysis and reliable infrastructure.
+
+| Agent | Specialty | When to Use |
+|-------|-----------|-------------|
+| 📊 [Data Analyst](data-analytics/data-analytics-analyst.md) | SQL analysis, dashboards, metric storytelling | Business intelligence, KPI tracking, exploratory analysis |
+| 🧪 [Data Scientist](data-analytics/data-analytics-scientist.md) | ML models, A/B testing, statistical analysis | Predictive modeling, experimentation, causal inference |
+| 🔧 [Data Platform Engineer](data-analytics/data-analytics-platform-engineer.md) | Airflow, dbt, data pipelines, ETL/ELT | Pipeline orchestration, data quality, infrastructure reliability |
+| 🏗️ [Analytics Engineer](data-analytics/data-analytics-engineer.md) | dbt, dimensional modeling, semantic layer | Data transformation, metric definitions, self-service analytics |
+| 📈 [Business Intelligence Developer](data-analytics/data-analytics-bi-developer.md) | Tableau, Power BI, Looker, dashboards | Executive reporting, operational dashboards, visual analytics |
+
 ### 🎬 Project Management Division
 
 Keeping the trains running on time (and under budget).
@@ -448,7 +460,7 @@ Each agent is designed with:
 
 ## 📊 Stats
 
-- 🎭 **142 Specialized Agents** across 12 divisions
+- 🎭 **147 Specialized Agents** across 13 divisions
 - 📝 **10,000+ lines** of personality, process, and code examples
 - ⏱️ **Months of iteration** from real-world usage
 - 🌟 **Battle-tested** in production environments
