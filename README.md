@@ -448,7 +448,7 @@ Each agent is designed with:
 
 ## 📊 Stats
 
-- 🎭 **120 Specialized Agents** across 12 divisions
+- 🎭 **128 Specialized Agents** across 12 divisions
 - 📝 **10,000+ lines** of personality, process, and code examples
 - ⏱️ **Months of iteration** from real-world usage
 - 🌟 **Battle-tested** in production environments
@@ -736,6 +736,7 @@ Community-maintained translations and regional adaptations. These are independen
 | Language | Maintainer | Link | Notes |
 |----------|-----------|------|-------|
 | 🇨🇳 简体中文 (zh-CN) | [@jnMetaCode](https://github.com/jnMetaCode) | [agency-agents-zh](https://github.com/jnMetaCode/agency-agents-zh) | 100 translated agents + 9 China-market originals |
+| 🇨🇳 简体中文 (zh-CN) | [@dsclca12](https://github.com/dsclca12) | [agent-teams](https://github.com/dsclca12/agent-teams) | Independent translation with Bilibili, WeChat, Xiaohongshu localization |
 
 Want to add a translation? Open an issue and we'll link it here.
 
