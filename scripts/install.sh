@@ -33,9 +33,9 @@
 set -euo pipefail
 
 # ---------------------------------------------------------------------------
-# Colours -- only when stdout is a real terminal
+# Colours -- only when stdout supports color
 # ---------------------------------------------------------------------------
-if [[ -t 1 ]]; then
+if [[ -t 1 && -z "${NO_COLOR:-}" && "${TERM:-}" != "dumb" ]]; then
   C_GREEN=$'\033[0;32m'
   C_YELLOW=$'\033[1;33m'
   C_RED=$'\033[0;31m'
@@ -63,11 +63,14 @@ BOX_INNER=48   # chars between the two | walls
 box_top() { printf "  +"; printf '%0.s-' $(seq 1 $BOX_INNER); printf "+\n"; }
 box_bot() { box_top; }
 box_sep() { printf "  |"; printf '%0.s-' $(seq 1 $BOX_INNER); printf "|\n"; }
+strip_ansi() {
+  awk '{ gsub(/\033\[[0-9;]*m/, ""); print }' <<< "$1"
+}
 box_row() {
   # Strip ANSI escapes when measuring visible length
   local raw="$1"
   local visible
-  visible="$(printf '%s' "$raw" | sed 's/\x1b\[[0-9;]*m//g')"
+  visible="$(strip_ansi "$raw")"
   local pad=$(( BOX_INNER - 2 - ${#visible} ))
   if (( pad < 0 )); then pad=0; fi
   printf "  | %s%*s |\n" "$raw" "$pad" ''
