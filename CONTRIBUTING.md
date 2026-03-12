@@ -214,6 +214,10 @@ The test: *is this agent for the user, or for the vendor?* An agent that
 solves the user's problem using a service belongs here. A service's
 quickstart guide wearing an agent costume does not.
 
+### Tool-Specific Compatibility
+
+**Qwen Code Compatibility**: Agent bodies support `${variable}` templating for dynamic context (e.g., `${project_name}`, `${task_description}`). Qwen SubAgents use minimal frontmatter: only `name` and `description` are required; `color`, `emoji`, and `version` fields are omitted as Qwen doesn't use them.
+
 ### What Makes a Great Agent?
 
 **Great agents have**:

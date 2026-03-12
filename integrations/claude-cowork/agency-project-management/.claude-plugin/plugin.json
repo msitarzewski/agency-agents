@@ -1,6 +1,0 @@
-{
-  "name": "agency-project-management",
-  "version": "1.0.0",
-  "description": "The Agency — Project Management specialists. Activate any skill by name to engage that agent.",
-  "skills": ["experiment-tracker","jira-workflow-steward","project-shepherd","studio-operations","studio-producer","senior-project-manager"]
-}

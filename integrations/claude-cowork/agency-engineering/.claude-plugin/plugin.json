@@ -1,6 +1,0 @@
-{
-  "name": "agency-engineering",
-  "version": "1.0.0",
-  "description": "The Agency — Engineering specialists. Activate any skill by name to engage that agent.",
-  "skills": ["ai-engineer","autonomous-optimization-architect","backend-architect","data-engineer","devops-automator","embedded-firmware-engineer","frontend-developer","incident-response-commander","mobile-app-builder","rapid-prototyper","security-engineer","senior-developer","solidity-smart-contract-engineer","technical-writer","threat-detection-engineer","wechat-mini-program-developer"]
-}

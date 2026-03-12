@@ -17,6 +17,7 @@
 #   aider        — Single CONVENTIONS.md for Aider
 #   windsurf     — Single .windsurfrules for Windsurf
 #   openclaw     — OpenClaw SOUL.md files (openclaw_workspace/<agent>/SOUL.md)
+#   qwen         — Qwen Code SubAgent files (~/.qwen/agents/*.md)
 #   all          — All tools (default)
 #
 # Output is written to integrations/<tool>/ relative to the repo root.
@@ -25,7 +26,7 @@
 set -euo pipefail
 
 # --- Colour helpers ---
-if [[ -t 1 ]]; then
+if [[ -t 1 && -z "${NO_COLOR:-}" && "${TERM:-}" != "dumb" ]]; then
   GREEN=$'\033[0;32m'; YELLOW=$'\033[1;33m'; RED=$'\033[0;31m'; BOLD=$'\033[1m'; RESET=$'\033[0m'
 else
   GREEN=''; YELLOW=''; RED=''; BOLD=''; RESET=''
@@ -128,33 +129,48 @@ ${body}
 HEREDOC
 }
 
-# Map named colors to hex codes for OpenCode (which only accepts hex values).
-# Colors already starting with '#' pass through unchanged.
+# Map known color names and normalize to OpenCode-safe #RRGGBB values.
 resolve_opencode_color() {
   local c="$1"
+  local mapped
+
+  c="$(printf '%s' "$c" | sed 's/^[[:space:]]*//;s/[[:space:]]*$//' | tr '[:upper:]' '[:lower:]')"
+
   case "$c" in
-    cyan)           echo "#00FFFF" ;;
-    blue)           echo "#3498DB" ;;
-    green)          echo "#2ECC71" ;;
-    red)            echo "#E74C3C" ;;
-    purple)         echo "#9B59B6" ;;
-    orange)         echo "#F39C12" ;;
-    teal)           echo "#008080" ;;
-    indigo)         echo "#6366F1" ;;
-    pink)           echo "#E84393" ;;
-    gold)           echo "#EAB308" ;;
-    amber)          echo "#F59E0B" ;;
-    neon-green)     echo "#10B981" ;;
-    neon-cyan)      echo "#06B6D4" ;;
-    metallic-blue)  echo "#3B82F6" ;;
-    yellow)         echo "#EAB308" ;;
-    violet)         echo "#8B5CF6" ;;
-    rose)           echo "#F43F5E" ;;
-    lime)           echo "#84CC16" ;;
-    gray)           echo "#6B7280" ;;
-    fuchsia)        echo "#D946EF" ;;
-    *)              echo "$c" ;;       # already hex or unknown — pass through
+    cyan)           mapped="#00FFFF" ;;
+    blue)           mapped="#3498DB" ;;
+    green)          mapped="#2ECC71" ;;
+    red)            mapped="#E74C3C" ;;
+    purple)         mapped="#9B59B6" ;;
+    orange)         mapped="#F39C12" ;;
+    teal)           mapped="#008080" ;;
+    indigo)         mapped="#6366F1" ;;
+    pink)           mapped="#E84393" ;;
+    gold)           mapped="#EAB308" ;;
+    amber)          mapped="#F59E0B" ;;
+    neon-green)     mapped="#10B981" ;;
+    neon-cyan)      mapped="#06B6D4" ;;
+    metallic-blue)  mapped="#3B82F6" ;;
+    yellow)         mapped="#EAB308" ;;
+    violet)         mapped="#8B5CF6" ;;
+    rose)           mapped="#F43F5E" ;;
+    lime)           mapped="#84CC16" ;;
+    gray)           mapped="#6B7280" ;;
+    fuchsia)        mapped="#D946EF" ;;
+    *)              mapped="$c" ;;
   esac
+
+  if [[ "$mapped" =~ ^#[0-9a-fA-F]{6}$ ]]; then
+    printf '#%s\n' "$(printf '%s' "${mapped#\#}" | tr '[:lower:]' '[:upper:]')"
+    return
+  fi
+
+  if [[ "$mapped" =~ ^[0-9a-fA-F]{6}$ ]]; then
+    printf '#%s\n' "$(printf '%s' "$mapped" | tr '[:lower:]' '[:upper:]')"
+    return
+  fi
+
+  printf '#6B7280\n'
 }
 
 convert_opencode() {
@@ -177,7 +193,7 @@ convert_opencode() {
 name: ${name}
 description: ${description}
 mode: subagent
-color: ${color}
+color: '${color}'
 ---
 ${body}
 HEREDOC
@@ -309,23 +325,58 @@ convert_cowork() {
 
   # Each division maps to one plugin folder: agency-<division>
   plugin_dir="$OUT_DIR/claude-cowork/agency-${division}"
-  skill_dir="$plugin_dir/skills/${slug}"
-  mkdir -p "$skill_dir"
+  local agent_dir="$plugin_dir/agents"
+  mkdir -p "$agent_dir"
 
-  # SKILL.md: minimal frontmatter (name + description) + agent body
-  cat > "$skill_dir/SKILL.md" <<HEREDOC
+  # Agent format: .md with YAML frontmatter in agents/ dir (same as ~/.claude/agents/)
+  cat > "$agent_dir/${slug}.md" <<HEREDOC
+---
+name: ${name}
+description: ${description}
+---
+${body}
+HEREDOC
+
+  # Track this agent slug for the plugin.json manifest
+  echo "${slug}" >> "$plugin_dir/.agent-list"
+}
+
+# Generate plugin.json manifests after all agents are processed
+convert_qwen() {
+  local file="$1"
+  local name description tools slug outfile body
+
+  name="$(get_field "name" "$file")"
+  description="$(get_field "description" "$file")"
+  tools="$(get_field "tools" "$file")"
+  slug="$(slugify "$name")"
+  body="$(get_body "$file")"
+
+  outfile="$OUT_DIR/qwen/agents/${slug}.md"
+  mkdir -p "$(dirname "$outfile")"
+
+  # Qwen Code SubAgent format: .md with YAML frontmatter in ~/.qwen/agents/
+  # name and description required; tools optional (only if present in source)
+  if [[ -n "$tools" ]]; then
+    cat > "$outfile" <<HEREDOC
+---
+name: ${slug}
+description: ${description}
+tools: ${tools}
+---
+${body}
+HEREDOC
+  else
+    cat > "$outfile" <<HEREDOC
 ---
 name: ${slug}
 description: ${description}
 ---
 ${body}
 HEREDOC
-
-  # Track this skill slug for the plugin.json manifest
-  echo "${slug}" >> "$plugin_dir/.skill-list"
+  fi
 }
 
-# Generate plugin.json manifests after all agents are processed
 finalize_cowork() {
   local plugin_dir
   while IFS= read -r -d '' plugin_dir; do
@@ -334,13 +385,13 @@ finalize_cowork() {
 
     # Build JSON array of skill slugs from tracked list
     local skills_json=""
-    if [[ -f "$plugin_dir/.skill-list" ]]; then
+    if [[ -f "$plugin_dir/.agent-list" ]]; then
       while IFS= read -r skill_slug; do
         [[ -n "$skill_slug" ]] || continue
         skills_json="${skills_json}\"${skill_slug}\","
-      done < "$plugin_dir/.skill-list"
+      done < "$plugin_dir/.agent-list"
       skills_json="[${skills_json%,}]"
-      rm -f "$plugin_dir/.skill-list"
+      rm -f "$plugin_dir/.agent-list"
     else
       skills_json="[]"
     fi
@@ -355,11 +406,38 @@ finalize_cowork() {
   "name": "${plugin_name}",
   "version": "1.0.0",
   "description": "The Agency — ${human_name} specialists. Activate any skill by name to engage that agent.",
-  "skills": ${skills_json}
+  "agents": ${skills_json}
 }
 HEREDOC
-    info "Wrote ${plugin_name}/plugin.json"
+info "Wrote ${plugin_name}/plugin.json"
   done < <(find "$OUT_DIR/claude-cowork" -mindepth 1 -maxdepth 1 -type d -print0 2>/dev/null | sort -z)
+
+  # Generate root marketplace.json
+  mkdir -p "$REPO_ROOT/.claude-plugin"
+  local marketplace_json="{
+  \"name\": \"agency-agents\",
+  \"description\": \"The Agency — Specialized AI agents.\",
+  \"plugins\": {
+"
+  local first=true
+  while IFS= read -r -d '' plugin_dir; do
+    local plugin_name
+    plugin_name="$(basename "$plugin_dir")"
+    if [ "$first" = true ]; then
+      first=false
+    else
+      marketplace_json+=",
+"
+    fi
+    marketplace_json+="    \"${plugin_name}\": \"integrations/claude-cowork/${plugin_name}\""
+  done < <(find "$OUT_DIR/claude-cowork" -mindepth 1 -maxdepth 1 -type d -print0 2>/dev/null | sort -z)
+  marketplace_json+="
+  }
+}
+"
+  
+  echo -e "$marketplace_json" > "$REPO_ROOT/.claude-plugin/marketplace.json"
+  info "Wrote .claude-plugin/marketplace.json"
 }
 
 # Aider and Windsurf are single-file formats — accumulate into temp files
@@ -458,6 +536,7 @@ run_conversions() {
         opencode)    convert_opencode    "$file" ;;
         cursor)      convert_cursor      "$file" ;;
         openclaw)    convert_openclaw    "$file" ;;
+        qwen)        convert_qwen        "$file" ;;
         aider)       accumulate_aider    "$file" ;;
         windsurf)    accumulate_windsurf "$file" ;;
         claude-cowork) convert_cowork "$file" "$dir" ;;
@@ -494,7 +573,7 @@ main() {
     esac
   done
 
-  local valid_tools=("antigravity" "gemini-cli" "opencode" "cursor" "aider" "windsurf" "openclaw" "claude-cowork" "all")
+  local valid_tools=("antigravity" "gemini-cli" "opencode" "cursor" "aider" "windsurf" "openclaw" "claude-cowork" "qwen" "all")
   local valid=false
   for t in "${valid_tools[@]}"; do [[ "$t" == "$tool" ]] && valid=true && break; done
   if ! $valid; then
@@ -510,7 +589,7 @@ main() {
 
   local tools_to_run=()
   if [[ "$tool" == "all" ]]; then
-    tools_to_run=("antigravity" "gemini-cli" "opencode" "cursor" "aider" "windsurf" "openclaw" "claude-cowork")
+    tools_to_run=("antigravity" "gemini-cli" "opencode" "cursor" "aider" "windsurf" "openclaw" "claude-cowork" "qwen")
   else
     tools_to_run=("$tool")
   fi

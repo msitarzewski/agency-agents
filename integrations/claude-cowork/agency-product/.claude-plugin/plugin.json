@@ -1,6 +1,0 @@
-{
-  "name": "agency-product",
-  "version": "1.0.0",
-  "description": "The Agency — Product specialists. Activate any skill by name to engage that agent.",
-  "skills": ["behavioral-nudge-engine","feedback-synthesizer","sprint-prioritizer","trend-researcher"]
-}

@@ -1,6 +1,0 @@
-{
-  "name": "agency-support",
-  "version": "1.0.0",
-  "description": "The Agency — Support specialists. Activate any skill by name to engage that agent.",
-  "skills": ["analytics-reporter","executive-summary-generator","finance-tracker","infrastructure-maintainer","legal-compliance-checker","support-responder"]
-}

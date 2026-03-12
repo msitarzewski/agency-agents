@@ -1,6 +1,0 @@
-{
-  "name": "agency-spatial-computing",
-  "version": "1.0.0",
-  "description": "The Agency — Spatial Computing specialists. Activate any skill by name to engage that agent.",
-  "skills": ["macos-spatial-metal-engineer","terminal-integration-specialist","visionos-spatial-engineer","xr-cockpit-interaction-specialist","xr-immersive-developer","xr-interface-architect"]
-}

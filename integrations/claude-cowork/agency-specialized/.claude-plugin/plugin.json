@@ -1,6 +1,0 @@
-{
-  "name": "agency-specialized",
-  "version": "1.0.0",
-  "description": "The Agency — Specialized specialists. Activate any skill by name to engage that agent.",
-  "skills": ["accounts-payable-agent","agentic-identity-trust-architect","agents-orchestrator","blockchain-security-auditor","compliance-auditor","data-analytics-reporter","data-consolidation-agent","identity-graph-operator","lsp-index-engineer","report-distribution-agent","sales-data-extraction-agent","cultural-intelligence-strategist","developer-advocate","model-qa-specialist","zk-steward"]
-}

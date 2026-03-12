@@ -1,6 +1,0 @@
-{
-  "name": "agency-game-development",
-  "version": "1.0.0",
-  "description": "The Agency — Game Development specialists. Activate any skill by name to engage that agent.",
-  "skills": ["game-audio-engineer","game-designer","godot-gameplay-scripter","godot-multiplayer-engineer","godot-shader-developer","level-designer","narrative-designer","roblox-avatar-creator","roblox-experience-designer","roblox-systems-scripter","technical-artist","unity-architect","unity-editor-tool-developer","unity-multiplayer-engineer","unity-shader-graph-artist","unreal-multiplayer-architect","unreal-systems-engineer","unreal-technical-artist","unreal-world-builder"]
-}

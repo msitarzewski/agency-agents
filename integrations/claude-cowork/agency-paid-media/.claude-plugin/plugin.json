@@ -1,6 +1,0 @@
-{
-  "name": "agency-paid-media",
-  "version": "1.0.0",
-  "description": "The Agency — Paid Media specialists. Activate any skill by name to engage that agent.",
-  "skills": ["paid-media-auditor","ad-creative-strategist","paid-social-strategist","ppc-campaign-strategist","programmatic-display-buyer","search-query-analyst","tracking-measurement-specialist"]
-}

@@ -1,6 +1,0 @@
-{
-  "name": "agency-testing",
-  "version": "1.0.0",
-  "description": "The Agency — Testing specialists. Activate any skill by name to engage that agent.",
-  "skills": ["accessibility-auditor","api-tester","evidence-collector","performance-benchmarker","reality-checker","test-results-analyzer","tool-evaluator","workflow-optimizer"]
-}
