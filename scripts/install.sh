@@ -42,7 +42,8 @@ for dir in "${AGENT_DIRS[@]}"; do
 
   mkdir -p "$TARGET_DIR/$dir"
 
-  while IFS= read -r file; do
+  for file in "$dir"/*.md; do
+    [[ -f "$file" ]] || continue
     # Only install markdown files that look like agent definitions,
     # i.e., those starting with YAML frontmatter ("---").
     first_line="$(head -n 1 "$file" | tr -d '[:space:]')"
@@ -52,7 +53,7 @@ for dir in "${AGENT_DIRS[@]}"; do
     fi
     cp "$file" "$TARGET_DIR/$dir/"
     installed=$((installed + 1))
-  done < <(find "$dir" -maxdepth 1 -name "*.md" -type f | sort)
+  done
 done
 
 echo "Installed $installed agent file(s) to $TARGET_DIR"
