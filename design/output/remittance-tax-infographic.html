@@ -1,0 +1,396 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>What it costs to send $200 — Telcoin Association</title>
+<style>
+  *, *::before, *::after {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+  }
+
+  body {
+    background-color: #0A0E1A;
+    min-height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+    padding: 48px 20px 64px 20px;
+    font-family: system-ui, -apple-system, 'Inter', 'IBM Plex Sans', sans-serif;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  .card {
+    width: 540px;
+    max-width: 90vw;
+    background-color: #0A0E1A;
+    border: 1px solid #161D2E;
+    padding: 48px 44px 40px 44px;
+    display: flex;
+    flex-direction: column;
+  }
+
+  /* ── Wordmark ── */
+  .wordmark {
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.20em;
+    text-transform: uppercase;
+    color: #00D4FF;
+    margin-bottom: 26px;
+  }
+
+  /* ── Title ── */
+  .title {
+    font-size: 26px;
+    font-weight: 700;
+    color: #FFFFFF;
+    line-height: 1.15;
+    letter-spacing: -0.015em;
+    margin-bottom: 10px;
+  }
+
+  /* ── Subtitle ── */
+  .subtitle {
+    font-size: 11px;
+    color: #B0B8C8;
+    line-height: 1.6;
+    margin-bottom: 38px;
+    letter-spacing: 0.005em;
+  }
+
+  /* ── SVG chart wrapper ── */
+  .chart-wrap {
+    width: 100%;
+    margin-bottom: 10px;
+  }
+
+  .chart-wrap svg {
+    width: 100%;
+    height: auto;
+    display: block;
+    overflow: visible;
+  }
+
+  /* ── Thin rule ── */
+  hr.rule {
+    border: none;
+    border-top: 1px solid #161D2E;
+    margin: 28px 0;
+  }
+
+  /* ── Callout box ── */
+  .callout {
+    border: 1px solid #00D4FF;
+    background-color: #070B17;
+    padding: 16px 18px;
+    margin-bottom: 22px;
+  }
+
+  .callout p:first-child {
+    font-size: 12px;
+    font-weight: 500;
+    color: #FFFFFF;
+    line-height: 1.5;
+    margin-bottom: 3px;
+  }
+
+  .callout p:last-child {
+    font-size: 12px;
+    font-weight: 400;
+    color: #00D4FF;
+    line-height: 1.5;
+  }
+
+  /* ── Watermark ── */
+  .watermark {
+    font-size: 9px;
+    font-weight: 600;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: #1E2740;
+    text-align: center;
+    margin-bottom: 22px;
+  }
+
+  /* ── Footer ── */
+  .footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+  }
+
+  .source {
+    font-size: 9px;
+    color: #3D4A60;
+    line-height: 1.65;
+    letter-spacing: 0.01em;
+    max-width: 75%;
+  }
+
+  .footer-url {
+    font-size: 10px;
+    font-weight: 700;
+    color: #00D4FF;
+    letter-spacing: 0.08em;
+    text-transform: lowercase;
+    white-space: nowrap;
+  }
+</style>
+</head>
+<body>
+<div class="card">
+
+  <div class="wordmark">Telcoin Association</div>
+
+  <h1 class="title">What it costs to send&nbsp;$200</h1>
+
+  <p class="subtitle">
+    Including 1% U.S. federal excise tax on cash-funded transfers<br>
+    (effective Jan&nbsp;1,&nbsp;2026)
+  </p>
+
+  <!--
+    ════════════════════════════════════════════
+    SVG CHART — inline, self-contained
+    ════════════════════════════════════════════
+
+    viewBox: "0 0 452 334"
+    (Card inner width: 540 − 44 − 44 = 452px)
+
+    Coordinate system:
+      Bar track x-start = 0
+      Bar track usable width = 340px
+      Right zone (labels/notes) = 342..452
+      Max value = $35  →  scale = 340/35 = 9.7143 px per dollar
+
+    Dollar → pixel:
+      $4   →  38.86px
+      $12  → 116.57px
+      $14  → 136.00px
+      $35  → 340.00px
+
+    Tax segment breakdown:
+      WU  base $12 → 116.57px  |  tax $2 → 19.43px  (total 136px)
+      MG  base $10 →  97.14px  |  tax $2 → 19.43px  (total 116.57px)
+
+    Grid lines at $10=97.14, $20=194.28, $30=291.43
+
+    Row y-positions (label, bar-top, bar-bottom, note):
+      Row 0 WU:     label y=13   bar y=20   barH=32   note y=64
+      Row 1 MG:     label y=90   bar y=97   barH=32   note y=141
+      Row 2 Wire:   label y=167  bar y=174  barH=32   note y=218
+      Row 3 Telcoin:label y=244  bar y=251  barH=32   note y=295
+
+    Axis baseline y=306, tick marks y=306→311, labels y=321
+    Total viewBox height = 334
+    ════════════════════════════════════════════
+  -->
+
+  <div class="chart-wrap">
+    <svg viewBox="0 0 452 334"
+         xmlns="http://www.w3.org/2000/svg"
+         role="img"
+         aria-label="Horizontal bar chart: cost to send $200 via four remittance channels">
+
+      <title>Cost to send $200 — Remittance fee comparison</title>
+      <desc>
+        Western Union cash pickup: $14.00 (includes $2.00 federal excise tax).
+        MoneyGram cash pickup: $12.00 (includes $2.00 federal excise tax).
+        International Bank Wire: $35.00 (no excise tax, high flat fee).
+        Telcoin Wallet: $4.00 (exempt, bank-linked transfer).
+      </desc>
+
+      <!-- ─────────────────────────────────────
+           GRID LINES (barely visible)
+           ───────────────────────────────────── -->
+      <line x1="0"      y1="10" x2="0"      y2="306" stroke="#161D2E" stroke-width="1"/>
+      <line x1="97.14"  y1="10" x2="97.14"  y2="306" stroke="#161D2E" stroke-width="1"/>
+      <line x1="194.28" y1="10" x2="194.28" y2="306" stroke="#161D2E" stroke-width="1"/>
+      <line x1="291.43" y1="10" x2="291.43" y2="306" stroke="#161D2E" stroke-width="1"/>
+
+      <!-- ─────────────────────────────────────
+           ROW 0 — WESTERN UNION  ($14 total)
+           Base $12 → 116.57px   Tax $2 → 19.43px
+           ───────────────────────────────────── -->
+      <text x="0" y="13"
+            font-family="system-ui,-apple-system,'Inter',sans-serif"
+            font-size="9.5" font-weight="600" fill="#B0B8C8"
+            letter-spacing="0.06em" text-transform="uppercase">
+        WESTERN UNION (CASH PICKUP)
+      </text>
+
+      <!-- base segment -->
+      <rect x="0" y="20" width="116.57" height="32" fill="#4A5568"/>
+      <!-- tax segment -->
+      <rect x="116.57" y="20" width="19.43" height="32" fill="#5C6880"/>
+      <!-- dividing line between base and tax -->
+      <line x1="116.57" y1="20" x2="116.57" y2="52"
+            stroke="#0A0E1A" stroke-width="1.5" stroke-opacity="0.55"/>
+
+      <!-- dollar label -->
+      <text x="144" y="40"
+            font-family="system-ui,-apple-system,'Inter',sans-serif"
+            font-size="13" font-weight="700" fill="#FFFFFF">$14.00</text>
+
+      <!-- sub-note -->
+      <text x="0" y="64"
+            font-family="system-ui,-apple-system,'Inter',sans-serif"
+            font-size="9" fill="#4A5568" letter-spacing="0.025em">
+        includes 1% federal excise tax
+      </text>
+
+      <!-- ─────────────────────────────────────
+           ROW 1 — MONEYGRAM  ($12 total)
+           Base $10 → 97.14px   Tax $2 → 19.43px
+           ───────────────────────────────────── -->
+      <text x="0" y="90"
+            font-family="system-ui,-apple-system,'Inter',sans-serif"
+            font-size="9.5" font-weight="600" fill="#B0B8C8"
+            letter-spacing="0.06em">
+        MONEYGRAM (CASH PICKUP)
+      </text>
+
+      <rect x="0" y="97" width="97.14" height="32" fill="#4A5568"/>
+      <rect x="97.14" y="97" width="19.43" height="32" fill="#5C6880"/>
+      <line x1="97.14" y1="97" x2="97.14" y2="129"
+            stroke="#0A0E1A" stroke-width="1.5" stroke-opacity="0.55"/>
+
+      <text x="124" y="117"
+            font-family="system-ui,-apple-system,'Inter',sans-serif"
+            font-size="13" font-weight="700" fill="#FFFFFF">$12.00</text>
+
+      <text x="0" y="141"
+            font-family="system-ui,-apple-system,'Inter',sans-serif"
+            font-size="9" fill="#4A5568" letter-spacing="0.025em">
+        includes 1% federal excise tax
+      </text>
+
+      <!-- ─────────────────────────────────────
+           ROW 2 — INTERNATIONAL BANK WIRE  ($35)
+           Full bar → 340px  (no tax segment)
+           ───────────────────────────────────── -->
+      <text x="0" y="167"
+            font-family="system-ui,-apple-system,'Inter',sans-serif"
+            font-size="9.5" font-weight="600" fill="#B0B8C8"
+            letter-spacing="0.06em">
+        INTERNATIONAL BANK WIRE
+      </text>
+
+      <rect x="0" y="174" width="340" height="32" fill="#374151"/>
+
+      <text x="348" y="194"
+            font-family="system-ui,-apple-system,'Inter',sans-serif"
+            font-size="13" font-weight="700" fill="#FFFFFF">$35.00</text>
+
+      <text x="0" y="218"
+            font-family="system-ui,-apple-system,'Inter',sans-serif"
+            font-size="9" fill="#4A5568" letter-spacing="0.025em">
+        no excise tax — high flat fee
+      </text>
+
+      <!-- ─────────────────────────────────────
+           ROW 3 — TELCOIN WALLET  ($4)
+           Bar → 38.86px  (brand cyan)
+           ───────────────────────────────────── -->
+      <text x="0" y="244"
+            font-family="system-ui,-apple-system,'Inter',sans-serif"
+            font-size="9.5" font-weight="700" fill="#00D4FF"
+            letter-spacing="0.06em">
+        TELCOIN WALLET
+      </text>
+
+      <rect x="0" y="251" width="38.86" height="32" fill="#00D4FF"/>
+
+      <text x="46" y="271"
+            font-family="system-ui,-apple-system,'Inter',sans-serif"
+            font-size="13" font-weight="700" fill="#00D4FF">$4.00</text>
+
+      <text x="0" y="295"
+            font-family="system-ui,-apple-system,'Inter',sans-serif"
+            font-size="9" fill="#007FA0" letter-spacing="0.025em">
+        exempt — bank-linked transfer
+      </text>
+
+      <!-- ─────────────────────────────────────
+           AXIS BASELINE + TICK MARKS + LABELS
+           ───────────────────────────────────── -->
+      <!-- Baseline -->
+      <line x1="0" y1="306" x2="340" y2="306" stroke="#1A2235" stroke-width="1"/>
+
+      <!-- Tick marks -->
+      <line x1="0"      y1="306" x2="0"      y2="311" stroke="#2A3245" stroke-width="1"/>
+      <line x1="97.14"  y1="306" x2="97.14"  y2="311" stroke="#2A3245" stroke-width="1"/>
+      <line x1="194.28" y1="306" x2="194.28" y2="311" stroke="#2A3245" stroke-width="1"/>
+      <line x1="291.43" y1="306" x2="291.43" y2="311" stroke="#2A3245" stroke-width="1"/>
+      <line x1="340"    y1="306" x2="340"    y2="311" stroke="#2A3245" stroke-width="1"/>
+
+      <!-- Tick labels -->
+      <text x="0"      y="322"
+            font-family="system-ui,-apple-system,'Inter',sans-serif"
+            font-size="8.5" fill="#3D4A60" text-anchor="start">$0</text>
+      <text x="97.14"  y="322"
+            font-family="system-ui,-apple-system,'Inter',sans-serif"
+            font-size="8.5" fill="#3D4A60" text-anchor="middle">$10</text>
+      <text x="194.28" y="322"
+            font-family="system-ui,-apple-system,'Inter',sans-serif"
+            font-size="8.5" fill="#3D4A60" text-anchor="middle">$20</text>
+      <text x="291.43" y="322"
+            font-family="system-ui,-apple-system,'Inter',sans-serif"
+            font-size="8.5" fill="#3D4A60" text-anchor="middle">$30</text>
+      <text x="340"    y="322"
+            font-family="system-ui,-apple-system,'Inter',sans-serif"
+            font-size="8.5" fill="#3D4A60" text-anchor="end">$35</text>
+
+      <!-- ─────────────────────────────────────
+           LEGEND — positioned upper-right
+           ───────────────────────────────────── -->
+      <!-- Base fee swatch -->
+      <rect x="365" y="20" width="9" height="9" fill="#4A5568"/>
+      <text x="378" y="28.5"
+            font-family="system-ui,-apple-system,'Inter',sans-serif"
+            font-size="8.5" fill="#5A6478">Base fee</text>
+
+      <!-- Tax swatch -->
+      <rect x="365" y="35" width="9" height="9" fill="#5C6880"/>
+      <line x1="365" y1="35" x2="365" y2="44"
+            stroke="#0A0E1A" stroke-width="1.5" stroke-opacity="0.55"/>
+      <text x="378" y="43.5"
+            font-family="system-ui,-apple-system,'Inter',sans-serif"
+            font-size="8.5" fill="#5A6478">Excise tax (1%)</text>
+
+      <!-- Telcoin swatch -->
+      <rect x="365" y="50" width="9" height="9" fill="#00D4FF"/>
+      <text x="378" y="58.5"
+            font-family="system-ui,-apple-system,'Inter',sans-serif"
+            font-size="8.5" fill="#00D4FF">Telcoin Wallet</text>
+
+    </svg>
+  </div>
+
+  <hr class="rule">
+
+  <!-- Callout box -->
+  <div class="callout" role="note">
+    <p>Telcoin Wallet uses a bank-linked transfer.</p>
+    <p>Not subject to the 1% federal excise tax.</p>
+  </div>
+
+  <!-- Prototype watermark -->
+  <p class="watermark">Data pending client verification</p>
+
+  <!-- Footer -->
+  <div class="footer">
+    <p class="source">
+      Source: Telcoin Association research, March 2026<br>
+      One Big Beautiful Bill Act (2025)
+    </p>
+    <span class="footer-url">telco.in</span>
+  </div>
+
+</div>
+</body>
+</html>
