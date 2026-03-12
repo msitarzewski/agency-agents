@@ -44,7 +44,7 @@ Each agent file contains:
 
 Browse the agents below and copy/adapt the ones you need!
 
-### Option 3: Use with Other Tools (Cursor, Aider, Windsurf, Gemini CLI, OpenCode)
+### Option 3: Use with Other Tools (Cursor, Codex, Aider, Windsurf, Gemini CLI, OpenCode)
 
 ```bash
 # Step 1 -- generate integration files for all supported tools
@@ -461,6 +461,7 @@ The Agency works natively with Claude Code, and ships conversion + install scrip
 - **[Gemini CLI](https://github.com/google-gemini/gemini-cli)** — extension + `SKILL.md` files → `~/.gemini/extensions/agency-agents/`
 - **[OpenCode](https://opencode.ai)** — `.md` agent files → `.opencode/agents/`
 - **[Cursor](https://cursor.sh)** — `.mdc` rule files → `.cursor/rules/`
+- **Codex** — single `AGENTS.md` → `./AGENTS.md`
 - **[Aider](https://aider.chat)** — single `CONVENTIONS.md` → `./CONVENTIONS.md`
 - **[Windsurf](https://codeium.com/windsurf)** — single `.windsurfrules` → `./.windsurfrules`
 - **[OpenClaw](https://github.com/openclaw/openclaw)** — `SOUL.md` + `AGENTS.md` + `IDENTITY.md` per agent
@@ -495,10 +496,11 @@ The installer scans your system for installed tools, shows a checkbox UI, and le
   [ ]  5)  [ ]  OpenCode        (opencode.ai)
   [ ]  6)  [ ]  OpenClaw        (~/.openclaw)
   [x]  7)  [*]  Cursor          (.cursor/rules)
-  [ ]  8)  [ ]  Aider           (CONVENTIONS.md)
-  [ ]  9)  [ ]  Windsurf        (.windsurfrules)
+  [ ]  8)  [ ]  Codex           (AGENTS.md)
+  [ ]  9)  [ ]  Aider           (CONVENTIONS.md)
+  [ ] 10)  [ ]  Windsurf        (.windsurfrules)
 
-  [1-9] toggle   [a] all   [n] none   [d] detected
+  [1-10] toggle   [a] all   [n] none   [d] detected
   [Enter] install   [q] quit
 ```
 
@@ -625,6 +627,24 @@ See [integrations/cursor/README.md](integrations/cursor/README.md) for details.
 </details>
 
 <details>
+<summary><strong>Codex</strong></summary>
+
+All agents are compiled into a single `AGENTS.md` file that Codex can read from your project root.
+
+```bash
+cd /your/project
+/path/to/agency-agents/scripts/install.sh --tool codex
+```
+
+Then reference agents in your Codex session:
+```
+Use the Frontend Developer agent to refactor this component.
+```
+
+See [integrations/codex/README.md](integrations/codex/README.md) for details.
+</details>
+
+<details>
 <summary><strong>Aider</strong></summary>
 
 All agents are compiled into a single `CONVENTIONS.md` file that Aider reads automatically.
@@ -692,7 +712,7 @@ When you add new agents or edit existing ones, regenerate all integration files:
 
 - [ ] Interactive agent selector web tool
 - [x] Multi-agent workflow examples -- see [examples/](examples/)
-- [x] Multi-tool integration scripts (Claude Code, GitHub Copilot, Antigravity, Gemini CLI, OpenCode, OpenClaw, Cursor, Aider, Windsurf)
+- [x] Multi-tool integration scripts (Claude Code, GitHub Copilot, Antigravity, Gemini CLI, OpenCode, OpenClaw, Cursor, Codex, Aider, Windsurf)
 - [ ] Video tutorials on agent design
 - [ ] Community agent marketplace
 - [ ] Agent "personality quiz" for project matching

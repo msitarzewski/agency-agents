@@ -12,6 +12,7 @@ supported agentic coding tools.
 - **[OpenCode](#opencode)** — `.md` agent files in `opencode/`
 - **[OpenClaw](#openclaw)** — `SOUL.md` + `AGENTS.md` + `IDENTITY.md` workspaces
 - **[Cursor](#cursor)** — `.mdc` rule files in `cursor/`
+- **[Codex](#codex)** — `AGENTS.md` in `codex/`
 - **[Aider](#aider)** — `CONVENTIONS.md` in `aider/`
 - **[Windsurf](#windsurf)** — `.windsurfrules` in `windsurf/`
 
@@ -29,8 +30,8 @@ supported agentic coding tools.
 ./scripts/install.sh --tool claude-code
 ```
 
-For project-scoped tools such as OpenCode, Cursor, Aider, and Windsurf, run
-the installer from your target project root as shown in the tool-specific
+For project-scoped tools such as OpenCode, Cursor, Codex, Aider, and Windsurf,
+run the installer from your target project root as shown in the tool-specific
 sections below.
 
 ## Regenerating Integration Files
@@ -140,6 +141,19 @@ cd /your/project && /path/to/agency-agents/scripts/install.sh --tool cursor
 ```
 
 See [cursor/README.md](cursor/README.md) for details.
+
+---
+
+## Codex
+
+All agents are consolidated into a single `AGENTS.md` file for your project
+root.
+
+```bash
+cd /your/project && /path/to/agency-agents/scripts/install.sh --tool codex
+```
+
+See [codex/README.md](codex/README.md) for details.
 
 ---
 
