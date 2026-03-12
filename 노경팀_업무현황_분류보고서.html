@@ -1,0 +1,723 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>노경 팀 업무 현황 분류 보고서</title>
+<script src="https://d3js.org/d3.v7.min.js"></script>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'Malgun Gothic', 'Apple SD Gothic Neo', sans-serif; background: #f0f2f5; color: #1a1a2e; }
+
+  /* ── Header ── */
+  .header { background: linear-gradient(135deg, #1a1a2e 0%, #16213e 60%, #0f3460 100%); color: white; padding: 28px 40px; display: flex; justify-content: space-between; align-items: center; }
+  .header h1 { font-size: 22px; font-weight: 700; letter-spacing: -0.5px; }
+  .header .sub { font-size: 13px; opacity: 0.65; margin-top: 4px; }
+  .badge { background: rgba(255,255,255,0.12); border: 1px solid rgba(255,255,255,0.2); padding: 6px 14px; border-radius: 20px; font-size: 12px; }
+
+  /* ── Stats ── */
+  .stats { display: grid; grid-template-columns: repeat(6, 1fr); gap: 14px; padding: 24px 40px; }
+  .stat-card { background: white; border-radius: 12px; padding: 18px 20px; box-shadow: 0 2px 8px rgba(0,0,0,0.06); border-left: 4px solid #ddd; }
+  .stat-card.total { border-color: #1a1a2e; }
+  .stat-card.collective { border-color: #e63946; }
+  .stat-card.individual { border-color: #457b9d; }
+  .stat-card.team1 { border-color: #8338ec; }
+  .stat-card.team2 { border-color: #fb8500; }
+  .stat-card.team3 { border-color: #2dc653; }
+  .stat-label { font-size: 11px; color: #888; font-weight: 500; letter-spacing: 0.3px; }
+  .stat-num { font-size: 28px; font-weight: 800; margin: 4px 0 2px; }
+  .stat-desc { font-size: 11px; color: #aaa; }
+  .stat-card.total .stat-num { color: #1a1a2e; }
+  .stat-card.collective .stat-num { color: #e63946; }
+  .stat-card.individual .stat-num { color: #457b9d; }
+  .stat-card.team1 .stat-num { color: #8338ec; }
+  .stat-card.team2 .stat-num { color: #fb8500; }
+  .stat-card.team3 .stat-num { color: #2dc653; }
+
+  /* ── Team profile bars ── */
+  .team-profiles { display: grid; grid-template-columns: repeat(3,1fr); gap: 14px; padding: 0 40px 20px; }
+  .team-card { background: white; border-radius: 12px; padding: 18px 20px; box-shadow: 0 2px 8px rgba(0,0,0,0.06); }
+  .team-card h3 { font-size: 14px; font-weight: 700; margin-bottom: 12px; }
+  .team-card.t1 h3 { color: #8338ec; }
+  .team-card.t2 h3 { color: #fb8500; }
+  .team-card.t3 h3 { color: #2dc653; }
+  .profile-bar { height: 22px; border-radius: 6px; display: flex; overflow: hidden; margin-bottom: 8px; }
+  .bar-col { display: flex; align-items: center; justify-content: center; font-size: 10px; font-weight: 700; color: white; transition: width 0.6s ease; }
+  .bar-red { background: #e63946; }
+  .bar-blue { background: #457b9d; }
+  .profile-legend { display: flex; gap: 12px; font-size: 11px; color: #666; }
+  .leg-dot { width: 10px; height: 10px; border-radius: 50%; display: inline-block; margin-right: 4px; }
+
+  /* ── Tabs ── */
+  .tab-nav { display: flex; gap: 0; padding: 0 40px; margin-bottom: 0; }
+  .tab-btn { padding: 10px 24px; border: none; background: #dde1e9; cursor: pointer; font-size: 13px; font-weight: 600; color: #666; border-radius: 8px 8px 0 0; margin-right: 4px; font-family: inherit; transition: all 0.2s; }
+  .tab-btn.active { background: white; color: #1a1a2e; box-shadow: 0 -2px 8px rgba(0,0,0,0.06); }
+
+  /* ── Tab Content ── */
+  .tab-content { display: none; background: white; margin: 0 40px 40px; border-radius: 0 12px 12px 12px; box-shadow: 0 2px 16px rgba(0,0,0,0.07); overflow: hidden; }
+  .tab-content.active { display: block; }
+
+  /* ── Mindmap SVG ── */
+  #mindmap-container { width: 100%; overflow: auto; }
+  svg text { font-family: 'Malgun Gothic', 'Apple SD Gothic Neo', sans-serif; }
+  .node circle { cursor: pointer; stroke-width: 2px; transition: r 0.2s; }
+  .node circle:hover { r: 10; }
+  .node text { font-size: 12px; }
+  .link { fill: none; stroke: #ddd; stroke-width: 1.5px; }
+  .hint { font-size: 12px; color: #999; padding: 12px 20px; text-align: center; border-bottom: 1px solid #f0f0f0; }
+
+  /* ── Category Table ── */
+  .cat-table-wrap { padding: 24px; }
+  table { width: 100%; border-collapse: collapse; font-size: 13px; }
+  th { background: #f7f8fa; padding: 10px 14px; text-align: left; font-weight: 600; color: #555; border-bottom: 2px solid #e8e8e8; }
+  td { padding: 10px 14px; border-bottom: 1px solid #f0f0f0; vertical-align: top; }
+  tr:hover td { background: #fafbff; }
+  .type-badge { display: inline-block; padding: 2px 8px; border-radius: 10px; font-size: 10px; font-weight: 700; }
+  .badge-col { background: #fde8ea; color: #e63946; }
+  .badge-ind { background: #e3ecf5; color: #457b9d; }
+  .team-pill { display: inline-block; padding: 2px 7px; border-radius: 10px; font-size: 10px; font-weight: 600; margin: 2px; }
+  .pill-1 { background: #f0e8fd; color: #8338ec; }
+  .pill-2 { background: #fff3e0; color: #e07b00; }
+  .pill-3 { background: #e6f9ec; color: #1ea04b; }
+  .count-bar { height: 8px; border-radius: 4px; display: inline-block; vertical-align: middle; margin-left: 6px; }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div>
+    <h1>노경 팀 업무 현황 분류 보고서</h1>
+    <div class="sub">노경기획팀 · 노경운영팀 · 노경협력팀 | 기준: 2026년 업무분장</div>
+  </div>
+  <div class="badge">총 229건 분류 완료</div>
+</div>
+
+<!-- Stats -->
+<div class="stats">
+  <div class="stat-card total">
+    <div class="stat-label">총 업무 건수</div>
+    <div class="stat-num">229</div>
+    <div class="stat-desc">3개 팀 합산</div>
+  </div>
+  <div class="stat-card collective">
+    <div class="stat-label">집단적 노사관계</div>
+    <div class="stat-num">69</div>
+    <div class="stat-desc">전체의 30.1%</div>
+  </div>
+  <div class="stat-card individual">
+    <div class="stat-label">개별적 노사관계</div>
+    <div class="stat-num">160</div>
+    <div class="stat-desc">전체의 69.9%</div>
+  </div>
+  <div class="stat-card team1">
+    <div class="stat-label">노경기획팀</div>
+    <div class="stat-num">80</div>
+    <div class="stat-desc">집단 22 · 개별 58</div>
+  </div>
+  <div class="stat-card team2">
+    <div class="stat-label">노경운영팀</div>
+    <div class="stat-num">65</div>
+    <div class="stat-desc">집단 0 · 개별 65</div>
+  </div>
+  <div class="stat-card team3">
+    <div class="stat-label">노경협력팀</div>
+    <div class="stat-num">84</div>
+    <div class="stat-desc">집단 47 · 개별 37</div>
+  </div>
+</div>
+
+<!-- Team Profile -->
+<div class="team-profiles">
+  <div class="team-card t1">
+    <h3>노경기획팀 — 기획·정책·글로벌 중심</h3>
+    <div class="profile-bar">
+      <div class="bar-col bar-red" style="width:27.5%">집단 22</div>
+      <div class="bar-col bar-blue" style="width:72.5%">개별 58</div>
+    </div>
+    <div class="profile-legend">
+      <span><span class="leg-dot" style="background:#e63946"></span>집단 27.5%</span>
+      <span><span class="leg-dot" style="background:#457b9d"></span>개별 72.5%</span>
+      <span style="margin-left:auto;font-weight:700;color:#8338ec">총 80건</span>
+    </div>
+  </div>
+  <div class="team-card t2">
+    <h3>노경운영팀 — 현장 운영·인사제도 전담</h3>
+    <div class="profile-bar">
+      <div class="bar-col bar-red" style="width:0%"></div>
+      <div class="bar-col bar-blue" style="width:100%">개별 65</div>
+    </div>
+    <div class="profile-legend">
+      <span><span class="leg-dot" style="background:#e63946"></span>집단 0%</span>
+      <span><span class="leg-dot" style="background:#457b9d"></span>개별 100%</span>
+      <span style="margin-left:auto;font-weight:700;color:#fb8500">총 65건</span>
+    </div>
+  </div>
+  <div class="team-card t3">
+    <h3>노경협력팀 — 교섭·노조관계 주력</h3>
+    <div class="profile-bar">
+      <div class="bar-col bar-red" style="width:56%">집단 47</div>
+      <div class="bar-col bar-blue" style="width:44%">개별 37</div>
+    </div>
+    <div class="profile-legend">
+      <span><span class="leg-dot" style="background:#e63946"></span>집단 56%</span>
+      <span><span class="leg-dot" style="background:#457b9d"></span>개별 44%</span>
+      <span style="margin-left:auto;font-weight:700;color:#2dc653">총 84건</span>
+    </div>
+  </div>
+</div>
+
+<!-- Tabs -->
+<div class="tab-nav">
+  <button class="tab-btn active" onclick="switchTab('mindmap', this)">🌐 마인드맵 (유형별)</button>
+  <button class="tab-btn" onclick="switchTab('table', this)">📋 세부 분류표</button>
+</div>
+
+<div id="tab-mindmap" class="tab-content active">
+  <div class="hint">💡 노드를 클릭하면 하위 항목을 접고 펼칠 수 있습니다</div>
+  <div id="mindmap-container"></div>
+</div>
+
+<div id="tab-table" class="tab-content">
+  <div class="cat-table-wrap">
+    <table>
+      <thead>
+        <tr>
+          <th>유형</th>
+          <th>세부 분류</th>
+          <th>담당 팀</th>
+          <th>건수</th>
+          <th>대표 업무</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><span class="type-badge badge-col">집단적</span></td>
+          <td><strong>단체교섭·교섭운영</strong></td>
+          <td>
+            <span class="team-pill pill-3">협력팀 24</span>
+            <span class="team-pill pill-1">기획팀 3</span>
+          </td>
+          <td><strong>27</strong><div class="count-bar bar-red" style="width:81px"></div></td>
+          <td>조합원 설문, 요구안 분석, 임금인상 히스토리, 교섭회의 운영, C-Plan 파업대응</td>
+        </tr>
+        <tr>
+          <td><span class="type-badge badge-col">집단적</span></td>
+          <td><strong>노사협의체·회의체 운영</strong></td>
+          <td>
+            <span class="team-pill pill-3">협력팀 8</span>
+            <span class="team-pill pill-1">기획팀 8</span>
+          </td>
+          <td><strong>16</strong><div class="count-bar bar-red" style="width:48px"></div></td>
+          <td>경영실적 공유자료, 성과급 히스토리, 실무회의 운영, 노사협의회 대응</td>
+        </tr>
+        <tr>
+          <td><span class="type-badge badge-col">집단적</span></td>
+          <td><strong>조합지원·노조행정</strong></td>
+          <td>
+            <span class="team-pill pill-3">협력팀 9</span>
+          </td>
+          <td><strong>9</strong><div class="count-bar bar-red" style="width:27px"></div></td>
+          <td>공문 작성, 공가 관리, 정기대의원대회 준비, 통신비·차량 지원</td>
+        </tr>
+        <tr>
+          <td><span class="type-badge badge-col">집단적</span></td>
+          <td><strong>글로벌 노경·조직화 대응</strong></td>
+          <td>
+            <span class="team-pill pill-1">기획팀 15</span>
+          </td>
+          <td><strong>15</strong><div class="count-bar bar-red" style="width:45px"></div></td>
+          <td>글로벌 컨트롤타워, ESMI 노조 대응, 해외법인 포럼, 중국·폴란드·인도네시아 이슈</td>
+        </tr>
+        <tr>
+          <td><span class="type-badge badge-col">집단적</span></td>
+          <td><strong>현장·사무노조 대응</strong></td>
+          <td>
+            <span class="team-pill pill-1">기획팀 3</span>
+            <span class="team-pill pill-3">협력팀 3</span>
+          </td>
+          <td><strong>6</strong><div class="count-bar bar-red" style="width:18px"></div></td>
+          <td>사무노조 교섭단위 분리, 교대노조 선거 대응, 공정대표의무 대응</td>
+        </tr>
+        <tr>
+          <td><span class="type-badge badge-col">집단적</span></td>
+          <td><strong>해외 노조 조직화 대응</strong></td>
+          <td>
+            <span class="team-pill pill-3">협력팀</span>
+          </td>
+          <td><strong>1</strong><div class="count-bar bar-red" style="width:3px"></div></td>
+          <td>해외법인 노조 조직화 대응</td>
+        </tr>
+        <tr style="background:#f7faff">
+          <td><span class="type-badge badge-ind">개별적</span></td>
+          <td><strong>개별 ER·운영 일반</strong></td>
+          <td>
+            <span class="team-pill pill-2">운영팀 13</span>
+            <span class="team-pill pill-3">협력팀 12</span>
+            <span class="team-pill pill-1">기획팀 8</span>
+          </td>
+          <td><strong>33</strong><div class="count-bar bar-blue" style="width:99px"></div></td>
+          <td>품질분임조, 근무시간 관리, 파일럿라인 현황, 정기소통 미팅, 탄근제 운영</td>
+        </tr>
+        <tr style="background:#f7faff">
+          <td><span class="type-badge badge-ind">개별적</span></td>
+          <td><strong>교육·리더십·역량개발</strong></td>
+          <td>
+            <span class="team-pill pill-2">운영팀 16</span>
+            <span class="team-pill pill-3">협력팀 1</span>
+          </td>
+          <td><strong>17</strong><div class="count-bar bar-blue" style="width:51px"></div></td>
+          <td>리더십 교육, 현장직무교육, 성장코칭, 현장전문가제도, 현장리더 HR Letter</td>
+        </tr>
+        <tr style="background:#f7faff">
+          <td><span class="type-badge badge-ind">개별적</span></td>
+          <td><strong>정책·법률·컴플라이언스</strong></td>
+          <td>
+            <span class="team-pill pill-1">기획팀 15</span>
+            <span class="team-pill pill-3">협력팀 8</span>
+            <span class="team-pill pill-2">운영팀 3</span>
+          </td>
+          <td><strong>26</strong><div class="count-bar bar-blue" style="width:78px"></div></td>
+          <td>노란봉투법 대응, 통상임금 대응, 정년연장, 노동부 대관, HR Audit</td>
+        </tr>
+        <tr style="background:#f7faff">
+          <td><span class="type-badge badge-ind">개별적</span></td>
+          <td><strong>근로조건·복리후생</strong></td>
+          <td>
+            <span class="team-pill pill-2">운영팀 9</span>
+            <span class="team-pill pill-1">기획팀 5</span>
+          </td>
+          <td><strong>14</strong><div class="count-bar bar-blue" style="width:42px"></div></td>
+          <td>급여, 근태, 복리후생, 연차휴가 촉진제, 모성보호·육아휴직 대응</td>
+        </tr>
+        <tr style="background:#f7faff">
+          <td><span class="type-badge badge-ind">개별적</span></td>
+          <td><strong>정보관리·리포팅</strong></td>
+          <td>
+            <span class="team-pill pill-1">기획팀 11</span>
+            <span class="team-pill pill-3">협력팀 4</span>
+          </td>
+          <td><strong>15</strong><div class="count-bar bar-blue" style="width:45px"></div></td>
+          <td>ER Index, KPI 관리, 월간보고, 주간회의, WET 정보 관리</td>
+        </tr>
+        <tr style="background:#f7faff">
+          <td><span class="type-badge badge-ind">개별적</span></td>
+          <td><strong>인사제도·평가·보상</strong></td>
+          <td>
+            <span class="team-pill pill-2">운영팀 5</span>
+            <span class="team-pill pill-3">협력팀 4</span>
+          </td>
+          <td><strong>9</strong><div class="count-bar bar-blue" style="width:27px"></div></td>
+          <td>현장직 인사제도, 포상제도, 평가 Launch, 반장평가, OSI 포상</td>
+        </tr>
+        <tr style="background:#f7faff">
+          <td><span class="type-badge badge-ind">개별적</span></td>
+          <td><strong>인력효율화·전환지원</strong></td>
+          <td>
+            <span class="team-pill pill-1">기획팀 7</span>
+            <span class="team-pill pill-2">운영팀 3</span>
+            <span class="team-pill pill-3">협력팀 1</span>
+          </td>
+          <td><strong>11</strong><div class="count-bar bar-blue" style="width:33px"></div></td>
+          <td>PIP, 희망퇴직 기획·운영, RMB, 재배치·인력운영, 퇴직연금</td>
+        </tr>
+        <tr style="background:#f7faff">
+          <td><span class="type-badge badge-ind">개별적</span></td>
+          <td><strong>채용·이동·퇴직</strong></td>
+          <td>
+            <span class="team-pill pill-2">운영팀 5</span>
+            <span class="team-pill pill-1">기획팀 1</span>
+          </td>
+          <td><strong>6</strong><div class="count-bar bar-blue" style="width:18px"></div></td>
+          <td>인사발령, 계약직 채용, 직간전환, 직책선해임, 파견직 채용 대응</td>
+        </tr>
+        <tr style="background:#f7faff">
+          <td><span class="type-badge badge-ind">개별적</span></td>
+          <td><strong>징계·고충·사고 대응</strong></td>
+          <td>
+            <span class="team-pill pill-1">기획팀 5</span>
+            <span class="team-pill pill-2">운영팀 3</span>
+          </td>
+          <td><strong>8</strong><div class="count-bar bar-blue" style="width:24px"></div></td>
+          <td>징계 Process, 성희롱·괴롭힘, 정신질환자 대응, 고충상담, 산재·사고</td>
+        </tr>
+        <tr style="background:#f7faff">
+          <td><span class="type-badge badge-ind">개별적</span></td>
+          <td><strong>행정·예산·총무</strong></td>
+          <td>
+            <span class="team-pill pill-1">기획팀 3</span>
+            <span class="team-pill pill-2">운영팀 3</span>
+            <span class="team-pill pill-3">협력팀 3</span>
+          </td>
+          <td><strong>9</strong><div class="count-bar bar-blue" style="width:27px"></div></td>
+          <td>팀 예산 관리, 자산관리, 소모품, 조관비, 명절 선물</td>
+        </tr>
+        <tr style="background:#f7faff">
+          <td><span class="type-badge badge-ind">개별적</span></td>
+          <td><strong>글로벌 개별ER</strong></td>
+          <td>
+            <span class="team-pill pill-1">기획팀</span>
+          </td>
+          <td><strong>6</strong><div class="count-bar bar-blue" style="width:18px"></div></td>
+          <td>해외법인 CRM, Outplacement, 현장직 인사체계, 정보·소통 관리</td>
+        </tr>
+        <tr style="background:#f7faff">
+          <td><span class="type-badge badge-ind">개별적</span></td>
+          <td><strong>현장 소통·리더십</strong></td>
+          <td>
+            <span class="team-pill pill-3">협력팀 4</span>
+            <span class="team-pill pill-2">운영팀 2</span>
+          </td>
+          <td><strong>6</strong><div class="count-bar bar-blue" style="width:18px"></div></td>
+          <td>공유회, 중식 간담회, 현장경영, Best Practice 운영</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<script>
+function switchTab(name, btn) {
+  document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById('tab-' + name).classList.add('active');
+  btn.classList.add('active');
+}
+
+// ── D3 Mindmap ──────────────────────────────────
+const treeData = {
+  name: "노경 업무 현황\n(229건)",
+  type: "root",
+  children: [
+    {
+      name: "집단적 노사관계\n69건 (30.1%)",
+      type: "collective",
+      count: 69,
+      children: [
+        {
+          name: "단체교섭·교섭운영\n27건",
+          type: "collective",
+          count: 27,
+          children: [
+            { name: "노경협력팀 24건\n조합원설문·요구안·임단협 운영", type: "team3", count: 24 },
+            { name: "노경기획팀 3건\n사무노조 교섭 관련", type: "team1", count: 3 }
+          ]
+        },
+        {
+          name: "노사협의체·회의체\n16건",
+          type: "collective",
+          count: 16,
+          children: [
+            { name: "노경협력팀 8건\n경영실적공유·성과급 히스토리", type: "team3", count: 8 },
+            { name: "노경기획팀 8건\n노사협의회 대응", type: "team1", count: 8 }
+          ]
+        },
+        {
+          name: "조합지원·노조행정\n9건",
+          type: "collective",
+          count: 9,
+          children: [
+            { name: "노경협력팀 9건\n공문·공가·대의원대회·통신비", type: "team3", count: 9 }
+          ]
+        },
+        {
+          name: "글로벌 노경·조직화\n15건",
+          type: "collective",
+          count: 15,
+          children: [
+            { name: "노경기획팀 15건\n컨트롤타워·ESMI·해외법인 포럼", type: "team1", count: 15 }
+          ]
+        },
+        {
+          name: "현장·사무노조 대응\n6건",
+          type: "collective",
+          count: 6,
+          children: [
+            { name: "노경기획팀 3건\n교대노조·지회분리 지원", type: "team1", count: 3 },
+            { name: "노경협력팀 3건\n사무노조 교섭단위 분리", type: "team3", count: 3 }
+          ]
+        }
+      ]
+    },
+    {
+      name: "개별적 노사관계\n160건 (69.9%)",
+      type: "individual",
+      count: 160,
+      children: [
+        {
+          name: "개별 ER·운영 일반\n33건",
+          type: "individual",
+          count: 33,
+          children: [
+            { name: "노경운영팀 13건\n품질분임조·근무시간·인원관리", type: "team2", count: 13 },
+            { name: "노경협력팀 12건\n파일럿라인·탄근제·현장점검", type: "team3", count: 12 },
+            { name: "노경기획팀 8건\n글로벌 SM·위기관리·HAY", type: "team1", count: 8 }
+          ]
+        },
+        {
+          name: "정책·법률·컴플라이언스\n26건",
+          type: "individual",
+          count: 26,
+          children: [
+            { name: "노경기획팀 15건\n노란봉투법·통상임금·정년연장", type: "team1", count: 15 },
+            { name: "노경협력팀 8건\n준법도급·정년연장·대관", type: "team3", count: 8 },
+            { name: "노경운영팀 3건\nHR Index·Compliance·Audit", type: "team2", count: 3 }
+          ]
+        },
+        {
+          name: "교육·리더십·역량개발\n17건",
+          type: "individual",
+          count: 17,
+          children: [
+            { name: "노경운영팀 16건\n리더십·현장직무교육·성장코칭", type: "team2", count: 16 },
+            { name: "노경협력팀 1건\n콘텐츠 운영(hr 공유회)", type: "team3", count: 1 }
+          ]
+        },
+        {
+          name: "정보관리·리포팅\n15건",
+          type: "individual",
+          count: 15,
+          children: [
+            { name: "노경기획팀 11건\nER Index·WET·월간보고", type: "team1", count: 11 },
+            { name: "노경협력팀 4건\nKPI·ER Index·주간업무", type: "team3", count: 4 }
+          ]
+        },
+        {
+          name: "근로조건·복리후생\n14건",
+          type: "individual",
+          count: 14,
+          children: [
+            { name: "노경운영팀 9건\n급여·근태·복리후생·수당", type: "team2", count: 9 },
+            { name: "노경기획팀 5건\n연차촉진·모성보호·실업급여", type: "team1", count: 5 }
+          ]
+        },
+        {
+          name: "인사제도·평가·보상\n9건",
+          type: "individual",
+          count: 9,
+          children: [
+            { name: "노경운영팀 5건\n현장직 인사제도·포상·반장평가", type: "team2", count: 5 },
+            { name: "노경협력팀 4건\n평가 Launch·OSI 포상", type: "team3", count: 4 }
+          ]
+        },
+        {
+          name: "인력효율화·전환지원\n11건",
+          type: "individual",
+          count: 11,
+          children: [
+            { name: "노경기획팀 7건\nPIP·희망퇴직·RMB 기획·운영", type: "team1", count: 7 },
+            { name: "노경운영팀 3건\n재배치·퇴직연금·효율적 인력운영", type: "team2", count: 3 },
+            { name: "노경협력팀 1건\nRMB 기획·운영", type: "team3", count: 1 }
+          ]
+        },
+        {
+          name: "징계·고충·사고\n8건",
+          type: "individual",
+          count: 8,
+          children: [
+            { name: "노경기획팀 5건\n징계·성희롱·괴롭힘·정신질환자", type: "team1", count: 5 },
+            { name: "노경운영팀 3건\n고충상담·산재·사고·징계 Process", type: "team2", count: 3 }
+          ]
+        },
+        {
+          name: "행정·예산·총무\n9건",
+          type: "individual",
+          count: 9,
+          children: [
+            { name: "노경기획팀 3건\n팀예산·조관비·명절선물", type: "team1", count: 3 },
+            { name: "노경운영팀 3건\n예산수립·자산관리·소모품", type: "team2", count: 3 },
+            { name: "노경협력팀 3건\n조관비·조활비·CSR", type: "team3", count: 3 }
+          ]
+        },
+        {
+          name: "채용·이동·퇴직\n6건",
+          type: "individual",
+          count: 6,
+          children: [
+            { name: "노경운영팀 5건\n인사발령·계약직·직간전환·조직개편", type: "team2", count: 5 },
+            { name: "노경기획팀 1건\n파견직 채용 대응", type: "team1", count: 1 }
+          ]
+        },
+        {
+          name: "글로벌 개별ER\n6건",
+          type: "individual",
+          count: 6,
+          children: [
+            { name: "노경기획팀 6건\nCRM·Outplacement·현장직 인사체계", type: "team1", count: 6 }
+          ]
+        },
+        {
+          name: "현장 소통·리더십\n6건",
+          type: "individual",
+          count: 6,
+          children: [
+            { name: "노경협력팀 4건\n공유회·중식간담회·현장네트워크", type: "team3", count: 4 },
+            { name: "노경운영팀 2건\n주재임원·현장경영", type: "team2", count: 2 }
+          ]
+        }
+      ]
+    }
+  ]
+};
+
+const colors = {
+  root: "#1a1a2e",
+  collective: "#e63946",
+  individual: "#457b9d",
+  team1: "#8338ec",
+  team2: "#fb8500",
+  team3: "#2dc653"
+};
+
+const container = document.getElementById("mindmap-container");
+const W = container.clientWidth || 1200;
+const H = 1100;
+
+const svg = d3.select("#mindmap-container")
+  .append("svg")
+  .attr("width", W)
+  .attr("height", H)
+  .style("font-family", "'Malgun Gothic','Apple SD Gothic Neo',sans-serif");
+
+const g = svg.append("g").attr("transform", "translate(180, 30)");
+
+const tree = d3.tree().size([H - 60, W - 360]);
+
+let root = d3.hierarchy(treeData);
+root.x0 = (H - 60) / 2;
+root.y0 = 0;
+
+// Collapse level 2+ initially
+root.children.forEach(collapse2);
+function collapse2(d) {
+  if (d.children) {
+    d._children = d.children;
+    d._children.forEach(c => { if (c.children) { c._children = c.children; c.children = null; }});
+  }
+}
+
+let nodeId = 0;
+
+function update(source) {
+  const treeLayout = tree(root);
+  const nodes = treeLayout.descendants();
+  const links = treeLayout.links();
+
+  nodes.forEach(d => { d.y = d.depth * 220; });
+
+  // ── Nodes ──
+  const node = g.selectAll("g.node").data(nodes, d => d.id || (d.id = ++nodeId));
+
+  const nodeEnter = node.enter().append("g")
+    .attr("class", "node")
+    .attr("transform", d => `translate(${source.y0},${source.x0})`)
+    .on("click", (event, d) => {
+      if (d.children) { d._children = d.children; d.children = null; }
+      else if (d._children) { d.children = d._children; d._children = null; }
+      update(d);
+    });
+
+  nodeEnter.append("circle")
+    .attr("r", 0)
+    .attr("fill", d => colors[d.data.type] || "#999")
+    .attr("stroke", d => colors[d.data.type] || "#999")
+    .attr("stroke-width", 2)
+    .attr("opacity", 0.9);
+
+  nodeEnter.append("text")
+    .attr("dy", "0.31em")
+    .attr("x", d => d._children || d.children ? -12 : 12)
+    .attr("text-anchor", d => d._children || d.children ? "end" : "start")
+    .style("font-size", d => d.depth === 0 ? "13px" : d.depth <= 2 ? "11px" : "10px")
+    .style("font-weight", d => d.depth <= 1 ? "700" : "500")
+    .style("fill", d => d.depth === 0 ? "#1a1a2e" : colors[d.data.type] || "#333")
+    .each(function(d) {
+      const lines = d.data.name.split("\n");
+      const el = d3.select(this);
+      el.selectAll("tspan").remove();
+      lines.forEach((line, i) => {
+        el.append("tspan")
+          .attr("x", d._children || d.children ? -12 : 12)
+          .attr("dy", i === 0 ? "0em" : "1.2em")
+          .text(line);
+      });
+    });
+
+  // Update
+  const nodeUpdate = nodeEnter.merge(node);
+  nodeUpdate.transition().duration(400)
+    .attr("transform", d => `translate(${d.y},${d.x})`);
+
+  nodeUpdate.select("circle").transition().duration(400)
+    .attr("r", d => d.depth === 0 ? 10 : d.depth === 1 ? 8 : d.depth === 2 ? 6 : 5)
+    .attr("fill", d => (d._children) ? colors[d.data.type] : "#fff")
+    .attr("stroke", d => colors[d.data.type]);
+
+  nodeUpdate.select("text")
+    .each(function(d) {
+      const lines = d.data.name.split("\n");
+      const el = d3.select(this);
+      el.selectAll("tspan").remove();
+      const xPos = (d._children || d.children) ? -12 : 12;
+      lines.forEach((line, i) => {
+        el.append("tspan")
+          .attr("x", xPos)
+          .attr("dy", i === 0 ? "0em" : "1.2em")
+          .text(line);
+      });
+    })
+    .attr("text-anchor", d => (d._children || d.children) ? "end" : "start");
+
+  // Exit
+  const nodeExit = node.exit().transition().duration(400)
+    .attr("transform", d => `translate(${source.y},${source.x})`).remove();
+  nodeExit.select("circle").attr("r", 0);
+  nodeExit.select("text").style("fill-opacity", 0);
+
+  // ── Links ──
+  const diagonal = d3.linkHorizontal().x(d => d.y).y(d => d.x);
+
+  const link = g.selectAll("path.link").data(links, d => d.target.id);
+
+  const linkEnter = link.enter().insert("path", "g")
+    .attr("class", "link")
+    .attr("stroke", d => colors[d.target.data.type] || "#ccc")
+    .attr("stroke-opacity", 0.35)
+    .attr("stroke-width", d => Math.max(1, 5 - d.target.depth))
+    .attr("d", () => {
+      const o = { x: source.x0, y: source.y0 };
+      return diagonal({ source: o, target: o });
+    });
+
+  linkEnter.merge(link).transition().duration(400)
+    .attr("d", diagonal)
+    .attr("stroke", d => colors[d.target.data.type] || "#ccc");
+
+  link.exit().transition().duration(400)
+    .attr("d", () => {
+      const o = { x: source.x, y: source.y };
+      return diagonal({ source: o, target: o });
+    }).remove();
+
+  nodes.forEach(d => { d.x0 = d.x; d.y0 = d.y; });
+}
+
+update(root);
+
+// Legend
+const legend = svg.append("g").attr("transform", `translate(20, ${H - 120})`);
+const legendItems = [
+  { label: "루트", color: colors.root },
+  { label: "집단적 노사관계", color: colors.collective },
+  { label: "개별적 노사관계", color: colors.individual },
+  { label: "노경기획팀", color: colors.team1 },
+  { label: "노경운영팀", color: colors.team2 },
+  { label: "노경협력팀", color: colors.team3 }
+];
+legendItems.forEach((item, i) => {
+  const row = legend.append("g").attr("transform", `translate(0, ${i * 18})`);
+  row.append("circle").attr("r", 5).attr("cx", 5).attr("cy", 0).attr("fill", item.color);
+  row.append("text").attr("x", 15).attr("y", 4).style("font-size", "11px").style("fill", "#555").text(item.label);
+});
+</script>
+</body>
+</html>
