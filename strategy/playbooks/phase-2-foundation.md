@@ -1,278 +1,174 @@
-# ⚙️ Phase 2 Playbook — Foundation & Scaffolding
+# ⚙️ 阶段 2 剧本 — 基础与脚手架 (Foundation & Scaffolding)
 
-> **Duration**: 3-5 days | **Agents**: 6 | **Gate Keepers**: DevOps Automator + Evidence Collector
+> **工期**：3-5 天 | **活跃智能体**：6 位 | **关卡守卫**：运维自动化专家 (DevOps Automator) + 证据收集者 (Evidence Collector)
 
 ---
 
-## Objective
+## 目标
 
-Build the technical and operational foundation that all subsequent work depends on. Get the skeleton standing before adding muscle. After this phase, every developer has a working environment, a deployable pipeline, and a design system to build with.
+构建所有后续工作依赖的技术与运营基础。在长肉前先把骨架搭好。此阶段结束后，每位开发者都应拥有可用的开发环境、可部署的流水线，以及一套可供调用的设计系统。
 
-## Pre-Conditions
+## 前置条件
 
-- [ ] Phase 1 Quality Gate passed (Architecture Package approved)
-- [ ] Phase 1 Handoff Package received
-- [ ] All architecture documents finalized
+- [ ] 阶段 1 质量关卡已通过（架构包已批准）
+- [ ] 已接收阶段 1 交接包
+- [ ] 所有架构文档已定稿
 
-## Agent Activation Sequence
+## 智能体激活序列
 
-### Workstream A: Infrastructure (Day 1-3, Parallel)
+### 工作流 A：基础设施（第 1-3 天，并行）
 
-#### 🚀 DevOps Automator — CI/CD Pipeline + Infrastructure
+#### 🚀 运维自动化专家 (DevOps Automator) — CI/CD 流水线 + 基础设施
 ```
-Activate DevOps Automator for infrastructure setup on [PROJECT].
+针对 [项目] 激活运维自动化专家进行基础设施搭建。
 
-Input: Backend Architect system architecture + deployment requirements
-Deliverables required:
-1. CI/CD Pipeline (GitHub Actions / GitLab CI)
-   - Security scanning stage
-   - Automated testing stage
-   - Build and containerization stage
-   - Deployment stage (blue-green or canary)
-   - Automated rollback capability
-2. Infrastructure as Code
-   - Environment provisioning (dev, staging, production)
-   - Container orchestration setup
-   - Network and security configuration
-3. Environment Configuration
-   - Secrets management
-   - Environment variable management
-   - Multi-environment parity
+输入：后端架构师系统架构 + 部署要求。
+要求的交付物：
+1. CI/CD 流水线 (GitHub Actions / GitLab CI)：
+   - 安全扫描阶段。
+   - 自动化测试阶段。
+   - 构建与容器化阶段。
+   - 部署阶段（蓝绿部署或金丝雀部署）。
+   - 自动化回滚能力。
+2. 基础设施即代码 (IaC)：
+   - 环境准备（开发、测试、生产环境）。
+   - 容器编排设置。
+   - 网络与安全配置。
+3. 环境配置：
+   - 密钥管理 (Secrets management)。
+   - 环境变量管理。
+   - 多环境一致性。
 
-Files to create:
-- .github/workflows/ci-cd.yml (or equivalent)
-- infrastructure/ (Terraform/CDK templates)
-- docker-compose.yml
-- Dockerfile(s)
-
-Format: Working CI/CD pipeline with IaC templates
-Timeline: 3 days
+格式：带有 IaC 模板的可用 CI/CD 流水线。
+工期：3 天。
 ```
 
-#### 🏗️ Infrastructure Maintainer — Cloud Infrastructure + Monitoring
+#### 🏗️ 基础设施维护员 (Infrastructure Maintainer) — 云基础设施 + 监控
 ```
-Activate Infrastructure Maintainer for monitoring setup on [PROJECT].
+针对 [项目] 激活基础设施维护员进行监控设置。
 
-Input: DevOps Automator infrastructure + Backend Architect architecture
-Deliverables required:
-1. Cloud Resource Provisioning
-   - Compute, storage, networking resources
-   - Auto-scaling configuration
-   - Load balancer setup
-2. Monitoring Stack
-   - Application metrics (Prometheus/DataDog)
-   - Infrastructure metrics
-   - Custom dashboards (Grafana)
-3. Logging and Alerting
-   - Centralized log aggregation
-   - Alert rules for critical thresholds
-   - On-call notification setup
-4. Security Hardening
-   - Firewall rules
-   - SSL/TLS configuration
-   - Access control policies
+要求的交付物：
+1. 云资源准备：计算、存储、网络资源；自动缩放配置；负载均衡设置。
+2. 监控栈：应用指标 (Prometheus/DataDog)、基础设施指标、自定义仪表盘 (Grafana)。
+3. 日志与报警：集中的日志聚合、关键阈值报警规则、值班通知设置。
+4. 安全加固：防火墙规则、SSL/TLS 配置、访问控制策略。
 
-Format: Infrastructure Readiness Report with dashboard access
-Timeline: 3 days
+格式：基础设施就绪报告（含仪表盘访问限权限）。
+工期：3 天。
 ```
 
-#### ⚙️ Studio Operations — Process Setup
+#### ⚙️ 工坊运作专家 (Studio Operations) — 流程设置
 ```
-Activate Studio Operations for process setup on [PROJECT].
+针对 [项目] 激活工坊运作专家进行流程设置。
 
-Input: Sprint Prioritizer plan + Project Shepherd coordination needs
-Deliverables required:
-1. Git Workflow
-   - Branch strategy (GitFlow / trunk-based)
-   - PR review process
-   - Merge policies
-2. Communication Channels
-   - Team channels setup
-   - Notification routing
-   - Status update cadence
-3. Documentation Templates
-   - PR template
-   - Issue template
-   - Decision log template
-4. Collaboration Tools
-   - Project board setup
-   - Sprint tracking configuration
+要求的交付物：
+1. Git 工作流：分支策略（GitFlow / Trunk-based）、PR 评审流程、合并政策。
+2. 沟通渠道：团队频道设置、通知路由、状态更新频率。
+3. 文档模板：PR 模板、Issue 模板、决策日志模板。
+4. 协作工具：项目看板设置、冲刺追踪配置。
 
-Format: Operations Playbook
-Timeline: 2 days
+格式：运作剧本 (Operations Playbook)。
+工期：2 天。
 ```
 
-### Workstream B: Application Foundation (Day 1-4, Parallel)
+### 工作流 B：应用基础（第 1-4 天，并行）
 
-#### 🎨 Frontend Developer — Project Scaffolding + Component Library
+#### 🎨 前端开发工程师 (Frontend Developer) — 项目脚手架 + 组件库
 ```
-Activate Frontend Developer for project scaffolding on [PROJECT].
+针对 [项目] 激活前端开发工程师进行项目脚手架搭建。
 
-Input: UX Architect CSS Design System + Brand Guardian identity
-Deliverables required:
-1. Project Scaffolding
-   - Framework setup (React/Vue/Angular per architecture)
-   - TypeScript configuration
-   - Build tooling (Vite/Webpack/Next.js)
-   - Testing framework (Jest/Vitest + Testing Library)
-2. Design System Implementation
-   - CSS design tokens from UX Architect
-   - Base component library (Button, Input, Card, Layout)
-   - Theme system (light/dark/system toggle)
-   - Responsive utilities
-3. Application Shell
-   - Routing setup
-   - Layout components (Header, Footer, Sidebar)
-   - Error boundary implementation
-   - Loading states
+输入：UX 架构师 CSS 设计系统 + 品牌守护者身份。
+要求的交付物：
+1. 项目脚手架：
+   - 框架设置（React/Vue/Angular）。
+   - TypeScript 配置。
+   - 构建工具 (Vite/Webpack/Next.js)。
+   - 测试框架 (Jest/Vitest + Testing Library)。
+2. 设计系统实现：
+   - 来自 UX 架构师的 CSS 设计令牌。
+   - 基础组件库（按钮、输入框、卡片、布局）。
+   - 主题系统（亮色/暗色/系统切换）。
+   - 响应式实用类。
+3. 应用壳 (Application Shell)：
+   - 路由设置。
+   - 布局组件（页头、页脚、侧边栏）。
+   - 错误边界实现。
+   - 加载状态。
 
-Files to create:
-- src/ (application source)
-- src/components/ (component library)
-- src/styles/ (design tokens)
-- src/layouts/ (layout components)
-
-Format: Working application skeleton with component library
-Timeline: 3 days
+格式：包含组件库的可用应用骨架。
+工期：3 天。
 ```
 
-#### 🏗️ Backend Architect — Database + API Foundation
+#### 🏗️ 后端架构师 (Backend Architect) — 数据库 + API 基础
 ```
-Activate Backend Architect for API foundation on [PROJECT].
+针对 [项目] 激活后端架构师进行 API 基础搭建。
 
-Input: System Architecture Specification + Database Schema Design
-Deliverables required:
-1. Database Setup
-   - Schema deployment (migrations)
-   - Index creation
-   - Seed data for development
-   - Connection pooling configuration
-2. API Scaffold
-   - Framework setup (Express/FastAPI/etc.)
-   - Route structure matching architecture
-   - Middleware stack (auth, validation, error handling, CORS)
-   - Health check endpoints
-3. Authentication System
-   - Auth provider integration
-   - JWT/session management
-   - Role-based access control scaffold
-4. Service Communication
-   - API versioning setup
-   - Request/response serialization
-   - Error response standardization
+要求的交付物：
+1. 数据库设置：Schema 部署（迁移）、索引创建、开发使用的种子数据。
+2. API 脚手架：
+   - 框架设置 (Express/FastAPI 等)。
+   - 符合架构的路由结构。
+   - 中间件栈（鉴权、验证、错误处理、CORS）。
+   - 健康检查端点。
+3. 身份验证系统：Auth 提供商集成、JWT/Session 管理、RBAC 权限脚手架。
+4. 服务通信：API 版本控制设置、请求/响应序列化、错误响应标准化。
 
-Files to create:
-- api/ or server/ (backend source)
-- migrations/ (database migrations)
-- docs/api-spec.yaml (OpenAPI specification)
-
-Format: Working API scaffold with database and auth
-Timeline: 4 days
+格式：包含数据库和鉴权的可用 API 脚手架。
+工期：4 天。
 ```
 
-#### 🏛️ UX Architect — CSS System Implementation
+#### 🏛️ UX 架构师 (UX Architect) — CSS 系统实现
 ```
-Activate UX Architect for CSS system implementation on [PROJECT].
+针对 [项目] 激活 UX 架构师进行 CSS 系统实现。
 
-Input: Brand Guardian identity + own Phase 1 CSS Design System spec
-Deliverables required:
-1. Design Tokens Implementation
-   - CSS custom properties (colors, typography, spacing)
-   - Brand color palette with semantic naming
-   - Typography scale with responsive adjustments
-2. Layout System
-   - Container system (responsive breakpoints)
-   - Grid patterns (2-col, 3-col, sidebar)
-   - Flexbox utilities
-3. Theme System
-   - Light theme variables
-   - Dark theme variables
-   - System preference detection
-   - Theme toggle component
-   - Smooth transition between themes
+要求交付物：
+1. 设计令牌实现：CSS 自定义属性（颜色、排版、间距）。
+2. 布局系统：容器系统（响应式断点）、栅格模式、Flexbox 实用类。
+3. 主题系统：变量定义、系统偏好检测、切换组件、平滑过渡。
 
-Files to create/update:
-- css/design-system.css (or equivalent in framework)
-- css/layout.css
-- css/components.css
-- js/theme-manager.js
-
-Format: Implemented CSS design system with theme toggle
-Timeline: 2 days
+格式：已实现的 CSS 设计系统（含主题切换）。
+工期：2 天。
 ```
 
-## Verification Checkpoint (Day 4-5)
+## 验证检查点（第 4-5 天）
 
-### Evidence Collector Verification
+### 证据收集者验证
 ```
-Activate Evidence Collector for Phase 2 foundation verification.
+激活证据收集者对阶段 2 的基础进行验证。
 
-Verify the following with screenshot evidence:
-1. CI/CD pipeline executes successfully (show pipeline logs)
-2. Application skeleton loads in browser (desktop screenshot)
-3. Application skeleton loads on mobile (mobile screenshot)
-4. Theme toggle works (light + dark screenshots)
-5. API health check responds (curl output)
-6. Database is accessible (migration status)
-7. Monitoring dashboards are active (dashboard screenshot)
-8. Component library renders (component demo page)
+通过截图证明以下内容：
+1. CI/CD 流水线成功执行。
+2. 应用骨架在桌面端加载。
+3. 应用骨架在移动端加载。
+4. 主题切换功能正常。
+5. API 健康检查有响应。
+6. 数据库可访问（迁移状态）。
+7. 监控仪表盘已激活。
+8. 组件库渲染正常（组件 Demo 页）。
 
-Format: Evidence Package with screenshots
-Verdict: PASS / FAIL with specific issues
+格式：带有截图的证据包。
+结论：通过 (PASS) / 失败 (FAIL)（需注明具体问题）。
 ```
 
-## Quality Gate Checklist
+## 质量关卡清单 (Quality Gate Checklist)
 
-| # | Criterion | Evidence Source | Status |
+| # | 准则 | 证据来源 | 状态 |
 |---|-----------|----------------|--------|
-| 1 | CI/CD pipeline builds, tests, and deploys | Pipeline execution logs | ☐ |
-| 2 | Database schema deployed with all tables/indexes | Migration success output | ☐ |
-| 3 | API scaffold responding on health check | curl response evidence | ☐ |
-| 4 | Frontend skeleton renders in browser | Evidence Collector screenshots | ☐ |
-| 5 | Monitoring dashboards showing metrics | Dashboard screenshots | ☐ |
-| 6 | Design system tokens implemented | Component library demo | ☐ |
-| 7 | Theme toggle functional (light/dark/system) | Before/after screenshots | ☐ |
-| 8 | Git workflow and processes documented | Studio Operations playbook | ☐ |
+| 1 | CI/CD 流水线可构建、测试并部署 | 流水线执行日志 | ☐ |
+| 2 | 数据库 Schema 已部署所有表/索引 | 迁移成功的输出 | ☐ |
+| 3 | API 脚手架健康检查响应正常 | curl 响应证据 | ☐ |
+| 4 | 前端骨架在浏览器中正常渲染 | 证据收集者截图 | ☐ |
+| 5 | 监控仪表盘展示实时指标 | 仪表盘截图 | ☐ |
+| 6 | 设计系统令牌已实现 | 组件库 Demo | ☐ |
+| 7 | Git 工作流及流程已记录 | 工坊运作剧本 | ☐ |
 
-## Gate Decision
+## 关卡决策
 
-**Dual sign-off required**: DevOps Automator (infrastructure) + Evidence Collector (visual)
+**需双重签发**：运维自动化专家（基础设施）+ 证据收集者（视觉层面）。
 
-- **PASS**: Working skeleton with full DevOps pipeline → Phase 3 activation
-- **FAIL**: Specific infrastructure or application issues → Fix and re-verify
-
-## Handoff to Phase 3
-
-```markdown
-## Phase 2 → Phase 3 Handoff Package
-
-### For all Developer Agents:
-- Working CI/CD pipeline (auto-deploys on merge)
-- Design system tokens and component library
-- API scaffold with auth and health checks
-- Database with schema and seed data
-- Git workflow and PR process
-
-### For Evidence Collector (ongoing QA):
-- Application URLs (dev, staging)
-- Screenshot capture methodology
-- Component library reference
-- Brand guidelines for visual verification
-
-### For Agents Orchestrator (Dev↔QA loop management):
-- Sprint Prioritizer backlog (from Phase 1)
-- Task list with acceptance criteria (from Phase 1)
-- Agent assignment matrix (from NEXUS strategy)
-- Quality thresholds for each task type
-
-### Environment Access:
-- Dev environment: [URL]
-- Staging environment: [URL]
-- Monitoring dashboard: [URL]
-- CI/CD pipeline: [URL]
-- API documentation: [URL]
-```
+- **通过**：携带全套 DevOps 流水线的可用骨架应用进入阶段 3。
+- **失败**：特定的基础设施或应用问题 —— 修复并重新验证。
 
 ---
 
-*Phase 2 is complete when the skeleton application is running, the CI/CD pipeline is operational, and the Evidence Collector has verified all foundation elements with screenshots.*
+*当骨架应用正在运行、CI/CD 流水线开启且证据收集者已通过截图验证了所有基础元素时，阶段 2 即告完成。*

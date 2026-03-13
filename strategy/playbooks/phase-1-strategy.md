@@ -1,238 +1,168 @@
-# 🏗️ Phase 1 Playbook — Strategy & Architecture
+# 🏗️ 阶段 1 剧本 — 战略与架构 (Strategy & Architecture)
 
-> **Duration**: 5-10 days | **Agents**: 8 | **Gate Keepers**: Studio Producer + Reality Checker
+> **工期**：5-10 天 | **活跃智能体**：8 位 | **关卡守卫**：工坊制作人 (Studio Producer) + 现实检查员 (Reality Checker)
 
 ---
 
-## Objective
+## 目标
 
-Define what we're building, how it's structured, and what success looks like — before writing a single line of code. Every architectural decision is documented. Every feature is prioritized. Every dollar is accounted for.
+在写下第一行代码前，定义我们要构建什么、如何构建、以及何为成功。每一项架构决策都必须记录在案，功能优先级必须明确，每一分预算都要有据可查。
 
-## Pre-Conditions
+## 前置条件
 
-- [ ] Phase 0 Quality Gate passed (GO decision)
-- [ ] Phase 0 Handoff Package received
-- [ ] Stakeholder alignment on project scope
+- [ ] 阶段 0 质量关卡已通过 (GO 决策)
+- [ ] 已接收阶段 0 交接包
+- [ ] 利益相关者对项目范围达成一致
 
-## Agent Activation Sequence
+## 智能体激活序列
 
-### Step 1: Strategic Framing (Day 1-3, Parallel)
+### 第一步：战略框架（第 1-3 天，并行）
 
-#### 🎬 Studio Producer — Strategic Portfolio Alignment
+#### 🎬 工坊制作人 (Studio Producer) — 战略对齐
 ```
-Activate Studio Producer for strategic portfolio alignment on [PROJECT].
+针对 [项目] 激活工坊制作人进行战略对齐。
 
-Input: Phase 0 Executive Summary + Market Analysis Report
-Deliverables required:
-1. Strategic Portfolio Plan with project positioning
-2. Vision, objectives, and ROI targets
-3. Resource allocation strategy
-4. Risk/reward assessment
-5. Success criteria and milestone definitions
+输入：阶段 0 执行摘要 + 市场分析报告。
+要求的交付物：
+1. 包含项目定位的战略组合计划。
+2. 愿景、目标及 ROI 指标。
+3. 资源分配策略。
+4. 风险/收益评估。
+5. 成功标准与里程碑定义。
 
-Align with: Organizational strategic objectives
-Format: Strategic Portfolio Plan Template
-Timeline: 3 days
-```
-
-#### 🎭 Brand Guardian — Brand Identity System
-```
-Activate Brand Guardian for brand identity development on [PROJECT].
-
-Input: Phase 0 UX Research (personas, journey maps)
-Deliverables required:
-1. Brand Foundation (purpose, vision, mission, values, personality)
-2. Visual Identity System (colors, typography, spacing as CSS variables)
-3. Brand Voice and Messaging Architecture
-4. Logo system specifications (if new brand)
-5. Brand usage guidelines
-
-Format: Brand Identity System Document
-Timeline: 3 days
+对齐要求：符合组织的整体战略目标。
+格式：战略组合计划模板。
+工期：3 天。
 ```
 
-#### 💰 Finance Tracker — Budget and Resource Planning
+#### 🎭 品牌守护者 (Brand Guardian) — 品牌识别系统
 ```
-Activate Finance Tracker for financial planning on [PROJECT].
+针对 [项目] 激活品牌守护者进行品牌识别开发。
 
-Input: Studio Producer strategic plan + Phase 0 Tech Stack Assessment
-Deliverables required:
-1. Comprehensive project budget with category breakdown
-2. Resource cost projections (agents, infrastructure, tools)
-3. ROI model with break-even analysis
-4. Cash flow timeline
-5. Financial risk assessment with contingency reserves
+输入：阶段 0 UX 研究资料（画像、旅程图）。
+要求的交付物：
+1. 品牌基础（使命、愿景、价值观、性格）。
+2. 视觉识别系统（颜色、排版、间距，定义为 CSS 变量）。
+3. 品牌语气 (Voice) 与话术架构。
+4. Logo 系统规格（如果是新品牌）。
+5. 品牌使用指南。
 
-Format: Financial Plan with ROI Projections
-Timeline: 2 days
+格式：品牌识别系统文档。
+工期：3 天。
 ```
 
-### Step 2: Technical Architecture (Day 3-7, Parallel, after Step 1 outputs available)
-
-#### 🏛️ UX Architect — Technical Architecture + UX Foundation
+#### 💰 财务追踪专家 (Finance Tracker) — 预算与资源规划
 ```
-Activate UX Architect for technical architecture on [PROJECT].
+针对 [项目] 激活财务追踪专家进行财务规划。
 
-Input: Brand Guardian visual identity + Phase 0 UX Research
-Deliverables required:
-1. CSS Design System (variables, tokens, scales)
-2. Layout Framework (Grid/Flexbox patterns, responsive breakpoints)
-3. Component Architecture (naming conventions, hierarchy)
-4. Information Architecture (page flow, content hierarchy)
-5. Theme System (light/dark/system toggle)
-6. Accessibility Foundation (WCAG 2.1 AA baseline)
+输入：工坊制作人战略计划 + 阶段 0 技术栈评估。
+要求的交付物：
+1. 包含类别细分的完整项目预算。
+2. 资源成本预测（智能体、基础设施、工具）。
+3. 包含盈亏平衡分析的 ROI 模型。
+4. 现金流时间线。
+5. 包含应急储备的财务风险评估。
 
-Files to create:
+格式：包含 ROI 预测的财务计划。
+工期：2 天。
+```
+
+### 第二步：技术架构（第 3-7 天，并行，在第一步产出后启动）
+
+#### 🏛️ UX 架构师 (UX Architect) — 技术架构与 UX 基础
+```
+针对 [项目] 激活 UX 架构师进行技术架构设计。
+
+输入：品牌守护者视觉识别系统 + 阶段 0 UX 研究。
+要求的交付物：
+1. CSS 设计系统（变量、令牌、比例尺）。
+2. 布局框架（Grid/Flexbox 模式、响应式断点）。
+3. 组件架构（命名规范、层级）。
+4. 信息架构（页面流、内容层级）。
+5. 主题系统（亮色/暗色/系统切换）。
+6. 无障碍基础 (WCAG 2.1 AA)。
+
+需创建的文件：
 - css/design-system.css
 - css/layout.css
 - css/components.css
 - docs/ux-architecture.md
 
-Format: Developer-Ready Foundation Package
-Timeline: 4 days
+格式：开发者就绪的基础包。
+工期：4 天。
 ```
 
-#### 🏗️ Backend Architect — System Architecture
+#### 🏗️ 后端架构师 (Backend Architect) — 系统架构
 ```
-Activate Backend Architect for system architecture on [PROJECT].
+针对 [项目] 激活后端架构师进行系统架构设计。
 
-Input: Phase 0 Tech Stack Assessment + Compliance Requirements
-Deliverables required:
-1. System Architecture Specification
-   - Architecture pattern (microservices/monolith/serverless/hybrid)
-   - Communication pattern (REST/GraphQL/gRPC/event-driven)
-   - Data pattern (CQRS/Event Sourcing/CRUD)
-2. Database Schema Design with indexing strategy
-3. API Design Specification with versioning
-4. Authentication and Authorization Architecture
-5. Security Architecture (defense in depth)
-6. Scalability Plan (horizontal scaling strategy)
+输入：阶段 0 技术栈评估 + 合规要求。
+要求的交付物：
+1. 系统架构规范（架构模式、通信模式、数据模式）。
+2. 包含索引策略的数据库 Schema 设计。
+3. 包含版本控制的 API 设计规范。
+4. 身份验证与授权架构。
+5. 安全架构（深度防御）。
+6. 可扩展性计划。
 
-Format: System Architecture Specification
-Timeline: 4 days
+格式：系统架构规范说明书。
+工期：4 天。
 ```
 
-#### 🤖 AI Engineer — ML Architecture (if applicable)
+#### 👔 高级项目经理 (Senior Project Manager) — 规格转化为任务
 ```
-Activate AI Engineer for ML system architecture on [PROJECT].
+针对 [项目] 激活高级项目经理进行任务列表创建。
 
-Input: Backend Architect system architecture + Phase 0 Data Audit
-Deliverables required:
-1. ML System Design
-   - Model selection and training strategy
-   - Data pipeline architecture
-   - Inference strategy (real-time/batch/edge)
-2. AI Ethics and Safety Framework
-3. Model monitoring and retraining plan
-4. Integration points with main application
-5. Cost projections for ML infrastructure
+输入：所有阶段 0 文档 + 架构规范（按可用性）。
+要求的交付物：
+1. 完整任务列表（引用规格书原文，严禁添加额外功能）。
+2. 每项任务均有明确的验收标准。
+3. 任务间的依赖关系图。
+4. 努力程度估算（故事点或小时）。
+5. 实现风险登记册。
 
-Condition: Only activate if project includes AI/ML features
-Format: ML System Design Document
-Timeline: 3 days
+规则：严禁添加规格书中未定义的功能；引用需求原文；对努力程度的估算需务实。
+
+格式：带有验收标准的任务列表。
+工期：3 天。
 ```
 
-#### 👔 Senior Project Manager — Spec-to-Task Conversion
+### 第三步：优先级排序（第 7-10 天，在第二步之后启动）
+
+#### 🎯 冲刺优先级排序员 (Sprint Prioritizer) — 功能优先级
 ```
-Activate Senior Project Manager for task list creation on [PROJECT].
+针对 [项目] 激活冲刺优先级排序员进行待办列表排序。
 
-Input: ALL Phase 0 documents + Architecture specs (as available)
-Deliverables required:
-1. Comprehensive Task List
-   - Quote EXACT requirements from spec (no luxury features)
-   - Each task has clear acceptance criteria
-   - Dependencies mapped between tasks
-   - Effort estimates (story points or hours)
-2. Work Breakdown Structure
-3. Critical path identification
-4. Risk register for implementation
+要求交付物：
+1. 经过 RICE 评分的积压列表。
+2. 基于速率估算的冲刺任务分配。
+3. 包含关键路径的依赖关系图。
+4. MoSCoW 分类 (Must/Should/Could/Won't)。
+5. 包含里程碑映射的发布计划。
 
-Rules:
-- Do NOT add features not in the specification
-- Quote exact text from requirements
-- Be realistic about effort estimates
-
-Format: Task List with acceptance criteria
-Timeline: 3 days
+验证：工坊制作人需确认其与战略对齐。
+格式：优先级冲刺计划。
+工期：2 天。
 ```
 
-### Step 3: Prioritization (Day 7-10, Sequential, after Step 2)
+## 质量关卡清单 (Quality Gate Checklist)
 
-#### 🎯 Sprint Prioritizer — Feature Prioritization
-```
-Activate Sprint Prioritizer for backlog prioritization on [PROJECT].
-
-Input:
-- Senior Project Manager → Task List
-- Backend Architect → System Architecture
-- UX Architect → UX Architecture
-- Finance Tracker → Budget Framework
-- Studio Producer → Strategic Plan
-
-Deliverables required:
-1. RICE-scored backlog (Reach, Impact, Confidence, Effort)
-2. Sprint assignments with velocity-based estimation
-3. Dependency map with critical path
-4. MoSCoW classification (Must/Should/Could/Won't)
-5. Release plan with milestone mapping
-
-Validation: Studio Producer confirms strategic alignment
-Format: Prioritized Sprint Plan
-Timeline: 2 days
-```
-
-## Quality Gate Checklist
-
-| # | Criterion | Evidence Source | Status |
+| # | 准则 | 证据来源 | 状态 |
 |---|-----------|----------------|--------|
-| 1 | Architecture covers 100% of spec requirements | Senior PM task list cross-referenced with architecture | ☐ |
-| 2 | Brand system complete (logo, colors, typography, voice) | Brand Guardian deliverable | ☐ |
-| 3 | All technical components have implementation path | Backend Architect + UX Architect specs | ☐ |
-| 4 | Budget approved and within constraints | Finance Tracker plan | ☐ |
-| 5 | Sprint plan is velocity-based and realistic | Sprint Prioritizer backlog | ☐ |
-| 6 | Security architecture defined | Backend Architect security spec | ☐ |
-| 7 | Compliance requirements integrated into architecture | Legal requirements mapped to technical decisions | ☐ |
+| 1 | 架构覆盖了 100% 的规格需求 | 高级 PM 任务列表与架构交叉比对 | ☐ |
+| 2 | 品牌系统完整（logo、颜色、排版及语气） | 品牌守护者交付物 | ☐ |
+| 3 | 所有技术组件均有实现路径 | 后端架构师 + UX 架构师规范文件 | ☐ |
+| 4 | 预算已获批准且在约束范围内 | 财务追踪计划 | ☐ |
+| 5 | 冲刺计划基于速率且切实可行 | 冲刺优先级排序员积压列表 | ☐ |
 
-## Gate Decision
+## 关卡决策
 
-**Dual sign-off required**: Studio Producer (strategic) + Reality Checker (technical)
+**需双重签发**：工坊制作人（战略层面）+ 现实检查员（技术层面）。
 
-- **APPROVED**: Proceed to Phase 2 with full Architecture Package
-- **REVISE**: Specific items need rework (return to relevant Step)
-- **RESTRUCTURE**: Fundamental architecture issues (restart Phase 1)
-
-## Handoff to Phase 2
-
-```markdown
-## Phase 1 → Phase 2 Handoff Package
-
-### Architecture Package:
-1. Strategic Portfolio Plan (Studio Producer)
-2. Brand Identity System (Brand Guardian)
-3. Financial Plan (Finance Tracker)
-4. CSS Design System + UX Architecture (UX Architect)
-5. System Architecture Specification (Backend Architect)
-6. ML System Design (AI Engineer — if applicable)
-7. Comprehensive Task List (Senior Project Manager)
-8. Prioritized Sprint Plan (Sprint Prioritizer)
-
-### For DevOps Automator:
-- Deployment architecture from Backend Architect
-- Environment requirements from System Architecture
-- Monitoring requirements from Infrastructure needs
-
-### For Frontend Developer:
-- CSS Design System from UX Architect
-- Brand Identity from Brand Guardian
-- Component architecture from UX Architect
-- API specification from Backend Architect
-
-### For Backend Architect (continuing):
-- Database schema ready for deployment
-- API scaffold ready for implementation
-- Auth system architecture defined
-```
+- **批准**：携带完整的“架构包”进入阶段 2。
+- **修订**：特定项需返工（返回相应步骤）。
+- **重组**：基础架构存在重大问题（重启阶段 1）。
 
 ---
 
-*Phase 1 is complete when Studio Producer and Reality Checker both sign off on the Architecture Package.*
+*当工坊制作人和现实检查员共同签署了“架构包”时，阶段 1 即告完成。*

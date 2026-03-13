@@ -1,154 +1,66 @@
-# 🚀 Runbook: Startup MVP Build
+# 🚀 运行手册：初创公司 MVP 构建 (Startup MVP Build)
 
-> **Mode**: NEXUS-Sprint | **Duration**: 4-6 weeks | **Agents**: 18-22
+> **模式**：NEXUS-Sprint | **工期**：4-6 周 | **活跃智能体**：18-22 位
 
 ---
 
-## Scenario
+## 场景描述
 
-You're building a startup MVP — a new product that needs to validate product-market fit quickly. Speed matters, but so does quality. You need to go from idea to live product with real users in 4-6 weeks.
+你正在构建一个初创公司的 MVP（最小可行产品）—— 一个需要快速验证产品与市场契合度 (PMF) 的新产品。速度至关重要，但质量同样不可或缺。你需要在 4-6 周内将想法转化为拥有真实用户的上线产品。
 
-## Agent Roster
+## 智能体阵容
 
-### Core Team (Always Active)
-| Agent | Role |
-|-------|------|
-| Agents Orchestrator | Pipeline controller |
-| Senior Project Manager | Spec-to-task conversion |
-| Sprint Prioritizer | Backlog management |
-| UX Architect | Technical foundation |
-| Frontend Developer | UI implementation |
-| Backend Architect | API and database |
-| DevOps Automator | CI/CD and deployment |
-| Evidence Collector | QA for every task |
-| Reality Checker | Final quality gate |
+### 核心团队（始终激活）
+- **智能体编排者 (Agents Orchestrator)**：流水线总控。
+- **项目管理**：高级 PM、冲刺优先级排序员。
+- **技术团队**：UX 架构师、前端开发、后端架构师、运维自动化。
+- **QA 团队**：证据收集者（逐项验证）、现实检查员（终极关卡）。
 
-### Growth Team (Activated Week 3+)
-| Agent | Role |
-|-------|------|
-| Growth Hacker | Acquisition strategy |
-| Content Creator | Launch content |
-| Social Media Strategist | Social campaign |
+### 增长团队（第 3 周起激活）
+- **增长黑客 (Growth Hacker)**：获取策略。
+- **内容创作者 (Content Creator)**：发布内容。
+- **社交媒体战略家 (Social Media Strategist)**：社交媒体活动。
 
-### Support Team (As Needed)
-| Agent | Role |
-|-------|------|
-| Brand Guardian | Brand identity |
-| Analytics Reporter | Metrics and dashboards |
-| Rapid Prototyper | Quick validation experiments |
-| AI Engineer | If product includes AI features |
-| Performance Benchmarker | Load testing before launch |
-| Infrastructure Maintainer | Production setup |
+### 支持团队（按需激活）
+- **品牌守护者**、**数据分析汇报员**、**快速原型专家**、**AI 工程师**（若涉及 AI）、**性能基准测试员**、**基础设施维护员**。
 
-## Week-by-Week Execution
+---
 
-### Week 1: Discovery + Architecture (Phase 0 + Phase 1 compressed)
+## 逐周执行计划
 
-```
-Day 1-2: Compressed Discovery
-├── Trend Researcher → Quick competitive scan (1 day, not full report)
-├── UX Architect → Wireframe key user flows
-└── Senior Project Manager → Convert spec to task list
+### 第 1 周：发现与架构（阶段 0 + 阶段 1 压缩版）
+- **第 1-2 天：压缩发现**：快速竞争扫描、线框图设计、规格转化为任务。
+- **第 3-4 天：架构**：设计系统、组件架构、数据库 Schema、品牌基础。
+- **第 5 天：基础搭建**：CI/CD 流水线、环境准备、API 脚手架。
 
-Day 3-4: Architecture
-├── UX Architect → CSS design system + component architecture
-├── Backend Architect → System architecture + database schema
-├── Brand Guardian → Quick brand foundation (colors, typography, voice)
-└── Sprint Prioritizer → RICE-scored backlog + sprint plan
+### 第 2-3 周：核心构建（阶段 2 + 阶段 3）
+- **冲刺 1 (第 2 周)**：执行“开发-质检 (Dev↔QA)”循环，实现核心 UI、API 及鉴权逻辑。
+- **冲刺 2 (第 3 周)**：继续功能实现。增长团队介入：设计裂变机制、开始创作发布内容、设置指标仪表盘。
 
-Day 5: Foundation Setup
-├── DevOps Automator → CI/CD pipeline + environments
-├── Frontend Developer → Project scaffolding
-├── Backend Architect → Database + API scaffold
-└── Quality Gate: Architecture Package approved
-```
+### 第 4 周：打磨与加固（阶段 4）
+- **第 1-2 天：质量冲刺**：完整截图、负载测试、修复 QA 问题、品牌审计。
+- **第 3-4 天：现实检查**：现实检查员进行最终集成测试、生产就绪评估、部署准备。
+- **第 5 天：关卡决策**：现实检查员裁决（若“仍需改进”则进入 2-3 天快速修复循环）。若通过裁决，则准备发布。
 
-### Week 2-3: Core Build (Phase 2 + Phase 3)
+### 第 5-6 周：发布与增长（阶段 5）
+- **第 5 周：发布**：生产环境部署、激活获取渠道、发布内容、全平台营销、实时监控、激活用户支持。
+- **第 6 周：优化**：渠道优化、收集早期用户反馈、启动 A/B 测试、进行首周分析、规划迭代冲刺。
 
-```
-Sprint 1 (Week 2):
-├── Agents Orchestrator manages Dev↔QA loop
-├── Frontend Developer → Core UI (auth, main views, navigation)
-├── Backend Architect → Core API (auth, CRUD, business logic)
-├── Evidence Collector → QA every completed task
-├── AI Engineer → ML features if applicable
-└── Sprint Review at end of week
+---
 
-Sprint 2 (Week 3):
-├── Continue Dev↔QA loop for remaining features
-├── Growth Hacker → Design viral mechanics + referral system
-├── Content Creator → Begin launch content creation
-├── Analytics Reporter → Set up tracking and dashboards
-└── Sprint Review at end of week
-```
+## 成功指标
 
-### Week 4: Polish + Hardening (Phase 4)
+- **上线时间**：≤ 6 周。
+- **核心功能完成度**：100% 覆盖 MVP 范围。
+- **首批用户入驻**：发布后 48 小时内。
+- **系统可用性**：首周 > 99%。
+- **用户反馈收集**：前 2 周获得 ≥ 50 份回复。
 
-```
-Day 1-2: Quality Sprint
-├── Evidence Collector → Full screenshot suite
-├── Performance Benchmarker → Load testing
-├── Frontend Developer → Fix QA issues
-├── Backend Architect → Fix API issues
-└── Brand Guardian → Brand consistency audit
+---
 
-Day 3-4: Reality Check
-├── Reality Checker → Final integration testing
-├── Infrastructure Maintainer → Production readiness
-└── DevOps Automator → Production deployment prep
+## 常见陷阱与应对
 
-Day 5: Gate Decision
-├── Reality Checker verdict
-├── IF NEEDS WORK: Quick fix cycle (2-3 days)
-├── IF READY: Proceed to launch
-└── Executive Summary Generator → Stakeholder briefing
-```
-
-### Week 5-6: Launch + Growth (Phase 5)
-
-```
-Week 5: Launch
-├── DevOps Automator → Production deployment
-├── Growth Hacker → Activate acquisition channels
-├── Content Creator → Publish launch content
-├── Social Media Strategist → Cross-platform campaign
-├── Analytics Reporter → Real-time monitoring
-└── Support Responder → User support active
-
-Week 6: Optimize
-├── Growth Hacker → Analyze and optimize channels
-├── Feedback Synthesizer → Collect early user feedback
-├── Experiment Tracker → Launch A/B tests
-├── Analytics Reporter → Week 1 analysis
-└── Sprint Prioritizer → Plan iteration sprint
-```
-
-## Key Decisions
-
-| Decision Point | When | Who Decides |
-|---------------|------|-------------|
-| Go/No-Go on concept | End of Day 2 | Studio Producer |
-| Architecture approval | End of Day 4 | Senior Project Manager |
-| Feature scope for MVP | Sprint planning | Sprint Prioritizer |
-| Production readiness | Week 4 Day 5 | Reality Checker |
-| Launch timing | After Reality Checker READY | Studio Producer |
-
-## Success Criteria
-
-| Metric | Target |
-|--------|--------|
-| Time to live product | ≤ 6 weeks |
-| Core features complete | 100% of MVP scope |
-| First users onboarded | Within 48 hours of launch |
-| System uptime | > 99% in first week |
-| User feedback collected | ≥ 50 responses in first 2 weeks |
-
-## Common Pitfalls & Mitigations
-
-| Pitfall | Mitigation |
-|---------|-----------|
-| Scope creep during build | Sprint Prioritizer enforces MoSCoW — "Won't" means won't |
-| Over-engineering for scale | Rapid Prototyper mindset — validate first, scale later |
-| Skipping QA for speed | Evidence Collector runs on EVERY task — no exceptions |
-| Launching without monitoring | Infrastructure Maintainer sets up monitoring in Week 1 |
-| No feedback mechanism | Analytics + feedback collection built into Sprint 1 |
+- **开发中范围蔓延**：由优先级排序员强制执行 MoSCoW 原则。
+- **过度工程**：秉持快速原型理念，先验证，后扩展。
+- **为求快跳过 QA**：由证据收集者对**每一项**任务运行 QA。
+- **发布时无监控**：第 1 周即完成运维监控设置。

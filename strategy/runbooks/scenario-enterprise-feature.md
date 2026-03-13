@@ -1,157 +1,66 @@
-# 🏢 Runbook: Enterprise Feature Development
+# 🏢 运行手册：企业级功能开发 (Enterprise Feature Development)
 
-> **Mode**: NEXUS-Sprint | **Duration**: 6-12 weeks | **Agents**: 20-30
+> **模式**：NEXUS-Sprint | **工期**：6-12 周 | **活跃智能体**：20-30 位
 
 ---
 
-## Scenario
+## 场景描述
 
-You're adding a major feature to an existing enterprise product. Compliance, security, and quality gates are non-negotiable. Multiple stakeholders need alignment. The feature must integrate seamlessly with existing systems.
+你正在为一个现有的企业级产品添加一项重大功能。合规性、安全性和质量关卡是不可逾越的红线。多个利益相关者需要保持步调一致。该功能必须与现有系统实现无缝集成。
 
-## Agent Roster
+## 智能体阵容
 
-### Core Team
-| Agent | Role |
-|-------|------|
-| Agents Orchestrator | Pipeline controller |
-| Project Shepherd | Cross-functional coordination |
-| Senior Project Manager | Spec-to-task conversion |
-| Sprint Prioritizer | Backlog management |
-| UX Architect | Technical foundation |
-| UX Researcher | User validation |
-| UI Designer | Component design |
-| Frontend Developer | UI implementation |
-| Backend Architect | API and system integration |
-| Senior Developer | Complex implementation |
-| DevOps Automator | CI/CD and deployment |
-| Evidence Collector | Visual QA |
-| API Tester | Endpoint validation |
-| Reality Checker | Final quality gate |
-| Performance Benchmarker | Load testing |
+### 核心团队
+- **智能体编排者 (Agents Orchestrator)**：流水线控制器。
+- **项目牧羊人 (Project Shepherd)**：跨部门协调。
+- **高级项目经理 (Senior PM)**：规格转化为任务。
+- **冲刺优先级排序员 (Sprint Prioritizer)**：待办列表管理。
+- **架构师 (UX/后端)**、**开发者 (前端/高级/运维)**：实现与交付。
+- **QA 团队 (证据收集者/API 测试员/现实检查员/性能基准)**：质量验证。
 
-### Compliance & Governance
-| Agent | Role |
-|-------|------|
-| Legal Compliance Checker | Regulatory compliance |
-| Brand Guardian | Brand consistency |
-| Finance Tracker | Budget tracking |
-| Executive Summary Generator | Stakeholder reporting |
+### 合规与治理
+- **法律合规检查员 (Legal Compliance)**、**品牌守护者 (Brand Guardian)**、**财务追踪专家 (Finance Tracker)**、**执行摘要生成器 (Exec Summary)**。
 
-### Quality Assurance
-| Agent | Role |
-|-------|------|
-| Test Results Analyzer | Quality metrics |
-| Workflow Optimizer | Process improvement |
-| Experiment Tracker | A/B testing |
+### 质量保证
+- **结果分析师**、**流程优化专家**、**实验追踪专家**。
 
-## Execution Plan
+---
 
-### Phase 1: Requirements & Architecture (Week 1-2)
+## 执行计划
 
-```
-Week 1: Stakeholder Alignment
-├── Project Shepherd → Stakeholder analysis + communication plan
-├── UX Researcher → User research on feature need
-├── Legal Compliance Checker → Compliance requirements scan
-├── Senior Project Manager → Spec-to-task conversion
-└── Finance Tracker → Budget framework
+### 阶段 1：需求与架构（第 1-2 周）
+- **第 1 周：对齐**：利益相关者分析、需求调研、合规扫描、任务转化、预算框架。
+- **第 2 周：架构**：UX/组件架构、系统集成计划、UI 设计、优先级排序、品牌影响评估。
+- **质量关卡**：架构评审。
 
-Week 2: Technical Architecture
-├── UX Architect → UX foundation + component architecture
-├── Backend Architect → System architecture + integration plan
-├── UI Designer → Component design + design system updates
-├── Sprint Prioritizer → RICE-scored backlog
-├── Brand Guardian → Brand impact assessment
-└── Quality Gate: Architecture Review (Project Shepherd + Reality Checker)
-```
+### 阶段 2：基础（第 3 周）
+- 建立功能分支流水线、功能开关、组件脚手架、API 脚手架、数据库迁移及测试环境。
+- **质量关卡**：基础验证。
 
-### Phase 2: Foundation (Week 3)
+### 阶段 3：构建（第 4-9 周）
+- **冲刺 1-3**：执行“开发-质检”循环。
+- **每两周**：利益相关者状态更新、高管简报、预算追踪。
+- **冲刺结束**：利益相关者演示。
 
-```
-├── DevOps Automator → Feature branch pipeline + feature flags
-├── Frontend Developer → Component scaffolding
-├── Backend Architect → API scaffold + database migrations
-├── Infrastructure Maintainer → Staging environment setup
-└── Quality Gate: Foundation verified (Evidence Collector)
-```
+### 阶段 4：加固（第 10-11 周）
+- **第 10 周：证据收集**：完整截图集、回归测试、负载测试、合规审计、质量仪表盘、生产就绪评估。
+- **第 11 周：最终裁决**：现实检查员集成测试（默认“仍需改进”）、修复周期、重新验证、Go/No-Go 建议。
 
-### Phase 3: Build (Week 4-9)
+### 阶段 5：发布（第 12 周）
+- 金丝雀部署 (5% → 25% → 100%)、实时监控、功能采用率追踪、用户支持、早期反馈收集及发布报告。
 
-```
-Sprint 1-3 (Week 4-9):
-├── Agents Orchestrator → Dev↔QA loop management
-├── Frontend Developer → UI implementation (task by task)
-├── Backend Architect → API implementation (task by task)
-├── Senior Developer → Complex/premium features
-├── Evidence Collector → QA every task (screenshots)
-├── API Tester → Endpoint validation every API task
-├── Experiment Tracker → A/B test setup for key features
-│
-├── Bi-weekly:
-│   ├── Project Shepherd → Stakeholder status update
-│   ├── Executive Summary Generator → Executive briefing
-│   └── Finance Tracker → Budget tracking
-│
-└── Sprint Reviews with stakeholder demos
-```
+---
 
-### Phase 4: Hardening (Week 10-11)
+## 质量要求
 
-```
-Week 10: Evidence Collection
-├── Evidence Collector → Full screenshot suite
-├── API Tester → Complete regression suite
-├── Performance Benchmarker → Load test at 10x traffic
-├── Legal Compliance Checker → Final compliance audit
-├── Test Results Analyzer → Quality metrics dashboard
-└── Infrastructure Maintainer → Production readiness
+- 代码覆盖率 > 80%。
+- API 响应时间 P95 < 200ms。
+- 符合 WCAG 2.1 AA 无障碍标准。
+- 零关键安全漏洞。
+- 100% 符合规格说明书。
 
-Week 11: Final Judgment
-├── Reality Checker → Integration testing (default: NEEDS WORK)
-├── Fix cycle if needed (2-3 days)
-├── Re-verification
-└── Executive Summary Generator → Go/No-Go recommendation
-```
+---
 
-### Phase 5: Rollout (Week 12)
+## 风险管理
 
-```
-├── DevOps Automator → Canary deployment (5% → 25% → 100%)
-├── Infrastructure Maintainer → Real-time monitoring
-├── Analytics Reporter → Feature adoption tracking
-├── Support Responder → User support for new feature
-├── Feedback Synthesizer → Early feedback collection
-└── Executive Summary Generator → Launch report
-```
-
-## Stakeholder Communication Cadence
-
-| Audience | Frequency | Agent | Format |
-|----------|-----------|-------|--------|
-| Executive sponsors | Bi-weekly | Executive Summary Generator | SCQA summary (≤500 words) |
-| Product team | Weekly | Project Shepherd | Status report |
-| Engineering team | Daily | Agents Orchestrator | Pipeline status |
-| Compliance team | Monthly | Legal Compliance Checker | Compliance status |
-| Finance | Monthly | Finance Tracker | Budget report |
-
-## Quality Requirements
-
-| Requirement | Threshold | Verification |
-|-------------|-----------|-------------|
-| Code coverage | > 80% | Test Results Analyzer |
-| API response time | P95 < 200ms | Performance Benchmarker |
-| Accessibility | WCAG 2.1 AA | Evidence Collector |
-| Security | Zero critical vulnerabilities | Legal Compliance Checker |
-| Brand consistency | 95%+ adherence | Brand Guardian |
-| Spec compliance | 100% | Reality Checker |
-| Load handling | 10x current traffic | Performance Benchmarker |
-
-## Risk Management
-
-| Risk | Probability | Impact | Mitigation | Owner |
-|------|------------|--------|-----------|-------|
-| Integration complexity | High | High | Early integration testing, API Tester in every sprint | Backend Architect |
-| Scope creep | Medium | High | Sprint Prioritizer enforces MoSCoW, Project Shepherd manages changes | Sprint Prioritizer |
-| Compliance issues | Medium | Critical | Legal Compliance Checker involved from Day 1 | Legal Compliance Checker |
-| Performance regression | Medium | High | Performance Benchmarker tests every sprint | Performance Benchmarker |
-| Stakeholder misalignment | Low | High | Bi-weekly executive briefings, Project Shepherd coordination | Project Shepherd |
+重点关注集成复杂度（早期集成测试）、范围蔓延（严格执行 MoSCoW）、合规性问题（全程介入）、性能衰退（每冲刺测试）以及利益相关者偏离。

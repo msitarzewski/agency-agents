@@ -1,155 +1,155 @@
-# Multi-Agent Workflow: Startup MVP
+# 多智能体工作流：初创公司 MVP (Startup MVP)
 
-> A step-by-step example of how to coordinate multiple agents to go from idea to shipped MVP.
+> 一个循序渐进的示例，展示如何协调多个智能体，从想法走向交付 MVP。
 
-## The Scenario
+## 场景设定
 
-You're building a SaaS MVP — a team retrospective tool for remote teams. You have 4 weeks to ship a working product with user signups, a core feature, and a landing page.
+你正在构建一个 SaaS MVP——一个面向远程团队的团队回顾工具 (Team Retrospective Tool)。你有 4 周时间来交付一个包含用户注册、核心功能和落地页的可用产品。
 
-## Agent Team
+## 智能体团队
 
-| Agent | Role in this workflow |
+| 智能体 | 在此工作流中的角色 |
 |-------|---------------------|
-| Sprint Prioritizer | Break the project into weekly sprints |
-| UX Researcher | Validate the idea with quick user interviews |
-| Backend Architect | Design the API and data model |
-| Frontend Developer | Build the React app |
-| Rapid Prototyper | Get the first version running fast |
-| Growth Hacker | Plan launch strategy while building |
-| Reality Checker | Gate each milestone before moving on |
+| 冲刺规划专家 (Sprint Prioritizer) | 将项目分解为每周冲刺 (Sprints) |
+| UX 研究员 (UX Researcher) | 通过快速用户访谈验证想法 |
+| 后端架构师 (Backend Architect) | 设计 API 和数据模型 |
+| 前端开发工程师 (Frontend Developer) | 构建 React 应用 |
+| 快速原型专家 (Rapid Prototyper) | 快速运行起第一个版本 |
+| 增长黑客 (Growth Hacker) | 在构建的同时规划发布策略 |
+| 现实核查员 (Reality Checker) | 在进入下一阶段前对各里程碑进行把关 |
 
-## The Workflow
+## 工作流步骤
 
-### Week 1: Discovery + Architecture
+### 第 1 周：探索与架构设计
 
-**Step 1 — Activate Sprint Prioritizer**
-
-```
-Activate Sprint Prioritizer.
-
-Project: RetroBoard — a real-time team retrospective tool for remote teams.
-Timeline: 4 weeks to MVP launch.
-Core features: user auth, create retro boards, add cards, vote, action items.
-Constraints: solo developer, React + Node.js stack, deploy to Vercel + Railway.
-
-Break this into 4 weekly sprints with clear deliverables and acceptance criteria.
-```
-
-**Step 2 — Activate UX Researcher (in parallel)**
+**步骤 1 —— 激活冲刺规划专家**
 
 ```
-Activate UX Researcher.
+激活冲刺规划专家。
 
-I'm building a team retrospective tool for remote teams (5-20 people).
-Competitors: EasyRetro, Retrium, Parabol.
+项目：RetroBoard——一个面向远程团队的实时团队回顾工具。
+时间线：4 周内交付 MVP。
+核心功能：用户认证、创建回顾板、添加卡片、投票、行动项。
+约束条件：单人开发，React + Node.js 技术栈，部署至 Vercel + Railway。
 
-Run a quick competitive analysis and identify:
-1. What features are table stakes
-2. Where competitors fall short
-3. One differentiator we could own
-
-Output a 1-page research brief.
+将项目分解为 4 个每周冲刺，并给出明确的交付物和验收标准。
 ```
 
-**Step 3 — Hand off to Backend Architect**
+**步骤 2 —— 激活 UX 研究员（并行）**
 
 ```
-Activate Backend Architect.
+激活 UX 研究员。
 
-Here's our sprint plan: [paste Sprint Prioritizer output]
-Here's our research brief: [paste UX Researcher output]
+我正在构建一个面向远程团队（5-20 人）的团队回顾工具。
+竞争对手：EasyRetro, Retrium, Parabol。
 
-Design the API and database schema for RetroBoard.
-Stack: Node.js, Express, PostgreSQL, Socket.io for real-time.
+进行快速竞品分析并识别：
+1. 哪些功能是必不可少的（基础功能）
+2. 竞争对手在哪些方面做得不够
+3. 一个我们可以拥有的差异化卖点
 
-Deliver:
-1. Database schema (SQL)
-2. REST API endpoints list
-3. WebSocket events for real-time board updates
-4. Auth strategy recommendation
+输出一份 1 页纸的研究简报。
 ```
 
-### Week 2: Build Core Features
-
-**Step 4 — Activate Frontend Developer + Rapid Prototyper**
+**步骤 3 —— 移交给后端架构师**
 
 ```
-Activate Frontend Developer.
+激活后端架构师。
 
-Here's the API spec: [paste Backend Architect output]
+这是我们的冲刺计划：[粘贴冲刺规划专家的输出]
+这是我们的研究简报：[粘贴 UX 研究员的输出]
 
-Build the RetroBoard React app:
-- Stack: React, TypeScript, Tailwind, Socket.io-client
-- Pages: Login, Dashboard, Board view
-- Components: RetroCard, VoteButton, ActionItem, BoardColumn
+为 RetroBoard 设计 API 和数据库模式。
+技术栈：Node.js, Express, PostgreSQL, 使用 Socket.io 实现实时通信。
 
-Start with the Board view — it's the core experience.
-Focus on real-time: when one user adds a card, everyone sees it.
+交付内容：
+1. 数据库模式 (SQL)
+2. REST API 端点列表
+3. 用于实时面板更新的 WebSocket 事件
+4. 认证策略建议
 ```
 
-**Step 5 — Reality Check at midpoint**
+### 第 2 周：构建核心功能
+
+**步骤 4 —— 激活前端开发工程师 + 快速原型专家**
 
 ```
-Activate Reality Checker.
+激活前端开发工程师。
 
-We're at week 2 of a 4-week MVP build for RetroBoard.
+这是 API 规范：[粘贴后端架构师的输出]
 
-Here's what we have so far:
-- Database schema: [paste]
-- API endpoints: [paste]
-- Frontend components: [paste]
+构建 RetroBoard 的 React 应用：
+- 技术栈：React, TypeScript, Tailwind, Socket.io-client
+- 页面：登录页、仪表盘、回顾板视图
+- 组件：复盘卡片 (RetroCard)、投票按钮 (VoteButton)、行动项 (ActionItem)、面板列 (BoardColumn)
 
-Evaluate:
-1. Can we realistically ship in 2 more weeks?
-2. What should we cut to make the deadline?
-3. Any technical debt that will bite us at launch?
+从回顾板视图开始——它是核心体验。
+专注于实时性：当一个用户添加卡片时，所有人都能看到。
 ```
 
-### Week 3: Polish + Landing Page
-
-**Step 6 — Frontend Developer continues, Growth Hacker starts**
+**步骤 5 —— 在中期阶段进行现实核查**
 
 ```
-Activate Growth Hacker.
+激活现实核查员。
 
-Product: RetroBoard — team retrospective tool, launching in 1 week.
-Target: Engineering managers and scrum masters at remote-first companies.
-Budget: $0 (organic launch only).
+我们正处于 RetroBoard 4 周 MVP 构建计划的第 2 周。
 
-Create a launch plan:
-1. Landing page copy (hero, features, CTA)
-2. Launch channels (Product Hunt, Reddit, Hacker News, Twitter)
-3. Day-by-day launch sequence
-4. Metrics to track in week 1
+这是我们目前拥有的内容：
+- 数据库模式：[粘贴]
+- API 端点：[粘贴]
+- 前端组件：[粘贴]
+
+评估：
+1. 我们在剩下的 2 周内现实地能交付吗？
+2. 为了赶上截止日期，我们应该削减哪些功能？
+3. 有没有哪些技术债会在发布时产生严重影响？
 ```
 
-### Week 4: Launch
+### 第 3 周：润色 + 落地页
 
-**Step 7 — Final Reality Check**
+**步骤 6 —— 前端开发继续进行，增长黑客开始工作**
 
 ```
-Activate Reality Checker.
+激活增长黑客。
 
-RetroBoard is ready to launch. Evaluate production readiness:
+产品：RetroBoard——团队回顾工具，1 周后发布。
+目标群体：远程优先公司的工程经理和 Scrum Master。
+预算：$0（仅限有机增长/口碑发布）。
 
-- Live URL: [url]
-- Test accounts created: yes
-- Error monitoring: Sentry configured
-- Database backups: daily automated
-
-Run through the launch checklist and give a GO / NO-GO decision.
-Require evidence for each criterion.
+创建一个发布计划：
+1. 落地页文案（主标题、特性、CTA）
+2. 发布渠道（Product Hunt, Reddit, Hacker News, Twitter）
+3. 每日发布序列
+4. 第 1 周需要追踪的指标
 ```
 
-## Key Patterns
+### 第 4 周：正式发布
 
-1. **Sequential handoffs**: Each agent's output becomes the next agent's input
-2. **Parallel work**: UX Researcher and Sprint Prioritizer can run simultaneously in Week 1
-3. **Quality gates**: Reality Checker at midpoint and before launch prevents shipping broken code
-4. **Context passing**: Always paste previous agent outputs into the next prompt — agents don't share memory
+**步骤 7 —— 最后的现实核查**
 
-## Tips
+```
+激活现实核查员。
 
-- Copy-paste agent outputs between steps — don't summarize, use the full output
-- If a Reality Checker flags an issue, loop back to the relevant specialist to fix it
-- Keep the Orchestrator agent in mind for automating this flow once you're comfortable with the manual version
+RetroBoard 已准备好发布。请评估生产就绪状态：
+
+- 线上地址：[url]
+- 已创建测试账号：是
+- 错误监控：已配置 Sentry
+- 数据库备份：每日自动备份
+
+过一遍发布清单，并给出一个 GO（准许发布）或 NO-GO（不准许发布）的决策。
+对每一项标准都需要提供证据支持。
+```
+
+## 关键模式
+
+1. **顺序移交**：每个智能体的输出都会成为下一个智能体的输入。
+2. **并行工作**：在第 1 周，UX 研究员和冲刺规划专家可以同时运行。
+3. **质量门禁**：在中期和发布前使用现实核查员，可以防止发布满是 Bug 的代码。
+4. **上下文传递**：始终将上一个智能体的输出粘贴到下一个提示词中——智能体之间不共享记忆。
+
+## 技巧提示
+
+- 在步骤之间直接复制粘贴智能体的输出——不要总结，直接使用完整输出。
+- 如果现实核查员标记了某个问题，请循环回到相关的专家智能体进行修复。
+- 当你熟悉了手动流程后，可以考虑使用 Orchestrator（编排者）智能体来自动化这个流程。

@@ -1,178 +1,157 @@
-# 🔍 Phase 0 Playbook — Intelligence & Discovery
+# 🔍 阶段 0 剧本 — 情报与发现 (Intelligence & Discovery)
 
-> **Duration**: 3-7 days | **Agents**: 6 | **Gate Keeper**: Executive Summary Generator
+> **工期**：3-7 天 | **活跃智能体**：6 位 | **关卡守卫**：执行摘要生成器 (Executive Summary Generator)
 
 ---
 
-## Objective
+## 目标
 
-Validate the opportunity before committing resources. No building until the problem, market, and regulatory landscape are understood.
+在投入资源前验证机会。在问题、市场和监管环境明晰前，严禁开启构建工作。
 
-## Pre-Conditions
+## 前置条件
 
-- [ ] Project brief or initial concept exists
-- [ ] Stakeholder sponsor identified
-- [ ] Budget for discovery phase approved
+- [ ] 项目简报或初步构思已存在
+- [ ] 已确定利益相关者发起人
+- [ ] 发现阶段的预算已批准
 
-## Agent Activation Sequence
+## 智能体激活序列
 
-### Wave 1: Parallel Launch (Day 1)
+### 第一波：并行启动（第 1 天）
 
-#### 🔍 Trend Researcher — Market Intelligence Lead
+#### 🔍 趋势研究员 (Trend Researcher) — 市场情报负责人
 ```
-Activate Trend Researcher for market intelligence on [PROJECT DOMAIN].
+激活趋势研究员为 [项目领域] 进行市场情报收集。
 
-Deliverables required:
-1. Competitive landscape analysis (direct + indirect competitors)
-2. Market sizing: TAM, SAM, SOM with methodology
-3. Trend lifecycle mapping: where is this market in the adoption curve?
-4. 3-6 month trend forecast with confidence intervals
-5. Investment and funding trends in the space
+要求的交付物：
+1. 竞争格局分析（直接与间接竞争对手）。
+2. 市场规模分析：TAM, SAM, SOM 及其方法论。
+3. 趋势生命周期图谱：该市场目前处于采用曲线的哪个位置？
+4. 包含置信区间的 3-6 个月趋势预测。
+5. 该领域的投资与融资趋势。
 
-Sources: Minimum 15 unique, verified sources
-Format: Strategic Report with executive summary
-Timeline: 3 days
-```
-
-#### 💬 Feedback Synthesizer — User Needs Analysis
-```
-Activate Feedback Synthesizer for user needs analysis on [PROJECT DOMAIN].
-
-Deliverables required:
-1. Multi-channel feedback collection plan (surveys, interviews, reviews, social)
-2. Sentiment analysis across existing user touchpoints
-3. Pain point identification and prioritization (RICE scored)
-4. Feature request analysis with business value estimation
-5. Churn risk indicators from feedback patterns
-
-Format: Synthesized Feedback Report with priority matrix
-Timeline: 3 days
+来源：至少 15 个独特且经过验证的来源。
+格式：带有执行摘要的战略报告。
+工期：3 天。
 ```
 
-#### 🔍 UX Researcher — User Behavior Analysis
+#### 💬 反馈合成器 (Feedback Synthesizer) — 用户需求分析
 ```
-Activate UX Researcher for user behavior analysis on [PROJECT DOMAIN].
+激活反馈合成器为 [项目领域] 进行用户需求分析。
 
-Deliverables required:
-1. User interview plan (5-10 target users)
-2. Persona development (3-5 primary personas)
-3. Journey mapping for primary user flows
-4. Usability heuristic evaluation of competitor products
-5. Behavioral insights with statistical validation
+要求的交付物：
+1. 多渠道反馈收集计划（调查、访谈、评价、社交媒体）。
+2. 现有用户接触点的情绪分析。
+3. 痛点识别与优先级排序 (RICE 评分)。
+4. 包含商业价值估算的功能需求分析。
+5. 从反馈模式中识别流失风险指标。
 
-Format: Research Findings Report with personas and journey maps
-Timeline: 5 days
-```
-
-### Wave 2: Parallel Launch (Day 1, independent of Wave 1)
-
-#### 📊 Analytics Reporter — Data Landscape Assessment
-```
-Activate Analytics Reporter for data landscape assessment on [PROJECT DOMAIN].
-
-Deliverables required:
-1. Existing data source audit (what data is available?)
-2. Signal identification (what can we measure?)
-3. Baseline metrics establishment
-4. Data quality assessment with completeness scoring
-5. Analytics infrastructure recommendations
-
-Format: Data Audit Report with signal map
-Timeline: 2 days
+格式：带有优先级矩阵的合成反馈报告。
+工期：3 天。
 ```
 
-#### ⚖️ Legal Compliance Checker — Regulatory Scan
+#### 🔍 UX 研究员 (UX Researcher) — 用户行为分析
 ```
-Activate Legal Compliance Checker for regulatory scan on [PROJECT DOMAIN].
+激活 UX 研究员为 [项目领域] 进行用户行为分析。
 
-Deliverables required:
-1. Applicable regulatory frameworks (GDPR, CCPA, HIPAA, etc.)
-2. Data handling requirements and constraints
-3. Jurisdiction mapping for target markets
-4. Compliance risk assessment with severity ratings
-5. Blocking vs. manageable compliance issues
+要求的交付物：
+1. 用户访谈计划（5-10 名目标用户）。
+2. 用户画像开发（3-5 个主要画像）。
+3. 主要用户路径的任务旅程图 (Journey Mapping)。
+4. 竞品的可用性启发式评估。
+5. 经过统计验证的行为洞察。
 
-Format: Compliance Requirements Matrix
-Timeline: 3 days
-```
-
-#### 🛠️ Tool Evaluator — Technology Landscape
-```
-Activate Tool Evaluator for technology landscape assessment on [PROJECT DOMAIN].
-
-Deliverables required:
-1. Technology stack assessment for the problem domain
-2. Build vs. buy analysis for key components
-3. Integration feasibility with existing systems
-4. Open source vs. commercial evaluation
-5. Technology risk assessment
-
-Format: Tech Stack Assessment with recommendation matrix
-Timeline: 2 days
+格式：包含画像和旅程图的调研结果报告。
+工期：5 天。
 ```
 
-## Convergence Point (Day 5-7)
+### 第二波：并行启动（第 1 天，独立于第一波）
 
-All six agents deliver their reports. The Executive Summary Generator synthesizes:
-
+#### 📊 数据分析汇报员 (Analytics Reporter) — 数据现状评估
 ```
-Activate Executive Summary Generator to synthesize Phase 0 findings.
+激活数据分析汇报员为 [项目领域] 进行数据现状评估。
 
-Input documents:
-1. Trend Researcher → Market Analysis Report
-2. Feedback Synthesizer → Synthesized Feedback Report
-3. UX Researcher → Research Findings Report
-4. Analytics Reporter → Data Audit Report
-5. Legal Compliance Checker → Compliance Requirements Matrix
-6. Tool Evaluator → Tech Stack Assessment
+要求的交付物：
+1. 现有数据源审计（有哪些可用数据？）。
+2. 信号识别（我们可以测量什么？）。
+3. 建立基准指标。
+4. 包含完整性评分的数据质量评估。
+5. 数据分析基础设施建议。
 
-Output: Executive Summary (≤500 words, SCQA format)
-Decision required: GO / NO-GO / PIVOT
-Include: Quantified market opportunity, validated user needs, regulatory path, technology feasibility
+格式：带有信号图谱的数据审计报告。
+工期：2 天。
 ```
 
-## Quality Gate Checklist
+#### ⚖️ 法律合规检查员 (Legal Compliance Checker) — 监管扫描
+```
+激活法律合规检查员为 [项目领域] 进行监管扫描。
 
-| # | Criterion | Evidence Source | Status |
+要求的交付物：
+1. 适用的监管框架（GDPR, CCPA, HIPAA 等）。
+2. 数据处理要求与约束。
+3. 目标市场的管辖权图谱。
+4. 包含严重性评级的合规风险评估。
+5. 阻塞性问题 vs 可管理的合规问题。
+
+格式：合规要求矩阵。
+工期：3 天。
+```
+
+#### 🛠️ 工具评估员 (Tool Evaluator) — 技术现状分析
+```
+激活工具评估员为 [项目领域] 进行技术现状评估。
+
+要求的交付物：
+1. 针对该问题领域的开发技术栈评估。
+2. 关键组件的“自建 vs 购买”分析。
+3. 与现有系统的集成可行性。
+4. 开源 vs 商业方案评估。
+5. 技术风险评估。
+
+格式：包含建议矩阵的技术栈评估。
+工期：2 天。
+```
+
+## 汇聚点（第 5-7 天）
+
+六位智能体提交报告。执行摘要生成器进行合成：
+
+```
+激活执行摘要生成器以合成阶段 0 的发现。
+
+输入文档：
+1. 趋势研究员报告
+2. 反馈合成器报告
+3. UX 研究员报告
+4. 数据分析汇报员报告
+5. 法律合规检查员报告
+6. 工具评估员报告
+
+输出：执行摘要 (≤500 字，SCQA 格式)
+要求的决策：前进 (GO) / 停止 (NO-GO) / 转型 (PIVOT)
+内容包含：已量化的市场机会、已验证的用户需求、监管路径、技术可行性。
+```
+
+## 质量关卡清单 (Quality Gate Checklist)
+
+| # | 准则 | 证据来源 | 状态 |
 |---|-----------|----------------|--------|
-| 1 | Market opportunity validated with TAM > minimum viable threshold | Trend Researcher report | ☐ |
-| 2 | ≥3 validated user pain points with supporting data | Feedback Synthesizer + UX Researcher | ☐ |
-| 3 | No blocking compliance issues identified | Legal Compliance Checker matrix | ☐ |
-| 4 | Key metrics and data sources identified | Analytics Reporter audit | ☐ |
-| 5 | Technology stack feasible and assessed | Tool Evaluator assessment | ☐ |
-| 6 | Executive summary delivered with GO/NO-GO recommendation | Executive Summary Generator | ☐ |
+| 1 | 市场机会已验证，TAM > 最小可行阈值 | 趋势研究员报告 | ☐ |
+| 2 | ≥3 个拥有支持数据的已验证用户痛点 | 反馈合成器 + UX 研究员 | ☐ |
+| 3 | 未发现阻塞性的合规问题 | 法律合规检查员矩阵 | ☐ |
+| 4 | 已确定关键指标和数据源 | 数据分析汇报员审计 | ☐ |
+| 5 | 技术栈可行且已评估 | 工具评估员评估 | ☐ |
+| 6 | 已提交带有 GO/NO-GO 建议的执行摘要 | 执行摘要生成器 | ☐ |
 
-## Gate Decision
+## 关卡决策
 
-- **GO**: Proceed to Phase 1 — Strategy & Architecture
-- **NO-GO**: Archive findings, document learnings, redirect resources
-- **PIVOT**: Modify scope/direction based on findings, re-run targeted discovery
+- **前进 (GO)**：进入阶段 1 — 战略与架构。
+- **停止 (NO-GO)**：存档发现，记录教训，重新分配资源。
+- **转型 (PIVOT)**：根据发现修改范围/方向，重新运行针对性的发现流程。
 
-## Handoff to Phase 1
+## 向阶段 1 交接
 
-```markdown
-## Phase 0 → Phase 1 Handoff Package
-
-### Documents to carry forward:
-1. Market Analysis Report (Trend Researcher)
-2. Synthesized Feedback Report (Feedback Synthesizer)
-3. User Personas and Journey Maps (UX Researcher)
-4. Data Audit Report (Analytics Reporter)
-5. Compliance Requirements Matrix (Legal Compliance Checker)
-6. Tech Stack Assessment (Tool Evaluator)
-7. Executive Summary with GO decision (Executive Summary Generator)
-
-### Key constraints identified:
-- [Regulatory constraints from Legal Compliance Checker]
-- [Technical constraints from Tool Evaluator]
-- [Market timing constraints from Trend Researcher]
-
-### Priority user needs (for Sprint Prioritizer):
-1. [Pain point 1 — from Feedback Synthesizer]
-2. [Pain point 2 — from UX Researcher]
-3. [Pain point 3 — from Feedback Synthesizer]
-```
+包含市场研究、用户画像、数据审计、合规矩阵及技术评估在内的全套报告包。明确记录各种约束条件及高优先级用户需求。
 
 ---
 
-*Phase 0 is complete when the Executive Summary Generator delivers a GO decision with supporting evidence from all six discovery agents.*
+*当执行摘要生成器提交了基于六位发现智能体证据的 GO 决策时，阶段 0 即告完成。*

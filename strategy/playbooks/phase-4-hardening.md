@@ -1,332 +1,134 @@
-# 🛡️ Phase 4 Playbook — Quality & Hardening
+# 🛡️ 阶段 4 剧本 — 质量与加固 (Quality & Hardening)
 
-> **Duration**: 3-7 days | **Agents**: 8 | **Gate Keeper**: Reality Checker (sole authority)
+> **工期**：3-7 天 | **活跃智能体**：8 位 | **关卡守卫**：现实检查员 (Reality Checker) — 唯一权威
 
 ---
 
-## Objective
+## 目标
 
-The final quality gauntlet. The Reality Checker defaults to "NEEDS WORK" — you must prove production readiness with overwhelming evidence. This phase exists because first implementations typically need 2-3 revision cycles, and that's healthy.
+最终的质量大考。**现实检查员 (Reality Checker)** 的默认结论是“仍需改进 (NEEDS WORK)” —— 你必须通过压倒性的证据证明生产环境已就绪。此阶段的存在是因为最初的实现通常需要 2-3 个修订周期，这在 NEXUS 体系中是健康且被预期的。
 
-## Pre-Conditions
+## 前置条件
 
-- [ ] Phase 3 Quality Gate passed (all tasks QA'd)
-- [ ] Phase 3 Handoff Package received
-- [ ] All features implemented and individually verified
+- [ ] 阶段 3 质量关卡已通过（所有任务均已过 QA）
+- [ ] 已接收阶段 3 交接包
+- [ ] 所有功能已实现并经过个人验证
 
-## Critical Mindset
+## 核心视角
 
-> **The Reality Checker's default verdict is NEEDS WORK.**
+> **现实检查员的默认结论是“仍需改进 (NEEDS WORK)”。**
 > 
-> This is not pessimism — it's realism. Production readiness requires:
-> - Complete user journeys working end-to-end
-> - Cross-device consistency (desktop, tablet, mobile)
-> - Performance under load (not just happy path)
-> - Security validation (not just "we added auth")
-> - Specification compliance (every requirement, not most)
+> 这不是悲观主义，而是现实主义。生产就绪要求：
+> - 完整的用户路径端到端运作正常。
+> - 跨设备一致性（桌面、平板、手机端）。
+> - 负载下的性能表现（而不仅仅是理想路径）。
+> - 真正的安全验证（而不仅仅是“我们加了鉴权”）。
+> - 严格的规格合规（每一项要求都达成，而不仅仅是大部分）。
 >
-> A B/B+ rating on first pass is normal and expected.
+> 第一轮测试获得 B/B+ 评分是正常的，也是被预期的。
 
-## Agent Activation Sequence
+## 智能体激活序列
 
-### Step 1: Evidence Collection (Day 1-2, All Parallel)
+### 第一步：证据收集（第 1-2 天，并行）
 
-#### 📸 Evidence Collector — Comprehensive Visual Evidence
+#### 📸 证据收集者 (Evidence Collector) — 全面的视觉证据
 ```
-Activate Evidence Collector for comprehensive system evidence on [PROJECT].
+针对 [项目] 激活证据收集者进行全面的系统证据收集。
 
-Deliverables required:
-1. Full screenshot suite:
-   - Desktop (1920x1080) — every page/view
-   - Tablet (768x1024) — every page/view
-   - Mobile (375x667) — every page/view
-2. Interaction evidence:
-   - Navigation flows (before/after clicks)
-   - Form interactions (empty, filled, submitted, error states)
-   - Modal/dialog interactions
-   - Accordion/expandable content
-3. Theme evidence:
-   - Light mode — all pages
-   - Dark mode — all pages
-   - System preference detection
-4. Error state evidence:
-   - 404 pages
-   - Form validation errors
-   - Network error handling
-   - Empty states
+要求的交付物：
+1. 完整截图集：桌面端、平板端、手机端的所有页面/视图。
+2. 交互证据：导航流、表单交互（空值、填充、提交、错误状态）、弹窗/对话框、折叠/展开内容。
+3. 主题证据：亮色模式、暗色模式、系统偏好检测。
+4. 错误状态证据：404 页面、表单验证错误、网络错误处理、空状态。
 
-Format: Screenshot Evidence Package with test-results.json
-Timeline: 2 days
+格式：带有 test-results.json 的截图证据包。
+工期：2 天。
 ```
 
-#### 🔌 API Tester — Full API Regression
+#### 🔌 API 测试员 (API Tester) — 完整的 API 回归测试
 ```
-Activate API Tester for complete API regression on [PROJECT].
+针对 [项目] 激活 API 测试员进行完整的 API 回归。
 
-Deliverables required:
-1. Endpoint regression suite:
-   - All endpoints tested (GET, POST, PUT, DELETE)
-   - Authentication/authorization verification
-   - Input validation testing
-   - Error response verification
-2. Integration testing:
-   - Cross-service communication
-   - Database operation verification
-   - External API integration
-3. Edge case testing:
-   - Rate limiting behavior
-   - Large payload handling
-   - Concurrent request handling
-   - Malformed input handling
+要求的交付物：
+1. 端点回归集：所有端点的增删改查 (CRUD) 测试、鉴权/授权验证、输入验证、错误响应验证。
+2. 集成测试：跨服务通信、数据库操作验证、第三方 API 集成。
+3. 边缘案例：速率限制行为、大负载处理、并发请求处理、畸形输入处理。
 
-Format: API Test Report with pass/fail per endpoint
-Timeline: 2 days
+格式：包含各端点通过/失败结果的 API 测试报告。
+工期：2 天。
 ```
 
-#### ⚡ Performance Benchmarker — Load Testing
+#### ⚡ 性能基准测试员 (Performance Benchmarker) — 负载测试
 ```
-Activate Performance Benchmarker for load testing on [PROJECT].
+针对 [项目] 激活性能基准测试员进行负载测试。
 
-Deliverables required:
-1. Load test at 10x expected traffic:
-   - Response time distribution (P50, P95, P99)
-   - Throughput under load
-   - Error rate under load
-   - Resource utilization (CPU, memory, network)
-2. Core Web Vitals measurement:
-   - LCP (Largest Contentful Paint) < 2.5s
-   - FID (First Input Delay) < 100ms
-   - CLS (Cumulative Layout Shift) < 0.1
-3. Database performance:
-   - Query execution times
-   - Connection pool utilization
-   - Index effectiveness
-4. Stress test results:
-   - Breaking point identification
-   - Graceful degradation behavior
-   - Recovery time after overload
+要求的交付物：
+1. 10 倍预期流量下的负载测试：响应时间分布 (P50, P95, P99)、负载下的吞吐量及错误率、资源利用率 (CPU, 内存, 网络)。
+2. 核心 Web 指标丈量：LCP < 2.5s, FID < 100ms, CLS < 0.1。
+3. 数据库性能：查询执行时间、连接池利用率、索引有效性。
+4. 压力测试结果：识别崩溃点、优雅降级行为、过载后恢复时间。
 
-Format: Performance Certification Report
-Timeline: 2 days
+格式：性能认证报告。
+工期：2 天。
 ```
 
-#### ⚖️ Legal Compliance Checker — Final Compliance Audit
+#### ⚖️ 法律合规检查员 (Legal Compliance Checker) — 最终合规审计
 ```
-Activate Legal Compliance Checker for final compliance audit on [PROJECT].
+针对 [项目] 激活法律合规检查员进行最终合规审计。
 
-Deliverables required:
-1. Privacy compliance verification:
-   - Privacy policy accuracy
-   - Consent management functionality
-   - Data subject rights implementation
-   - Cookie consent implementation
-2. Security compliance:
-   - Data encryption (at rest and in transit)
-   - Authentication security
-   - Input sanitization
-   - OWASP Top 10 check
-3. Regulatory compliance:
-   - GDPR requirements (if applicable)
-   - CCPA requirements (if applicable)
-   - Industry-specific requirements
-4. Accessibility compliance:
-   - WCAG 2.1 AA verification
-   - Screen reader compatibility
-   - Keyboard navigation
+要求的交付物：
+1. 隐私合规验证：隐私政策准确性、同意管理功能、数据主体权利实现、Cookie 同意实现。
+2. 安全合规：数据加密（存储与传输）、鉴权安全、输入净化、OWASP Top 10 检查。
+3. 监管与无障碍：符合相应法规以及 WCAG 2.1 AA 验证（屏幕阅读器兼容性、键盘导航）。
 
-Format: Compliance Certification Report
-Timeline: 2 days
+格式：合规认证报告。
+工期：2 天。
 ```
 
-### Step 2: Analysis (Day 3-4, Parallel, after Step 1)
+### 第二步：分析（第 3-4 天，并行，在第一步后启动）
 
-#### 📊 Test Results Analyzer — Quality Metrics Aggregation
+- **结果分析师 (Test Results Analyzer)**：聚合所有测试数据，建立质量指标仪表盘，进行风险评估。
+- **流程优化专家 (Workflow Optimizer)**：分析开发-质检循环效率，识别瓶颈。
+- **基础设施维护员 (Infrastructure Maintainer)**：验证生产环境健康状况、自动缩放、监控报警及灾备系统。
+
+### 第三步：最终裁决（第 5-7 天，顺序执行）
+
+#### 🔍 现实检查员 (Reality Checker) — 最终裁决
 ```
-Activate Test Results Analyzer for quality metrics aggregation on [PROJECT].
+针对 [项目] 激活现实检查员进行最终集成测试。
 
-Input: ALL Step 1 reports
-Deliverables required:
-1. Aggregate quality dashboard:
-   - Overall quality score
-   - Category breakdown (visual, functional, performance, security, compliance)
-   - Issue severity distribution
-   - Trend analysis (if multiple test cycles)
-2. Issue prioritization:
-   - Critical issues (must fix before production)
-   - High issues (should fix before production)
-   - Medium issues (fix in next sprint)
-   - Low issues (backlog)
-3. Risk assessment:
-   - Production readiness probability
-   - Remaining risk areas
-   - Recommended mitigations
+强制流程（不可跳过）：
+1. 现实检查命令：验证实际构建了什么（ls, grep 那些宣称已完成的功能），对照规格说明书。
+2. QA 交叉验证：评审证据收集者、API 测试员、性能基准测试员及合规检查员的所有发现。
+3. 端到端系统验证：测试完成的用户旅程（而非单一功能），验证全设备响应式行为，审查实际性能数据。
+4. 规格说明书对比：引用原始规格书原文，对比实际实现证据，记录每一个差距。
 
-Format: Quality Metrics Dashboard
-Timeline: 1 day
-```
+裁决选项：
+- 准备就绪 (READY)：拥有生产就绪的压倒性证据（首轮通过极罕见）。
+- 仍需改进 (NEEDS WORK)：识别出具体问题并附带修复列表（预期结果）。
+- 未就绪 (NOT READY)：存在重大架构问题，需退回阶段 1/2。
 
-#### 🔄 Workflow Optimizer — Process Efficiency Review
-```
-Activate Workflow Optimizer for process efficiency review on [PROJECT].
-
-Input: Phase 3 execution data + Step 1 findings
-Deliverables required:
-1. Process efficiency analysis:
-   - Dev↔QA loop efficiency (first-pass rate, average retries)
-   - Bottleneck identification
-   - Time-to-resolution for different issue types
-2. Improvement recommendations:
-   - Process changes for Phase 6 operations
-   - Automation opportunities
-   - Quality improvement suggestions
-
-Format: Optimization Recommendations Report
-Timeline: 1 day
+默认结论：在被证明就绪前，一律视为“仍需改进 (NEEDS WORK)”。
 ```
 
-#### 🏗️ Infrastructure Maintainer — Production Readiness Check
-```
-Activate Infrastructure Maintainer for production readiness on [PROJECT].
+## 质量关卡 — 终极关卡
 
-Deliverables required:
-1. Production environment validation:
-   - All services healthy and responding
-   - Auto-scaling configured and tested
-   - Load balancer configuration verified
-   - SSL/TLS certificates valid
-2. Monitoring validation:
-   - All critical metrics being collected
-   - Alert rules configured and tested
-   - Dashboard access verified
-   - Log aggregation working
-3. Disaster recovery validation:
-   - Backup systems operational
-   - Recovery procedures documented and tested
-   - Failover mechanisms verified
-4. Security validation:
-   - Firewall rules reviewed
-   - Access controls verified
-   - Secrets management confirmed
-   - Vulnerability scan clean
-
-Format: Infrastructure Readiness Report
-Timeline: 1 day
-```
-
-### Step 3: Final Judgment (Day 5-7, Sequential)
-
-#### 🔍 Reality Checker — THE FINAL VERDICT
-```
-Activate Reality Checker for final integration testing on [PROJECT].
-
-MANDATORY PROCESS — DO NOT SKIP:
-
-Step 1: Reality Check Commands
-- Verify what was actually built (ls, grep for claimed features)
-- Cross-check claimed features against specification
-- Run comprehensive screenshot capture
-- Review all evidence from Step 1 and Step 2
-
-Step 2: QA Cross-Validation
-- Review Evidence Collector findings
-- Cross-reference with API Tester results
-- Verify Performance Benchmarker data
-- Confirm Legal Compliance Checker findings
-
-Step 3: End-to-End System Validation
-- Test COMPLETE user journeys (not individual features)
-- Verify responsive behavior across ALL devices
-- Check interaction flows end-to-end
-- Review actual performance data
-
-Step 4: Specification Reality Check
-- Quote EXACT text from original specification
-- Compare with ACTUAL implementation evidence
-- Document EVERY gap between spec and reality
-- No assumptions — evidence only
-
-VERDICT OPTIONS:
-- READY: Overwhelming evidence of production readiness (rare first pass)
-- NEEDS WORK: Specific issues identified with fix list (expected)
-- NOT READY: Major architectural issues requiring Phase 1/2 revisit
-
-Format: Reality-Based Integration Report
-Default: NEEDS WORK unless proven otherwise
-```
-
-## Quality Gate — THE FINAL GATE
-
-| # | Criterion | Threshold | Evidence Required |
+| # | 准则 | 阈值 | 证据要求 |
 |---|-----------|-----------|-------------------|
-| 1 | User journeys complete | All critical paths working end-to-end | Reality Checker screenshots |
-| 2 | Cross-device consistency | Desktop + Tablet + Mobile all working | Responsive screenshots |
-| 3 | Performance certified | P95 < 200ms, LCP < 2.5s, uptime > 99.9% | Performance Benchmarker report |
-| 4 | Security validated | Zero critical vulnerabilities | Security scan + compliance report |
-| 5 | Compliance certified | All regulatory requirements met | Legal Compliance Checker report |
-| 6 | Specification compliance | 100% of spec requirements implemented | Point-by-point verification |
-| 7 | Infrastructure ready | Production environment validated | Infrastructure Maintainer report |
+| 1 | 用户旅程完整 | 所有关键路径端到端通畅 | 现实检查员截图 |
+| 2 | 跨设备一致性 | 桌面、平板、手机端均正常 | 响应式截图 |
+| 3 | 性能认证达标 | P95 < 200ms, LCP < 2.5s | 性能基准报告 |
+| 4 | 安全与合规获验证 | 零关键漏洞，满足所有监管要求 | 安全扫描与合规报告 |
+| 5 | 规格说明书合规 | 100% 实现规格书要求 | 逐项验证报告 |
 
-## Gate Decision
+## 关卡决策
 
-**Sole authority**: Reality Checker
+**唯一权威**：现实检查员 (Reality Checker)。
 
-### If READY (proceed to Phase 5):
-```markdown
-## Phase 4 → Phase 5 Handoff Package
-
-### For Launch Team:
-- Reality Checker certification report
-- Performance certification
-- Compliance certification
-- Infrastructure readiness report
-- Known limitations (if any)
-
-### For Growth Hacker:
-- Product ready for users
-- Feature list for marketing messaging
-- Performance data for credibility
-
-### For DevOps Automator:
-- Production deployment approved
-- Blue-green deployment plan
-- Rollback procedures confirmed
-```
-
-### If NEEDS WORK (return to Phase 3):
-```markdown
-## Phase 4 → Phase 3 Return Package
-
-### Fix List (from Reality Checker):
-1. [Critical Issue 1]: [Description + evidence + fix instruction]
-2. [Critical Issue 2]: [Description + evidence + fix instruction]
-3. [High Issue 1]: [Description + evidence + fix instruction]
-...
-
-### Process:
-- Issues enter Dev↔QA loop (Phase 3 mechanics)
-- Each fix must pass Evidence Collector QA
-- When all fixes complete → Return to Phase 4 Step 3
-- Reality Checker re-evaluates with updated evidence
-
-### Expected: 2-3 revision cycles is normal
-```
-
-### If NOT READY (return to Phase 1/2):
-```markdown
-## Phase 4 → Phase 1/2 Return Package
-
-### Architectural Issues Identified:
-1. [Fundamental Issue]: [Why it can't be fixed in Phase 3]
-2. [Structural Problem]: [What needs to change at architecture level]
-
-### Recommended Action:
-- [ ] Revise system architecture (Phase 1)
-- [ ] Rebuild foundation (Phase 2)
-- [ ] Descope and redefine (Phase 1)
-
-### Studio Producer Decision Required
-```
+- **通过 (READY)**：进入阶段 5。
+- **退回阶段 3 (NEEDS WORK)**：进入修复列表的“开发-质检”循环。
+- **退回阶段 1/2 (NOT READY)**：存在根本性的架构或基础问题，需由工坊制作人决策。
 
 ---
 
-*Phase 4 is complete when the Reality Checker issues a READY verdict with overwhelming evidence. NEEDS WORK is the expected first-pass result — it means the system is working but needs polish.*
+*当现实检查员发出带有压倒性证据的 READY 裁决时，阶段 4 即告完成。“仍需改进”是第一轮测试的预期结果，这意味着系统已运作但仍需打磨。*

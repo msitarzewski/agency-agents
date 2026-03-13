@@ -1,217 +1,74 @@
-# 🚨 Runbook: Incident Response
+# 🚨 运行手册：事件响应 (Incident Response)
 
-> **Mode**: NEXUS-Micro | **Duration**: Minutes to hours | **Agents**: 3-8
+> **模式**：NEXUS-Micro | **工期**：几分钟到几小时 | **活跃智能体**：3-8 位
 
 ---
 
-## Scenario
+## 场景描述
 
-Something is broken in production. Users are affected. Speed of response matters, but so does doing it right. This runbook covers detection through post-mortem.
+生产环境出现故障。用户受到影响。响应速度固然重要，但以正确的方式处理同样重要。本手册涵盖了从检测到复盘的全过程。
 
-## Severity Classification
+## 严重程度定级
 
-| Level | Definition | Examples | Response Time |
-|-------|-----------|----------|--------------|
-| **P0 — Critical** | Service completely down, data loss, security breach | Database corruption, DDoS attack, auth system failure | Immediate (all hands) |
-| **P1 — High** | Major feature broken, significant performance degradation | Payment processing down, 50%+ error rate, 10x latency | < 1 hour |
-| **P2 — Medium** | Minor feature broken, workaround available | Search not working, non-critical API errors | < 4 hours |
-| **P3 — Low** | Cosmetic issue, minor inconvenience | Styling bug, typo, minor UI glitch | Next sprint |
+- **P0 — 紧急**：服务完全不可用、数据丢失、安全漏洞。立即响应（全员待命）。
+- **P1 — 高**：主要功能损坏、性能显著下降。要求 < 1 小时内响应。
+- **P2 — 中**：次要功能损坏，有替代方案。要求 < 4 小时内响应。
+- **P3 — 低**：视觉问题、微小不便。加入下一个冲刺。
 
-## Response Teams by Severity
+## 各级响应团队
 
-### P0 — Critical Response Team
-| Agent | Role | Action |
-|-------|------|--------|
-| **Infrastructure Maintainer** | Incident commander | Assess scope, coordinate response |
-| **DevOps Automator** | Deployment/rollback | Execute rollback if needed |
-| **Backend Architect** | Root cause investigation | Diagnose system issues |
-| **Frontend Developer** | UI-side investigation | Diagnose client-side issues |
-| **Support Responder** | User communication | Status page updates, user notifications |
-| **Executive Summary Generator** | Stakeholder communication | Real-time executive updates |
+### P0 — 紧急响应团队
+- **基础设施维护员**：事件指挥官，负责评估范围和协调。
+- **运维自动化专家**：执行回滚或部署。
+- **后端架构师/前端开发**：诊断系统或客户端问题。
+- **支持响应员**：负责状态页更新和用户通知。
+- **执行摘要生成器**：向高管实时同步更新。
 
-### P1 — High Response Team
-| Agent | Role |
-|-------|------|
-| **Infrastructure Maintainer** | Incident commander |
-| **DevOps Automator** | Deployment support |
-| **Relevant Developer Agent** | Fix implementation |
-| **Support Responder** | User communication |
+### P1-P3 响应
+- 根据严重程度，由相关开发者、证据收集者或冲刺优先级排序员处理。
 
-### P2 — Medium Response
-| Agent | Role |
-|-------|------|
-| **Relevant Developer Agent** | Fix implementation |
-| **Evidence Collector** | Verify fix |
+---
 
-### P3 — Low Response
-| Agent | Role |
-|-------|------|
-| **Sprint Prioritizer** | Add to backlog |
+## 事件响应序列
 
-## Incident Response Sequence
+### 第一步：检测与分拣 (0-5 分钟)
+- **触发**：报警系统、用户报告或智能体发现。
+- **基础设施维护员**：确认报警、评估影响（多少用户受影响？哪些服务受损？数据是否有风险？）、定级并激活响应团队。
 
-### Step 1: Detection & Triage (0-5 minutes)
+### 第二步：调查 (5-30 分钟)
+- **并行调查**：检查各项指标、错误日志、近期部署及外部依赖（云平台等）。
 
-```
-TRIGGER: Alert from monitoring / User report / Agent detection
+### 第三步：缓解 (15-60 分钟)
+- **决策树**：
+    - 若由近期部署引起：**执行回滚**。
+    - 若由基础设施引起：**扩容/重启/切换故障转移**。
+    - 若由代码 Bug 引起：**实现并部署紧急补丁 (Hotfix)**。
+    - 若由外部依赖引起：**激活备选/缓存**。
+- **持续动作**：支持响应员每 15 分钟更新一次状态页。
 
-Infrastructure Maintainer:
-1. Acknowledge alert
-2. Assess scope and impact
-   - How many users affected?
-   - Which services are impacted?
-   - Is data at risk?
-3. Classify severity (P0/P1/P2/P3)
-4. Activate appropriate response team
-5. Create incident channel/thread
+### 第四步：解决验证
+- **证据收集者**：验证修复是否解决问题，截图取证，确认未引入新问题。
+- **基础设施维护员**：验证指标恢复正常，确认无连锁反应，观察 30 分钟。
+- **API 测试员**（若相关）：运行端点回归测试。
 
-Output: Incident classification + response team activated
-```
+### 第五步：复盘 (48 小时内)
+- **流程优化专家**主持：重建时间轴、根因分析 (5 Whys)、影响评估（用户、收入、声誉、数据）、预防措施及行动项 (Action Items)。
 
-### Step 2: Investigation (5-30 minutes)
+---
 
-```
-PARALLEL INVESTIGATION:
+## 沟通模板
 
-Infrastructure Maintainer:
-├── Check system metrics (CPU, memory, network, disk)
-├── Review error logs
-├── Check recent deployments
-└── Verify external dependencies
+### 状态页更新 (Support Responder)
+“服务名称] 事件。状态：[调查中/已定位/监控中/已解决]。影响：[描述]。当前行动：[说明]。下一次更新：[时间]。”
 
-Backend Architect (if P0/P1):
-├── Check database health
-├── Review API error rates
-├── Check service communication
-└── Identify failing component
+### 高管简报 (Exec Summary Generator — 仅限 P0)
+“事件简报。情况：[服务] 已 [中断/降级]，影响 [用户数/流量%]。原因：[简述]。行动：[方案] — 预计恢复时间 [时间]。影响：[商业/声誉影响]。”
 
-DevOps Automator:
-├── Review recent deployment history
-├── Check CI/CD pipeline status
-├── Prepare rollback if needed
-└── Verify infrastructure state
+---
 
-Output: Root cause identified (or narrowed to component)
-```
+## 升级矩阵
 
-### Step 3: Mitigation (15-60 minutes)
-
-```
-DECISION TREE:
-
-IF caused by recent deployment:
-  → DevOps Automator: Execute rollback
-  → Infrastructure Maintainer: Verify recovery
-  → Evidence Collector: Confirm fix
-
-IF caused by infrastructure issue:
-  → Infrastructure Maintainer: Scale/restart/failover
-  → DevOps Automator: Support infrastructure changes
-  → Verify recovery
-
-IF caused by code bug:
-  → Relevant Developer Agent: Implement hotfix
-  → Evidence Collector: Verify fix
-  → DevOps Automator: Deploy hotfix
-  → Infrastructure Maintainer: Monitor recovery
-
-IF caused by external dependency:
-  → Infrastructure Maintainer: Activate fallback/cache
-  → Support Responder: Communicate to users
-  → Monitor for external recovery
-
-THROUGHOUT:
-  → Support Responder: Update status page every 15 minutes
-  → Executive Summary Generator: Brief stakeholders (P0 only)
-```
-
-### Step 4: Resolution Verification (Post-fix)
-
-```
-Evidence Collector:
-1. Verify the fix resolves the issue
-2. Screenshot evidence of working state
-3. Confirm no new issues introduced
-
-Infrastructure Maintainer:
-1. Verify all metrics returning to normal
-2. Confirm no cascading failures
-3. Monitor for 30 minutes post-fix
-
-API Tester (if API-related):
-1. Run regression on affected endpoints
-2. Verify response times normalized
-3. Confirm error rates at baseline
-
-Output: Incident resolved confirmation
-```
-
-### Step 5: Post-Mortem (Within 48 hours)
-
-```
-Workflow Optimizer leads post-mortem:
-
-1. Timeline reconstruction
-   - When was the issue introduced?
-   - When was it detected?
-   - When was it resolved?
-   - Total user impact duration
-
-2. Root cause analysis
-   - What failed?
-   - Why did it fail?
-   - Why wasn't it caught earlier?
-   - 5 Whys analysis
-
-3. Impact assessment
-   - Users affected
-   - Revenue impact
-   - Reputation impact
-   - Data impact
-
-4. Prevention measures
-   - What monitoring would have caught this sooner?
-   - What testing would have prevented this?
-   - What process changes are needed?
-   - What infrastructure changes are needed?
-
-5. Action items
-   - [Action] → [Owner] → [Deadline]
-   - [Action] → [Owner] → [Deadline]
-   - [Action] → [Owner] → [Deadline]
-
-Output: Post-Mortem Report → Sprint Prioritizer adds prevention tasks to backlog
-```
-
-## Communication Templates
-
-### Status Page Update (Support Responder)
-```
-[TIMESTAMP] — [SERVICE NAME] Incident
-
-Status: [Investigating / Identified / Monitoring / Resolved]
-Impact: [Description of user impact]
-Current action: [What we're doing about it]
-Next update: [When to expect the next update]
-```
-
-### Executive Update (Executive Summary Generator — P0 only)
-```
-INCIDENT BRIEF — [TIMESTAMP]
-
-SITUATION: [Service] is [down/degraded] affecting [N users/% of traffic]
-CAUSE: [Known/Under investigation] — [Brief description if known]
-ACTION: [What's being done] — ETA [time estimate]
-IMPACT: [Business impact — revenue, users, reputation]
-NEXT UPDATE: [Timestamp]
-```
-
-## Escalation Matrix
-
-| Condition | Escalate To | Action |
-|-----------|------------|--------|
-| P0 not resolved in 30 min | Studio Producer | Additional resources, vendor escalation |
-| P1 not resolved in 2 hours | Project Shepherd | Resource reallocation |
-| Data breach suspected | Legal Compliance Checker | Regulatory notification assessment |
-| User data affected | Legal Compliance Checker + Executive Summary Generator | GDPR/CCPA notification |
-| Revenue impact > $X | Finance Tracker + Studio Producer | Business impact assessment |
+- P0 在 30 分钟内未解决：升级至**工坊制作人**。
+- P1 在 2 小时内未解决：升级至**项目牧羊人**。
+- 疑似数据泄露或影响用户数据：立即通知**法律合规检查员**。
+- 收入影响超过阈值：通知**财务追踪专家**。

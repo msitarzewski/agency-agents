@@ -1,318 +1,90 @@
-# 🔄 Phase 6 Playbook — Operate & Evolve
+# 🔄 阶段 6 剧本 — 运营与演进 (Operate & Evolve)
 
-> **Duration**: Ongoing | **Agents**: 12+ (rotating) | **Governance**: Studio Producer
+> **工期**：持续进行 | **活跃智能体**：12+ 位（轮换） | **管理体制**：工坊制作人 (Studio Producer)
 
 ---
 
-## Objective
+## 目标
 
-Sustained operations with continuous improvement. The product is live — now make it thrive. This phase has no end date; it runs as long as the product is in market.
+通过持续改进维持稳定运营。产品已上线 —— 现在让它蓬勃发展。此阶段没有结束日期；只要产品还在市场上，它就会一直运行。
 
-## Pre-Conditions
+## 前置条件
 
-- [ ] Phase 5 Quality Gate passed (stable launch)
-- [ ] Phase 5 Handoff Package received
-- [ ] Operational cadences established
-- [ ] Baseline metrics documented
+- [ ] 阶段 5 质量关卡已通过（稳定发布）
+- [ ] 已接收阶段 5 交接包
+- [ ] 已建立运营节奏
+- [ ] 基准指标已记录在案
 
-## Operational Cadences
+## 运营节奏
 
-### Continuous (Always Active)
+### 持续进行（始终激活）
+- **基础设施维护员**：系统可用性、性能与安全（目标：99.9% 可用性，MTTR < 30min）。
+- **支持响应员**：客户支持、问题解决（目标：首次响应时间 < 4hr）。
+- **运维自动化**：部署流水线维护、紧急补丁（目标：具备每日多次部署能力）。
 
-| Agent | Responsibility | SLA |
-|-------|---------------|-----|
-| **Infrastructure Maintainer** | System uptime, performance, security | 99.9% uptime, < 30min MTTR |
-| **Support Responder** | Customer support, issue resolution | < 4hr first response |
-| **DevOps Automator** | Deployment pipeline, hotfixes | Multiple deploys/day capability |
+### 每日任务
+- **数据分析汇报员**：KPI 仪表盘更新。
+- **支持响应员**：问题分拣与解决摘要。
+- **基础设施维护员**：系统健康状态检查。
 
-### Daily
+### 每周/每双周/每月/每季度
+- **每周**：性能分析 (Analytics)、反馈合成、冲刺规划、增长渠道优化。
+- **双周**：深度反馈分析、A/B 测试结果、内容日历执行。
+- **每月**：执行摘要 (C-suite)、财务报告、合规监控、市场情报更新、品牌一致性审计。
+- **每季度**：战略组合评估、流程效率审计、性能回归测试、技术债评估。
 
-| Agent | Activity | Output |
-|-------|----------|--------|
-| **Analytics Reporter** | KPI dashboard update | Daily metrics snapshot |
-| **Support Responder** | Issue triage and resolution | Support ticket summary |
-| **Infrastructure Maintainer** | System health check | Health status report |
+---
 
-### Weekly
+## 持续改进循环 (Continuous Improvement Loop)
 
-| Agent | Activity | Output |
-|-------|----------|--------|
-| **Analytics Reporter** | Weekly performance analysis | Weekly Analytics Report |
-| **Feedback Synthesizer** | User feedback synthesis | Weekly Feedback Summary |
-| **Sprint Prioritizer** | Backlog grooming + sprint planning | Sprint Plan |
-| **Growth Hacker** | Growth channel optimization | Growth Metrics Report |
-| **Project Shepherd** | Cross-team coordination | Weekly Status Update |
+1. **衡量**（数据分析汇报员）。
+2. **分析**（反馈合成器 + 深度数据分析员）。
+3. **规划**（冲刺优先级排序员 + 工坊制作人）。
+4. **构建**（阶段 3 开发-质检小规模循环）。
+5. **验证**（证据收集者 + 现实检查员）。
+6. **部署**（运维自动化）。
+7. **再次衡量**（循环开始）。
 
-### Bi-Weekly
+---
 
-| Agent | Activity | Output |
-|-------|----------|--------|
-| **Feedback Synthesizer** | Deep feedback analysis | Bi-Weekly Insights Report |
-| **Experiment Tracker** | A/B test analysis | Experiment Results Summary |
-| **Content Creator** | Content calendar execution | Published Content Report |
+## 事件响应协议 (Incident Response Protocol)
 
-### Monthly
+按照 P0（紧急/宕机）、P1（高/主要功能损坏）、P2（中/次要功能受损）、P3（低/优化项）定义严重程度。
 
-| Agent | Activity | Output |
-|-------|----------|--------|
-| **Executive Summary Generator** | C-suite reporting | Monthly Executive Summary |
-| **Finance Tracker** | Financial performance review | Monthly Financial Report |
-| **Legal Compliance Checker** | Regulatory monitoring | Compliance Status Report |
-| **Trend Researcher** | Market intelligence update | Monthly Market Brief |
-| **Brand Guardian** | Brand consistency audit | Brand Health Report |
+**响应序列**：
+- **检测**：基础设施维护或支持响应员发现问题。
+- **分拣**：智能体编排者定级、分配响应团队、通知利益相关者。
+- **响应**：
+    - P0：基础设施维护 + 运维自动化 + 后端架构师。
+    - P1：相关开发智能体 + 运维自动化。
+    - P2：相关开发智能体。
+    - P3：加入冲刺积压列表。
+- **解决**：修复实现、证据收集员验证、基础设施维护确认稳定。
+- **复盘**：流程优化专家组织回顾，分析根因，完善预防措施与流程。
 
-### Quarterly
+---
 
-| Agent | Activity | Output |
-|-------|----------|--------|
-| **Studio Producer** | Strategic portfolio review | Quarterly Strategic Review |
-| **Workflow Optimizer** | Process efficiency audit | Optimization Report |
-| **Performance Benchmarker** | Performance regression testing | Quarterly Performance Report |
-| **Tool Evaluator** | Technology stack review | Tech Debt Assessment |
+## 增长对齐与战略演进
 
-## Continuous Improvement Loop
+- **每月增长评审**：分析渠道表现、实验结果、留存情况，并更新增长路线图。
+- **月度财务评审**：收入/成本分析、单位经济效益、收入预测与预算偏差分析。
+- **月度合规检查**：监管监控、隐私合规性检查、安全补丁状态及审计准备。
+- **季度战略评估**：市场地位评估、产品路线图与技术债评审、流程效率与组织健康度优化。
 
-```
-MEASURE (Analytics Reporter)
-    │
-    ▼
-ANALYZE (Feedback Synthesizer + Data Analytics Reporter)
-    │
-    ▼
-PLAN (Sprint Prioritizer + Studio Producer)
-    │
-    ▼
-BUILD (Phase 3 Dev↔QA Loop — mini-cycles)
-    │
-    ▼
-VALIDATE (Evidence Collector + Reality Checker)
-    │
-    ▼
-DEPLOY (DevOps Automator)
-    │
-    ▼
-MEASURE (back to start)
-```
+---
 
-### Feature Development in Phase 6
+## 阶段 6 成功指标
 
-New features follow a compressed NEXUS cycle:
-
-```
-1. Sprint Prioritizer selects feature from backlog
-2. Appropriate Developer Agent implements
-3. Evidence Collector validates (Dev↔QA loop)
-4. DevOps Automator deploys (feature flag or direct)
-5. Experiment Tracker monitors (A/B test if applicable)
-6. Analytics Reporter measures impact
-7. Feedback Synthesizer collects user response
-```
-
-## Incident Response Protocol
-
-### Severity Levels
-
-| Level | Definition | Response Time | Decision Authority |
-|-------|-----------|--------------|-------------------|
-| **P0 — Critical** | Service down, data loss, security breach | Immediate | Studio Producer |
-| **P1 — High** | Major feature broken, significant degradation | < 1 hour | Project Shepherd |
-| **P2 — Medium** | Minor feature issue, workaround available | < 4 hours | Agents Orchestrator |
-| **P3 — Low** | Cosmetic issue, minor inconvenience | Next sprint | Sprint Prioritizer |
-
-### Incident Response Sequence
-
-```
-DETECTION (Infrastructure Maintainer or Support Responder)
-    │
-    ▼
-TRIAGE (Agents Orchestrator)
-    ├── Classify severity (P0-P3)
-    ├── Assign response team
-    └── Notify stakeholders
-    │
-    ▼
-RESPONSE
-    ├── P0: Infrastructure Maintainer + DevOps Automator + Backend Architect
-    ├── P1: Relevant Developer Agent + DevOps Automator
-    ├── P2: Relevant Developer Agent
-    └── P3: Added to sprint backlog
-    │
-    ▼
-RESOLUTION
-    ├── Fix implemented and deployed
-    ├── Evidence Collector verifies fix
-    └── Infrastructure Maintainer confirms stability
-    │
-    ▼
-POST-MORTEM
-    ├── Workflow Optimizer leads retrospective
-    ├── Root cause analysis documented
-    ├── Prevention measures identified
-    └── Process improvements implemented
-```
-
-## Growth Operations
-
-### Monthly Growth Review (Growth Hacker leads)
-
-```
-1. Channel Performance Analysis
-   - Acquisition by channel (organic, paid, referral, social)
-   - CAC by channel
-   - Conversion rates by funnel stage
-   - LTV:CAC ratio trends
-
-2. Experiment Results
-   - Completed A/B tests and outcomes
-   - Statistical significance validation
-   - Winner implementation status
-   - New experiment pipeline
-
-3. Retention Analysis
-   - Cohort retention curves
-   - Churn risk identification
-   - Re-engagement campaign results
-   - Feature adoption metrics
-
-4. Growth Roadmap Update
-   - Next month's growth experiments
-   - Channel budget reallocation
-   - New channel exploration
-   - Viral coefficient optimization
-```
-
-### Content Operations (Content Creator + Social Media Strategist)
-
-```
-Weekly:
-- Content calendar execution
-- Social media engagement
-- Community management
-- Performance tracking
-
-Monthly:
-- Content performance review
-- Editorial calendar planning
-- Platform algorithm updates
-- Content strategy refinement
-
-Platform-Specific:
-- Twitter Engager → Daily engagement, weekly threads
-- Instagram Curator → 3-5 posts/week, daily stories
-- TikTok Strategist → 3-5 videos/week
-- Reddit Community Builder → Daily authentic engagement
-```
-
-## Financial Operations
-
-### Monthly Financial Review (Finance Tracker)
-
-```
-1. Revenue Analysis
-   - MRR/ARR tracking
-   - Revenue by segment/plan
-   - Expansion revenue
-   - Churn revenue impact
-
-2. Cost Analysis
-   - Infrastructure costs
-   - Marketing spend by channel
-   - Team/resource costs
-   - Tool and service costs
-
-3. Unit Economics
-   - CAC trends
-   - LTV trends
-   - LTV:CAC ratio
-   - Payback period
-
-4. Forecasting
-   - Revenue forecast (3-month rolling)
-   - Cost forecast
-   - Cash flow projection
-   - Budget variance analysis
-```
-
-## Compliance Operations
-
-### Monthly Compliance Check (Legal Compliance Checker)
-
-```
-1. Regulatory Monitoring
-   - New regulations affecting the product
-   - Existing regulation changes
-   - Enforcement actions in the industry
-   - Compliance deadline tracking
-
-2. Privacy Compliance
-   - Data subject request handling
-   - Consent management effectiveness
-   - Data retention policy adherence
-   - Cross-border transfer compliance
-
-3. Security Compliance
-   - Vulnerability scan results
-   - Patch management status
-   - Access control review
-   - Incident log review
-
-4. Audit Readiness
-   - Documentation currency
-   - Evidence collection status
-   - Training completion rates
-   - Policy acknowledgment tracking
-```
-
-## Strategic Evolution
-
-### Quarterly Strategic Review (Studio Producer)
-
-```
-1. Market Position Assessment
-   - Competitive landscape changes (Trend Researcher input)
-   - Market share evolution
-   - Brand perception (Brand Guardian input)
-   - Customer satisfaction trends (Feedback Synthesizer input)
-
-2. Product Strategy
-   - Feature roadmap review
-   - Technology debt assessment (Tool Evaluator input)
-   - Platform expansion opportunities
-   - Partnership evaluation
-
-3. Growth Strategy
-   - Channel effectiveness review
-   - New market opportunities
-   - Pricing strategy assessment
-   - Expansion planning
-
-4. Organizational Health
-   - Process efficiency (Workflow Optimizer input)
-   - Team performance metrics
-   - Resource allocation optimization
-   - Capability development needs
-
-Output: Quarterly Strategic Review → Updated roadmap and priorities
-```
-
-## Phase 6 Success Metrics
-
-| Category | Metric | Target | Owner |
+| 类别 | 指标 | 目标 | 归口智能体 |
 |----------|--------|--------|-------|
-| **Reliability** | System uptime | > 99.9% | Infrastructure Maintainer |
-| **Reliability** | MTTR | < 30 minutes | Infrastructure Maintainer |
-| **Growth** | MoM user growth | > 20% | Growth Hacker |
-| **Growth** | Activation rate | > 60% | Analytics Reporter |
-| **Retention** | Day 7 retention | > 40% | Analytics Reporter |
-| **Retention** | Day 30 retention | > 20% | Analytics Reporter |
-| **Financial** | LTV:CAC ratio | > 3:1 | Finance Tracker |
-| **Financial** | Portfolio ROI | > 25% | Studio Producer |
-| **Quality** | NPS score | > 50 | Feedback Synthesizer |
-| **Quality** | Support resolution time | < 4 hours | Support Responder |
-| **Compliance** | Regulatory adherence | > 98% | Legal Compliance Checker |
-| **Efficiency** | Deployment frequency | Multiple/day | DevOps Automator |
-| **Efficiency** | Process improvement | 20%/quarter | Workflow Optimizer |
+| 可靠性 | 系统可用性 | > 99.9% | 基础设施维护 |
+| 增长性 | 月环比用户增长 | > 20% | 增长黑客 |
+| 留存率 | 30 日留存率 | > 20% | 数据分析汇报员 |
+| 财务性 | LTV:CAC 比例 | > 3:1 | 财务追踪专家 |
+| 质量性 | NPS 净推荐值 | > 50 | 反馈合成器 |
+| 效率性 | 部署频率 | 每日多次 | 运维自动化 |
+| 优化度 | 流程改进 | 20%/季度 | 流程优化专家 |
 
 ---
 
-*Phase 6 has no end date. It runs as long as the product is in market, with continuous improvement cycles driving the product forward. The NEXUS pipeline can be re-activated (NEXUS-Sprint or NEXUS-Micro) for major new features or pivots.*
+*阶段 6 没有结束日期。只要产品尚在市，它就会伴随持续改进循环运行。NEXUS 流水线在遇到重大功能迭代或转型时，可随时重新激活（NEXUS-Sprint 或 NEXUS-Micro）。*

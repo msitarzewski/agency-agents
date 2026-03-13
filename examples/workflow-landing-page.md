@@ -1,119 +1,118 @@
-# Multi-Agent Workflow: Landing Page Sprint
+# 多智能体工作流：落地页冲刺 (Landing Page Sprint)
 
-> Ship a conversion-optimized landing page in one day using 4 agents.
+> 使用 4 个智能体，在一天内交付一个经过转化优化的落地页。
 
-## The Scenario
+## 场景设定
 
-You need a landing page for a new product launch. It needs to look great, convert visitors, and be live by end of day.
+你需要为一个新产品的发布准备一个落地页。它需要看起来非常出色，能够转化访客，并且必须在今天结束前上线。
 
-## Agent Team
+## 智能体团队
 
-| Agent | Role in this workflow |
+| 智能体 | 在此工作流中的角色 |
 |-------|---------------------|
-| Content Creator | Write the copy |
-| UI Designer | Design the layout and component specs |
-| Frontend Developer | Build it |
-| Growth Hacker | Optimize for conversion |
+| 内容创作者 (Content Creator) | 编写文本描述 |
+| UI 设计师 (UI Designer) | 设计布局和组件规范 |
+| 前端开发工程师 (Frontend Developer) | 进行构建 |
+| 增长黑客 (Growth Hacker) | 针对转化进行优化 |
 
-## The Workflow
+## 工作流步骤
 
-### Morning: Copy + Design (parallel)
+### 上午：文案 + 设计（并行）
 
-**Step 1a — Activate Content Creator**
-
-```
-Activate Content Creator.
-
-Write landing page copy for "FlowSync" — an API integration platform
-that connects any two SaaS tools in under 5 minutes.
-
-Target audience: developers and technical PMs at mid-size companies.
-Tone: confident, concise, slightly playful.
-
-Sections needed:
-1. Hero (headline + subheadline + CTA)
-2. Problem statement (3 pain points)
-3. How it works (3 steps)
-4. Social proof (placeholder testimonial format)
-5. Pricing (3 tiers: Free, Pro, Enterprise)
-6. Final CTA
-
-Keep it scannable. No fluff.
-```
-
-**Step 1b — Activate UI Designer (in parallel)**
+**步骤 1a —— 激活内容创作者**
 
 ```
-Activate UI Designer.
+激活内容创作者。
 
-Design specs for a SaaS landing page. Product: FlowSync (API integration platform).
-Style: clean, modern, dark mode option. Think Linear or Vercel aesthetic.
+为 "FlowSync" 编写落地页文案——这是一个 API 集成平台，可以在 5 分钟内连接任意两个 SaaS 工具。
 
-Deliver:
-1. Layout wireframe (section order + spacing)
-2. Color palette (primary, secondary, accent, background)
-3. Typography (font pairing, heading sizes, body size)
-4. Component specs: hero section, feature cards, pricing table, CTA buttons
-5. Responsive breakpoints (mobile, tablet, desktop)
+目标受众：中型公司的开发人员和技术项目经理。
+语调：自信、简洁、略带风趣。
+
+需要的板块：
+1. Hero 区域（主标题 + 副标题 + CTA 按钮）
+2. 问题陈述（3 个痛点）
+3. 工作原理（3 个步骤）
+4. 社会认同（占位符形式的证言）
+5. 定价（3 个档位：免费版、专业版、企业版）
+6. 最终 CTA
+
+保持易读性。不要废话。
 ```
 
-### Midday: Build
-
-**Step 2 — Activate Frontend Developer**
+**步骤 1b —— 激活 UI 设计师（并行）**
 
 ```
-Activate Frontend Developer.
+激活 UI 设计师。
 
-Build a landing page from these specs:
+为 SaaS 落地页设计规范。产品：FlowSync（API 集成平台）。
+风格：简洁、现代、支持深色模式。参考 Linear 或 Vercel 的审美。
 
-Copy: [paste Content Creator output]
-Design: [paste UI Designer output]
-
-Stack: HTML, Tailwind CSS, minimal vanilla JS (no framework needed).
-Requirements:
-- Responsive (mobile-first)
-- Fast (no heavy assets, system fonts OK)
-- Accessible (proper headings, alt text, focus states)
-- Include a working email signup form (action URL: /api/subscribe)
-
-Deliver a single index.html file ready to deploy.
+交付内容：
+1. 布局原型图（版块顺序 + 间距）
+2. 配色方案（主色、辅助色、强调色、背景色）
+3. 排版（字体搭配、标题字号、正文字号）
+4. 组件规范：Hero 区域、特性卡片、定价表、CTA 按钮
+5. 响应式断点（手机、平板、桌面）
 ```
 
-### Afternoon: Optimize
+### 中午：构建阶段
 
-**Step 3 — Activate Growth Hacker**
+**步骤 2 —— 激活前端开发工程师**
 
 ```
-Activate Growth Hacker.
+激活前端开发工程师。
 
-Review this landing page for conversion optimization:
+根据以下规范构建落地页：
 
-[paste the HTML or describe the current page]
+文案：[粘贴内容创作者的输出]
+设计：[粘贴 UI 设计师的输出]
 
-Evaluate:
-1. Is the CTA above the fold?
-2. Is the value proposition clear in under 5 seconds?
-3. Any friction in the signup flow?
-4. What A/B tests would you run first?
-5. SEO basics: meta tags, OG tags, structured data
+技术栈：HTML, Tailwind CSS, 极简的原生 JS（不需要框架）。
+要求：
+- 响应式（移动优先）
+- 渲染快速（不使用沉重的素材，系统字体即可）
+- 符合无障碍标准（正确的标题层级、alt 文本、焦点状态）
+- 包含一个可运行的邮件订阅表单（提交地址：/api/subscribe）
 
-Give me specific changes, not general advice.
+交付一个可直接部署的 index.html 文件。
 ```
 
-## Timeline
+### 下午：优化阶段
 
-| Time | Activity | Agent |
+**步骤 3 —— 激活增长黑客**
+
+```
+激活增长黑客。
+
+针对转化优化评审此落地页：
+
+[粘贴 HTML 代码或描述当前页面]
+
+评估项：
+1. CTA 按钮是否在首屏 (Above the fold)？
+2. 价值主张是否能在 5 秒内表达清晰？
+3. 订阅流程是否存在摩擦？
+4. 你首先会进行哪些 A/B 测试？
+5. SEO 基础：Meta 标签、OG 标签、结构化数据
+
+请给出具体的修改建议，而非泛泛而谈。
+```
+
+## 时间线
+
+| 时间 | 活动 | 智能体 |
 |------|----------|-------|
-| 9:00 | Copy + design kick off (parallel) | Content Creator + UI Designer |
-| 11:00 | Build starts | Frontend Developer |
-| 14:00 | First version ready | — |
-| 14:30 | Conversion review | Growth Hacker |
-| 15:30 | Apply feedback | Frontend Developer |
-| 16:30 | Ship | Deploy to Vercel/Netlify |
+| 09:00 | 文案 + 设计启动（并行） | 内容创作者 + UI 设计师 |
+| 11:00 | 构建开始 | 前端开发工程师 |
+| 14:00 | 第一版完成 | — |
+| 14:30 | 转化率评审 | 增长黑客 |
+| 15:30 | 应用反馈修改 | 前端开发工程师 |
+| 16:30 | 发布上线 | 部署至 Vercel/Netlify |
 
-## Key Patterns
+## 关键模式
 
-1. **Parallel kickoff**: Copy and design happen at the same time since they're independent
-2. **Merge point**: Frontend Developer needs both outputs before starting
-3. **Feedback loop**: Growth Hacker reviews, then Frontend Developer applies changes
-4. **Time-boxed**: Each step has a clear timebox to prevent scope creep
+1. **并行启动**：由于文案和设计是独立的，它们可以同时进行。
+2. **合并点**：前端开发工程师在开始前需要两者的输出。
+3. **反馈循环**：增长黑客进行评审，随后前端开发工程师应用修改。
+4. **时间盒 (Time-boxed)**：每一步都有明确的时间限制，以防止范围蔓延。

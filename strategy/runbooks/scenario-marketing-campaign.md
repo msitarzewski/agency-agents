@@ -1,187 +1,65 @@
-# 📢 Runbook: Multi-Channel Marketing Campaign
+# 📢 运行手册：多渠道营销活动 (Multi-Channel Marketing Campaign)
 
-> **Mode**: NEXUS-Micro to NEXUS-Sprint | **Duration**: 2-4 weeks | **Agents**: 10-15
+> **模式**：NEXUS-Micro 至 NEXUS-Sprint | **工期**：2-4 周 | **活跃智能体**：10-15 位
 
 ---
 
-## Scenario
+## 场景描述
 
-You're launching a coordinated marketing campaign across multiple channels. Content needs to be platform-specific, brand-consistent, and data-driven. The campaign needs to drive measurable acquisition and engagement.
+你正在跨多个渠道发起一项协调一致的营销活动。内容需要针对特定平台进行适配、保持品牌一致性并由数据驱动。该活动旨在带来可衡量的用户获取和深度参与。
 
-## Agent Roster
+## 智能体阵容
 
-### Campaign Core
-| Agent | Role |
-|-------|------|
-| Social Media Strategist | Campaign lead, cross-platform strategy |
-| Content Creator | Content production across all formats |
-| Growth Hacker | Acquisition strategy, funnel optimization |
-| Brand Guardian | Brand consistency across all channels |
-| Analytics Reporter | Performance tracking and optimization |
+### 核心团队
+- **社交媒体战略家 (Social Media Strategist)**：活动负责人，跨平台战略制定。
+- **内容创作者 (Content Creator)**：负责所有格式的内容生产。
+- **增长黑客 (Growth Hacker)**：获取策略与漏斗优化。
+- **品牌守护者 (Brand Guardian)**：维护所有渠道的品牌一致性。
+- **数据分析汇报员 (Analytics Reporter)**：性能追踪与优化。
 
-### Platform Specialists
-| Agent | Role |
-|-------|------|
-| Twitter Engager | Twitter/X campaign execution |
-| TikTok Strategist | TikTok content and growth |
-| Instagram Curator | Instagram visual content |
-| Reddit Community Builder | Reddit authentic engagement |
-| App Store Optimizer | App store presence (if mobile) |
+### 平台专家
+- **Twitter 互动员**、**TikTok 战略家**、**Instagram 策划**、**Reddit 社区建设**、**应用商店优化 (ASO)**。
 
-### Support
-| Agent | Role |
-|-------|------|
-| Trend Researcher | Market timing and trend alignment |
-| Experiment Tracker | A/B testing campaign variations |
-| Executive Summary Generator | Campaign reporting |
-| Legal Compliance Checker | Ad compliance, disclosure requirements |
+### 支持团队
+- **趋势研究员**（时机对齐）、**实验追踪专家**（A/B 测试）、**执行摘要生成器**（活动报告）、**法律合规检查员**（广告合规及披露要求）。
 
-## Execution Plan
+---
 
-### Week 1: Strategy & Content Creation
+## 执行计划
 
-```
-Day 1-2: Campaign Strategy
-├── Social Media Strategist → Cross-platform campaign strategy
-│   ├── Campaign objectives and KPIs
-│   ├── Target audience definition
-│   ├── Platform selection and budget allocation
-│   ├── Content calendar (4-week plan)
-│   └── Engagement strategy per platform
-│
-├── Trend Researcher → Market timing analysis
-│   ├── Trending topics to align with
-│   ├── Competitor campaign analysis
-│   └── Optimal launch timing
-│
-├── Growth Hacker → Acquisition funnel design
-│   ├── Landing page optimization plan
-│   ├── Conversion funnel mapping
-│   ├── Viral mechanics (referral, sharing)
-│   └── Channel budget allocation
-│
-├── Brand Guardian → Campaign brand guidelines
-│   ├── Campaign-specific visual guidelines
-│   ├── Messaging framework
-│   ├── Tone and voice for campaign
-│   └── Do's and don'ts
-│
-└── Legal Compliance Checker → Ad compliance review
-    ├── Disclosure requirements
-    ├── Platform-specific ad policies
-    └── Regulatory constraints
+### 第 1 周：战略与内容创作
+- **第 1-2 天：战略制定**：目标与 KPI、受众定义、平台选择与预算分配、内容日历（4 周计划）、渠道策略、市场时机分析、漏斗设计及品牌指南。
+- **第 3-5 天：内容生产**：
+    - 多格式内容：博文、邮件、着陆页文案、视频脚本。
+    - 平台适配：Twitter 帖子、TikTok 视频概念、Instagram 视觉排版、Reddit 社区贴等。
 
-Day 3-5: Content Production
-├── Content Creator → Multi-format content creation
-│   ├── Blog posts / articles
-│   ├── Email sequences
-│   ├── Landing page copy
-│   ├── Video scripts
-│   └── Social media copy (platform-adapted)
-│
-├── Twitter Engager → Twitter-specific content
-│   ├── Launch thread (10-15 tweets)
-│   ├── Daily engagement tweets
-│   ├── Reply templates
-│   └── Hashtag strategy
-│
-├── TikTok Strategist → TikTok content plan
-│   ├── Video concepts (3-5 videos)
-│   ├── Hook strategies
-│   ├── Trending audio/format alignment
-│   └── Posting schedule
-│
-├── Instagram Curator → Instagram content
-│   ├── Feed posts (carousel, single image)
-│   ├── Stories content
-│   ├── Reels concepts
-│   └── Visual aesthetic guidelines
-│
-└── Reddit Community Builder → Reddit strategy
-    ├── Subreddit targeting
-    ├── Value-first post drafts
-    ├── Comment engagement plan
-    └── AMA preparation (if applicable)
-```
+### 第 2 周：发布与激活
+- **第 1 天：发布前夕**：确认排期、验证追踪代码、配置 A/B 测试、检查着陆页。
+- **第 2-3 天：发布**：全渠道开启激活。
+- **第 4-5 天：优化**：根据最初 48 小时表现报告进行渠道优化、调整参与策略及补充内容。
 
-### Week 2: Launch & Activate
+### 第 3-4 周：维持与深耕
+- **每日**：平台互动与内容发布、每日数据快照、漏斗优化。
+- **每周**：性能评审、新 A/B 测试、基于数据产出新内容及周报。
+- **活动结束**：全方位分析报告、ROI 分析、执行摘要、经验教训与建议。
 
-```
-Day 1: Pre-Launch
-├── All content queued and scheduled
-├── Analytics tracking verified
-├── A/B test variants configured
-├── Landing pages live and tested
-└── Team briefed on engagement protocols
+---
 
-Day 2-3: Launch
-├── Twitter Engager → Launch thread + real-time engagement
-├── Instagram Curator → Launch posts + stories
-├── TikTok Strategist → Launch videos
-├── Reddit Community Builder → Authentic community posts
-├── Content Creator → Blog post published + email blast
-├── Growth Hacker → Paid campaigns activated
-└── Analytics Reporter → Real-time dashboard monitoring
+## 活动指标
 
-Day 4-5: Optimize
-├── Analytics Reporter → First 48-hour performance report
-├── Growth Hacker → Channel optimization based on data
-├── Experiment Tracker → A/B test early results
-├── Social Media Strategist → Engagement strategy adjustment
-└── Content Creator → Response content based on reception
-```
+- **总覆盖人数 (Total Reach)**。
+- **各平台平均互动率 > 3%**。
+- **CTA 点击率 > 2%**。
+- **着陆页转化率 > 5%**。
+- **用户获取成本 < 目标 CAC**。
+- **品牌情绪：净值为正**。
+- **已完成的 A/B 测试 ≥ 5 个**。
 
-### Week 3-4: Sustain & Optimize
+---
 
-```
-Daily:
-├── Platform agents → Engagement and content posting
-├── Analytics Reporter → Daily performance snapshot
-└── Growth Hacker → Funnel optimization
+## 品牌一致性检查点
 
-Weekly:
-├── Social Media Strategist → Campaign performance review
-├── Experiment Tracker → A/B test results and new tests
-├── Content Creator → New content based on performance data
-└── Analytics Reporter → Weekly campaign report
-
-End of Campaign:
-├── Analytics Reporter → Comprehensive campaign analysis
-├── Growth Hacker → ROI analysis and channel effectiveness
-├── Executive Summary Generator → Campaign executive summary
-└── Social Media Strategist → Lessons learned and recommendations
-```
-
-## Campaign Metrics
-
-| Metric | Target | Owner |
-|--------|--------|-------|
-| Total reach | [Target based on budget] | Social Media Strategist |
-| Engagement rate | > 3% average across platforms | Platform agents |
-| Click-through rate | > 2% on CTAs | Growth Hacker |
-| Conversion rate | > 5% landing page | Growth Hacker |
-| Cost per acquisition | < [Target CAC] | Growth Hacker |
-| Brand sentiment | Net positive | Brand Guardian |
-| Content pieces published | [Target count] | Content Creator |
-| A/B tests completed | ≥ 5 | Experiment Tracker |
-
-## Platform-Specific KPIs
-
-| Platform | Primary KPI | Secondary KPI | Agent |
-|----------|------------|---------------|-------|
-| Twitter/X | Impressions + engagement rate | Follower growth | Twitter Engager |
-| TikTok | Views + completion rate | Follower growth | TikTok Strategist |
-| Instagram | Reach + saves | Profile visits | Instagram Curator |
-| Reddit | Upvotes + comment quality | Referral traffic | Reddit Community Builder |
-| Email | Open rate + CTR | Unsubscribe rate | Content Creator |
-| Blog | Organic traffic + time on page | Backlinks | Content Creator |
-| Paid ads | ROAS + CPA | Quality score | Growth Hacker |
-
-## Brand Consistency Checkpoints
-
-| Checkpoint | When | Agent |
-|-----------|------|-------|
-| Content review before publishing | Every piece | Brand Guardian |
-| Visual consistency audit | Weekly | Brand Guardian |
-| Voice and tone check | Weekly | Brand Guardian |
-| Compliance review | Before launch + weekly | Legal Compliance Checker |
+- 发布前的内容评审（每一篇）。
+- 每周视觉一致性审计。
+- 每周语气与 वॉइस (Voice) 检查。
+- 发布前及每周的合规性评审。
