@@ -356,7 +356,23 @@ install_openclaw() {
   local src="$INTEGRATIONS/openclaw"
   local dest="${HOME}/.openclaw/agency-agents"
   local count=0
+  local openclaw_bin=""
+  local openclaw_skip_reason=""
   [[ -d "$src" ]] || { err "integrations/openclaw missing. Run convert.sh first."; return 1; }
+
+  openclaw_bin="$(command -v openclaw 2>/dev/null || true)"
+  if [[ -z "$openclaw_bin" ]]; then
+    openclaw_skip_reason="openclaw command not found in PATH"
+  elif [[ "$openclaw_bin" != /* ]]; then
+    openclaw_skip_reason="resolved command is not an absolute path: $openclaw_bin"
+  elif [[ ! -e "$openclaw_bin" ]]; then
+    openclaw_skip_reason="resolved binary does not exist: $openclaw_bin"
+  elif [[ -d "$openclaw_bin" ]]; then
+    openclaw_skip_reason="resolved path is a directory, not an executable: $openclaw_bin"
+  elif [[ ! -x "$openclaw_bin" ]]; then
+    openclaw_skip_reason="resolved file is not executable: $openclaw_bin"
+  fi
+
   mkdir -p "$dest"
   local d
   while IFS= read -r -d '' d; do
@@ -366,14 +382,17 @@ install_openclaw() {
     cp "$d/AGENTS.md" "$dest/$name/AGENTS.md"
     cp "$d/IDENTITY.md" "$dest/$name/IDENTITY.md"
     # Register with OpenClaw so agents are usable by agentId immediately
-    if command -v openclaw >/dev/null 2>&1; then
-      openclaw agents add "$name" --workspace "$dest/$name" --non-interactive || true
+    if [[ -z "$openclaw_skip_reason" ]]; then
+      "$openclaw_bin" agents add "$name" --workspace "$dest/$name" --non-interactive || true
     fi
     (( count++ )) || true
   done < <(find "$src" -mindepth 1 -maxdepth 1 -type d -print0)
   ok "OpenClaw: $count workspaces -> $dest"
-  if command -v openclaw >/dev/null 2>&1; then
+  if [[ -z "$openclaw_skip_reason" ]]; then
     warn "OpenClaw: run 'openclaw gateway restart' to activate new agents"
+  else
+    warn "OpenClaw: skipped automatic agent registration ($openclaw_skip_reason)"
+    warn "OpenClaw: manually run 'openclaw agents add <agent-name> --workspace <workspace-path> --non-interactive' for each workspace"
   fi
 }
 
