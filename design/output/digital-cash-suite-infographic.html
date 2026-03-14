@@ -1,0 +1,1141 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Telcoin Digital Cash Stablecoin Suite</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+  <style>
+    /* ─── Reset & Base ─── */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg-base:      #0A0E1A;
+      --bg-card:      #0F1528;
+      --bg-surface:   #141A2E;
+      --bg-glass:     rgba(255,255,255,0.04);
+      --border:       rgba(255,255,255,0.07);
+      --border-glow:  rgba(0,212,255,0.25);
+
+      --brand:        #00D4FF;
+      --brand-dim:    rgba(0,212,255,0.12);
+      --brand-mid:    rgba(0,212,255,0.35);
+
+      --text-primary: #F0F4FF;
+      --text-muted:   #8892A4;
+      --text-dim:     #4A5568;
+
+      --live-bg:      rgba(16,185,129,0.12);
+      --live-text:    #10B981;
+      --live-border:  rgba(16,185,129,0.35);
+
+      --plan-bg:      rgba(99,102,241,0.12);
+      --plan-text:    #818CF8;
+      --plan-border:  rgba(99,102,241,0.35);
+
+      --c-eusd:  #10B981;
+      --c-egbp:  #3B82F6;
+      --c-ejpy:  #EF4444;
+      --c-esgd:  #F59E0B;
+      --c-ezar:  #84CC16;
+      --c-eeur:  #6366F1;
+    }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      background-color: var(--bg-base);
+      color: var(--text-primary);
+      font-family: 'Inter', sans-serif;
+      font-size: 15px;
+      line-height: 1.6;
+      min-height: 100vh;
+    }
+
+    /* ─── Canvas wrapper ─── */
+    .canvas {
+      width: 1200px;
+      margin: 0 auto;
+      padding: 0 0 64px;
+    }
+
+    /* ─── Keyframes ─── */
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(28px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+    @keyframes fadeIn {
+      from { opacity: 0; }
+      to   { opacity: 1; }
+    }
+    @keyframes glowPulse {
+      0%, 100% { box-shadow: 0 0 24px rgba(0,212,255,0.18); }
+      50%       { box-shadow: 0 0 44px rgba(0,212,255,0.38); }
+    }
+    @keyframes shimmer {
+      0%   { background-position: -200% center; }
+      100% { background-position:  200% center; }
+    }
+    @keyframes floatCoin {
+      0%, 100% { transform: translateY(0px) rotate(0deg); }
+      50%       { transform: translateY(-6px) rotate(1deg); }
+    }
+    @keyframes orbitRing {
+      from { transform: rotate(0deg); }
+      to   { transform: rotate(360deg); }
+    }
+    @keyframes cardReveal {
+      from { opacity: 0; transform: translateY(36px) scale(0.96); }
+      to   { opacity: 1; transform: translateY(0)  scale(1); }
+    }
+
+    /* ─── Utility ─── */
+    .animate-fade-up { animation: fadeUp 0.7s ease both; }
+    .d1 { animation-delay: 0.05s; }
+    .d2 { animation-delay: 0.15s; }
+    .d3 { animation-delay: 0.25s; }
+    .d4 { animation-delay: 0.40s; }
+    .d5 { animation-delay: 0.55s; }
+    .d6 { animation-delay: 0.70s; }
+    .d7 { animation-delay: 0.85s; }
+    .d8 { animation-delay: 1.00s; }
+
+    /* ─── HERO ─── */
+    .hero {
+      position: relative;
+      padding: 72px 60px 60px;
+      overflow: hidden;
+      border-bottom: 1px solid var(--border);
+      background: linear-gradient(160deg, #0C1325 0%, #0A0E1A 60%, #080C17 100%);
+    }
+
+    /* Background grid lines */
+    .hero::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background-image:
+        linear-gradient(rgba(0,212,255,0.04) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(0,212,255,0.04) 1px, transparent 1px);
+      background-size: 60px 60px;
+      pointer-events: none;
+    }
+
+    /* Radial glow blobs */
+    .hero-blob {
+      position: absolute;
+      border-radius: 50%;
+      filter: blur(90px);
+      pointer-events: none;
+    }
+    .hero-blob-1 {
+      width: 520px; height: 520px;
+      top: -160px; right: -80px;
+      background: radial-gradient(circle, rgba(0,212,255,0.14) 0%, transparent 70%);
+    }
+    .hero-blob-2 {
+      width: 380px; height: 380px;
+      bottom: -120px; left: 80px;
+      background: radial-gradient(circle, rgba(99,102,241,0.12) 0%, transparent 70%);
+    }
+
+    .hero-content {
+      position: relative;
+      z-index: 2;
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 40px;
+      align-items: center;
+    }
+
+    .hero-eyebrow {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      font-family: 'Inter', sans-serif;
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: var(--brand);
+      background: var(--brand-dim);
+      border: 1px solid var(--border-glow);
+      border-radius: 100px;
+      padding: 5px 14px;
+      margin-bottom: 24px;
+    }
+    .hero-eyebrow-dot {
+      width: 6px; height: 6px;
+      border-radius: 50%;
+      background: var(--brand);
+      animation: glowPulse 2s ease-in-out infinite;
+    }
+
+    .hero-headline {
+      font-family: 'Syne', sans-serif;
+      font-size: 56px;
+      font-weight: 800;
+      line-height: 1.07;
+      letter-spacing: -0.02em;
+      margin-bottom: 20px;
+    }
+    .hero-headline .line-brand {
+      background: linear-gradient(90deg, #00D4FF 0%, #7DD3FC 50%, #A78BFA 100%);
+      background-size: 200% auto;
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      animation: shimmer 4s linear infinite;
+    }
+
+    .hero-sub {
+      font-size: 17px;
+      font-weight: 400;
+      color: var(--text-muted);
+      max-width: 560px;
+      line-height: 1.65;
+      margin-bottom: 32px;
+    }
+    .hero-sub strong {
+      color: var(--text-primary);
+      font-weight: 600;
+    }
+
+    .hero-stats {
+      display: flex;
+      gap: 32px;
+    }
+    .hero-stat {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+    .hero-stat-value {
+      font-family: 'Syne', sans-serif;
+      font-size: 26px;
+      font-weight: 700;
+      color: var(--brand);
+    }
+    .hero-stat-label {
+      font-size: 11px;
+      font-weight: 500;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--text-dim);
+    }
+    .hero-stat-divider {
+      width: 1px;
+      background: var(--border);
+      align-self: stretch;
+    }
+
+    /* Hero coin cluster visual */
+    .hero-visual {
+      position: relative;
+      width: 280px;
+      height: 280px;
+      flex-shrink: 0;
+    }
+    .hero-coin-center {
+      position: absolute;
+      top: 50%; left: 50%;
+      transform: translate(-50%, -50%);
+      width: 100px; height: 100px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, #0F2044, #0A1628);
+      border: 2px solid var(--brand);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: 'Syne', sans-serif;
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--brand);
+      letter-spacing: 0.05em;
+      animation: glowPulse 3s ease-in-out infinite, floatCoin 5s ease-in-out infinite;
+      z-index: 2;
+      text-align: center;
+      line-height: 1.2;
+    }
+    .hero-orbit {
+      position: absolute;
+      top: 50%; left: 50%;
+      border: 1px dashed rgba(0,212,255,0.18);
+      border-radius: 50%;
+    }
+    .orbit-1 { width: 160px; height: 160px; margin: -80px 0 0 -80px; animation: orbitRing 12s linear infinite; }
+    .orbit-2 { width: 230px; height: 230px; margin: -115px 0 0 -115px; animation: orbitRing 20s linear infinite reverse; }
+    .orbit-3 { width: 280px; height: 280px; margin: -140px 0 0 -140px; animation: orbitRing 30s linear infinite; }
+
+    /* Mini orbit coins */
+    .orbit-coin {
+      position: absolute;
+      width: 36px; height: 36px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 14px;
+      font-weight: 700;
+      border: 1.5px solid rgba(255,255,255,0.12);
+      background: var(--bg-card);
+    }
+
+
+    /* ─── SECTION WRAPPER ─── */
+    .section {
+      padding: 56px 60px 0;
+    }
+
+    .section-label {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 36px;
+    }
+    .section-label-line {
+      flex: 1;
+      height: 1px;
+      background: linear-gradient(90deg, var(--border-glow), transparent);
+    }
+    .section-label-text {
+      font-family: 'Syne', sans-serif;
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+      color: var(--brand);
+    }
+
+    /* ─── STABLECOIN GRID ─── */
+    .coin-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 20px;
+    }
+
+    .coin-card {
+      position: relative;
+      background: var(--bg-card);
+      border-radius: 20px;
+      border: 1px solid var(--border);
+      padding: 28px 24px 24px;
+      overflow: hidden;
+      cursor: default;
+      transition: transform 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease;
+      animation: cardReveal 0.6s ease both;
+    }
+    .coin-card:hover {
+      transform: translateY(-5px);
+      border-color: var(--card-color, var(--brand));
+      box-shadow: 0 20px 60px -10px rgba(0,0,0,0.6), 0 0 30px -5px var(--card-shadow, rgba(0,212,255,0.18));
+    }
+
+    /* Top color strip */
+    .coin-card::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      height: 3px;
+      background: linear-gradient(90deg, var(--card-color, var(--brand)), transparent 70%);
+    }
+
+    /* Background glow on hover */
+    .coin-card::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      border-radius: 20px;
+      background: radial-gradient(ellipse at top left, var(--card-bg-glow, rgba(0,212,255,0.06)) 0%, transparent 60%);
+      pointer-events: none;
+      opacity: 0;
+      transition: opacity 0.3s ease;
+    }
+    .coin-card:hover::after { opacity: 1; }
+
+    /* Per-currency card theming */
+    .card-eusd { --card-color: var(--c-eusd); --card-shadow: rgba(16,185,129,0.22); --card-bg-glow: rgba(16,185,129,0.08); }
+    .card-egbp { --card-color: var(--c-egbp); --card-shadow: rgba(59,130,246,0.22); --card-bg-glow: rgba(59,130,246,0.08); }
+    .card-ejpy { --card-color: var(--c-ejpy); --card-shadow: rgba(239,68,68,0.22);   --card-bg-glow: rgba(239,68,68,0.08); }
+    .card-esgd { --card-color: var(--c-esgd); --card-shadow: rgba(245,158,11,0.22); --card-bg-glow: rgba(245,158,11,0.08); }
+    .card-ezar { --card-color: var(--c-ezar); --card-shadow: rgba(132,204,22,0.22); --card-bg-glow: rgba(132,204,22,0.08); }
+    .card-eeur { --card-color: var(--c-eeur); --card-shadow: rgba(99,102,241,0.22); --card-bg-glow: rgba(99,102,241,0.08); }
+
+    .coin-card-header {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      margin-bottom: 20px;
+    }
+
+    .coin-icon {
+      width: 60px; height: 60px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 22px;
+      border: 2px solid var(--card-color, var(--brand));
+      background: rgba(0,0,0,0.3);
+      position: relative;
+      z-index: 1;
+      animation: floatCoin 5s ease-in-out infinite;
+    }
+    .card-eusd .coin-icon { animation-delay: 0.0s; }
+    .card-egbp .coin-icon { animation-delay: 0.4s; }
+    .card-ejpy .coin-icon { animation-delay: 0.8s; }
+    .card-esgd .coin-icon { animation-delay: 1.2s; }
+    .card-ezar .coin-icon { animation-delay: 1.6s; }
+    .card-eeur .coin-icon { animation-delay: 2.0s; }
+
+    .coin-status {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      padding: 4px 10px;
+      border-radius: 100px;
+    }
+    .status-live {
+      color: var(--live-text);
+      background: var(--live-bg);
+      border: 1px solid var(--live-border);
+    }
+    .status-planned {
+      color: var(--plan-text);
+      background: var(--plan-bg);
+      border: 1px solid var(--plan-border);
+    }
+    .status-dot {
+      width: 5px; height: 5px;
+      border-radius: 50%;
+      background: currentColor;
+    }
+    .status-live .status-dot {
+      box-shadow: 0 0 0 2px rgba(16,185,129,0.3);
+      animation: glowPulse 1.8s ease-in-out infinite;
+    }
+
+    .coin-ticker {
+      font-family: 'Syne', sans-serif;
+      font-size: 28px;
+      font-weight: 800;
+      color: var(--card-color, var(--brand));
+      letter-spacing: -0.01em;
+      line-height: 1;
+      margin-bottom: 4px;
+    }
+
+    .coin-currency {
+      font-size: 13px;
+      font-weight: 500;
+      color: var(--text-muted);
+      margin-bottom: 16px;
+    }
+
+    .coin-divider {
+      height: 1px;
+      background: var(--border);
+      margin-bottom: 14px;
+    }
+
+    .coin-networks {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      margin-bottom: 14px;
+    }
+
+    .network-pill {
+      font-size: 10px;
+      font-weight: 600;
+      letter-spacing: 0.06em;
+      padding: 3px 9px;
+      border-radius: 100px;
+      background: var(--bg-glass);
+      border: 1px solid var(--border);
+      color: var(--text-muted);
+    }
+
+    .coin-note {
+      font-size: 11px;
+      color: var(--text-dim);
+      line-height: 1.5;
+    }
+    .coin-note strong {
+      color: var(--card-color, var(--brand));
+      font-weight: 600;
+    }
+
+    /* ─── FIRST MOVER BANNER ─── */
+    .first-mover-banner {
+      margin-top: 0;
+      padding: 20px 28px;
+      border-radius: 14px;
+      background: linear-gradient(135deg, rgba(16,185,129,0.08), rgba(0,212,255,0.06));
+      border: 1px solid rgba(16,185,129,0.25);
+      display: flex;
+      align-items: center;
+      gap: 16px;
+    }
+    .first-mover-icon {
+      font-size: 28px;
+      flex-shrink: 0;
+    }
+    .first-mover-text {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+    }
+    .first-mover-headline {
+      font-family: 'Syne', sans-serif;
+      font-size: 15px;
+      font-weight: 700;
+      color: #10B981;
+    }
+    .first-mover-sub {
+      font-size: 12px;
+      color: var(--text-muted);
+    }
+
+    /* ─── WHERE TO USE ─── */
+    .usage-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 16px;
+    }
+
+    .usage-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 24px 20px;
+      text-align: center;
+      transition: transform 0.3s ease, border-color 0.3s ease;
+      animation: cardReveal 0.6s ease both;
+    }
+    .usage-card:hover {
+      transform: translateY(-4px);
+      border-color: var(--border-glow);
+    }
+
+    .usage-icon {
+      width: 52px; height: 52px;
+      border-radius: 14px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 24px;
+      margin: 0 auto 14px;
+      border: 1px solid var(--border);
+      background: var(--bg-surface);
+    }
+
+    .usage-name {
+      font-family: 'Syne', sans-serif;
+      font-size: 14px;
+      font-weight: 700;
+      color: var(--text-primary);
+      margin-bottom: 6px;
+    }
+
+    .usage-tokens {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 4px;
+      margin-bottom: 8px;
+    }
+    .usage-token {
+      font-size: 9px;
+      font-weight: 600;
+      letter-spacing: 0.06em;
+      padding: 2px 7px;
+      border-radius: 100px;
+      background: var(--brand-dim);
+      color: var(--brand);
+      border: 1px solid var(--border-glow);
+    }
+
+    .usage-desc {
+      font-size: 11px;
+      color: var(--text-dim);
+      line-height: 1.5;
+    }
+
+    /* ─── NETWORK INFRA ROW ─── */
+    .network-row {
+      display: flex;
+      gap: 12px;
+      justify-content: center;
+    }
+
+    .network-badge {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 100px;
+      padding: 8px 18px;
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--text-muted);
+      transition: border-color 0.3s ease, color 0.3s ease;
+    }
+    .network-badge:hover {
+      border-color: var(--border-glow);
+      color: var(--text-primary);
+    }
+    .network-badge-dot {
+      width: 8px; height: 8px;
+      border-radius: 50%;
+    }
+
+    /* ─── MAINNET TEASER ─── */
+    .mainnet-teaser {
+      margin: 0 60px;
+      border-radius: 24px;
+      padding: 48px 52px;
+      background: linear-gradient(135deg, #0D1733 0%, #0A1020 50%, #0D1A2E 100%);
+      border: 1px solid rgba(0,212,255,0.2);
+      position: relative;
+      overflow: hidden;
+      text-align: center;
+    }
+
+    .mainnet-teaser::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background-image:
+        linear-gradient(rgba(0,212,255,0.03) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(0,212,255,0.03) 1px, transparent 1px);
+      background-size: 40px 40px;
+    }
+
+    .mainnet-teaser-glow {
+      position: absolute;
+      top: -80px; left: 50%;
+      transform: translateX(-50%);
+      width: 400px; height: 300px;
+      background: radial-gradient(ellipse at center, rgba(0,212,255,0.12) 0%, transparent 70%);
+      pointer-events: none;
+    }
+
+    .mainnet-content {
+      position: relative;
+      z-index: 2;
+    }
+
+    .mainnet-label {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: var(--brand);
+      background: var(--brand-dim);
+      border: 1px solid var(--border-glow);
+      border-radius: 100px;
+      padding: 5px 14px;
+      margin-bottom: 20px;
+    }
+
+    .mainnet-headline {
+      font-family: 'Syne', sans-serif;
+      font-size: 36px;
+      font-weight: 800;
+      line-height: 1.15;
+      letter-spacing: -0.02em;
+      margin-bottom: 16px;
+    }
+
+    .mainnet-sub {
+      font-size: 15px;
+      color: var(--text-muted);
+      max-width: 540px;
+      margin: 0 auto 28px;
+      line-height: 1.65;
+    }
+
+    /* Migration token chips */
+    .mainnet-tokens {
+      display: flex;
+      justify-content: center;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    .mainnet-token {
+      display: flex;
+      align-items: center;
+      gap: 7px;
+      background: rgba(0,0,0,0.3);
+      border: 1px solid var(--border);
+      border-radius: 100px;
+      padding: 7px 14px;
+      font-family: 'Syne', sans-serif;
+      font-size: 13px;
+      font-weight: 700;
+    }
+    .mainnet-token-dot {
+      width: 8px; height: 8px;
+      border-radius: 50%;
+    }
+    .mainnet-arrow {
+      font-size: 14px;
+      color: var(--brand);
+      opacity: 0.7;
+    }
+    .mainnet-chain {
+      font-size: 11px;
+      font-weight: 500;
+      color: var(--brand);
+      background: var(--brand-dim);
+      border: 1px solid var(--border-glow);
+      border-radius: 100px;
+      padding: 3px 10px;
+      margin-left: 4px;
+    }
+
+    /* ─── FOOTER ─── */
+    .footer {
+      padding: 28px 60px;
+      border-top: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 24px;
+      background: rgba(0,0,0,0.2);
+    }
+
+    .footer-brand {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .footer-logo {
+      width: 28px; height: 28px;
+      border-radius: 50%;
+      background: var(--brand);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: 'Syne', sans-serif;
+      font-size: 10px;
+      font-weight: 800;
+      color: #000;
+    }
+    .footer-brand-name {
+      font-family: 'Syne', sans-serif;
+      font-size: 14px;
+      font-weight: 700;
+      color: var(--text-primary);
+    }
+
+    .footer-source {
+      font-size: 11px;
+      color: var(--text-dim);
+      letter-spacing: 0.04em;
+    }
+
+    .footer-mission {
+      font-size: 11px;
+      color: var(--text-dim);
+      text-align: right;
+      max-width: 260px;
+      line-height: 1.5;
+    }
+  </style>
+</head>
+<body>
+  <div class="canvas">
+
+    <!-- ═══════════════════════════════════════════════════
+         HERO
+    ═══════════════════════════════════════════════════ -->
+    <section class="hero">
+      <div class="hero-blob hero-blob-1"></div>
+      <div class="hero-blob hero-blob-2"></div>
+
+      <div class="hero-content">
+        <div class="hero-text">
+          <div class="hero-eyebrow animate-fade-up d1">
+            <span class="hero-eyebrow-dot"></span>
+            Telcoin Digital Asset Bank &mdash; Stablecoin Suite
+          </div>
+
+          <h1 class="hero-headline animate-fade-up d2">
+            Digital Cash.<br />
+            <span class="line-brand">Bank-Grade.</span><br />
+            On-Chain.
+          </h1>
+
+          <p class="hero-sub animate-fade-up d3">
+            <strong>Bank-grade multi-currency stablecoins</strong> for the world's remittance corridors &mdash;
+            the digital cash rails the world has been waiting for.
+          </p>
+
+          <div class="hero-stats animate-fade-up d4">
+            <div class="hero-stat">
+              <span class="hero-stat-value">5</span>
+              <span class="hero-stat-label">Live Currencies</span>
+            </div>
+            <div class="hero-stat-divider"></div>
+            <div class="hero-stat">
+              <span class="hero-stat-value">6</span>
+              <span class="hero-stat-label">Total Stablecoins</span>
+            </div>
+            <div class="hero-stat-divider"></div>
+            <div class="hero-stat">
+              <span class="hero-stat-value">Dec&nbsp;2025</span>
+              <span class="hero-stat-label">eUSD Launch</span>
+            </div>
+            <div class="hero-stat-divider"></div>
+            <div class="hero-stat">
+              <span class="hero-stat-value">2</span>
+              <span class="hero-stat-label">Exchange Listings</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Hero coin cluster -->
+        <div class="hero-visual animate-fade-up d3">
+          <div class="hero-orbit orbit-1"></div>
+          <div class="hero-orbit orbit-2"></div>
+          <div class="hero-orbit orbit-3"></div>
+
+          <div class="hero-coin-center">
+            e-Cash<br />Suite
+          </div>
+
+          <!-- Orbit coins: positioned at corners of orbit rings -->
+          <div class="orbit-coin" style="top: 4px; left: 50%; margin-left: -18px; color: var(--c-eusd); border-color: var(--c-eusd);">🇺🇸</div>
+          <div class="orbit-coin" style="bottom: 4px; left: 50%; margin-left: -18px; color: var(--c-egbp); border-color: var(--c-egbp);">🇬🇧</div>
+          <div class="orbit-coin" style="top: 50%; left: 4px; margin-top: -18px; color: var(--c-ejpy); border-color: var(--c-ejpy);">🇯🇵</div>
+          <div class="orbit-coin" style="top: 50%; right: 4px; margin-top: -18px; color: var(--c-esgd); border-color: var(--c-esgd);">🇸🇬</div>
+          <div class="orbit-coin" style="top: 22px; left: 22px; color: var(--c-ezar); border-color: var(--c-ezar);">🇿🇦</div>
+          <div class="orbit-coin" style="bottom: 22px; right: 22px; color: var(--c-eeur); border-color: var(--c-eeur);">🇪🇺</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ═══════════════════════════════════════════════════
+         STABLECOIN GRID
+    ═══════════════════════════════════════════════════ -->
+    <section class="section">
+      <div class="section-label animate-fade-up d1">
+        <span class="section-label-text">The Stablecoin Suite</span>
+        <div class="section-label-line"></div>
+      </div>
+
+      <!-- First-mover banner -->
+      <div class="first-mover-banner animate-fade-up d2" style="margin-bottom: 24px;">
+        <div class="first-mover-icon">&#127942;</div>
+        <div class="first-mover-text">
+          <div class="first-mover-headline">World's First Bank-Issued On-Chain Stablecoin</div>
+          <div class="first-mover-sub">eUSD &mdash; issued by Telcoin Digital Asset Bank (Nebraska charter) &mdash; launched December 26, 2025</div>
+        </div>
+      </div>
+
+      <div class="coin-grid">
+
+        <!-- eUSD -->
+        <div class="coin-card card-eusd animate-fade-up d2">
+          <div class="coin-card-header">
+            <div class="coin-icon">🇺🇸</div>
+            <div class="coin-status status-live">
+              <span class="status-dot"></span> Live
+            </div>
+          </div>
+          <div class="coin-ticker">eUSD</div>
+          <div class="coin-currency">United States Dollar</div>
+          <div class="coin-divider"></div>
+          <div class="coin-networks">
+            <span class="network-pill">Ethereum</span>
+            <span class="network-pill">Polygon</span>
+          </div>
+          <div class="coin-note">
+            <strong>First bank-issued on-chain stablecoin.</strong> Listed on Mercado Bitcoin. Pools live on Uniswap (Base) and Raydium (Solana).
+          </div>
+        </div>
+
+        <!-- eGBP -->
+        <div class="coin-card card-egbp animate-fade-up d3">
+          <div class="coin-card-header">
+            <div class="coin-icon">🇬🇧</div>
+            <div class="coin-status status-live">
+              <span class="status-dot"></span> Live
+            </div>
+          </div>
+          <div class="coin-ticker">eGBP</div>
+          <div class="coin-currency">British Pound Sterling</div>
+          <div class="coin-divider"></div>
+          <div class="coin-networks">
+            <span class="network-pill">Polygon</span>
+          </div>
+          <div class="coin-note">
+            Listed on <strong>Mercado Bitcoin</strong> alongside eUSD, extending GBP remittance access to Latin American corridors.
+          </div>
+        </div>
+
+        <!-- eJPY -->
+        <div class="coin-card card-ejpy animate-fade-up d4">
+          <div class="coin-card-header">
+            <div class="coin-icon">🇯🇵</div>
+            <div class="coin-status status-live">
+              <span class="status-dot"></span> Live
+            </div>
+          </div>
+          <div class="coin-ticker">eJPY</div>
+          <div class="coin-currency">Japanese Yen</div>
+          <div class="coin-divider"></div>
+          <div class="coin-networks">
+            <span class="network-pill">Polygon</span>
+          </div>
+          <div class="coin-note">
+            On-chain yen for Asia-Pacific remittance corridors, issued through <strong>Telcoin Digital Asset Bank partners</strong>.
+          </div>
+        </div>
+
+        <!-- eSGD -->
+        <div class="coin-card card-esgd animate-fade-up d5">
+          <div class="coin-card-header">
+            <div class="coin-icon">🇸🇬</div>
+            <div class="coin-status status-live">
+              <span class="status-dot"></span> Live
+            </div>
+          </div>
+          <div class="coin-ticker">eSGD</div>
+          <div class="coin-currency">Singapore Dollar</div>
+          <div class="coin-divider"></div>
+          <div class="coin-networks">
+            <span class="network-pill">Polygon</span>
+          </div>
+          <div class="coin-note">
+            Bank-grade Singapore dollar on-chain, enabling <strong>Southeast Asian</strong> mobile financial inclusion at scale.
+          </div>
+        </div>
+
+        <!-- eZAR -->
+        <div class="coin-card card-ezar animate-fade-up d6">
+          <div class="coin-card-header">
+            <div class="coin-icon">🇿🇦</div>
+            <div class="coin-status status-live">
+              <span class="status-dot"></span> Live
+            </div>
+          </div>
+          <div class="coin-ticker">eZAR</div>
+          <div class="coin-currency">South African Rand</div>
+          <div class="coin-divider"></div>
+          <div class="coin-networks">
+            <span class="network-pill">Polygon</span>
+          </div>
+          <div class="coin-note">
+            Serving Africa's largest remittance market &mdash; <strong>bank-issued rand</strong> on-chain for the first time.
+          </div>
+        </div>
+
+        <!-- eEUR -->
+        <div class="coin-card card-eeur animate-fade-up d7">
+          <div class="coin-card-header">
+            <div class="coin-icon">🇪🇺</div>
+            <div class="coin-status status-planned">
+              <span class="status-dot"></span> Planned
+            </div>
+          </div>
+          <div class="coin-ticker">eEUR</div>
+          <div class="coin-currency">Euro</div>
+          <div class="coin-divider"></div>
+          <div class="coin-networks">
+            <span class="network-pill" style="color: var(--plan-text); border-color: var(--plan-border);">TBD</span>
+          </div>
+          <div class="coin-note">
+            <strong>MiCA-compliant</strong> euro stablecoin via e-Money Institution. Designed to meet EU regulatory standards for full European market access.
+          </div>
+        </div>
+
+      </div><!-- /coin-grid -->
+    </section>
+
+    <!-- ═══════════════════════════════════════════════════
+         INFRASTRUCTURE: CURRENT NETWORKS
+    ═══════════════════════════════════════════════════ -->
+    <section class="section" style="padding-top: 48px; padding-bottom: 0;">
+      <div class="section-label animate-fade-up d1">
+        <span class="section-label-text">Current Infrastructure</span>
+        <div class="section-label-line"></div>
+      </div>
+      <div class="network-row animate-fade-up d2">
+        <div class="network-badge">
+          <span class="network-badge-dot" style="background: #627EEA;"></span>
+          Ethereum
+        </div>
+        <div class="network-badge">
+          <span class="network-badge-dot" style="background: #7B3FE4;"></span>
+          Polygon
+        </div>
+        <div class="network-badge">
+          <span class="network-badge-dot" style="background: #0052FF;"></span>
+          Base (Uniswap)
+        </div>
+        <div class="network-badge">
+          <span class="network-badge-dot" style="background: #9945FF;"></span>
+          Solana (Raydium)
+        </div>
+      </div>
+    </section>
+
+    <!-- ═══════════════════════════════════════════════════
+         WHERE TO USE
+    ═══════════════════════════════════════════════════ -->
+    <section class="section" style="padding-top: 48px;">
+      <div class="section-label animate-fade-up d1">
+        <span class="section-label-text">Where to Use</span>
+        <div class="section-label-line"></div>
+      </div>
+
+      <div class="usage-grid">
+
+        <!-- Telcoin Wallet -->
+        <div class="usage-card d2">
+          <div class="usage-icon">📱</div>
+          <div class="usage-name">Telcoin Wallet</div>
+          <div class="usage-tokens">
+            <span class="usage-token">eUSD</span>
+            <span class="usage-token">eGBP</span>
+            <span class="usage-token">eJPY</span>
+            <span class="usage-token">+3</span>
+          </div>
+          <div class="usage-desc">Mobile remittance app &mdash; send any e-currency globally via mobile network.</div>
+        </div>
+
+        <!-- Mercado Bitcoin -->
+        <div class="usage-card d3">
+          <div class="usage-icon">🏦</div>
+          <div class="usage-name">Mercado Bitcoin</div>
+          <div class="usage-tokens">
+            <span class="usage-token">eUSD</span>
+            <span class="usage-token">eGBP</span>
+          </div>
+          <div class="usage-desc">Leading Latin American crypto exchange &mdash; eUSD &amp; eGBP listed and tradable.</div>
+        </div>
+
+        <!-- Uniswap / Base -->
+        <div class="usage-card d4">
+          <div class="usage-icon">🔵</div>
+          <div class="usage-name">Uniswap on Base</div>
+          <div class="usage-tokens">
+            <span class="usage-token">eUSD</span>
+            <span class="usage-token">USDC</span>
+          </div>
+          <div class="usage-desc">USDC/eUSD liquidity pool live on Base &mdash; seamless swaps on Ethereum's L2.</div>
+        </div>
+
+        <!-- Raydium / Solana -->
+        <div class="usage-card d5">
+          <div class="usage-icon">🟣</div>
+          <div class="usage-name">Raydium on Solana</div>
+          <div class="usage-tokens">
+            <span class="usage-token">eUSD</span>
+            <span class="usage-token">USDC</span>
+          </div>
+          <div class="usage-desc">USDC/eUSD pool live on Solana's Raydium &mdash; high-speed, low-cost access.</div>
+        </div>
+
+      </div><!-- /usage-grid -->
+    </section>
+
+    <!-- ═══════════════════════════════════════════════════
+         MAINNET TEASER
+    ═══════════════════════════════════════════════════ -->
+    <section class="section" style="padding-top: 48px; padding-bottom: 56px;">
+      <div class="mainnet-teaser animate-fade-up d2">
+        <div class="mainnet-teaser-glow"></div>
+        <div class="mainnet-content">
+          <div class="mainnet-label">
+            <span class="hero-eyebrow-dot" style="background: var(--brand);"></span>
+            Coming at Mainnet
+          </div>
+
+          <h2 class="mainnet-headline">
+            All Digital Cash Tokens<br />Migrate to&nbsp;<span style="color: var(--brand);">Telcoin Network</span>
+          </h2>
+
+          <p class="mainnet-sub">
+            At mainnet launch, eUSD, eGBP, eJPY, eSGD, eZAR &mdash; and eEUR &mdash; move natively onto the
+            Telcoin Network L1, operated by GSMA mobile network validators. One chain.
+            Bank-grade stablecoins. Global reach.
+          </p>
+
+          <div class="mainnet-tokens">
+            <div class="mainnet-token" style="color: var(--c-eusd);">
+              <span class="mainnet-token-dot" style="background: var(--c-eusd);"></span>
+              eUSD
+              <span class="mainnet-arrow">&#8594;</span>
+              <span class="mainnet-chain">Telcoin Network</span>
+            </div>
+            <div class="mainnet-token" style="color: var(--c-egbp);">
+              <span class="mainnet-token-dot" style="background: var(--c-egbp);"></span>
+              eGBP
+              <span class="mainnet-arrow">&#8594;</span>
+              <span class="mainnet-chain">Telcoin Network</span>
+            </div>
+            <div class="mainnet-token" style="color: var(--c-ejpy);">
+              <span class="mainnet-token-dot" style="background: var(--c-ejpy);"></span>
+              eJPY
+              <span class="mainnet-arrow">&#8594;</span>
+              <span class="mainnet-chain">Telcoin Network</span>
+            </div>
+            <div class="mainnet-token" style="color: var(--c-esgd);">
+              <span class="mainnet-token-dot" style="background: var(--c-esgd);"></span>
+              eSGD
+              <span class="mainnet-arrow">&#8594;</span>
+              <span class="mainnet-chain">Telcoin Network</span>
+            </div>
+            <div class="mainnet-token" style="color: var(--c-ezar);">
+              <span class="mainnet-token-dot" style="background: var(--c-ezar);"></span>
+              eZAR
+              <span class="mainnet-arrow">&#8594;</span>
+              <span class="mainnet-chain">Telcoin Network</span>
+            </div>
+            <div class="mainnet-token" style="color: var(--c-eeur);">
+              <span class="mainnet-token-dot" style="background: var(--c-eeur);"></span>
+              eEUR
+              <span class="mainnet-arrow">&#8594;</span>
+              <span class="mainnet-chain">Telcoin Network</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ═══════════════════════════════════════════════════
+         FOOTER
+    ═══════════════════════════════════════════════════ -->
+    <footer class="footer">
+      <div class="footer-brand">
+        <div class="footer-logo">T</div>
+        <span class="footer-brand-name">Telcoin Association</span>
+      </div>
+
+      <div class="footer-source">
+        Source: telcoin.org &nbsp;|&nbsp; telcoin.network &nbsp;|&nbsp; March 2026
+      </div>
+
+      <div class="footer-mission">
+        Financial inclusion via blockchain-powered<br />mobile financial services worldwide.
+      </div>
+    </footer>
+
+  </div><!-- /canvas -->
+</body>
+</html>

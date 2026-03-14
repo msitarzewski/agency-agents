@@ -1,0 +1,1604 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Telcoin Network — GSMA Validator Model</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Syne:wght@700;800&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    :root {
+      --blue: #00D4FF;
+      --purple: #7B5CF0;
+      --blue-dim: rgba(0, 212, 255, 0.12);
+      --purple-dim: rgba(123, 92, 240, 0.12);
+      --blue-mid: rgba(0, 212, 255, 0.25);
+      --purple-mid: rgba(123, 92, 240, 0.25);
+      --bg: #0A0E1A;
+      --bg-card: #0F1628;
+      --bg-card2: #131929;
+      --border: rgba(255,255,255,0.07);
+      --border-blue: rgba(0, 212, 255, 0.25);
+      --border-purple: rgba(123, 92, 240, 0.3);
+      --text-primary: #FFFFFF;
+      --text-secondary: rgba(255,255,255,0.65);
+      --text-muted: rgba(255,255,255,0.38);
+    }
+
+    body {
+      background: var(--bg);
+      color: var(--text-primary);
+      font-family: 'Inter', sans-serif;
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      padding: 40px 20px;
+    }
+
+    /* ── WRAPPER ── */
+    .infographic {
+      width: 1200px;
+      max-width: 100%;
+      display: flex;
+      flex-direction: column;
+      gap: 0;
+    }
+
+    /* ── ANIMATIONS ── */
+    @keyframes fadeInUp {
+      from { opacity: 0; transform: translateY(24px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+    @keyframes pulseBlue {
+      0%, 100% { box-shadow: 0 0 0 0 rgba(0, 212, 255, 0.35); }
+      50%       { box-shadow: 0 0 0 12px rgba(0, 212, 255, 0); }
+    }
+    @keyframes pulsePurple {
+      0%, 100% { box-shadow: 0 0 0 0 rgba(123, 92, 240, 0.35); }
+      50%       { box-shadow: 0 0 0 12px rgba(123, 92, 240, 0); }
+    }
+    @keyframes glowOrb {
+      0%, 100% { opacity: 0.55; transform: scale(1); }
+      50%       { opacity: 0.85; transform: scale(1.06); }
+    }
+    @keyframes flowDash {
+      to { stroke-dashoffset: -24; }
+    }
+    @keyframes rotateSlow {
+      from { transform: rotate(0deg); }
+      to   { transform: rotate(360deg); }
+    }
+    @keyframes shimmer {
+      0%   { background-position: -600px 0; }
+      100% { background-position: 600px 0; }
+    }
+    @keyframes badgePulse {
+      0%, 100% { box-shadow: 0 0 20px rgba(0,212,255,0.4), 0 0 40px rgba(0,212,255,0.15); }
+      50%       { box-shadow: 0 0 30px rgba(0,212,255,0.65), 0 0 60px rgba(0,212,255,0.25); }
+    }
+    @keyframes dotBlink {
+      0%, 100% { opacity: 1; }
+      50%       { opacity: 0.3; }
+    }
+
+    .anim-1 { animation: fadeInUp 0.7s ease both; }
+    .anim-2 { animation: fadeInUp 0.7s 0.1s ease both; }
+    .anim-3 { animation: fadeInUp 0.7s 0.2s ease both; }
+    .anim-4 { animation: fadeInUp 0.7s 0.3s ease both; }
+    .anim-5 { animation: fadeInUp 0.7s 0.4s ease both; }
+    .anim-6 { animation: fadeInUp 0.7s 0.5s ease both; }
+    .anim-7 { animation: fadeInUp 0.7s 0.6s ease both; }
+
+    /* ── HEADER ── */
+    .header {
+      position: relative;
+      overflow: hidden;
+      padding: 60px 56px 52px;
+      background: linear-gradient(135deg, #0F1628 0%, #0D1422 60%, #110E2A 100%);
+      border-bottom: 1px solid var(--border);
+    }
+
+    .header::before {
+      content: '';
+      position: absolute;
+      top: -120px; right: -80px;
+      width: 500px; height: 500px;
+      background: radial-gradient(circle, rgba(0,212,255,0.10) 0%, transparent 70%);
+      animation: glowOrb 5s ease-in-out infinite;
+      pointer-events: none;
+    }
+    .header::after {
+      content: '';
+      position: absolute;
+      bottom: -80px; left: 20%;
+      width: 380px; height: 380px;
+      background: radial-gradient(circle, rgba(123,92,240,0.08) 0%, transparent 70%);
+      animation: glowOrb 7s ease-in-out infinite reverse;
+      pointer-events: none;
+    }
+
+    .header-inner {
+      position: relative;
+      z-index: 1;
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 32px;
+    }
+
+    .header-left { flex: 1; }
+
+    .brand-tag {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: rgba(0,212,255,0.08);
+      border: 1px solid rgba(0,212,255,0.22);
+      border-radius: 100px;
+      padding: 5px 14px 5px 10px;
+      margin-bottom: 24px;
+    }
+    .brand-tag .dot {
+      width: 8px; height: 8px;
+      border-radius: 50%;
+      background: var(--blue);
+      animation: dotBlink 2s ease-in-out infinite;
+    }
+    .brand-tag span {
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--blue);
+    }
+
+    .header h1 {
+      font-family: 'Syne', sans-serif;
+      font-size: 46px;
+      font-weight: 800;
+      line-height: 1.05;
+      letter-spacing: -0.02em;
+      color: #fff;
+      margin-bottom: 12px;
+    }
+    .header h1 em {
+      font-style: normal;
+      background: linear-gradient(90deg, var(--blue) 0%, var(--purple) 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .header-sub {
+      font-size: 16px;
+      font-weight: 400;
+      color: var(--text-secondary);
+      line-height: 1.6;
+      max-width: 560px;
+      margin-bottom: 28px;
+    }
+
+    .key-message {
+      display: inline-block;
+      background: linear-gradient(90deg, rgba(0,212,255,0.1) 0%, rgba(123,92,240,0.1) 100%);
+      border: 1px solid rgba(0,212,255,0.2);
+      border-radius: 8px;
+      padding: 14px 20px;
+      max-width: 600px;
+    }
+    .key-message p {
+      font-size: 13.5px;
+      font-weight: 500;
+      line-height: 1.5;
+      color: rgba(255,255,255,0.82);
+    }
+    .key-message strong { color: var(--blue); }
+
+    /* ONLY GSMA badge */
+    .badge-gsma {
+      flex-shrink: 0;
+      width: 220px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 0;
+      animation: badgePulse 3s ease-in-out infinite;
+    }
+    .badge-gsma .badge-outer {
+      width: 200px; height: 200px;
+      border-radius: 50%;
+      border: 2px solid rgba(0,212,255,0.5);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+      background: radial-gradient(circle at 40% 35%, rgba(0,212,255,0.12), rgba(0,212,255,0.03) 70%);
+    }
+    .badge-gsma .badge-ring {
+      position: absolute;
+      inset: -10px;
+      border-radius: 50%;
+      border: 1px dashed rgba(0,212,255,0.2);
+      animation: rotateSlow 20s linear infinite;
+    }
+    .badge-gsma .badge-ring::after {
+      content: '';
+      position: absolute;
+      top: 50%; left: 0;
+      transform: translateY(-50%);
+      width: 6px; height: 6px;
+      border-radius: 50%;
+      background: var(--blue);
+    }
+    .badge-inner {
+      text-align: center;
+      padding: 16px;
+    }
+    .badge-inner .badge-only {
+      font-family: 'Syne', sans-serif;
+      font-size: 13px;
+      font-weight: 800;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: var(--blue);
+      display: block;
+      margin-bottom: 2px;
+    }
+    .badge-inner .badge-gsma-text {
+      font-family: 'Syne', sans-serif;
+      font-size: 22px;
+      font-weight: 800;
+      color: #fff;
+      line-height: 1.1;
+      display: block;
+    }
+    .badge-inner .badge-mno {
+      font-family: 'Syne', sans-serif;
+      font-size: 34px;
+      font-weight: 800;
+      color: var(--blue);
+      line-height: 1;
+      display: block;
+      margin: 2px 0;
+    }
+    .badge-inner .badge-sub {
+      font-size: 10.5px;
+      color: var(--text-secondary);
+      letter-spacing: 0.06em;
+      line-height: 1.4;
+      display: block;
+      margin-top: 4px;
+    }
+
+    /* ── SECTION WRAPPER ── */
+    section {
+      padding: 48px 56px;
+      border-bottom: 1px solid var(--border);
+    }
+    section:last-of-type { border-bottom: none; }
+
+    .section-label {
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: var(--blue);
+      margin-bottom: 8px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .section-label::after {
+      content: '';
+      display: block;
+      flex: 1;
+      height: 1px;
+      background: linear-gradient(90deg, rgba(0,212,255,0.3), transparent);
+    }
+    .section-title {
+      font-family: 'Syne', sans-serif;
+      font-size: 26px;
+      font-weight: 800;
+      color: #fff;
+      margin-bottom: 32px;
+      line-height: 1.2;
+    }
+
+    /* ── FLOW DIAGRAM ── */
+    .flow-section {
+      background: linear-gradient(180deg, #0F1628 0%, #0A0E1A 100%);
+    }
+
+    .flow-diagram {
+      display: flex;
+      align-items: center;
+      gap: 0;
+      width: 100%;
+    }
+
+    .flow-node {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 16px;
+      position: relative;
+    }
+
+    .flow-icon-wrap {
+      width: 88px; height: 88px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+      flex-shrink: 0;
+    }
+    .flow-icon-wrap.blue {
+      background: radial-gradient(circle at 40% 35%, rgba(0,212,255,0.22), rgba(0,212,255,0.06) 75%);
+      border: 1.5px solid rgba(0,212,255,0.4);
+      animation: pulseBlue 3s ease-in-out infinite;
+    }
+    .flow-icon-wrap.purple {
+      background: radial-gradient(circle at 40% 35%, rgba(123,92,240,0.22), rgba(123,92,240,0.06) 75%);
+      border: 1.5px solid rgba(123,92,240,0.4);
+      animation: pulsePurple 3.4s ease-in-out infinite;
+    }
+    .flow-icon-wrap.blue2 {
+      background: radial-gradient(circle at 40% 35%, rgba(0,212,255,0.18), rgba(0,212,255,0.05) 75%);
+      border: 1.5px solid rgba(0,212,255,0.35);
+      animation: pulseBlue 4s ease-in-out infinite;
+    }
+    .flow-icon-wrap.green {
+      background: radial-gradient(circle at 40% 35%, rgba(0,255,180,0.16), rgba(0,255,180,0.04) 75%);
+      border: 1.5px solid rgba(0,255,180,0.35);
+    }
+
+    .flow-icon {
+      font-size: 36px;
+      line-height: 1;
+    }
+
+    .flow-node-text {
+      text-align: center;
+    }
+    .flow-node-label {
+      font-family: 'Syne', sans-serif;
+      font-size: 15px;
+      font-weight: 800;
+      color: #fff;
+      margin-bottom: 4px;
+    }
+    .flow-node-desc {
+      font-size: 12px;
+      color: var(--text-secondary);
+      line-height: 1.5;
+      max-width: 140px;
+    }
+
+    /* SVG flow arrow */
+    .flow-arrow {
+      flex-shrink: 0;
+      width: 80px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 4px;
+      padding-bottom: 32px;
+    }
+    .flow-arrow svg {
+      width: 80px;
+      height: 24px;
+      overflow: visible;
+    }
+    .flow-arrow-label {
+      font-size: 10px;
+      color: var(--text-muted);
+      letter-spacing: 0.06em;
+      text-align: center;
+    }
+
+    /* ── THREE-WAY ALIGNMENT ── */
+    .alignment-section {
+      background: #0A0E1A;
+    }
+
+    .alignment-cycle {
+      position: relative;
+      width: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .cycle-container {
+      position: relative;
+      width: 380px;
+      height: 380px;
+      flex-shrink: 0;
+    }
+
+    .cycle-svg {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+    }
+
+    .cycle-center {
+      position: absolute;
+      inset: 50%;
+      transform: translate(-50%, -50%);
+      width: 120px;
+      height: 120px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, rgba(0,212,255,0.15), rgba(123,92,240,0.15));
+      border: 1.5px solid rgba(255,255,255,0.12);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      gap: 2px;
+    }
+    .cycle-center-token {
+      font-family: 'Syne', sans-serif;
+      font-size: 22px;
+      font-weight: 800;
+      background: linear-gradient(90deg, var(--blue), var(--purple));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+    .cycle-center-label {
+      font-size: 10px;
+      color: var(--text-muted);
+      letter-spacing: 0.06em;
+    }
+
+    .cycle-node {
+      position: absolute;
+      width: 150px;
+    }
+    .cycle-node.top    { top: -16px; left: 50%; transform: translateX(-50%); text-align: center; }
+    .cycle-node.left   { top: 50%; left: -100px; transform: translateY(-50%); text-align: right; }
+    .cycle-node.right  { top: 50%; right: -100px; transform: translateY(-50%); text-align: left; }
+
+    .cycle-node-icon {
+      width: 52px; height: 52px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 22px;
+      margin: 0 auto 8px;
+      border: 1.5px solid rgba(0,212,255,0.3);
+      background: rgba(0,212,255,0.08);
+    }
+    .cycle-node.left .cycle-node-icon  { margin: 0 0 8px auto; }
+    .cycle-node.right .cycle-node-icon { margin: 0 auto 8px 0; }
+
+    .cycle-node-title {
+      font-size: 13px;
+      font-weight: 700;
+      color: #fff;
+      margin-bottom: 3px;
+      line-height: 1.3;
+    }
+    .cycle-node-detail {
+      font-size: 11px;
+      color: var(--text-secondary);
+      line-height: 1.5;
+    }
+
+    .alignment-stats {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+      padding-left: 48px;
+    }
+
+    .stat-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 20px 24px;
+      display: flex;
+      align-items: flex-start;
+      gap: 16px;
+      transition: border-color 0.2s;
+    }
+    .stat-card:hover { border-color: rgba(0,212,255,0.25); }
+
+    .stat-icon {
+      width: 44px; height: 44px;
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 20px;
+      flex-shrink: 0;
+    }
+    .stat-icon.blue   { background: var(--blue-dim); }
+    .stat-icon.purple { background: var(--purple-dim); }
+
+    .stat-body {}
+    .stat-value {
+      font-family: 'Syne', sans-serif;
+      font-size: 22px;
+      font-weight: 800;
+      color: var(--blue);
+      line-height: 1;
+      margin-bottom: 3px;
+    }
+    .stat-value.purple { color: var(--purple); }
+    .stat-desc {
+      font-size: 13px;
+      color: var(--text-secondary);
+      line-height: 1.4;
+    }
+
+    /* ── COMPARISON ── */
+    .comparison-section {
+      background: var(--bg-card2);
+    }
+
+    .comparison-grid {
+      display: grid;
+      grid-template-columns: 1fr auto 1fr;
+      gap: 0;
+      align-items: stretch;
+    }
+
+    .comparison-col {
+      background: var(--bg-card);
+      border-radius: 16px;
+      padding: 32px 28px;
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+    }
+    .comparison-col.traditional {
+      border: 1px solid rgba(255,255,255,0.06);
+      opacity: 0.8;
+    }
+    .comparison-col.telcoin {
+      border: 1px solid rgba(0,212,255,0.3);
+      background: linear-gradient(145deg, #0F1E38, #0F1628);
+      box-shadow: 0 0 40px rgba(0,212,255,0.06) inset;
+    }
+
+    .comparison-header {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+    .comparison-tag {
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      padding: 3px 10px;
+      border-radius: 100px;
+      display: inline-block;
+      width: fit-content;
+    }
+    .comparison-tag.gray {
+      background: rgba(255,255,255,0.06);
+      color: rgba(255,255,255,0.45);
+    }
+    .comparison-tag.blue {
+      background: rgba(0,212,255,0.12);
+      color: var(--blue);
+    }
+    .comparison-title {
+      font-family: 'Syne', sans-serif;
+      font-size: 20px;
+      font-weight: 800;
+      color: #fff;
+      line-height: 1.2;
+    }
+
+    .comparison-items {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+    .comp-item {
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+      font-size: 13.5px;
+      line-height: 1.4;
+      color: var(--text-secondary);
+    }
+    .comp-item .ci-icon {
+      width: 20px; height: 20px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 11px;
+      flex-shrink: 0;
+      margin-top: 1px;
+    }
+    .comp-item .ci-icon.check {
+      background: rgba(0,212,255,0.12);
+      color: var(--blue);
+    }
+    .comp-item .ci-icon.cross {
+      background: rgba(255,255,255,0.06);
+      color: rgba(255,255,255,0.3);
+    }
+
+    .comparison-divider {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 0 24px;
+    }
+    .vs-badge {
+      width: 48px; height: 48px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, rgba(0,212,255,0.15), rgba(123,92,240,0.15));
+      border: 1px solid rgba(255,255,255,0.1);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: 'Syne', sans-serif;
+      font-size: 13px;
+      font-weight: 800;
+      color: rgba(255,255,255,0.5);
+    }
+
+    /* ── INFRASTRUCTURE ── */
+    .infra-section {
+      background: #0A0E1A;
+    }
+
+    .infra-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 24px;
+    }
+
+    .infra-card {
+      border-radius: 16px;
+      padding: 28px;
+      border: 1px solid var(--border);
+      background: var(--bg-card);
+      position: relative;
+      overflow: hidden;
+    }
+    .infra-card::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      height: 2px;
+    }
+    .infra-card.testnet::before  { background: linear-gradient(90deg, var(--purple), transparent); }
+    .infra-card.mainnet::before  { background: linear-gradient(90deg, var(--blue), transparent); }
+
+    .infra-phase {
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      margin-bottom: 12px;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .infra-phase.testnet  { color: var(--purple); }
+    .infra-phase.mainnet  { color: var(--blue); }
+    .phase-dot {
+      width: 6px; height: 6px;
+      border-radius: 50%;
+    }
+    .phase-dot.active    { background: var(--purple); animation: dotBlink 1.5s ease-in-out infinite; }
+    .phase-dot.upcoming  { background: var(--blue); }
+
+    .infra-card h3 {
+      font-family: 'Syne', sans-serif;
+      font-size: 18px;
+      font-weight: 800;
+      color: #fff;
+      margin-bottom: 16px;
+    }
+
+    .infra-list {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+    .infra-list li {
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+      font-size: 13px;
+      color: var(--text-secondary);
+      line-height: 1.5;
+    }
+    .infra-list li::before {
+      content: '';
+      width: 5px; height: 5px;
+      border-radius: 50%;
+      flex-shrink: 0;
+      margin-top: 6px;
+    }
+    .infra-card.testnet .infra-list li::before  { background: var(--purple); }
+    .infra-card.mainnet .infra-list li::before  { background: var(--blue); }
+    .infra-list li strong { color: rgba(255,255,255,0.85); font-weight: 600; }
+
+    /* ── CONSENSUS ── */
+    .consensus-section {
+      background: var(--bg-card2);
+    }
+
+    .consensus-inner {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 48px;
+      align-items: center;
+    }
+
+    .consensus-visual {
+      position: relative;
+      height: 260px;
+    }
+
+    /* DAG visualization */
+    .dag-wrap {
+      position: relative;
+      width: 100%;
+      height: 100%;
+    }
+    .dag-node {
+      position: absolute;
+      width: 40px; height: 40px;
+      border-radius: 50%;
+      background: var(--bg-card);
+      border: 1.5px solid rgba(0,212,255,0.4);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 10px;
+      font-weight: 700;
+      color: var(--blue);
+    }
+    .dag-node.purple-node {
+      border-color: rgba(123,92,240,0.5);
+      color: var(--purple);
+    }
+    .dag-node.active {
+      background: rgba(0,212,255,0.12);
+      animation: pulseBlue 2.5s ease-in-out infinite;
+    }
+    .dag-label {
+      position: absolute;
+      font-size: 10px;
+      color: var(--text-muted);
+      letter-spacing: 0.04em;
+      white-space: nowrap;
+    }
+
+    .consensus-content {}
+    .consensus-name {
+      font-family: 'Syne', sans-serif;
+      font-size: 28px;
+      font-weight: 800;
+      color: #fff;
+      margin-bottom: 6px;
+    }
+    .consensus-sub {
+      font-size: 13px;
+      color: var(--blue);
+      font-weight: 600;
+      margin-bottom: 20px;
+    }
+
+    .consensus-props {
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+    }
+    .cprop {
+      display: flex;
+      align-items: flex-start;
+      gap: 12px;
+    }
+    .cprop-icon {
+      width: 36px; height: 36px;
+      border-radius: 8px;
+      background: var(--blue-dim);
+      border: 1px solid var(--border-blue);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 16px;
+      flex-shrink: 0;
+    }
+    .cprop-text {}
+    .cprop-title {
+      font-size: 13px;
+      font-weight: 600;
+      color: rgba(255,255,255,0.85);
+      margin-bottom: 2px;
+    }
+    .cprop-desc {
+      font-size: 12px;
+      color: var(--text-muted);
+      line-height: 1.4;
+    }
+
+    /* ── REACH ── */
+    .reach-section {
+      background: linear-gradient(135deg, #0F1628, #110E2A 60%, #0F1628 100%);
+      position: relative;
+      overflow: hidden;
+    }
+    .reach-section::before {
+      content: '';
+      position: absolute;
+      top: 50%; right: -100px;
+      transform: translateY(-50%);
+      width: 500px; height: 500px;
+      background: radial-gradient(circle, rgba(123,92,240,0.07) 0%, transparent 70%);
+      pointer-events: none;
+    }
+
+    .reach-inner {
+      position: relative;
+      z-index: 1;
+      display: flex;
+      align-items: center;
+      gap: 64px;
+    }
+
+    .reach-stat-big {
+      flex-shrink: 0;
+      text-align: center;
+    }
+    .reach-number {
+      font-family: 'Syne', sans-serif;
+      font-size: 72px;
+      font-weight: 800;
+      line-height: 1;
+      background: linear-gradient(90deg, var(--blue), var(--purple));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+    .reach-number-unit {
+      font-family: 'Syne', sans-serif;
+      font-size: 28px;
+      font-weight: 800;
+      color: var(--text-secondary);
+    }
+    .reach-label {
+      font-size: 13px;
+      color: var(--text-secondary);
+      margin-top: 4px;
+      line-height: 1.4;
+    }
+
+    .reach-divider {
+      width: 1px;
+      height: 120px;
+      background: linear-gradient(180deg, transparent, rgba(255,255,255,0.12) 50%, transparent);
+      flex-shrink: 0;
+    }
+
+    .reach-content { flex: 1; }
+    .reach-content p {
+      font-size: 16px;
+      color: var(--text-secondary);
+      line-height: 1.7;
+      margin-bottom: 20px;
+    }
+    .reach-content strong { color: rgba(255,255,255,0.9); }
+
+    .reach-bullets {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+    .reach-bullet {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 13.5px;
+      color: var(--text-secondary);
+    }
+    .rb-dot {
+      width: 6px; height: 6px;
+      border-radius: 50%;
+      background: var(--blue);
+      flex-shrink: 0;
+    }
+
+    /* ── FOOTER ── */
+    .footer {
+      padding: 24px 56px;
+      background: var(--bg-card2);
+      border-top: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 24px;
+    }
+
+    .footer-logo {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .footer-logo-mark {
+      width: 32px; height: 32px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, var(--blue), var(--purple));
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: 'Syne', sans-serif;
+      font-size: 12px;
+      font-weight: 800;
+      color: #fff;
+    }
+    .footer-logo-text {
+      font-family: 'Syne', sans-serif;
+      font-size: 14px;
+      font-weight: 800;
+      color: rgba(255,255,255,0.7);
+    }
+
+    .footer-source {
+      font-size: 11px;
+      color: var(--text-muted);
+      letter-spacing: 0.04em;
+    }
+    .footer-source a {
+      color: rgba(0,212,255,0.6);
+      text-decoration: none;
+    }
+    .footer-source a:hover { color: var(--blue); }
+
+    .footer-note {
+      font-size: 11px;
+      color: var(--text-muted);
+    }
+
+    /* ── SHIMMER UTILITY ── */
+    .shimmer-bar {
+      height: 2px;
+      background: linear-gradient(90deg,
+        transparent 0%,
+        rgba(0,212,255,0.6) 30%,
+        rgba(123,92,240,0.6) 60%,
+        transparent 100%);
+      background-size: 600px 2px;
+      animation: shimmer 3s linear infinite;
+    }
+
+    /* ── STAKING ROW ── */
+    .staking-row {
+      display: flex;
+      gap: 20px;
+      margin-top: 4px;
+    }
+    .staking-pill {
+      flex: 1;
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 18px 20px;
+      display: flex;
+      align-items: center;
+      gap: 14px;
+    }
+    .staking-pill-icon {
+      width: 40px; height: 40px;
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 18px;
+      flex-shrink: 0;
+    }
+    .staking-pill-icon.blue   { background: var(--blue-dim); }
+    .staking-pill-icon.purple { background: var(--purple-dim); }
+    .staking-pill-text {}
+    .staking-pill-title {
+      font-size: 13px;
+      font-weight: 700;
+      color: rgba(255,255,255,0.85);
+      margin-bottom: 2px;
+    }
+    .staking-pill-desc {
+      font-size: 12px;
+      color: var(--text-muted);
+      line-height: 1.4;
+    }
+
+  </style>
+</head>
+<body>
+
+<div class="infographic">
+
+  <!-- ═══ SHIMMER BAR ═══ -->
+  <div class="shimmer-bar"></div>
+
+  <!-- ═══ HEADER ═══ -->
+  <div class="header anim-1">
+    <div class="header-inner">
+      <div class="header-left">
+        <div class="brand-tag">
+          <span class="dot"></span>
+          <span>Telcoin Network — Layer 1 Blockchain</span>
+        </div>
+        <h1>The <em>GSMA Validator</em><br>Model Explained</h1>
+        <p class="header-sub">
+          A blockchain where the validators ARE the mobile networks — not hobbyists,
+          not cloud nodes. Licensed, institutional-grade infrastructure with built-in
+          global distribution.
+        </p>
+        <div class="key-message">
+          <p>
+            <strong>The core insight:</strong> Every MNO that joins as a validator
+            brings its entire subscriber base into the network — creating a flywheel
+            where infrastructure and distribution grow together.
+          </p>
+        </div>
+      </div>
+      <div class="badge-gsma">
+        <div class="badge-outer">
+          <div class="badge-ring"></div>
+          <div class="badge-inner">
+            <span class="badge-only">Only</span>
+            <span class="badge-gsma-text">GSMA</span>
+            <span class="badge-mno">MNOs</span>
+            <span class="badge-sub">Full Members<br>Can Validate</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══ FLOW DIAGRAM ═══ -->
+  <section class="flow-section anim-2">
+    <div class="section-label">Network Architecture</div>
+    <div class="section-title">From MNO to End User — The Value Chain</div>
+
+    <div class="flow-diagram">
+
+      <!-- Node 1: GSMA MNO -->
+      <div class="flow-node">
+        <div class="flow-icon-wrap blue">
+          <span class="flow-icon">📡</span>
+        </div>
+        <div class="flow-node-text">
+          <div class="flow-node-label">GSMA MNO</div>
+          <div class="flow-node-desc">Licensed Mobile Network Operator — GSMA full member in good standing</div>
+        </div>
+      </div>
+
+      <!-- Arrow 1 -->
+      <div class="flow-arrow">
+        <svg viewBox="0 0 80 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <line x1="0" y1="12" x2="66" y2="12"
+            stroke="url(#grad1)" stroke-width="2"
+            stroke-dasharray="6 3"
+            style="animation: flowDash 1.2s linear infinite;" />
+          <polygon points="64,6 80,12 64,18" fill="#00D4FF" opacity="0.7"/>
+          <defs>
+            <linearGradient id="grad1" x1="0" y1="0" x2="80" y2="0" gradientUnits="userSpaceOnUse">
+              <stop offset="0%" stop-color="#7B5CF0" stop-opacity="0.4"/>
+              <stop offset="100%" stop-color="#00D4FF"/>
+            </linearGradient>
+          </defs>
+        </svg>
+        <div class="flow-arrow-label">Stake TEL</div>
+      </div>
+
+      <!-- Node 2: Validator Node -->
+      <div class="flow-node">
+        <div class="flow-icon-wrap purple">
+          <span class="flow-icon">⚙️</span>
+        </div>
+        <div class="flow-node-text">
+          <div class="flow-node-label">Validator Node</div>
+          <div class="flow-node-desc">MNO-owned bare-metal server in private telecom data center</div>
+        </div>
+      </div>
+
+      <!-- Arrow 2 -->
+      <div class="flow-arrow">
+        <svg viewBox="0 0 80 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <line x1="0" y1="12" x2="66" y2="12"
+            stroke="url(#grad2)" stroke-width="2"
+            stroke-dasharray="6 3"
+            style="animation: flowDash 1.2s 0.4s linear infinite;" />
+          <polygon points="64,6 80,12 64,18" fill="#00D4FF" opacity="0.7"/>
+          <defs>
+            <linearGradient id="grad2" x1="0" y1="0" x2="80" y2="0" gradientUnits="userSpaceOnUse">
+              <stop offset="0%" stop-color="#7B5CF0" stop-opacity="0.4"/>
+              <stop offset="100%" stop-color="#00D4FF"/>
+            </linearGradient>
+          </defs>
+        </svg>
+        <div class="flow-arrow-label">Validate &amp; Earn Fees</div>
+      </div>
+
+      <!-- Node 3: Telcoin Network -->
+      <div class="flow-node">
+        <div class="flow-icon-wrap blue2">
+          <span class="flow-icon">🔗</span>
+        </div>
+        <div class="flow-node-text">
+          <div class="flow-node-label">Telcoin Network</div>
+          <div class="flow-node-desc">EVM-compatible L1 — Narwhal &amp; Bullshark consensus, TEL gas token</div>
+        </div>
+      </div>
+
+      <!-- Arrow 3 -->
+      <div class="flow-arrow">
+        <svg viewBox="0 0 80 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <line x1="0" y1="12" x2="66" y2="12"
+            stroke="url(#grad3)" stroke-width="2"
+            stroke-dasharray="6 3"
+            style="animation: flowDash 1.2s 0.8s linear infinite;" />
+          <polygon points="64,6 80,12 64,18" fill="#00D4FF" opacity="0.7"/>
+          <defs>
+            <linearGradient id="grad3" x1="0" y1="0" x2="80" y2="0" gradientUnits="userSpaceOnUse">
+              <stop offset="0%" stop-color="#7B5CF0" stop-opacity="0.4"/>
+              <stop offset="100%" stop-color="#00D4FF"/>
+            </linearGradient>
+          </defs>
+        </svg>
+        <div class="flow-arrow-label">Financial Services</div>
+      </div>
+
+      <!-- Node 4: Mobile Subscribers -->
+      <div class="flow-node">
+        <div class="flow-icon-wrap green">
+          <span class="flow-icon">📱</span>
+        </div>
+        <div class="flow-node-text">
+          <div class="flow-node-label">Mobile Subscribers</div>
+          <div class="flow-node-desc">Billions of mobile users — the MNO's existing customer base</div>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- Staking pills below flow -->
+    <div class="staking-row" style="margin-top:36px;">
+      <div class="staking-pill">
+        <div class="staking-pill-icon blue">🔐</div>
+        <div class="staking-pill-text">
+          <div class="staking-pill-title">MNOs Must Stake TEL</div>
+          <div class="staking-pill-desc">Economic skin-in-the-game requirement — validators are financially committed to network health</div>
+        </div>
+      </div>
+      <div class="staking-pill">
+        <div class="staking-pill-icon blue">💰</div>
+        <div class="staking-pill-text">
+          <div class="staking-pill-title">TEL Is the Native Gas Token</div>
+          <div class="staking-pill-desc">All network transactions pay fees in TEL — validator earnings are denominated in the native asset</div>
+        </div>
+      </div>
+      <div class="staking-pill">
+        <div class="staking-pill-icon purple">🌐</div>
+        <div class="staking-pill-text">
+          <div class="staking-pill-title">Each MNO = New Distribution</div>
+          <div class="staking-pill-desc">Every new validator adds that telecom's subscriber base as a potential user channel</div>
+        </div>
+      </div>
+    </div>
+
+  </section>
+
+  <!-- ═══ THREE-WAY ALIGNMENT ═══ -->
+  <section class="alignment-section anim-3">
+    <div class="section-label">Economic Design</div>
+    <div class="section-title">The Three-Way Alignment Flywheel</div>
+
+    <div class="alignment-cycle">
+      <!-- Cycle diagram -->
+      <div class="cycle-container">
+        <svg class="cycle-svg" viewBox="0 0 380 380" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <!-- Outer ring -->
+          <circle cx="190" cy="190" r="155" stroke="rgba(0,212,255,0.12)" stroke-width="1" stroke-dasharray="4 6"/>
+          <!-- Arc segments with arrows -->
+          <!-- Top-right arc -->
+          <path d="M 190 55 A 135 135 0 0 1 315 262"
+            stroke="url(#arcGrad1)" stroke-width="2.5" stroke-linecap="round"
+            fill="none" stroke-dasharray="8 4"
+            style="animation: flowDash 2s linear infinite;"/>
+          <!-- Bottom arc -->
+          <path d="M 315 262 A 135 135 0 0 1 65 262"
+            stroke="url(#arcGrad2)" stroke-width="2.5" stroke-linecap="round"
+            fill="none" stroke-dasharray="8 4"
+            style="animation: flowDash 2s 0.7s linear infinite;"/>
+          <!-- Top-left arc -->
+          <path d="M 65 262 A 135 135 0 0 1 190 55"
+            stroke="url(#arcGrad3)" stroke-width="2.5" stroke-linecap="round"
+            fill="none" stroke-dasharray="8 4"
+            style="animation: flowDash 2s 1.4s linear infinite;"/>
+          <defs>
+            <linearGradient id="arcGrad1" x1="190" y1="55" x2="315" y2="262" gradientUnits="userSpaceOnUse">
+              <stop offset="0%" stop-color="#00D4FF"/>
+              <stop offset="100%" stop-color="#7B5CF0"/>
+            </linearGradient>
+            <linearGradient id="arcGrad2" x1="315" y1="262" x2="65" y2="262" gradientUnits="userSpaceOnUse">
+              <stop offset="0%" stop-color="#7B5CF0"/>
+              <stop offset="100%" stop-color="#00D4FF"/>
+            </linearGradient>
+            <linearGradient id="arcGrad3" x1="65" y1="262" x2="190" y2="55" gradientUnits="userSpaceOnUse">
+              <stop offset="0%" stop-color="#00D4FF"/>
+              <stop offset="100%" stop-color="#7B5CF0"/>
+            </linearGradient>
+          </defs>
+        </svg>
+
+        <!-- Center -->
+        <div class="cycle-center">
+          <span class="cycle-center-token">TEL</span>
+          <span class="cycle-center-label">Gas &amp; Stake</span>
+        </div>
+
+        <!-- Top node -->
+        <div class="cycle-node top">
+          <div class="cycle-node-icon">📡</div>
+          <div class="cycle-node-title">MNOs<br>Stake TEL</div>
+          <div class="cycle-node-detail">Security deposit to participate as validator</div>
+        </div>
+
+        <!-- Left node -->
+        <div class="cycle-node left">
+          <div class="cycle-node-icon">⚡</div>
+          <div class="cycle-node-title">Validate &amp;<br>Earn Fees</div>
+          <div class="cycle-node-detail">MNOs earn network fees for every transaction validated</div>
+        </div>
+
+        <!-- Right node -->
+        <div class="cycle-node right">
+          <div class="cycle-node-icon">📢</div>
+          <div class="cycle-node-title">Promote &amp;<br>Distribute</div>
+          <div class="cycle-node-detail">More usage = more fees = incentive to promote Telcoin to subscribers</div>
+        </div>
+      </div>
+
+      <!-- Stats column -->
+      <div class="alignment-stats">
+        <div class="stat-card">
+          <div class="stat-icon blue">🏦</div>
+          <div class="stat-body">
+            <div class="stat-value">Skin in the Game</div>
+            <div class="stat-desc">MNOs must stake TEL to participate — creating direct financial alignment between validator behavior and network health</div>
+          </div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon blue">📈</div>
+          <div class="stat-body">
+            <div class="stat-value">Usage Drives Revenue</div>
+            <div class="stat-desc">More transactions = more fees earned by validating MNOs — every user the MNO onboards increases its own return</div>
+          </div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon purple">🔄</div>
+          <div class="stat-body">
+            <div class="stat-value purple">Self-Reinforcing Loop</div>
+            <div class="stat-desc">MNOs are economically motivated to promote Telcoin services to their subscriber base — growth is built into the incentive structure</div>
+          </div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon purple">🌍</div>
+          <div class="stat-body">
+            <div class="stat-value purple">Distribution at Scale</div>
+            <div class="stat-desc">Each new MNO validator is also a new distribution channel — the validator set IS the go-to-market strategy</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══ COMPARISON ═══ -->
+  <section class="comparison-section anim-4">
+    <div class="section-label">Competitive Differentiation</div>
+    <div class="section-title">Traditional Blockchain vs. Telcoin Network</div>
+
+    <div class="comparison-grid">
+
+      <!-- Traditional -->
+      <div class="comparison-col traditional">
+        <div class="comparison-header">
+          <span class="comparison-tag gray">Standard Proof-of-Stake</span>
+          <div class="comparison-title">Anyone Can Validate</div>
+        </div>
+        <div class="comparison-items">
+          <div class="comp-item">
+            <div class="ci-icon cross">✕</div>
+            <span>Open to any participant — no identity, licensing, or accountability requirements</span>
+          </div>
+          <div class="comp-item">
+            <div class="ci-icon cross">✕</div>
+            <span>Validators are typically anonymous or pseudonymous entities</span>
+          </div>
+          <div class="comp-item">
+            <div class="ci-icon cross">✕</div>
+            <span>Infrastructure runs on rented cloud servers or home hardware</span>
+          </div>
+          <div class="comp-item">
+            <div class="ci-icon cross">✕</div>
+            <span>No inherent distribution channel — user acquisition is a separate problem</span>
+          </div>
+          <div class="comp-item">
+            <div class="ci-icon cross">✕</div>
+            <span>Validator incentives are purely financial — no real-world business stake in network growth</span>
+          </div>
+          <div class="comp-item">
+            <div class="ci-icon cross">✕</div>
+            <span>Validator performance and uptime vary widely — consumer-grade reliability</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- VS -->
+      <div class="comparison-divider">
+        <div class="vs-badge">VS</div>
+      </div>
+
+      <!-- Telcoin -->
+      <div class="comparison-col telcoin">
+        <div class="comparison-header">
+          <span class="comparison-tag blue">Telcoin Network</span>
+          <div class="comparison-title">Only Licensed MNOs Validate</div>
+        </div>
+        <div class="comparison-items">
+          <div class="comp-item">
+            <div class="ci-icon check">✓</div>
+            <span>Exclusive to GSMA full-member MNOs — licensed, regulated, publicly accountable entities</span>
+          </div>
+          <div class="comp-item">
+            <div class="ci-icon check">✓</div>
+            <span>Validators are globally recognized telecom brands with millions of subscribers</span>
+          </div>
+          <div class="comp-item">
+            <div class="ci-icon check">✓</div>
+            <span>Mainnet runs on private MNO bare-metal data centers with fiber-optic interconnects</span>
+          </div>
+          <div class="comp-item">
+            <div class="ci-icon check">✓</div>
+            <span>Each validator IS a distribution channel — billions of mobile subscribers already in reach</span>
+          </div>
+          <div class="comp-item">
+            <div class="ci-icon check">✓</div>
+            <span>MNOs stake TEL and earn fees — directly motivated to grow usage and promote services</span>
+          </div>
+          <div class="comp-item">
+            <div class="ci-icon check">✓</div>
+            <span>Telecom-grade uptime standards — the same infrastructure running global voice &amp; data networks</span>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- ═══ INFRASTRUCTURE ═══ -->
+  <section class="infra-section anim-5">
+    <div class="section-label">Infrastructure Roadmap</div>
+    <div class="section-title">From Testnet to Mainnet — The Infrastructure Journey</div>
+
+    <div class="infra-grid">
+      <div class="infra-card testnet">
+        <div class="infra-phase testnet">
+          <span class="phase-dot active"></span>
+          Adiri Testnet — Active Now
+        </div>
+        <h3>Distributed Cloud Infrastructure</h3>
+        <ul class="infra-list">
+          <li>Cloud data centers across <strong>US east and west coasts</strong> for geographic distribution</li>
+          <li>Volunteer nodes deployed globally to simulate wide-area network latency at scale</li>
+          <li>Purpose: stress test the protocol, validate tooling, and measure latency configurations</li>
+          <li>Enables MNO partner teams to exercise the network in a live setting before committing infrastructure</li>
+          <li>Platform Phase 2 security hardening underway — p2p networking, syncing strategy, epoch boundary records</li>
+          <li>External audit sequencing: BLS cryptography library first, then comprehensive protocol review</li>
+        </ul>
+      </div>
+
+      <div class="infra-card mainnet">
+        <div class="infra-phase mainnet">
+          <span class="phase-dot upcoming"></span>
+          Mainnet — Upcoming (milestone-gated)
+        </div>
+        <h3>Private MNO Bare-Metal Data Centers</h3>
+        <ul class="infra-list">
+          <li><strong>Bare-metal servers</strong> owned and operated by MNO validators — not cloud-rented</li>
+          <li><strong>Fiber-optic interconnects</strong> capable of streaming tens of gigabits per second — performance unavailable in standard cloud environments</li>
+          <li>Co-located alongside existing telecom packet-switching infrastructure</li>
+          <li>Access to MNO data centers requires extensive security clearance — protocol must reach full maturity before deployment</li>
+          <li>Dynamic firewalls and access control configurations validated on testnet first</li>
+          <li>Launch milestone: Adiri stable + final security audits complete + LayerZero bridge integration</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══ CONSENSUS ═══ -->
+  <section class="consensus-section anim-6">
+    <div class="section-label">Consensus Protocol</div>
+    <div class="section-title">Narwhal &amp; Bullshark — DAG-Based Proof of Stake</div>
+
+    <div class="consensus-inner">
+
+      <!-- DAG Visualization -->
+      <div class="consensus-visual">
+        <div class="dag-wrap">
+          <!-- Round 1 nodes -->
+          <div class="dag-node" style="left:20px; top:20px; animation: pulseBlue 2s ease-in-out infinite;">R1</div>
+          <div class="dag-node" style="left:20px; top:100px;">R1</div>
+          <div class="dag-node purple-node" style="left:20px; top:180px;">R1</div>
+
+          <!-- Round 2 nodes -->
+          <div class="dag-node active" style="left:130px; top:55px;">R2</div>
+          <div class="dag-node active" style="left:130px; top:145px;">R2</div>
+
+          <!-- Round 3 nodes -->
+          <div class="dag-node" style="left:240px; top:20px;">R3</div>
+          <div class="dag-node" style="left:240px; top:100px; animation: pulseBlue 3s 1s ease-in-out infinite;">R3</div>
+          <div class="dag-node purple-node" style="left:240px; top:180px;">R3</div>
+
+          <!-- Round 4 nodes -->
+          <div class="dag-node active" style="left:350px; top:55px;">R4</div>
+          <div class="dag-node" style="left:350px; top:145px;">R4</div>
+
+          <!-- SVG connections -->
+          <svg style="position:absolute;inset:0;width:100%;height:100%;pointer-events:none;" viewBox="0 0 440 260" fill="none">
+            <!-- R1 to R2 connections -->
+            <line x1="60" y1="40" x2="130" y2="75" stroke="rgba(0,212,255,0.2)" stroke-width="1"/>
+            <line x1="60" y1="40" x2="130" y2="165" stroke="rgba(0,212,255,0.1)" stroke-width="1"/>
+            <line x1="60" y1="120" x2="130" y2="75" stroke="rgba(0,212,255,0.2)" stroke-width="1"/>
+            <line x1="60" y1="120" x2="130" y2="165" stroke="rgba(0,212,255,0.15)" stroke-width="1"/>
+            <line x1="60" y1="200" x2="130" y2="165" stroke="rgba(123,92,240,0.2)" stroke-width="1"/>
+            <!-- R2 to R3 connections -->
+            <line x1="170" y1="75" x2="240" y2="40" stroke="rgba(0,212,255,0.2)" stroke-width="1"/>
+            <line x1="170" y1="75" x2="240" y2="120" stroke="rgba(0,212,255,0.3)" stroke-width="1.5"/>
+            <line x1="170" y1="165" x2="240" y2="120" stroke="rgba(0,212,255,0.2)" stroke-width="1"/>
+            <line x1="170" y1="165" x2="240" y2="200" stroke="rgba(123,92,240,0.2)" stroke-width="1"/>
+            <!-- R3 to R4 connections -->
+            <line x1="280" y1="40" x2="350" y2="75" stroke="rgba(0,212,255,0.2)" stroke-width="1"/>
+            <line x1="280" y1="120" x2="350" y2="75" stroke="rgba(0,212,255,0.3)" stroke-width="1.5"/>
+            <line x1="280" y1="120" x2="350" y2="165" stroke="rgba(0,212,255,0.2)" stroke-width="1"/>
+            <line x1="280" y1="200" x2="350" y2="165" stroke="rgba(123,92,240,0.15)" stroke-width="1"/>
+          </svg>
+
+          <!-- Labels -->
+          <div class="dag-label" style="left:22px; bottom:0; font-size:9px; color: rgba(255,255,255,0.2);">ROUND →</div>
+          <div class="dag-label" style="left:4px; top:50%; transform:translateY(-50%) rotate(-90deg); font-size:9px; color:rgba(255,255,255,0.2);">MNO VALIDATORS</div>
+
+          <!-- Protocol label -->
+          <div style="position:absolute; bottom:8px; right:0; text-align:right;">
+            <div style="font-size:11px; color:var(--blue); font-weight:700;">DAG Structure</div>
+            <div style="font-size:10px; color:var(--text-muted);">Each round = MNO validator set</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Consensus content -->
+      <div class="consensus-content">
+        <div class="consensus-name">Narwhal &amp; Bullshark</div>
+        <div class="consensus-sub">DAG-Based Proof of Stake Consensus</div>
+
+        <div class="consensus-props">
+          <div class="cprop">
+            <div class="cprop-icon">🔀</div>
+            <div class="cprop-text">
+              <div class="cprop-title">Directed Acyclic Graph (DAG)</div>
+              <div class="cprop-desc">Narwhal handles reliable broadcast and data availability — Bullshark orders the DAG into a linear chain for finality</div>
+            </div>
+          </div>
+          <div class="cprop">
+            <div class="cprop-icon">⚡</div>
+            <div class="cprop-text">
+              <div class="cprop-title">High Throughput Architecture</div>
+              <div class="cprop-desc">DAG-based mempool separates data dissemination from ordering — enables parallel processing for institutional transaction volumes</div>
+            </div>
+          </div>
+          <div class="cprop">
+            <div class="cprop-icon">🔒</div>
+            <div class="cprop-text">
+              <div class="cprop-title">EVM-Compatible Execution</div>
+              <div class="cprop-desc">Full Ethereum Virtual Machine compatibility — any Solidity contract can deploy to Telcoin Network unchanged</div>
+            </div>
+          </div>
+          <div class="cprop">
+            <div class="cprop-icon">⛽</div>
+            <div class="cprop-text">
+              <div class="cprop-title">TEL as Native Gas</div>
+              <div class="cprop-desc">All transaction fees paid in TEL — the native token that MNOs also stake, creating unified economic incentives</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══ REACH ═══ -->
+  <section class="reach-section anim-7">
+    <div class="section-label">Global Reach</div>
+    <div class="section-title">The Distribution Opportunity</div>
+
+    <div class="reach-inner">
+      <div class="reach-stat-big">
+        <div class="reach-number">Billions<span class="reach-number-unit"></span></div>
+        <div class="reach-label">of mobile subscribers<br>served by GSMA member MNOs<br>collectively, worldwide</div>
+      </div>
+
+      <div class="reach-divider"></div>
+
+      <div class="reach-content">
+        <p>
+          GSMA members collectively serve the vast majority of the world's mobile subscribers.
+          By restricting the validator set to <strong>licensed GSMA Operator Members</strong>,
+          Telcoin Network doesn't just secure a blockchain — it builds a distribution
+          network into the infrastructure itself.
+        </p>
+        <div class="reach-bullets">
+          <div class="reach-bullet">
+            <div class="rb-dot"></div>
+            <span>Every new MNO validator = a new telecom's subscriber base within reach of Telcoin services</span>
+          </div>
+          <div class="reach-bullet">
+            <div class="rb-dot"></div>
+            <span>MNOs earn fees when their subscribers transact — creating direct commercial incentive to onboard users</span>
+          </div>
+          <div class="reach-bullet">
+            <div class="rb-dot"></div>
+            <span>Telcoin Wallet already active in 16 countries with 23+ mobile money integrations — MNO validators extend this reach</span>
+          </div>
+          <div class="reach-bullet">
+            <div class="rb-dot"></div>
+            <span>Target users: the underbanked and mobile-first populations where MNOs already have deep penetration</span>
+          </div>
+          <div class="reach-bullet">
+            <div class="rb-dot"></div>
+            <span>Remittance fees targeted at 2% or less — vs. 6–10% traditional services like Western Union</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══ SHIMMER BAR BOTTOM ═══ -->
+  <div class="shimmer-bar"></div>
+
+  <!-- ═══ FOOTER ═══ -->
+  <div class="footer">
+    <div class="footer-logo">
+      <div class="footer-logo-mark">TN</div>
+      <div class="footer-logo-text">Telcoin Network</div>
+    </div>
+    <div class="footer-source">
+      Source: <a href="https://telcoin.network" target="_blank">telcoin.network</a>
+      &nbsp;|&nbsp;
+      <a href="https://roadmap.telcoin.network" target="_blank">roadmap.telcoin.network</a>
+    </div>
+    <div class="footer-note">EVM-compatible L1 &bull; Narwhal &amp; Bullshark consensus &bull; TEL native gas &bull; GSMA MNO validators</div>
+  </div>
+
+</div>
+
+</body>
+</html>

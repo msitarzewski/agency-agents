@@ -1,0 +1,1635 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>eUSD — The First Bank-Issued On-Chain Stablecoin</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Syne:wght@400;600;700;800&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    :root {
+      --navy:       #0A0E1A;
+      --navy-mid:   #0D1226;
+      --navy-card:  #111827;
+      --navy-light: #1A2340;
+      --border:     #1E2D4A;
+      --blue:       #00D4FF;
+      --blue-dim:   rgba(0, 212, 255, 0.12);
+      --blue-glow:  rgba(0, 212, 255, 0.25);
+      --gold:       #F59E0B;
+      --gold-dim:   rgba(245, 158, 11, 0.12);
+      --gold-glow:  rgba(245, 158, 11, 0.3);
+      --white:      #F8FAFC;
+      --gray-1:     #CBD5E1;
+      --gray-2:     #64748B;
+      --gray-3:     #334155;
+      --green:      #10B981;
+      --green-dim:  rgba(16, 185, 129, 0.12);
+    }
+
+    @keyframes fadeInUp {
+      from { opacity: 0; transform: translateY(24px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; }
+      to   { opacity: 1; }
+    }
+
+    @keyframes glowPulse {
+      0%, 100% { box-shadow: 0 0 20px var(--gold-glow), 0 0 60px rgba(245, 158, 11, 0.1); }
+      50%       { box-shadow: 0 0 40px var(--gold-glow), 0 0 100px rgba(245, 158, 11, 0.2); }
+    }
+
+    @keyframes bluePulse {
+      0%, 100% { box-shadow: 0 0 20px var(--blue-glow), 0 0 60px rgba(0, 212, 255, 0.1); }
+      50%       { box-shadow: 0 0 40px var(--blue-glow), 0 0 100px rgba(0, 212, 255, 0.2); }
+    }
+
+    @keyframes scanline {
+      0%   { transform: translateY(-100%); }
+      100% { transform: translateY(100vh); }
+    }
+
+    @keyframes tickerScroll {
+      0%   { transform: translateX(0); }
+      100% { transform: translateX(-50%); }
+    }
+
+    @keyframes borderFlow {
+      0%   { background-position: 0% 50%; }
+      50%  { background-position: 100% 50%; }
+      100% { background-position: 0% 50%; }
+    }
+
+    @keyframes countUp {
+      from { opacity: 0; transform: scale(0.8); }
+      to   { opacity: 1; transform: scale(1); }
+    }
+
+    @keyframes shimmer {
+      0%   { background-position: -200% center; }
+      100% { background-position: 200% center; }
+    }
+
+    body {
+      background: var(--navy);
+      color: var(--white);
+      font-family: 'Inter', sans-serif;
+      line-height: 1.5;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    .wrapper {
+      width: 1200px;
+      margin: 0 auto;
+      padding: 0;
+      overflow: hidden;
+      position: relative;
+      background: var(--navy);
+    }
+
+    /* ── SCANLINE OVERLAY ── */
+    .wrapper::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: repeating-linear-gradient(
+        0deg,
+        transparent,
+        transparent 2px,
+        rgba(0, 0, 0, 0.03) 2px,
+        rgba(0, 0, 0, 0.03) 4px
+      );
+      pointer-events: none;
+      z-index: 100;
+    }
+
+    /* ── TICKER TAPE ── */
+    .ticker {
+      background: var(--navy-mid);
+      border-bottom: 1px solid var(--border);
+      overflow: hidden;
+      height: 36px;
+      display: flex;
+      align-items: center;
+    }
+
+    .ticker-label {
+      background: var(--blue);
+      color: var(--navy);
+      font-size: 10px;
+      font-weight: 800;
+      letter-spacing: 0.12em;
+      padding: 0 14px;
+      height: 100%;
+      display: flex;
+      align-items: center;
+      white-space: nowrap;
+      flex-shrink: 0;
+    }
+
+    .ticker-track {
+      display: flex;
+      animation: tickerScroll 28s linear infinite;
+      white-space: nowrap;
+    }
+
+    .ticker-item {
+      font-size: 11px;
+      font-weight: 500;
+      color: var(--gray-1);
+      letter-spacing: 0.06em;
+      padding: 0 32px;
+    }
+
+    .ticker-item span {
+      color: var(--blue);
+    }
+
+    /* ── HEADER ── */
+    .header {
+      padding: 56px 64px 0;
+      position: relative;
+      animation: fadeInUp 0.7s ease both;
+    }
+
+    .header-eyebrow {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 20px;
+    }
+
+    .eyebrow-line {
+      width: 32px;
+      height: 2px;
+      background: var(--blue);
+    }
+
+    .eyebrow-text {
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 0.18em;
+      color: var(--blue);
+      text-transform: uppercase;
+    }
+
+    .header-date {
+      font-size: 11px;
+      color: var(--gray-2);
+      letter-spacing: 0.08em;
+      margin-left: auto;
+    }
+
+    .header-main {
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 40px;
+      align-items: flex-start;
+    }
+
+    .header-title {
+      font-family: 'Syne', sans-serif;
+      font-size: 52px;
+      font-weight: 800;
+      line-height: 1.05;
+      letter-spacing: -0.02em;
+    }
+
+    .header-title .line1 {
+      color: var(--white);
+    }
+
+    .header-title .line2 {
+      background: linear-gradient(90deg, var(--blue), #7B8FFF);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .header-title .line3 {
+      color: var(--white);
+      opacity: 0.45;
+      font-size: 38px;
+    }
+
+    .header-sub {
+      margin-top: 18px;
+      font-size: 15px;
+      color: var(--gray-1);
+      max-width: 560px;
+      line-height: 1.65;
+    }
+
+    .header-sub strong {
+      color: var(--white);
+    }
+
+    /* ── FIRST-IN-NATION BADGE ── */
+    .badge-seal {
+      width: 200px;
+      height: 200px;
+      flex-shrink: 0;
+      position: relative;
+      animation: glowPulse 3s ease-in-out infinite, fadeIn 1s ease 0.3s both;
+    }
+
+    .badge-seal svg {
+      width: 100%;
+      height: 100%;
+    }
+
+    /* ── DIVIDER ── */
+    .divider {
+      height: 1px;
+      background: linear-gradient(90deg, transparent, var(--border) 20%, var(--border) 80%, transparent);
+      margin: 40px 64px;
+    }
+
+    /* ── STAT BAR ── */
+    .stat-bar {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 1px;
+      margin: 0 64px;
+      background: var(--border);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      overflow: hidden;
+      animation: fadeInUp 0.7s ease 0.2s both;
+    }
+
+    .stat-cell {
+      background: var(--navy-card);
+      padding: 24px 28px;
+      position: relative;
+    }
+
+    .stat-cell::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      height: 2px;
+    }
+
+    .stat-cell.blue::before  { background: var(--blue); }
+    .stat-cell.gold::before  { background: var(--gold); }
+    .stat-cell.green::before { background: var(--green); }
+    .stat-cell.white::before { background: var(--gray-2); }
+
+    .stat-label {
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: var(--gray-2);
+      margin-bottom: 10px;
+    }
+
+    .stat-value {
+      font-family: 'Syne', sans-serif;
+      font-size: 28px;
+      font-weight: 800;
+      line-height: 1;
+      animation: countUp 0.8s ease both;
+    }
+
+    .stat-value.blue  { color: var(--blue); }
+    .stat-value.gold  { color: var(--gold); }
+    .stat-value.green { color: var(--green); }
+    .stat-value.white { color: var(--white); }
+
+    .stat-sub {
+      font-size: 11px;
+      color: var(--gray-2);
+      margin-top: 6px;
+    }
+
+    /* ── SECTION TITLE ── */
+    .section {
+      padding: 0 64px;
+      margin-top: 48px;
+      animation: fadeInUp 0.7s ease 0.3s both;
+    }
+
+    .section-header {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      margin-bottom: 28px;
+    }
+
+    .section-num {
+      font-size: 11px;
+      font-weight: 700;
+      color: var(--blue);
+      letter-spacing: 0.1em;
+      background: var(--blue-dim);
+      border: 1px solid rgba(0, 212, 255, 0.2);
+      padding: 4px 10px;
+      border-radius: 4px;
+    }
+
+    .section-title {
+      font-family: 'Syne', sans-serif;
+      font-size: 20px;
+      font-weight: 700;
+      color: var(--white);
+    }
+
+    .section-title span {
+      color: var(--blue);
+    }
+
+    /* ── COMPARISON TABLE ── */
+    .compare-table {
+      width: 100%;
+      border-collapse: separate;
+      border-spacing: 0;
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      overflow: hidden;
+    }
+
+    .compare-table thead tr {
+      background: var(--navy-light);
+    }
+
+    .compare-table thead th {
+      padding: 16px 20px;
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: var(--gray-2);
+      text-align: left;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .compare-table thead th:not(:first-child) {
+      text-align: center;
+    }
+
+    .compare-table thead th.col-eusd {
+      color: var(--gold);
+      background: rgba(245, 158, 11, 0.06);
+      position: relative;
+    }
+
+    .compare-table thead th.col-eusd::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      height: 2px;
+      background: var(--gold);
+    }
+
+    .compare-table tbody tr {
+      background: var(--navy-card);
+      border-bottom: 1px solid var(--border);
+      transition: background 0.2s;
+    }
+
+    .compare-table tbody tr:last-child {
+      border-bottom: none;
+    }
+
+    .compare-table tbody tr:hover {
+      background: var(--navy-light);
+    }
+
+    .compare-table td {
+      padding: 18px 20px;
+      font-size: 13px;
+      color: var(--gray-1);
+      border-right: 1px solid var(--border);
+      vertical-align: middle;
+    }
+
+    .compare-table td:last-child {
+      border-right: none;
+    }
+
+    .compare-table td.row-label {
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--gray-2);
+      background: var(--navy-light);
+      white-space: nowrap;
+    }
+
+    .compare-table td.col-eusd-val {
+      text-align: center;
+      background: rgba(245, 158, 11, 0.04);
+      color: var(--white);
+      font-weight: 600;
+    }
+
+    .compare-table td:not(.row-label):not(.col-eusd-val) {
+      text-align: center;
+    }
+
+    .badge-yes {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: var(--green-dim);
+      border: 1px solid rgba(16, 185, 129, 0.3);
+      color: var(--green);
+      font-size: 11px;
+      font-weight: 700;
+      padding: 4px 12px;
+      border-radius: 999px;
+    }
+
+    .badge-no {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: rgba(239, 68, 68, 0.08);
+      border: 1px solid rgba(239, 68, 68, 0.2);
+      color: #EF4444;
+      font-size: 11px;
+      font-weight: 700;
+      padding: 4px 12px;
+      border-radius: 999px;
+    }
+
+    .badge-first {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: var(--gold-dim);
+      border: 1px solid rgba(245, 158, 11, 0.4);
+      color: var(--gold);
+      font-size: 11px;
+      font-weight: 800;
+      padding: 4px 14px;
+      border-radius: 999px;
+      letter-spacing: 0.04em;
+    }
+
+    /* ── TIMELINE ── */
+    .timeline {
+      display: flex;
+      align-items: stretch;
+      gap: 0;
+      position: relative;
+    }
+
+    .timeline-node {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      position: relative;
+    }
+
+    .timeline-node::after {
+      content: '';
+      position: absolute;
+      top: 28px;
+      left: 50%;
+      right: -50%;
+      height: 2px;
+      background: linear-gradient(90deg, var(--blue), rgba(0, 212, 255, 0.2));
+      z-index: 0;
+    }
+
+    .timeline-node:last-child::after {
+      display: none;
+    }
+
+    .timeline-dot {
+      width: 56px;
+      height: 56px;
+      border-radius: 50%;
+      background: var(--navy-card);
+      border: 2px solid var(--blue);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 18px;
+      position: relative;
+      z-index: 1;
+      animation: bluePulse 3s ease-in-out infinite;
+    }
+
+    .timeline-node:first-child .timeline-dot {
+      border-color: var(--gold);
+      animation: glowPulse 3s ease-in-out infinite;
+    }
+
+    .timeline-node.active .timeline-dot {
+      background: var(--blue-dim);
+      border-color: var(--blue);
+    }
+
+    .timeline-date {
+      font-size: 11px;
+      font-weight: 800;
+      color: var(--blue);
+      letter-spacing: 0.06em;
+      margin-top: 14px;
+      text-align: center;
+    }
+
+    .timeline-node:first-child .timeline-date {
+      color: var(--gold);
+    }
+
+    .timeline-event {
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--white);
+      text-align: center;
+      margin-top: 6px;
+      padding: 0 8px;
+      line-height: 1.4;
+    }
+
+    .timeline-detail {
+      font-size: 10px;
+      color: var(--gray-2);
+      text-align: center;
+      margin-top: 4px;
+      padding: 0 8px;
+      line-height: 1.4;
+    }
+
+    /* ── REGULATORY CHAIN ── */
+    .reg-chain {
+      display: flex;
+      align-items: center;
+      gap: 0;
+    }
+
+    .reg-node {
+      flex: 1;
+      background: var(--navy-card);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 20px 18px;
+      text-align: center;
+      position: relative;
+      transition: border-color 0.2s;
+    }
+
+    .reg-node:hover {
+      border-color: var(--blue);
+    }
+
+    .reg-node .reg-icon {
+      font-size: 28px;
+      margin-bottom: 10px;
+      display: block;
+    }
+
+    .reg-node .reg-title {
+      font-size: 12px;
+      font-weight: 700;
+      color: var(--white);
+      margin-bottom: 4px;
+      line-height: 1.3;
+    }
+
+    .reg-node .reg-sub {
+      font-size: 10px;
+      color: var(--gray-2);
+      line-height: 1.4;
+    }
+
+    .reg-node .reg-tag {
+      display: inline-block;
+      margin-top: 8px;
+      font-size: 9px;
+      font-weight: 700;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--blue);
+      background: var(--blue-dim);
+      border: 1px solid rgba(0, 212, 255, 0.2);
+      padding: 3px 8px;
+      border-radius: 3px;
+    }
+
+    .reg-arrow {
+      flex-shrink: 0;
+      width: 40px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 4px;
+    }
+
+    .reg-arrow-line {
+      width: 100%;
+      height: 2px;
+      background: linear-gradient(90deg, var(--blue), rgba(0, 212, 255, 0.3));
+    }
+
+    .reg-arrow-head {
+      width: 0;
+      height: 0;
+      border-top: 5px solid transparent;
+      border-bottom: 5px solid transparent;
+      border-left: 8px solid var(--blue);
+      margin-top: -13px;
+      margin-left: 32px;
+    }
+
+    /* ── BACKING DIAGRAM ── */
+    .backing {
+      display: grid;
+      grid-template-columns: 1fr auto 1fr auto 1fr;
+      gap: 0;
+      align-items: center;
+    }
+
+    .backing-source {
+      background: var(--navy-card);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 20px;
+      text-align: center;
+    }
+
+    .backing-icon {
+      font-size: 32px;
+      display: block;
+      margin-bottom: 10px;
+    }
+
+    .backing-label {
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--white);
+      margin-bottom: 4px;
+    }
+
+    .backing-sub {
+      font-size: 11px;
+      color: var(--gray-2);
+    }
+
+    .backing-op {
+      font-family: 'Syne', sans-serif;
+      font-size: 28px;
+      font-weight: 800;
+      color: var(--blue);
+      text-align: center;
+      padding: 0 16px;
+    }
+
+    .backing-result {
+      background: linear-gradient(135deg, rgba(245, 158, 11, 0.1), rgba(245, 158, 11, 0.04));
+      border: 2px solid rgba(245, 158, 11, 0.5);
+      border-radius: 12px;
+      padding: 24px;
+      text-align: center;
+      position: relative;
+      animation: glowPulse 3s ease-in-out infinite;
+    }
+
+    .backing-result-label {
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+      color: var(--gold);
+      margin-bottom: 8px;
+    }
+
+    .backing-result-value {
+      font-family: 'Syne', sans-serif;
+      font-size: 36px;
+      font-weight: 800;
+      color: var(--white);
+      line-height: 1;
+    }
+
+    .backing-result-sub {
+      font-size: 12px;
+      color: var(--gold);
+      margin-top: 6px;
+      font-weight: 600;
+    }
+
+    .backing-ratio {
+      display: inline-block;
+      background: var(--green-dim);
+      border: 1px solid rgba(16, 185, 129, 0.3);
+      color: var(--green);
+      font-size: 11px;
+      font-weight: 800;
+      padding: 4px 12px;
+      border-radius: 999px;
+      margin-top: 10px;
+      letter-spacing: 0.08em;
+    }
+
+    /* ── KEY MESSAGE CALLOUT ── */
+    .callout {
+      margin: 48px 64px 0;
+      background: linear-gradient(135deg, rgba(0, 212, 255, 0.06), rgba(0, 212, 255, 0.02));
+      border: 1px solid rgba(0, 212, 255, 0.2);
+      border-left: 4px solid var(--blue);
+      border-radius: 0 12px 12px 0;
+      padding: 28px 32px;
+      position: relative;
+      overflow: hidden;
+      animation: fadeInUp 0.7s ease 0.5s both;
+    }
+
+    .callout::before {
+      content: '"';
+      position: absolute;
+      top: -20px;
+      left: 20px;
+      font-family: 'Syne', sans-serif;
+      font-size: 120px;
+      font-weight: 800;
+      color: var(--blue);
+      opacity: 0.08;
+      line-height: 1;
+    }
+
+    .callout-text {
+      font-family: 'Syne', sans-serif;
+      font-size: 22px;
+      font-weight: 700;
+      color: var(--white);
+      line-height: 1.45;
+      position: relative;
+    }
+
+    .callout-text .highlight-blue {
+      color: var(--blue);
+    }
+
+    .callout-text .highlight-gold {
+      color: var(--gold);
+    }
+
+    .callout-attr {
+      margin-top: 12px;
+      font-size: 11px;
+      color: var(--gray-2);
+      letter-spacing: 0.06em;
+    }
+
+    /* ── NETWORKS ROW ── */
+    .networks {
+      display: flex;
+      gap: 16px;
+      margin-top: 0;
+    }
+
+    .network-pill {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      background: var(--navy-card);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 14px 20px;
+      flex: 1;
+      transition: border-color 0.2s;
+    }
+
+    .network-pill:hover {
+      border-color: var(--blue);
+    }
+
+    .network-dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      background: var(--blue);
+      flex-shrink: 0;
+    }
+
+    .network-dot.gold { background: var(--gold); }
+    .network-dot.green { background: var(--green); }
+
+    .network-name {
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--white);
+    }
+
+    .network-detail {
+      font-size: 11px;
+      color: var(--gray-2);
+      margin-left: auto;
+    }
+
+    /* ── AUTHORIZATION LIST ── */
+    .auth-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 12px;
+    }
+
+    .auth-item {
+      display: flex;
+      align-items: flex-start;
+      gap: 12px;
+      background: var(--navy-card);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 16px 18px;
+      transition: border-color 0.2s;
+    }
+
+    .auth-item:hover {
+      border-color: rgba(0, 212, 255, 0.3);
+    }
+
+    .auth-icon {
+      font-size: 20px;
+      flex-shrink: 0;
+      margin-top: 1px;
+    }
+
+    .auth-text {
+      font-size: 13px;
+      color: var(--gray-1);
+      line-height: 1.45;
+    }
+
+    .auth-text strong {
+      display: block;
+      color: var(--white);
+      font-weight: 600;
+      margin-bottom: 2px;
+    }
+
+    /* ── TWO-COLUMN LAYOUT ── */
+    .two-col {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 24px;
+    }
+
+    /* ── LEGAL FRAMEWORK BOX ── */
+    .law-box {
+      background: var(--navy-card);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 24px;
+    }
+
+    .law-item {
+      display: flex;
+      align-items: flex-start;
+      gap: 12px;
+      padding: 12px 0;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .law-item:last-child {
+      border-bottom: none;
+      padding-bottom: 0;
+    }
+
+    .law-item:first-child {
+      padding-top: 0;
+    }
+
+    .law-dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: var(--blue);
+      flex-shrink: 0;
+      margin-top: 6px;
+    }
+
+    .law-label {
+      font-size: 11px;
+      font-weight: 700;
+      color: var(--blue);
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      margin-bottom: 2px;
+    }
+
+    .law-value {
+      font-size: 13px;
+      color: var(--gray-1);
+      line-height: 1.45;
+    }
+
+    /* ── AUDIT BOX ── */
+    .audit-box {
+      background: var(--navy-card);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 24px;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+
+    .audit-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+    }
+
+    .audit-label {
+      font-size: 12px;
+      color: var(--gray-2);
+      font-weight: 500;
+    }
+
+    .audit-value {
+      font-size: 12px;
+      font-weight: 700;
+      color: var(--white);
+      text-align: right;
+    }
+
+    .audit-bar {
+      height: 6px;
+      background: var(--border);
+      border-radius: 99px;
+      overflow: hidden;
+      margin-top: -8px;
+    }
+
+    .audit-bar-fill {
+      height: 100%;
+      border-radius: 99px;
+      background: linear-gradient(90deg, var(--green), rgba(16, 185, 129, 0.6));
+    }
+
+    /* ── FOOTER ── */
+    .footer {
+      margin-top: 56px;
+      padding: 24px 64px;
+      background: var(--navy-mid);
+      border-top: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .footer-brand {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .footer-logo-mark {
+      width: 32px;
+      height: 32px;
+      background: var(--blue-dim);
+      border: 1px solid rgba(0, 212, 255, 0.3);
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: 'Syne', sans-serif;
+      font-size: 14px;
+      font-weight: 800;
+      color: var(--blue);
+    }
+
+    .footer-brand-text {
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--white);
+    }
+
+    .footer-brand-sub {
+      font-size: 10px;
+      color: var(--gray-2);
+    }
+
+    .footer-source {
+      font-size: 11px;
+      color: var(--gray-2);
+      text-align: right;
+      line-height: 1.6;
+    }
+
+    .footer-source a {
+      color: var(--blue);
+      text-decoration: none;
+    }
+
+    .footer-disclaimer {
+      font-size: 10px;
+      color: var(--gray-3);
+      margin-top: 12px 64px 0;
+      padding: 0 64px 24px;
+      text-align: center;
+      background: var(--navy-mid);
+    }
+
+    /* ── TOP GRADIENT BAR ── */
+    .top-bar {
+      height: 4px;
+      background: linear-gradient(90deg, var(--blue), #7B8FFF 40%, var(--gold) 70%, var(--blue));
+      background-size: 200% auto;
+      animation: borderFlow 4s linear infinite;
+    }
+
+    /* ── GRID LINES BACKGROUND ── */
+    .grid-bg {
+      position: absolute;
+      inset: 0;
+      background-image:
+        linear-gradient(rgba(0, 212, 255, 0.03) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(0, 212, 255, 0.03) 1px, transparent 1px);
+      background-size: 60px 60px;
+      pointer-events: none;
+    }
+
+    .section-inner {
+      position: relative;
+    }
+
+    /* ── SHIMMER TEXT ── */
+    .shimmer {
+      background: linear-gradient(
+        90deg,
+        var(--gold) 0%,
+        #FDE68A 40%,
+        var(--gold) 60%,
+        #FDE68A 100%
+      );
+      background-size: 200% auto;
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      animation: shimmer 3s linear infinite;
+    }
+  </style>
+</head>
+<body>
+<div class="wrapper">
+  <div class="grid-bg"></div>
+
+  <!-- TOP COLOR BAR -->
+  <div class="top-bar"></div>
+
+  <!-- TICKER -->
+  <div class="ticker">
+    <div class="ticker-label">LIVE</div>
+    <div class="ticker-track">
+      <span class="ticker-item">eUSD <span>LAUNCHED</span> DEC 26, 2025</span>
+      <span class="ticker-item">INITIAL MINT <span>$10M</span> eUSD</span>
+      <span class="ticker-item">CAPITALIZATION <span>$25M</span> SECURED</span>
+      <span class="ticker-item">NETWORKS <span>ETHEREUM · POLYGON · TELCOIN NETWORK</span></span>
+      <span class="ticker-item">CHARTER SIGNED <span>NOV 12, 2025</span> — GOV. JIM PILLEN</span>
+      <span class="ticker-item">REGULATOR <span>NEBRASKA DEPT. OF BANKING & FINANCE</span></span>
+      <span class="ticker-item">AUDITS <span>MONTHLY</span> EXTERNAL ATTESTATIONS</span>
+      <span class="ticker-item">eUSD <span>LAUNCHED</span> DEC 26, 2025</span>
+      <span class="ticker-item">INITIAL MINT <span>$10M</span> eUSD</span>
+      <span class="ticker-item">CAPITALIZATION <span>$25M</span> SECURED</span>
+      <span class="ticker-item">NETWORKS <span>ETHEREUM · POLYGON · TELCOIN NETWORK</span></span>
+      <span class="ticker-item">CHARTER SIGNED <span>NOV 12, 2025</span> — GOV. JIM PILLEN</span>
+      <span class="ticker-item">REGULATOR <span>NEBRASKA DEPT. OF BANKING & FINANCE</span></span>
+      <span class="ticker-item">AUDITS <span>MONTHLY</span> EXTERNAL ATTESTATIONS</span>
+    </div>
+  </div>
+
+  <!-- HEADER -->
+  <div class="header">
+    <div class="header-eyebrow">
+      <div class="eyebrow-line"></div>
+      <div class="eyebrow-text">Telcoin Digital Asset Bank &nbsp;·&nbsp; Nebraska DADI Charter</div>
+      <div class="header-date">As of March 14, 2026</div>
+    </div>
+
+    <div class="header-main">
+      <div>
+        <div class="header-title">
+          <div class="line1">eUSD.</div>
+          <div class="line2">The first bank-issued</div>
+          <div class="line3">on-chain stablecoin.</div>
+        </div>
+        <p class="header-sub">
+          For the first time in history, a <strong>real U.S. bank</strong> — operating under
+          a state banking charter, regulated by a state banking regulator — has issued a
+          stablecoin. eUSD isn't backed by a bank. <strong>eUSD is a bank.</strong>
+        </p>
+      </div>
+
+      <!-- FIRST-IN-NATION BADGE -->
+      <div class="badge-seal">
+        <svg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
+          <defs>
+            <radialGradient id="badgeBg" cx="50%" cy="50%" r="50%">
+              <stop offset="0%" stop-color="#1A1200" />
+              <stop offset="100%" stop-color="#0A0E1A" />
+            </radialGradient>
+            <filter id="glow">
+              <feGaussianBlur stdDeviation="3" result="blur" />
+              <feMerge><feMergeNode in="blur" /><feMergeNode in="SourceGraphic" /></feMerge>
+            </filter>
+          </defs>
+
+          <!-- Outer ring -->
+          <circle cx="100" cy="100" r="97" fill="none" stroke="#F59E0B" stroke-width="1.5" opacity="0.4" />
+          <circle cx="100" cy="100" r="90" fill="none" stroke="#F59E0B" stroke-width="3" opacity="0.8" filter="url(#glow)" />
+          <circle cx="100" cy="100" r="85" fill="url(#badgeBg)" />
+
+          <!-- Tick marks around ring -->
+          <g stroke="#F59E0B" stroke-width="1.5" opacity="0.5">
+            <line x1="100" y1="10" x2="100" y2="18" transform="rotate(0 100 100)" />
+            <line x1="100" y1="10" x2="100" y2="18" transform="rotate(15 100 100)" />
+            <line x1="100" y1="10" x2="100" y2="18" transform="rotate(30 100 100)" />
+            <line x1="100" y1="10" x2="100" y2="18" transform="rotate(45 100 100)" />
+            <line x1="100" y1="10" x2="100" y2="18" transform="rotate(60 100 100)" />
+            <line x1="100" y1="10" x2="100" y2="18" transform="rotate(75 100 100)" />
+            <line x1="100" y1="10" x2="100" y2="18" transform="rotate(90 100 100)" />
+            <line x1="100" y1="10" x2="100" y2="18" transform="rotate(105 100 100)" />
+            <line x1="100" y1="10" x2="100" y2="18" transform="rotate(120 100 100)" />
+            <line x1="100" y1="10" x2="100" y2="18" transform="rotate(135 100 100)" />
+            <line x1="100" y1="10" x2="100" y2="18" transform="rotate(150 100 100)" />
+            <line x1="100" y1="10" x2="100" y2="18" transform="rotate(165 100 100)" />
+            <line x1="100" y1="10" x2="100" y2="18" transform="rotate(180 100 100)" />
+            <line x1="100" y1="10" x2="100" y2="18" transform="rotate(195 100 100)" />
+            <line x1="100" y1="10" x2="100" y2="18" transform="rotate(210 100 100)" />
+            <line x1="100" y1="10" x2="100" y2="18" transform="rotate(225 100 100)" />
+            <line x1="100" y1="10" x2="100" y2="18" transform="rotate(240 100 100)" />
+            <line x1="100" y1="10" x2="100" y2="18" transform="rotate(255 100 100)" />
+            <line x1="100" y1="10" x2="100" y2="18" transform="rotate(270 100 100)" />
+            <line x1="100" y1="10" x2="100" y2="18" transform="rotate(285 100 100)" />
+            <line x1="100" y1="10" x2="100" y2="18" transform="rotate(300 100 100)" />
+            <line x1="100" y1="10" x2="100" y2="18" transform="rotate(315 100 100)" />
+            <line x1="100" y1="10" x2="100" y2="18" transform="rotate(330 100 100)" />
+            <line x1="100" y1="10" x2="100" y2="18" transform="rotate(345 100 100)" />
+          </g>
+
+          <!-- Stars at cardinal points -->
+          <text x="100" y="25" text-anchor="middle" font-size="10" fill="#F59E0B" opacity="0.9">&#9733;</text>
+          <text x="100" y="181" text-anchor="middle" font-size="10" fill="#F59E0B" opacity="0.9">&#9733;</text>
+          <text x="19" y="104" text-anchor="middle" font-size="10" fill="#F59E0B" opacity="0.9">&#9733;</text>
+          <text x="181" y="104" text-anchor="middle" font-size="10" fill="#F59E0B" opacity="0.9">&#9733;</text>
+
+          <!-- FIRST -->
+          <text x="100" y="68" text-anchor="middle" font-family="Syne, sans-serif" font-size="11" font-weight="800" fill="#F59E0B" letter-spacing="5">FIRST</text>
+
+          <!-- IN -->
+          <text x="100" y="84" text-anchor="middle" font-family="Inter, sans-serif" font-size="9" font-weight="500" fill="#F59E0B" opacity="0.7" letter-spacing="3">IN</text>
+
+          <!-- NATION -->
+          <text x="100" y="116" text-anchor="middle" font-family="Syne, sans-serif" font-size="15" font-weight="800" fill="#F59E0B" letter-spacing="3">NATION</text>
+
+          <!-- eUSD big -->
+          <text x="100" y="104" text-anchor="middle" font-family="Syne, sans-serif" font-size="28" font-weight="900" fill="#FFFFFF" filter="url(#glow)">eUSD</text>
+
+          <!-- Bottom text -->
+          <text x="100" y="138" text-anchor="middle" font-family="Inter, sans-serif" font-size="8" font-weight="600" fill="#94A3B8" letter-spacing="2">BANK-ISSUED</text>
+          <text x="100" y="150" text-anchor="middle" font-family="Inter, sans-serif" font-size="8" font-weight="600" fill="#94A3B8" letter-spacing="1.5">STABLECOIN</text>
+
+          <!-- Bottom year -->
+          <text x="100" y="167" text-anchor="middle" font-family="Inter, sans-serif" font-size="9" font-weight="700" fill="#F59E0B" opacity="0.6">EST. 2025</text>
+        </svg>
+      </div>
+    </div>
+  </div>
+
+  <!-- STAT BAR -->
+  <div class="divider"></div>
+  <div class="stat-bar">
+    <div class="stat-cell gold">
+      <div class="stat-label">Initial Mint</div>
+      <div class="stat-value gold">$10M</div>
+      <div class="stat-sub">eUSD at launch</div>
+    </div>
+    <div class="stat-cell blue">
+      <div class="stat-label">Capitalization</div>
+      <div class="stat-value blue">$25M</div>
+      <div class="stat-sub">Secured at launch</div>
+    </div>
+    <div class="stat-cell green">
+      <div class="stat-label">Backing Ratio</div>
+      <div class="stat-value green">1:1</div>
+      <div class="stat-sub">USD + U.S. Treasuries</div>
+    </div>
+    <div class="stat-cell white">
+      <div class="stat-label">Audit Cadence</div>
+      <div class="stat-value white">Monthly</div>
+      <div class="stat-sub">External attestations</div>
+    </div>
+  </div>
+
+  <!-- KEY MESSAGE CALLOUT -->
+  <div class="callout">
+    <div class="callout-text">
+      USDC is issued by <span class="highlight-blue">Circle</span> — a private company.&nbsp;
+      USDT is issued by <span class="highlight-blue">Tether</span> — a private company.&nbsp;
+      eUSD is issued by <span class="highlight-gold">Telcoin Digital Asset Bank</span> —
+      an actual state-chartered U.S. bank. That changes everything.
+    </div>
+    <div class="callout-attr">KEY DISTINCTION &nbsp;·&nbsp; Issued under U.S. banking law — not fintech law, not securities law, not offshore law</div>
+  </div>
+
+  <!-- COMPARISON TABLE -->
+  <div class="section" style="animation-delay: 0.35s;">
+    <div class="section-header">
+      <div class="section-num">01</div>
+      <div class="section-title">Stablecoin <span>Comparison</span></div>
+    </div>
+    <div class="section-inner">
+      <table class="compare-table">
+        <thead>
+          <tr>
+            <th style="width: 180px;">Attribute</th>
+            <th class="col-eusd" style="width: 260px;">eUSD &nbsp;&#9733; FIRST IN NATION</th>
+            <th style="width: 220px;">USDC</th>
+            <th style="width: 220px;">USDT</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td class="row-label">Issuer</td>
+            <td class="col-eusd-val"><span class="badge-first">&#9733; Telcoin Digital Asset Bank</span></td>
+            <td>Circle Internet Financial</td>
+            <td>Tether Limited</td>
+          </tr>
+          <tr>
+            <td class="row-label">Issuer Type</td>
+            <td class="col-eusd-val" style="color: var(--gold); font-weight: 700;">U.S. Chartered Bank</td>
+            <td style="color: var(--gray-2);">Private Company</td>
+            <td style="color: var(--gray-2);">Private Company</td>
+          </tr>
+          <tr>
+            <td class="row-label">Regulated By</td>
+            <td class="col-eusd-val">Nebraska Dept. of Banking &amp; Finance</td>
+            <td>NY Dept. of Financial Services (NYDFS)</td>
+            <td>No primary banking regulator</td>
+          </tr>
+          <tr>
+            <td class="row-label">Bank Charter</td>
+            <td class="col-eusd-val"><span class="badge-yes">&#10003; Yes — DADI Charter</span></td>
+            <td><span class="badge-no">&#10005; No charter</span></td>
+            <td><span class="badge-no">&#10005; No charter</span></td>
+          </tr>
+          <tr>
+            <td class="row-label">Legal Backing</td>
+            <td class="col-eusd-val">Nebraska Financial Innovation Act + GENIUS Act</td>
+            <td>State money transmitter licenses</td>
+            <td>Offshore registration (BVI)</td>
+          </tr>
+          <tr>
+            <td class="row-label">Collateral</td>
+            <td class="col-eusd-val">USD deposits + short-term U.S. Treasuries</td>
+            <td>Cash + short-term Treasuries</td>
+            <td>Mix (cash, Treasuries, other)</td>
+          </tr>
+          <tr>
+            <td class="row-label">Audit / Attestation</td>
+            <td class="col-eusd-val"><span class="badge-yes">&#10003; Monthly external attestation</span></td>
+            <td>Monthly (Grant Thornton)</td>
+            <td>Quarterly (BDO)</td>
+          </tr>
+          <tr>
+            <td class="row-label">Fed Reserve Access</td>
+            <td class="col-eusd-val"><span class="badge-yes">&#10003; Authorized</span></td>
+            <td><span class="badge-no">&#10005; Not authorized</span></td>
+            <td><span class="badge-no">&#10005; Not authorized</span></td>
+          </tr>
+          <tr>
+            <td class="row-label">DeFi Integration</td>
+            <td class="col-eusd-val"><span class="badge-yes">&#10003; Authorized by charter</span></td>
+            <td>Yes (via 3rd party)</td>
+            <td>Yes (via 3rd party)</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- TIMELINE -->
+  <div class="section" style="animation-delay: 0.4s;">
+    <div class="section-header">
+      <div class="section-num">02</div>
+      <div class="section-title">Launch <span>Timeline</span></div>
+    </div>
+    <div class="section-inner">
+      <div class="timeline">
+        <div class="timeline-node">
+          <div class="timeline-dot">&#9733;</div>
+          <div class="timeline-date">NOV 12, 2025</div>
+          <div class="timeline-event">Charter Signed</div>
+          <div class="timeline-detail">Gov. Jim Pillen signs<br/>Nebraska DADI charter</div>
+        </div>
+        <div class="timeline-node">
+          <div class="timeline-dot">&#127963;</div>
+          <div class="timeline-date">DEC 26, 2025</div>
+          <div class="timeline-event">eUSD Launches</div>
+          <div class="timeline-detail">$10M initial mint<br/>on Ethereum + Polygon</div>
+        </div>
+        <div class="timeline-node active">
+          <div class="timeline-dot">&#128200;</div>
+          <div class="timeline-date">JAN 2026</div>
+          <div class="timeline-event">$25M Capitalized</div>
+          <div class="timeline-detail">Full capitalization<br/>secured post-launch</div>
+        </div>
+        <div class="timeline-node active">
+          <div class="timeline-dot">&#128203;</div>
+          <div class="timeline-date">FEB 2026</div>
+          <div class="timeline-event">First Audit Period</div>
+          <div class="timeline-detail">First monthly external<br/>attestation completed</div>
+        </div>
+        <div class="timeline-node active">
+          <div class="timeline-dot">&#128241;</div>
+          <div class="timeline-date">EARLY 2026</div>
+          <div class="timeline-event">Wallet V5 Access</div>
+          <div class="timeline-detail">Telcoin Wallet V5<br/>eUSD integration live</div>
+        </div>
+        <div class="timeline-node">
+          <div class="timeline-dot" style="border-style: dashed; opacity: 0.6;">&#9654;</div>
+          <div class="timeline-date" style="opacity: 0.5;">UPCOMING</div>
+          <div class="timeline-event" style="opacity: 0.5;">Telcoin Network</div>
+          <div class="timeline-detail" style="opacity: 0.5;">eUSD on Telcoin<br/>Network at mainnet</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- REGULATORY CHAIN -->
+  <div class="section" style="animation-delay: 0.45s;">
+    <div class="section-header">
+      <div class="section-num">03</div>
+      <div class="section-title">The Regulatory <span>Chain of Authority</span></div>
+    </div>
+    <div class="section-inner">
+      <div class="reg-chain">
+        <div class="reg-node">
+          <span class="reg-icon">&#127963;</span>
+          <div class="reg-title">Gov. Jim Pillen<br/>State of Nebraska</div>
+          <div class="reg-sub">Signed Digital Asset<br/>Depository Institution<br/>charter into law</div>
+          <span class="reg-tag">Nov 12, 2025</span>
+        </div>
+
+        <div class="reg-arrow">
+          <div class="reg-arrow-line"></div>
+          <div class="reg-arrow-head"></div>
+        </div>
+
+        <div class="reg-node">
+          <span class="reg-icon">&#127979;</span>
+          <div class="reg-title">Nebraska Dept. of Banking &amp; Finance</div>
+          <div class="reg-sub">Primary state regulator<br/>overseeing DADI<br/>charter compliance</div>
+          <span class="reg-tag">Regulator</span>
+        </div>
+
+        <div class="reg-arrow">
+          <div class="reg-arrow-line"></div>
+          <div class="reg-arrow-head"></div>
+        </div>
+
+        <div class="reg-node" style="border-color: rgba(0, 212, 255, 0.3);">
+          <span class="reg-icon">&#127981;</span>
+          <div class="reg-title">Telcoin Digital Asset Bank</div>
+          <div class="reg-sub">State-chartered bank<br/>authorized to accept<br/>crypto deposits + loans</div>
+          <span class="reg-tag">Chartered Institution</span>
+        </div>
+
+        <div class="reg-arrow">
+          <div class="reg-arrow-line"></div>
+          <div class="reg-arrow-head"></div>
+        </div>
+
+        <div class="reg-node" style="border-color: rgba(245, 158, 11, 0.4); background: rgba(245, 158, 11, 0.04);">
+          <span class="reg-icon">&#128176;</span>
+          <div class="reg-title">eUSD Stablecoin</div>
+          <div class="reg-sub">Bank-issued token<br/>deployed on Ethereum,<br/>Polygon + Telcoin Network</div>
+          <span class="reg-tag" style="color: var(--gold); background: var(--gold-dim); border-color: rgba(245,158,11,0.3);">Output</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- WHAT BACKS eUSD -->
+  <div class="section" style="animation-delay: 0.5s;">
+    <div class="section-header">
+      <div class="section-num">04</div>
+      <div class="section-title">What Backs <span>eUSD</span></div>
+    </div>
+    <div class="section-inner">
+      <div class="backing">
+        <div class="backing-source">
+          <span class="backing-icon">&#127982;</span>
+          <div class="backing-label">USD Deposits</div>
+          <div class="backing-sub">U.S. dollar deposits<br/>held at Telcoin Digital<br/>Asset Bank</div>
+        </div>
+
+        <div class="backing-op">+</div>
+
+        <div class="backing-source">
+          <span class="backing-icon">&#128202;</span>
+          <div class="backing-label">U.S. Treasury Assets</div>
+          <div class="backing-sub">Short-term U.S. Treasury<br/>securities — the world's<br/>safest collateral</div>
+        </div>
+
+        <div class="backing-op" style="font-size: 20px; color: var(--gray-2);">&#8594;</div>
+
+        <div class="backing-result">
+          <div class="backing-result-label">eUSD Output</div>
+          <div class="backing-result-value">$1.00</div>
+          <div class="backing-result-sub">per eUSD token</div>
+          <div><span class="backing-ratio">1:1 Peg — Always</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- TWO-COL: Legal Framework + Bank Authorizations -->
+  <div class="section" style="animation-delay: 0.55s;">
+    <div class="two-col">
+      <div>
+        <div class="section-header" style="margin-bottom: 20px;">
+          <div class="section-num">05</div>
+          <div class="section-title">Legal <span>Framework</span></div>
+        </div>
+        <div class="law-box">
+          <div class="law-item">
+            <div class="law-dot"></div>
+            <div>
+              <div class="law-label">Charter Type</div>
+              <div class="law-value">Digital Asset Depository Institution (DADI) — Nebraska</div>
+            </div>
+          </div>
+          <div class="law-item">
+            <div class="law-dot"></div>
+            <div>
+              <div class="law-label">Primary Law</div>
+              <div class="law-value">Nebraska Financial Innovation Act</div>
+            </div>
+          </div>
+          <div class="law-item">
+            <div class="law-dot"></div>
+            <div>
+              <div class="law-label">Federal Guidance</div>
+              <div class="law-value">GENIUS Act guidelines (U.S. federal stablecoin framework)</div>
+            </div>
+          </div>
+          <div class="law-item">
+            <div class="law-dot"></div>
+            <div>
+              <div class="law-label">Regulator</div>
+              <div class="law-value">Nebraska Department of Banking and Finance (NDBF)</div>
+            </div>
+          </div>
+          <div class="law-item">
+            <div class="law-dot"></div>
+            <div>
+              <div class="law-label">Charter Signed</div>
+              <div class="law-value">November 12, 2025 — Governor Jim Pillen, State of Nebraska</div>
+            </div>
+          </div>
+          <div class="law-item">
+            <div class="law-dot" style="background: var(--gold);"></div>
+            <div>
+              <div class="law-label" style="color: var(--gold);">Historic Milestone</div>
+              <div class="law-value">First DADI-chartered bank to issue an on-chain stablecoin under U.S. banking law</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div>
+        <div class="section-header" style="margin-bottom: 20px;">
+          <div class="section-num">06</div>
+          <div class="section-title">Bank <span>Authorizations</span></div>
+        </div>
+        <div class="auth-grid">
+          <div class="auth-item">
+            <span class="auth-icon">&#128176;</span>
+            <div class="auth-text">
+              <strong>Crypto Deposits</strong>
+              Accept cryptocurrency deposits from customers
+            </div>
+          </div>
+          <div class="auth-item">
+            <span class="auth-icon">&#128203;</span>
+            <div class="auth-text">
+              <strong>Crypto Loans</strong>
+              Provide crypto-backed loan products
+            </div>
+          </div>
+          <div class="auth-item">
+            <span class="auth-icon">&#127981;</span>
+            <div class="auth-text">
+              <strong>Federal Reserve Rails</strong>
+              Connect to Federal Reserve payment infrastructure
+            </div>
+          </div>
+          <div class="auth-item">
+            <span class="auth-icon">&#127760;</span>
+            <div class="auth-text">
+              <strong>DeFi Connectivity</strong>
+              Connect customers directly to decentralized finance protocols
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- NETWORKS & ACCESS -->
+  <div class="section" style="margin-top: 40px; animation-delay: 0.6s;">
+    <div class="section-header">
+      <div class="section-num">07</div>
+      <div class="section-title">Networks &amp; <span>Access</span></div>
+    </div>
+    <div class="section-inner">
+      <div class="networks">
+        <div class="network-pill">
+          <div class="network-dot"></div>
+          <div>
+            <div class="network-name">Ethereum</div>
+            <div class="network-detail" style="color: var(--blue);">Live</div>
+          </div>
+          <div class="network-detail">ERC-20 token · live at launch</div>
+        </div>
+        <div class="network-pill">
+          <div class="network-dot gold"></div>
+          <div>
+            <div class="network-name">Polygon</div>
+            <div class="network-detail" style="color: var(--gold);">Live</div>
+          </div>
+          <div class="network-detail">Low-cost transfers · live at launch</div>
+        </div>
+        <div class="network-pill">
+          <div class="network-dot" style="background: var(--gray-2); border: 1px dashed var(--gray-2);"></div>
+          <div>
+            <div class="network-name">Telcoin Network</div>
+            <div class="network-detail" style="color: var(--gray-2);">Upcoming</div>
+          </div>
+          <div class="network-detail">Native chain · at mainnet launch</div>
+        </div>
+        <div class="network-pill">
+          <div class="network-dot green"></div>
+          <div>
+            <div class="network-name">Mercado Bitcoin</div>
+            <div class="network-detail" style="color: var(--green);">Listed</div>
+          </div>
+          <div class="network-detail">Exchange listing · Brazil's largest</div>
+        </div>
+        <div class="network-pill">
+          <div class="network-dot" style="background: #7B8FFF;"></div>
+          <div>
+            <div class="network-name">Telcoin Wallet V5</div>
+            <div class="network-detail" style="color: #7B8FFF;">Early 2026</div>
+          </div>
+          <div class="network-detail">Consumer wallet access · live</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- FOOTER -->
+  <div style="height: 48px;"></div>
+  <div class="footer">
+    <div class="footer-brand">
+      <div class="footer-logo-mark">TA</div>
+      <div>
+        <div class="footer-brand-text">Telcoin Association</div>
+        <div class="footer-brand-sub">Marketing Agency &nbsp;·&nbsp; Visual Storyteller</div>
+      </div>
+    </div>
+
+    <div style="font-size: 11px; color: var(--gray-2); text-align: center; line-height: 1.7;">
+      <div style="color: var(--gold); font-weight: 700; font-size: 12px; letter-spacing: 0.08em; margin-bottom: 4px;">
+        &#9733; FIRST IN NATION &nbsp;·&nbsp; FIRST IN HISTORY
+      </div>
+      The first bank-issued on-chain stablecoin in the United States
+    </div>
+
+    <div class="footer-source">
+      Source: <a href="https://telcoin.org" target="_blank">telcoin.org</a> &nbsp;·&nbsp; <a href="https://nebraska.gov" target="_blank">nebraska.gov</a><br/>
+      All facts verified. No unconfirmed claims.<br/>
+      <span style="color: var(--gray-3);">March 14, 2026 &nbsp;·&nbsp; Telcoin Association</span>
+    </div>
+  </div>
+
+  <div class="footer-disclaimer">
+    This infographic is for informational purposes only. All data verified against official sources as of March 14, 2026.
+    eUSD is issued by Telcoin Digital Asset Bank, a state-chartered Digital Asset Depository Institution (DADI) licensed under the Nebraska Financial Innovation Act.
+  </div>
+
+</div>
+</body>
+</html>
