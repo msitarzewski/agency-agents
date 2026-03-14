@@ -46,18 +46,42 @@ Browse the agents below and copy/adapt the ones you need!
 
 ### Option 3: Use with Other Tools (Cursor, Aider, Windsurf, Gemini CLI, OpenCode)
 
+#### Linux / macOS (Bash)
 ```bash
-# Step 1 -- generate integration files for all supported tools
+# Step 1 -- generate integration files
 ./scripts/convert.sh
 
-# Step 2 -- install interactively (auto-detects what you have installed)
+# Step 2 -- install interactively
 ./scripts/install.sh
+```
 
-# Or target a specific tool directly
+* Or target a specific tool directly
+
+```bash
 ./scripts/install.sh --tool cursor
 ./scripts/install.sh --tool copilot
 ./scripts/install.sh --tool aider
 ./scripts/install.sh --tool windsurf
+```
+
+See the [Multi-Tool Integrations](#-multi-tool-integrations) section below for full details.
+
+#### Windows (PowerShell)
+```powershell
+# Step 1 -- generate integration files
+.\scripts\convert.ps1
+
+# Step 2 -- install interactively
+.\scripts\install.ps1
+```
+
+* Or target a specific tool directly
+
+```powershell
+.\scripts\install.ps1 -Tool cursor
+.\scripts\install.ps1 -Tool copilot
+.\scripts\install.ps1 -Tool aider
+.\scripts\install.ps1 -Tool windsurf
 ```
 
 See the [Multi-Tool Integrations](#-multi-tool-integrations) section below for full details.
@@ -501,14 +525,22 @@ The Agency works natively with Claude Code, and ships conversion + install scrip
 
 ### ⚡ Quick Install
 
-**Step 1 -- Generate integration files:**
+#### Linux / macOS (Bash)
 ```bash
+# Step 1 -- generate integration files
 ./scripts/convert.sh
+
+# Step 2 -- install interactively
+./scripts/install.sh
 ```
 
-**Step 2 -- Install (interactive, auto-detects your tools):**
-```bash
-./scripts/install.sh
+#### Windows (PowerShell)
+```powershell
+# Step 1 -- generate integration files
+.\scripts\convert.ps1
+
+# Step 2 -- install interactively
+.\scripts\install.ps1
 ```
 
 The installer scans your system for installed tools, shows a checkbox UI, and lets you pick exactly what to install:
@@ -536,6 +568,8 @@ The installer scans your system for installed tools, shows a checkbox UI, and le
 ```
 
 **Or install a specific tool directly:**
+
+#### Linux / macOS (Bash)
 ```bash
 ./scripts/install.sh --tool cursor
 ./scripts/install.sh --tool opencode
@@ -543,9 +577,24 @@ The installer scans your system for installed tools, shows a checkbox UI, and le
 ./scripts/install.sh --tool antigravity
 ```
 
+#### Windows (PowerShell)
+```powershell
+.\scripts\install.ps1 -Tool cursor
+.\scripts\install.ps1 -Tool opencode
+.\scripts\install.ps1 -Tool openclaw
+.\scripts\install.ps1 -Tool antigravity
+```
+
 **Non-interactive (CI/scripts):**
+
+#### Linux / macOS (Bash)
 ```bash
 ./scripts/install.sh --no-interactive --tool all
+```
+
+#### Windows (PowerShell)
+```powershell
+.\scripts\install.ps1 -NoInteractive -Tool all
 ```
 
 ---
@@ -557,8 +606,14 @@ The installer scans your system for installed tools, shows a checkbox UI, and le
 
 Agents are copied directly from the repo into `~/.claude/agents/` -- no conversion needed.
 
+#### Linux / macOS (Bash)
 ```bash
 ./scripts/install.sh --tool claude-code
+```
+
+#### Windows (PowerShell)
+```powershell
+.\scripts\install.ps1 -Tool claude-code
 ```
 
 Then activate in Claude Code:
@@ -574,8 +629,14 @@ See [integrations/claude-code/README.md](integrations/claude-code/README.md) for
 
 Agents are copied directly from the repo into `~/.github/agents/` and `~/.copilot/agents/` -- no conversion needed.
 
+#### Linux / macOS (Bash)
 ```bash
 ./scripts/install.sh --tool copilot
+```
+
+#### Windows (PowerShell)
+```powershell
+.\scripts\install.ps1 -Tool copilot
 ```
 
 Then activate in GitHub Copilot:
@@ -591,8 +652,14 @@ See [integrations/github-copilot/README.md](integrations/github-copilot/README.m
 
 Each agent becomes a skill in `~/.gemini/antigravity/skills/agency-<slug>/`.
 
+#### Linux / macOS (Bash)
 ```bash
 ./scripts/install.sh --tool antigravity
+```
+
+#### Windows (PowerShell)
+```powershell
+.\scripts\install.ps1 -Tool antigravity
 ```
 
 Activate in Gemini with Antigravity:
@@ -609,9 +676,16 @@ See [integrations/antigravity/README.md](integrations/antigravity/README.md) for
 Installs as a Gemini CLI extension with one skill per agent plus a manifest.
 On a fresh clone, generate the Gemini extension files before running the installer.
 
+#### Linux / macOS (Bash)
 ```bash
 ./scripts/convert.sh --tool gemini-cli
 ./scripts/install.sh --tool gemini-cli
+```
+
+#### Windows (PowerShell)
+```powershell
+.\scripts\convert.ps1 -Tool gemini-cli
+.\scripts\install.ps1 -Tool gemini-cli
 ```
 
 See [integrations/gemini-cli/README.md](integrations/gemini-cli/README.md) for details.
@@ -622,9 +696,16 @@ See [integrations/gemini-cli/README.md](integrations/gemini-cli/README.md) for d
 
 Agents are placed in `.opencode/agents/` in your project root (project-scoped).
 
+#### Linux / macOS (Bash)
 ```bash
 cd /your/project
 /path/to/agency-agents/scripts/install.sh --tool opencode
+```
+
+#### Windows (PowerShell)
+```powershell
+Set-Location "C:\your\project"
+& "D:\path\to\agency-agents\scripts\install.ps1" -Tool opencode
 ```
 
 Or install globally:
@@ -646,9 +727,16 @@ See [integrations/opencode/README.md](integrations/opencode/README.md) for detai
 
 Each agent becomes a `.mdc` rule file in `.cursor/rules/` of your project.
 
+#### Linux / macOS (Bash)
 ```bash
 cd /your/project
 /path/to/agency-agents/scripts/install.sh --tool cursor
+```
+
+#### Windows (PowerShell)
+```powershell
+Set-Location "C:\your\project"
+& "D:\path\to\agency-agents\scripts\install.ps1" -Tool cursor
 ```
 
 Rules are auto-applied when Cursor detects them in the project. Reference them explicitly:
@@ -664,9 +752,16 @@ See [integrations/cursor/README.md](integrations/cursor/README.md) for details.
 
 All agents are compiled into a single `CONVENTIONS.md` file that Aider reads automatically.
 
+#### Linux / macOS (Bash)
 ```bash
 cd /your/project
 /path/to/agency-agents/scripts/install.sh --tool aider
+```
+
+#### Windows (PowerShell)
+```powershell
+Set-Location "C:\your\project"
+& "D:\path\to\agency-agents\scripts\install.ps1" -Tool aider
 ```
 
 Then reference agents in your Aider session:
@@ -682,9 +777,16 @@ See [integrations/aider/README.md](integrations/aider/README.md) for details.
 
 All agents are compiled into `.windsurfrules` in your project root.
 
+#### Linux / macOS (Bash)
 ```bash
 cd /your/project
 /path/to/agency-agents/scripts/install.sh --tool windsurf
+```
+
+#### Windows (PowerShell)
+```powershell
+Set-Location "C:\your\project"
+& "D:\path\to\agency-agents\scripts\install.ps1" -Tool windsurf
 ```
 
 Reference agents in Windsurf's Cascade:
@@ -700,8 +802,14 @@ See [integrations/windsurf/README.md](integrations/windsurf/README.md) for detai
 
 Each agent becomes a workspace with `SOUL.md`, `AGENTS.md`, and `IDENTITY.md` in `~/.openclaw/agency-agents/`.
 
+#### Linux / macOS (Bash)
 ```bash
 ./scripts/install.sh --tool openclaw
+```
+
+#### Windows (PowerShell)
+```powershell
+.\scripts\install.ps1 -Tool openclaw
 ```
 
 Agents are registered and available by `agentId` in OpenClaw sessions.
@@ -715,11 +823,19 @@ See [integrations/openclaw/README.md](integrations/openclaw/README.md) for detai
 
 SubAgents are installed to `.qwen/agents/` in your project root (project-scoped).
 
+#### Linux / macOS (Bash)
 ```bash
 # Convert and install (run from your project root)
 cd /your/project
 ./scripts/convert.sh --tool qwen
 ./scripts/install.sh --tool qwen
+```
+
+#### Windows (PowerShell)
+```powershell
+Set-Location "C:\your\project"
+& "D:\path\to\agency-agents\scripts\convert.ps1" -Tool qwen
+& "D:\path\to\agency-agents\scripts\install.ps1" -Tool qwen
 ```
 
 **Usage in Qwen Code:**
@@ -737,9 +853,16 @@ cd /your/project
 
 When you add new agents or edit existing ones, regenerate all integration files:
 
+#### Linux / macOS (Bash)
 ```bash
-./scripts/convert.sh        # regenerate all
-./scripts/convert.sh --tool cursor   # regenerate just one tool
+./scripts/convert.sh                        # regenerate all
+./scripts/convert.sh --tool cursor          # regenerate just one tool
+```
+
+#### Windows (PowerShell)
+```powershell
+.\scripts\convert.ps1                       # regenerate all
+.\scripts\convert.ps1 -Tool cursor          # regenerate just one tool
 ```
 
 ---
