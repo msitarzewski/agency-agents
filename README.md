@@ -96,6 +96,19 @@ Building the future, one commit at a time.
 | 🔧 [Data Engineer](engineering/engineering-data-engineer.md) | Data pipelines, lakehouse architecture, ETL/ELT | Building reliable data infrastructure and warehousing |
 | 🔗 [Feishu Integration Developer](engineering/engineering-feishu-integration-developer.md) | Feishu/Lark Open Platform, bots, workflows | Building integrations for the Feishu ecosystem |
 
+### 🏗️ Solo Builder Division
+
+Optimized for one-person teams shipping full apps quickly.
+
+| Agent | Specialty | When to Use |
+|-------|-----------|-------------|
+| 🧭 [Head of Product](solo-builder/head-of-product.md) | Scoping, PRD-lite, tech stack decisions | Distilling complex ideas into a feasible MVP scope |
+| 🎨 [Head of Design](solo-builder/head-of-design.md) | Opinionated UI/UX, fast component selection | Needing a beautiful, functional UI without decision paralysis |
+| 🏗️ [Head of Engineering](solo-builder/head-of-engineering.md) | Full-stack execution optimized for velocity | Building the app from idea to deployed product quickly |
+| 🛡️ [Head of Security](solo-builder/head-of-security.md) | Env vars, auth basics, OWASP top 10 | Catching critical gaps before a public launch |
+| 🧪 [Head of Testing](solo-builder/head-of-testing.md) | Happy path constraints and critical flow E2E | Writing just enough tests to prevent public shame |
+| 🚀 [Head of Launch](solo-builder/head-of-launch.md) | Landing pages, Product Hunt prep, social copy | Shipping the MVP and getting initial user traffic |
+
 ### 🎨 Design Division
 
 Making it beautiful, usable, and delightful.
