@@ -24,15 +24,16 @@ def find_agent_file(agent_name, category):
     folder_map = {'engineering': 'engineering', 'design': 'design', 'game-development': 'game-development', 'marketing': 'marketing', 'paid-media': 'paid-media', 'product': 'product', 'project-management': 'project-management', 'sales': 'sales', 'specialized': 'specialized', 'spatial-computing': 'spatial-computing', 'support': 'support', 'testing': 'testing'}
     folder = folder_map.get(category, category)
     slug = slugify(agent_name)
+    baseurl = '/agency-agents'
     if os.path.exists(folder):
         files = [f[:-3] for f in os.listdir(folder) if f.endswith('.md')]
         for f in files:
-            if f == slug: return f"/{folder}/{f}.html"
+            if f == slug: return f"{baseurl}/{folder}/{f}.html"
         for f in files:
-            if slug in f or f in slug: return f"/{folder}/{f}.html"
+            if slug in f or f in slug: return f"{baseurl}/{folder}/{f}.html"
         for f in files:
             slug_parts = slug.split('-')
-            if any(part in f.split('-') for part in slug_parts if len(part) > 3): return f"/{folder}/{f}.html"
+            if any(part in f.split('-') for part in slug_parts if len(part) > 3): return f"{baseurl}/{folder}/{f}.html"
     return None
 
 def parse_agents(content, is_english=True):
@@ -61,7 +62,8 @@ for name, agent in agents_dict.items():
     cat = agent['category']
     agent['color'], agent['emoji'] = category_colors.get(cat, '#6b7280'), category_emojis.get(cat, '🤖')
     url = find_agent_file(name, cat)
-    agent['url'] = url if url else f"/{cat}/{slugify(name)}.html"
+    baseurl = '/agency-agents'
+    agent['url'] = url if url else f"{baseurl}/{cat}/{slugify(name)}.html"
 
 agents_list = sorted(agents_dict.values(), key=lambda x: x['name'])
 print(yaml.dump(agents_list, allow_unicode=True, default_flow_style=False, sort_keys=False))
