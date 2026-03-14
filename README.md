@@ -60,6 +60,8 @@ Browse the agents below and copy/adapt the ones you need!
 ./scripts/install.sh --tool windsurf
 ```
 
+> **Windows users or Python fans**: Alternative cross-platform Python scripts (`python scripts/convert.py` and `python scripts/install.py`) are also available with identical functionality and zero dependencies.
+
 See the [Multi-Tool Integrations](#-multi-tool-integrations) section below for full details.
 
 ---
@@ -505,10 +507,18 @@ The Agency works natively with Claude Code, and ships conversion + install scrip
 ```bash
 ./scripts/convert.sh
 ```
+**Or using Python (Windows-compatible):**
+```bash
+python scripts/convert.py
+```
 
 **Step 2 -- Install (interactive, auto-detects your tools):**
 ```bash
 ./scripts/install.sh
+```
+**Or using Python:**
+```bash
+python scripts/install.py
 ```
 
 The installer scans your system for installed tools, shows a checkbox UI, and lets you pick exactly what to install:
@@ -539,13 +549,22 @@ The installer scans your system for installed tools, shows a checkbox UI, and le
 ```bash
 ./scripts/install.sh --tool cursor
 ./scripts/install.sh --tool opencode
-./scripts/install.sh --tool openclaw
-./scripts/install.sh --tool antigravity
+```
+
+**Python equivalent:**
+```bash
+python scripts/install.py --tool cursor
+python scripts/install.py --tool opencode
 ```
 
 **Non-interactive (CI/scripts):**
 ```bash
 ./scripts/install.sh --no-interactive --tool all
+```
+
+**Python equivalent:**
+```bash
+python scripts/install.py --no-interactive --tool all
 ```
 
 ---
@@ -740,6 +759,12 @@ When you add new agents or edit existing ones, regenerate all integration files:
 ```bash
 ./scripts/convert.sh        # regenerate all
 ./scripts/convert.sh --tool cursor   # regenerate just one tool
+```
+
+**Or using Python:**
+```bash
+python scripts/convert.py
+python scripts/convert.py --tool cursor
 ```
 
 ---
