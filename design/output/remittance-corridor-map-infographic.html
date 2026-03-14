@@ -1,0 +1,1525 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Telcoin Live Remittance Corridors</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    :root {
+      --bg-primary: #0A0E1A;
+      --bg-secondary: #0F1526;
+      --bg-card: #131929;
+      --bg-card-hover: #1A2238;
+      --electric-blue: #00D4FF;
+      --electric-blue-dim: rgba(0, 212, 255, 0.12);
+      --electric-blue-glow: rgba(0, 212, 255, 0.25);
+      --green-live: #00E676;
+      --green-live-dim: rgba(0, 230, 118, 0.15);
+      --gold: #FFB800;
+      --text-primary: #FFFFFF;
+      --text-secondary: #8B96B0;
+      --text-muted: #4A5568;
+      --border: rgba(0, 212, 255, 0.15);
+      --border-subtle: rgba(255, 255, 255, 0.06);
+      --wu-red: #FF4B6E;
+      --mg-orange: #FF8C42;
+      --wb-yellow: #FFD166;
+    }
+
+    html {
+      font-size: 16px;
+    }
+
+    body {
+      background-color: var(--bg-primary);
+      color: var(--text-primary);
+      font-family: 'Inter', system-ui, sans-serif;
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+
+    /* ─────────────────────────────── WRAPPER ─────────────────────────────── */
+    .infographic-wrapper {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 0 0 64px;
+      position: relative;
+    }
+
+    /* ─────────────────────────────── NOISE TEXTURE ───────────────────────── */
+    .infographic-wrapper::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");
+      pointer-events: none;
+      z-index: 0;
+      opacity: 0.4;
+    }
+
+    /* ─────────────────────────────── HERO ───────────────────────────────── */
+    .hero {
+      position: relative;
+      text-align: center;
+      padding: 72px 48px 56px;
+      overflow: hidden;
+    }
+
+    .hero::before {
+      content: '';
+      position: absolute;
+      top: -60px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 700px;
+      height: 400px;
+      background: radial-gradient(ellipse at center, rgba(0, 212, 255, 0.18) 0%, transparent 70%);
+      pointer-events: none;
+    }
+
+    .hero-eyebrow {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: var(--electric-blue-dim);
+      border: 1px solid var(--border);
+      border-radius: 100px;
+      padding: 6px 16px;
+      font-family: 'Inter', sans-serif;
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--electric-blue);
+      margin-bottom: 28px;
+      animation: fadeInDown 0.6s ease both;
+    }
+
+    .hero-eyebrow .pulse-dot {
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      background: var(--green-live);
+      box-shadow: 0 0 0 0 rgba(0, 230, 118, 0.5);
+      animation: pulse-dot 2s infinite;
+    }
+
+    .hero-headline {
+      font-family: 'Syne', sans-serif;
+      font-size: clamp(36px, 5.5vw, 72px);
+      font-weight: 800;
+      line-height: 1.05;
+      letter-spacing: -0.02em;
+      color: var(--text-primary);
+      animation: fadeInUp 0.7s ease 0.1s both;
+    }
+
+    .hero-headline .accent {
+      color: var(--electric-blue);
+      display: inline-block;
+    }
+
+    .hero-sub {
+      margin-top: 20px;
+      font-size: 18px;
+      font-weight: 400;
+      color: var(--text-secondary);
+      max-width: 600px;
+      margin-left: auto;
+      margin-right: auto;
+      line-height: 1.6;
+      animation: fadeInUp 0.7s ease 0.2s both;
+    }
+
+    .hero-stats-row {
+      display: flex;
+      justify-content: center;
+      gap: 0;
+      margin-top: 48px;
+      animation: fadeInUp 0.7s ease 0.3s both;
+    }
+
+    .hero-stat {
+      padding: 24px 40px;
+      border-right: 1px solid var(--border-subtle);
+      text-align: center;
+    }
+
+    .hero-stat:last-child {
+      border-right: none;
+    }
+
+    .hero-stat-value {
+      font-family: 'Syne', sans-serif;
+      font-size: 40px;
+      font-weight: 800;
+      color: var(--electric-blue);
+      line-height: 1;
+      letter-spacing: -0.02em;
+    }
+
+    .hero-stat-label {
+      margin-top: 6px;
+      font-size: 12px;
+      font-weight: 500;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--text-secondary);
+    }
+
+    /* ─────────────────────────────── DIVIDER ─────────────────────────────── */
+    .section-divider {
+      width: 100%;
+      height: 1px;
+      background: linear-gradient(90deg, transparent, var(--border), transparent);
+      margin: 0 48px;
+      width: calc(100% - 96px);
+    }
+
+    /* ─────────────────────────────── SECTION LABEL ───────────────────────── */
+    .section {
+      padding: 56px 48px 0;
+    }
+
+    .section-label {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 32px;
+    }
+
+    .section-label-text {
+      font-family: 'Syne', sans-serif;
+      font-size: 13px;
+      font-weight: 700;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: var(--electric-blue);
+    }
+
+    .section-label-line {
+      flex: 1;
+      height: 1px;
+      background: var(--border-subtle);
+    }
+
+    .section-title {
+      font-family: 'Syne', sans-serif;
+      font-size: 28px;
+      font-weight: 700;
+      color: var(--text-primary);
+      margin-bottom: 8px;
+      letter-spacing: -0.01em;
+    }
+
+    .section-desc {
+      font-size: 15px;
+      color: var(--text-secondary);
+      line-height: 1.6;
+      margin-bottom: 40px;
+    }
+
+    /* ─────────────────────────────── REGION GROUP ────────────────────────── */
+    .region-block {
+      margin-bottom: 44px;
+      opacity: 0;
+      transform: translateY(24px);
+      transition: opacity 0.5s ease, transform 0.5s ease;
+    }
+
+    .region-block.visible {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    .region-header {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 16px;
+    }
+
+    .region-icon {
+      font-size: 18px;
+    }
+
+    .region-name {
+      font-family: 'Syne', sans-serif;
+      font-size: 13px;
+      font-weight: 700;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--text-secondary);
+    }
+
+    .region-line {
+      flex: 1;
+      height: 1px;
+      background: var(--border-subtle);
+    }
+
+    .region-count {
+      font-size: 12px;
+      font-weight: 500;
+      color: var(--electric-blue);
+      background: var(--electric-blue-dim);
+      border: 1px solid var(--border);
+      border-radius: 100px;
+      padding: 2px 10px;
+    }
+
+    /* ─────────────────────────────── COUNTRY CARDS ───────────────────────── */
+    .cards-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(210px, 1fr));
+      gap: 12px;
+    }
+
+    .country-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border-subtle);
+      border-radius: 12px;
+      padding: 18px 18px 16px;
+      position: relative;
+      overflow: hidden;
+      cursor: default;
+      transition: border-color 0.25s ease, background 0.25s ease, transform 0.25s ease, box-shadow 0.25s ease;
+      opacity: 0;
+      transform: translateY(16px) scale(0.97);
+    }
+
+    .country-card.card-visible {
+      opacity: 1;
+      transform: translateY(0) scale(1);
+    }
+
+    .country-card::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(135deg, var(--electric-blue-dim) 0%, transparent 60%);
+      opacity: 0;
+      transition: opacity 0.3s ease;
+      border-radius: 12px;
+    }
+
+    .country-card:hover {
+      border-color: var(--electric-blue);
+      background: var(--bg-card-hover);
+      transform: translateY(-3px);
+      box-shadow: 0 8px 32px rgba(0, 212, 255, 0.12), 0 0 0 1px rgba(0, 212, 255, 0.2);
+    }
+
+    .country-card:hover::before {
+      opacity: 1;
+    }
+
+    .card-top {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      margin-bottom: 10px;
+    }
+
+    .flag-name {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .flag {
+      font-size: 24px;
+      line-height: 1;
+    }
+
+    .country-name {
+      font-family: 'Syne', sans-serif;
+      font-size: 15px;
+      font-weight: 700;
+      color: var(--text-primary);
+      line-height: 1.2;
+    }
+
+    .live-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      background: var(--green-live-dim);
+      border: 1px solid rgba(0, 230, 118, 0.3);
+      border-radius: 100px;
+      padding: 3px 8px;
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      color: var(--green-live);
+      text-transform: uppercase;
+      flex-shrink: 0;
+    }
+
+    .live-badge::before {
+      content: '';
+      display: block;
+      width: 5px;
+      height: 5px;
+      border-radius: 50%;
+      background: var(--green-live);
+      box-shadow: 0 0 4px var(--green-live);
+      animation: pulse-dot 2.5s infinite;
+    }
+
+    .platform-list {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 5px;
+      margin-top: 2px;
+    }
+
+    .platform-chip {
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: 6px;
+      padding: 3px 8px;
+      font-size: 11px;
+      font-weight: 500;
+      color: var(--text-secondary);
+      white-space: nowrap;
+      transition: background 0.2s ease, color 0.2s ease;
+    }
+
+    .country-card:hover .platform-chip {
+      background: rgba(0, 212, 255, 0.08);
+      border-color: rgba(0, 212, 255, 0.2);
+      color: var(--electric-blue);
+    }
+
+    /* ─────────────────────────────── FEE CHART ───────────────────────────── */
+    .chart-section {
+      padding: 56px 48px 0;
+    }
+
+    .fee-chart {
+      background: var(--bg-secondary);
+      border: 1px solid var(--border-subtle);
+      border-radius: 20px;
+      padding: 40px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .fee-chart::before {
+      content: '';
+      position: absolute;
+      bottom: 0;
+      right: 0;
+      width: 300px;
+      height: 300px;
+      background: radial-gradient(ellipse at bottom right, rgba(0, 212, 255, 0.06), transparent 70%);
+      pointer-events: none;
+    }
+
+    .chart-title {
+      font-family: 'Syne', sans-serif;
+      font-size: 22px;
+      font-weight: 700;
+      color: var(--text-primary);
+      margin-bottom: 6px;
+    }
+
+    .chart-subtitle {
+      font-size: 14px;
+      color: var(--text-secondary);
+      margin-bottom: 36px;
+    }
+
+    .bar-chart {
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+    }
+
+    .bar-row {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      opacity: 0;
+      transform: translateX(-20px);
+      transition: opacity 0.6s ease, transform 0.6s ease;
+    }
+
+    .bar-row.bar-visible {
+      opacity: 1;
+      transform: translateX(0);
+    }
+
+    .bar-label {
+      width: 148px;
+      flex-shrink: 0;
+      text-align: right;
+    }
+
+    .bar-label-name {
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--text-primary);
+      line-height: 1.2;
+    }
+
+    .bar-label-type {
+      font-size: 11px;
+      color: var(--text-muted);
+      margin-top: 1px;
+    }
+
+    .bar-track {
+      flex: 1;
+      height: 44px;
+      background: rgba(255, 255, 255, 0.04);
+      border-radius: 8px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .bar-fill {
+      height: 100%;
+      border-radius: 8px;
+      width: 0;
+      transition: width 1.2s cubic-bezier(0.4, 0, 0.2, 1);
+      display: flex;
+      align-items: center;
+      justify-content: flex-end;
+      padding-right: 12px;
+      position: relative;
+    }
+
+    .bar-fill::after {
+      content: '';
+      position: absolute;
+      top: 0; right: 0; bottom: 0;
+      width: 60px;
+      background: linear-gradient(90deg, transparent, rgba(255,255,255,0.08));
+      border-radius: 0 8px 8px 0;
+    }
+
+    .bar-value {
+      font-family: 'Syne', sans-serif;
+      font-size: 16px;
+      font-weight: 800;
+      color: rgba(255,255,255,0.9);
+      position: relative;
+      z-index: 1;
+    }
+
+    .bar-fill.wu { background: linear-gradient(90deg, #C0193E, var(--wu-red)); }
+    .bar-fill.mg { background: linear-gradient(90deg, #C0541A, var(--mg-orange)); }
+    .bar-fill.wb { background: linear-gradient(90deg, #C09010, var(--wb-yellow)); }
+    .bar-fill.tc {
+      background: linear-gradient(90deg, #007A99, var(--electric-blue));
+      box-shadow: 0 0 24px rgba(0, 212, 255, 0.4);
+    }
+
+    .bar-note {
+      width: 120px;
+      flex-shrink: 0;
+      font-size: 11px;
+      color: var(--text-muted);
+      line-height: 1.4;
+    }
+
+    .bar-note.highlight {
+      color: var(--electric-blue);
+      font-weight: 600;
+    }
+
+    .chart-max-label {
+      display: flex;
+      margin-left: 164px;
+      padding-right: 136px;
+      justify-content: space-between;
+      margin-bottom: 10px;
+    }
+
+    .chart-max-tick {
+      font-size: 10px;
+      color: var(--text-muted);
+      text-align: center;
+    }
+
+    .savings-callout {
+      margin-top: 32px;
+      background: var(--electric-blue-dim);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 20px 24px;
+      display: flex;
+      align-items: center;
+      gap: 16px;
+    }
+
+    .savings-callout-icon {
+      font-size: 28px;
+      flex-shrink: 0;
+    }
+
+    .savings-callout-text {
+      font-size: 14px;
+      line-height: 1.6;
+      color: var(--text-secondary);
+    }
+
+    .savings-callout-text strong {
+      color: var(--electric-blue);
+      font-weight: 600;
+    }
+
+    /* ─────────────────────────────── WORLD MAP SVG ───────────────────────── */
+    .map-section {
+      padding: 56px 48px 0;
+    }
+
+    .map-container {
+      background: var(--bg-secondary);
+      border: 1px solid var(--border-subtle);
+      border-radius: 20px;
+      padding: 32px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .map-container::before {
+      content: '';
+      position: absolute;
+      top: -40px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 600px;
+      height: 300px;
+      background: radial-gradient(ellipse, rgba(0, 212, 255, 0.05), transparent 70%);
+      pointer-events: none;
+    }
+
+    .world-map-svg {
+      width: 100%;
+      height: auto;
+      display: block;
+    }
+
+    .map-legend {
+      display: flex;
+      align-items: center;
+      gap: 24px;
+      margin-top: 20px;
+      flex-wrap: wrap;
+    }
+
+    .map-legend-item {
+      display: flex;
+      align-items: center;
+      gap: 7px;
+      font-size: 12px;
+      color: var(--text-secondary);
+    }
+
+    .legend-dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+    }
+
+    .legend-dot.active { background: var(--electric-blue); box-shadow: 0 0 6px var(--electric-blue); }
+    .legend-dot.inactive { background: rgba(255,255,255,0.12); }
+
+    /* ─────────────────────────────── CTA ─────────────────────────────────── */
+    .cta-section {
+      padding: 64px 48px 0;
+    }
+
+    .cta-block {
+      background: linear-gradient(135deg, #0D1A2E 0%, #0A1520 50%, #071018 100%);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      padding: 52px 48px;
+      text-align: center;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .cta-block::before {
+      content: '';
+      position: absolute;
+      top: -60px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 500px;
+      height: 300px;
+      background: radial-gradient(ellipse, rgba(0, 212, 255, 0.15), transparent 65%);
+      pointer-events: none;
+    }
+
+    .cta-eyebrow {
+      font-family: 'Inter', sans-serif;
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: var(--electric-blue);
+      margin-bottom: 16px;
+    }
+
+    .cta-headline {
+      font-family: 'Syne', sans-serif;
+      font-size: clamp(26px, 3.5vw, 42px);
+      font-weight: 800;
+      color: var(--text-primary);
+      line-height: 1.1;
+      letter-spacing: -0.02em;
+      margin-bottom: 16px;
+    }
+
+    .cta-sub {
+      font-size: 16px;
+      color: var(--text-secondary);
+      margin-bottom: 36px;
+      max-width: 480px;
+      margin-left: auto;
+      margin-right: auto;
+      line-height: 1.6;
+    }
+
+    .cta-button {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      background: var(--electric-blue);
+      color: var(--bg-primary);
+      font-family: 'Syne', sans-serif;
+      font-size: 16px;
+      font-weight: 700;
+      border: none;
+      border-radius: 100px;
+      padding: 16px 36px;
+      cursor: pointer;
+      text-decoration: none;
+      letter-spacing: 0.01em;
+      transition: transform 0.2s ease, box-shadow 0.2s ease;
+      box-shadow: 0 0 32px rgba(0, 212, 255, 0.35);
+    }
+
+    .cta-button:hover {
+      transform: translateY(-2px) scale(1.02);
+      box-shadow: 0 8px 40px rgba(0, 212, 255, 0.5);
+    }
+
+    .cta-url {
+      margin-top: 14px;
+      font-size: 13px;
+      color: var(--text-muted);
+      letter-spacing: 0.04em;
+    }
+
+    /* ─────────────────────────────── FOOTER ──────────────────────────────── */
+    .footer {
+      padding: 40px 48px 0;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 12px;
+    }
+
+    .footer-source {
+      font-size: 11px;
+      color: var(--text-muted);
+      line-height: 1.5;
+    }
+
+    .footer-source a {
+      color: var(--text-muted);
+      text-decoration: none;
+      border-bottom: 1px solid var(--text-muted);
+      padding-bottom: 1px;
+      transition: color 0.2s ease;
+    }
+
+    .footer-source a:hover {
+      color: var(--electric-blue);
+    }
+
+    .footer-brand {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-family: 'Syne', sans-serif;
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--electric-blue);
+      letter-spacing: 0.04em;
+    }
+
+    /* ─────────────────────────────── KEYFRAMES ───────────────────────────── */
+    @keyframes fadeInDown {
+      from { opacity: 0; transform: translateY(-16px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    @keyframes fadeInUp {
+      from { opacity: 0; transform: translateY(20px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    @keyframes pulse-dot {
+      0%   { box-shadow: 0 0 0 0 rgba(0, 230, 118, 0.5); }
+      70%  { box-shadow: 0 0 0 6px rgba(0, 230, 118, 0); }
+      100% { box-shadow: 0 0 0 0 rgba(0, 230, 118, 0); }
+    }
+
+    @keyframes shimmer {
+      0%   { background-position: -200% center; }
+      100% { background-position: 200% center; }
+    }
+
+    /* ─────────────────────────────── COUNTER ANIMATION ─────────────────────── */
+    .count-up {
+      display: inline-block;
+    }
+
+    /* ─────────────────────────────── RESPONSIVE ─────────────────────────────── */
+    @media (max-width: 768px) {
+      .hero { padding: 48px 24px 40px; }
+      .section, .chart-section, .map-section, .cta-section { padding-left: 24px; padding-right: 24px; }
+      .hero-stats-row { flex-direction: column; gap: 16px; }
+      .hero-stat { border-right: none; border-bottom: 1px solid var(--border-subtle); padding: 16px; }
+      .hero-stat:last-child { border-bottom: none; }
+      .bar-label { width: 110px; }
+      .bar-note { display: none; }
+      .cta-block { padding: 36px 24px; }
+      .footer { flex-direction: column; }
+    }
+  </style>
+</head>
+<body>
+
+<div class="infographic-wrapper">
+
+  <!-- ═══════════════════════════ HERO ═══════════════════════════ -->
+  <div class="hero">
+    <div class="hero-eyebrow">
+      <span class="pulse-dot"></span>
+      Live Remittance Corridors &mdash; March 2026
+    </div>
+    <h1 class="hero-headline">
+      <span class="accent">16 Countries.</span><br />
+      23+ Platforms.<br />
+      <span class="accent">≤2% Fees.</span>
+    </h1>
+    <p class="hero-sub">
+      Telcoin connects mobile money platforms across 16 countries so millions of people can send money home without losing it to fees.
+    </p>
+    <div class="hero-stats-row">
+      <div class="hero-stat">
+        <div class="hero-stat-value">16</div>
+        <div class="hero-stat-label">Active Countries</div>
+      </div>
+      <div class="hero-stat">
+        <div class="hero-stat-value">23+</div>
+        <div class="hero-stat-label">Mobile Money Platforms</div>
+      </div>
+      <div class="hero-stat">
+        <div class="hero-stat-value">&le;2%</div>
+        <div class="hero-stat-label">Target Fee</div>
+      </div>
+      <div class="hero-stat">
+        <div class="hero-stat-value">6.3%</div>
+        <div class="hero-stat-label">World Bank Global Avg</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="section-divider"></div>
+
+  <!-- ═══════════════════════════ WORLD MAP SVG ═══════════════════════════ -->
+  <div class="map-section">
+    <div class="section-label">
+      <span class="section-label-text">Geographic Coverage</span>
+      <span class="section-label-line"></span>
+    </div>
+    <div class="map-container">
+      <!-- Simplified world map with active corridors highlighted via dots/labels -->
+      <svg class="world-map-svg" viewBox="0 0 1060 520" xmlns="http://www.w3.org/2000/svg" aria-label="World map showing Telcoin active remittance corridors">
+        <!-- Base ocean/world suggestion -->
+        <defs>
+          <radialGradient id="globeGrad" cx="50%" cy="50%" r="50%">
+            <stop offset="0%" stop-color="#0F1B2E" />
+            <stop offset="100%" stop-color="#070C14" />
+          </radialGradient>
+          <filter id="glow">
+            <feGaussianBlur stdDeviation="3" result="coloredBlur" />
+            <feMerge><feMergeNode in="coloredBlur" /><feMergeNode in="SourceGraphic" /></feMerge>
+          </filter>
+          <filter id="softglow">
+            <feGaussianBlur stdDeviation="5" result="coloredBlur" />
+            <feMerge><feMergeNode in="coloredBlur" /><feMergeNode in="SourceGraphic" /></feMerge>
+          </filter>
+          <marker id="arrow" markerWidth="6" markerHeight="6" refX="3" refY="3" orient="auto">
+            <path d="M0,0 L0,6 L6,3 z" fill="rgba(0,212,255,0.5)" />
+          </marker>
+        </defs>
+
+        <!-- Background -->
+        <rect width="1060" height="520" fill="url(#globeGrad)" rx="12" />
+
+        <!-- Grid lines (latitude/longitude suggestion) -->
+        <g stroke="rgba(255,255,255,0.04)" stroke-width="1">
+          <line x1="0" y1="130" x2="1060" y2="130"/>
+          <line x1="0" y1="260" x2="1060" y2="260"/>
+          <line x1="0" y1="390" x2="1060" y2="390"/>
+          <line x1="212" y1="0" x2="212" y2="520"/>
+          <line x1="424" y1="0" x2="424" y2="520"/>
+          <line x1="636" y1="0" x2="636" y2="520"/>
+          <line x1="848" y1="0" x2="848" y2="520"/>
+        </g>
+
+        <!-- Equator -->
+        <line x1="0" y1="268" x2="1060" y2="268" stroke="rgba(255,255,255,0.06)" stroke-width="1" stroke-dasharray="4,6"/>
+
+        <!-- Simplified continent shapes — Africa -->
+        <path d="M490,165 L520,155 L555,160 L575,185 L585,220 L590,260 L585,310 L570,350 L550,385 L525,400 L500,395 L478,370 L465,330 L460,285 L462,245 L468,210 L478,185 Z" fill="rgba(255,255,255,0.05)" stroke="rgba(255,255,255,0.08)" stroke-width="1"/>
+        <!-- Horn of Africa -->
+        <path d="M575,265 L600,260 L610,275 L590,290 L575,285 Z" fill="rgba(255,255,255,0.04)" stroke="rgba(255,255,255,0.06)" stroke-width="1"/>
+        <!-- Madagascar -->
+        <ellipse cx="590" cy="335" rx="12" ry="22" fill="rgba(255,255,255,0.04)" stroke="rgba(255,255,255,0.06)" stroke-width="1"/>
+
+        <!-- Europe -->
+        <path d="M445,85 L490,80 L510,95 L505,120 L490,130 L468,125 L450,115 L440,100 Z" fill="rgba(255,255,255,0.04)" stroke="rgba(255,255,255,0.06)" stroke-width="1"/>
+        <!-- Scandinavia rough -->
+        <path d="M480,55 L490,42 L500,48 L505,70 L498,85 L485,80 Z" fill="rgba(255,255,255,0.04)" stroke="rgba(255,255,255,0.05)" stroke-width="1"/>
+
+        <!-- Asia (simplified) -->
+        <path d="M600,60 L720,50 L820,65 L880,95 L900,130 L870,160 L820,170 L760,165 L700,155 L660,165 L630,145 L610,120 L595,90 Z" fill="rgba(255,255,255,0.05)" stroke="rgba(255,255,255,0.07)" stroke-width="1"/>
+        <!-- South Asia -->
+        <path d="M680,165 L720,170 L740,195 L730,235 L710,250 L690,240 L675,215 L672,190 Z" fill="rgba(255,255,255,0.05)" stroke="rgba(255,255,255,0.07)" stroke-width="1"/>
+        <!-- Southeast Asia mainland -->
+        <path d="M740,175 L780,175 L795,195 L785,220 L765,225 L745,210 Z" fill="rgba(255,255,255,0.04)" stroke="rgba(255,255,255,0.06)" stroke-width="1"/>
+        <!-- Southeast Asia islands -->
+        <ellipse cx="820" cy="245" rx="40" ry="18" fill="rgba(255,255,255,0.04)" stroke="rgba(255,255,255,0.06)" stroke-width="1"/>
+        <ellipse cx="830" cy="270" rx="28" ry="12" fill="rgba(255,255,255,0.04)" stroke="rgba(255,255,255,0.06)" stroke-width="1"/>
+        <!-- Philippines -->
+        <ellipse cx="856" cy="220" rx="12" ry="22" fill="rgba(255,255,255,0.04)" stroke="rgba(255,255,255,0.06)" stroke-width="1"/>
+
+        <!-- Australia -->
+        <path d="M820,340 L885,330 L915,355 L920,395 L895,415 L850,420 L815,400 L808,365 Z" fill="rgba(255,255,255,0.04)" stroke="rgba(255,255,255,0.06)" stroke-width="1"/>
+
+        <!-- Americas -->
+        <!-- North America -->
+        <path d="M100,60 L190,50 L230,80 L235,120 L210,150 L175,160 L140,145 L110,120 L90,90 Z" fill="rgba(255,255,255,0.04)" stroke="rgba(255,255,255,0.06)" stroke-width="1"/>
+        <!-- Central America -->
+        <path d="M185,165 L210,160 L220,180 L210,200 L190,195 L178,180 Z" fill="rgba(255,255,255,0.04)" stroke="rgba(255,255,255,0.06)" stroke-width="1"/>
+        <!-- South America -->
+        <path d="M195,210 L260,205 L295,235 L305,290 L290,350 L255,380 L220,375 L195,345 L180,290 L180,245 Z" fill="rgba(255,255,255,0.04)" stroke="rgba(255,255,255,0.06)" stroke-width="1"/>
+
+        <!-- Pacific Islands -->
+        <!-- Fiji -->
+        <circle cx="935" cy="340" r="5" fill="rgba(255,255,255,0.04)" stroke="rgba(255,255,255,0.07)" stroke-width="1"/>
+        <!-- Tonga -->
+        <circle cx="955" cy="360" r="4" fill="rgba(255,255,255,0.04)" stroke="rgba(255,255,255,0.07)" stroke-width="1"/>
+        <!-- Samoa -->
+        <circle cx="980" cy="340" r="4" fill="rgba(255,255,255,0.04)" stroke="rgba(255,255,255,0.07)" stroke-width="1"/>
+
+        <!-- ═══ ACTIVE CORRIDOR MARKERS ═══ -->
+        <!-- Each marker: outer ring + inner dot + label -->
+
+        <!-- Bangladesh -->
+        <g filter="url(#glow)">
+          <circle cx="745" cy="215" r="10" fill="rgba(0,212,255,0.15)" stroke="#00D4FF" stroke-width="1.5"/>
+          <circle cx="745" cy="215" r="4" fill="#00D4FF"/>
+        </g>
+        <text x="752" y="210" fill="#00D4FF" font-family="Inter,sans-serif" font-size="10" font-weight="600">Bangladesh</text>
+
+        <!-- Nepal -->
+        <g filter="url(#glow)">
+          <circle cx="715" cy="200" r="10" fill="rgba(0,212,255,0.15)" stroke="#00D4FF" stroke-width="1.5"/>
+          <circle cx="715" cy="200" r="4" fill="#00D4FF"/>
+        </g>
+        <text x="686" y="196" fill="#00D4FF" font-family="Inter,sans-serif" font-size="10" font-weight="600">Nepal</text>
+
+        <!-- Sri Lanka -->
+        <g filter="url(#glow)">
+          <circle cx="720" cy="258" r="10" fill="rgba(0,212,255,0.15)" stroke="#00D4FF" stroke-width="1.5"/>
+          <circle cx="720" cy="258" r="4" fill="#00D4FF"/>
+        </g>
+        <text x="727" y="254" fill="#00D4FF" font-family="Inter,sans-serif" font-size="10" font-weight="600">Sri Lanka</text>
+
+        <!-- Pakistan -->
+        <g filter="url(#glow)">
+          <circle cx="676" cy="185" r="10" fill="rgba(0,212,255,0.15)" stroke="#00D4FF" stroke-width="1.5"/>
+          <circle cx="676" cy="185" r="4" fill="#00D4FF"/>
+        </g>
+        <text x="648" y="180" fill="#00D4FF" font-family="Inter,sans-serif" font-size="10" font-weight="600">Pakistan</text>
+
+        <!-- Indonesia -->
+        <g filter="url(#glow)">
+          <circle cx="816" cy="280" r="12" fill="rgba(0,212,255,0.18)" stroke="#00D4FF" stroke-width="1.5"/>
+          <circle cx="816" cy="280" r="5" fill="#00D4FF"/>
+        </g>
+        <text x="824" y="276" fill="#00D4FF" font-family="Inter,sans-serif" font-size="10" font-weight="600">Indonesia</text>
+
+        <!-- Philippines -->
+        <g filter="url(#glow)">
+          <circle cx="856" cy="230" r="10" fill="rgba(0,212,255,0.15)" stroke="#00D4FF" stroke-width="1.5"/>
+          <circle cx="856" cy="230" r="4" fill="#00D4FF"/>
+        </g>
+        <text x="864" y="226" fill="#00D4FF" font-family="Inter,sans-serif" font-size="10" font-weight="600">Philippines</text>
+
+        <!-- Kenya -->
+        <g filter="url(#glow)">
+          <circle cx="571" cy="282" r="10" fill="rgba(0,212,255,0.15)" stroke="#00D4FF" stroke-width="1.5"/>
+          <circle cx="571" cy="282" r="4" fill="#00D4FF"/>
+        </g>
+        <text x="578" y="278" fill="#00D4FF" font-family="Inter,sans-serif" font-size="10" font-weight="600">Kenya</text>
+
+        <!-- Uganda -->
+        <g filter="url(#glow)">
+          <circle cx="553" cy="275" r="10" fill="rgba(0,212,255,0.15)" stroke="#00D4FF" stroke-width="1.5"/>
+          <circle cx="553" cy="275" r="4" fill="#00D4FF"/>
+        </g>
+        <text x="528" y="264" fill="#00D4FF" font-family="Inter,sans-serif" font-size="10" font-weight="600">Uganda</text>
+
+        <!-- Ethiopia -->
+        <g filter="url(#glow)">
+          <circle cx="577" cy="258" r="10" fill="rgba(0,212,255,0.15)" stroke="#00D4FF" stroke-width="1.5"/>
+          <circle cx="577" cy="258" r="4" fill="#00D4FF"/>
+        </g>
+        <text x="584" y="254" fill="#00D4FF" font-family="Inter,sans-serif" font-size="10" font-weight="600">Ethiopia</text>
+
+        <!-- Ghana -->
+        <g filter="url(#glow)">
+          <circle cx="492" cy="275" r="10" fill="rgba(0,212,255,0.15)" stroke="#00D4FF" stroke-width="1.5"/>
+          <circle cx="492" cy="275" r="4" fill="#00D4FF"/>
+        </g>
+        <text x="499" y="271" fill="#00D4FF" font-family="Inter,sans-serif" font-size="10" font-weight="600">Ghana</text>
+
+        <!-- Malawi -->
+        <g filter="url(#glow)">
+          <circle cx="549" cy="333" r="10" fill="rgba(0,212,255,0.15)" stroke="#00D4FF" stroke-width="1.5"/>
+          <circle cx="549" cy="333" r="4" fill="#00D4FF"/>
+        </g>
+        <text x="556" y="329" fill="#00D4FF" font-family="Inter,sans-serif" font-size="10" font-weight="600">Malawi</text>
+
+        <!-- Guatemala -->
+        <g filter="url(#glow)">
+          <circle cx="186" cy="215" r="10" fill="rgba(0,212,255,0.15)" stroke="#00D4FF" stroke-width="1.5"/>
+          <circle cx="186" cy="215" r="4" fill="#00D4FF"/>
+        </g>
+        <text x="157" y="211" fill="#00D4FF" font-family="Inter,sans-serif" font-size="10" font-weight="600">Guatemala</text>
+
+        <!-- El Salvador -->
+        <g filter="url(#glow)">
+          <circle cx="186" cy="228" r="10" fill="rgba(0,212,255,0.15)" stroke="#00D4FF" stroke-width="1.5"/>
+          <circle cx="186" cy="228" r="4" fill="#00D4FF"/>
+        </g>
+        <text x="152" y="240" fill="#00D4FF" font-family="Inter,sans-serif" font-size="10" font-weight="600">El Salvador</text>
+
+        <!-- Fiji -->
+        <g filter="url(#glow)">
+          <circle cx="935" cy="338" r="10" fill="rgba(0,212,255,0.15)" stroke="#00D4FF" stroke-width="1.5"/>
+          <circle cx="935" cy="338" r="4" fill="#00D4FF"/>
+        </g>
+        <text x="920" y="326" fill="#00D4FF" font-family="Inter,sans-serif" font-size="10" font-weight="600">Fiji</text>
+
+        <!-- Tonga -->
+        <g filter="url(#glow)">
+          <circle cx="958" cy="364" r="10" fill="rgba(0,212,255,0.15)" stroke="#00D4FF" stroke-width="1.5"/>
+          <circle cx="958" cy="364" r="4" fill="#00D4FF"/>
+        </g>
+        <text x="966" y="360" fill="#00D4FF" font-family="Inter,sans-serif" font-size="10" font-weight="600">Tonga</text>
+
+        <!-- Samoa -->
+        <g filter="url(#glow)">
+          <circle cx="982" cy="341" r="10" fill="rgba(0,212,255,0.15)" stroke="#00D4FF" stroke-width="1.5"/>
+          <circle cx="982" cy="341" r="4" fill="#00D4FF"/>
+        </g>
+        <text x="990" y="337" fill="#00D4FF" font-family="Inter,sans-serif" font-size="10" font-weight="600">Samoa</text>
+
+        <!-- Telcoin branding watermark -->
+        <text x="530" y="498" fill="rgba(255,255,255,0.08)" font-family="Syne,sans-serif" font-size="11" font-weight="700" text-anchor="middle" letter-spacing="3">TELCOIN LIVE CORRIDORS — telco.in</text>
+      </svg>
+
+      <div class="map-legend">
+        <div class="map-legend-item">
+          <span class="legend-dot active"></span>
+          Active corridor (16 countries)
+        </div>
+        <div class="map-legend-item">
+          <span class="legend-dot inactive"></span>
+          Other regions
+        </div>
+        <div class="map-legend-item" style="margin-left: auto; font-size: 11px; color: var(--text-muted);">
+          Access via Telcoin Wallet &mdash; telco.in
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════ COUNTRY CARDS ═══════════════════════════ -->
+  <div class="section">
+    <div class="section-label">
+      <span class="section-label-text">Active Corridors by Region</span>
+      <span class="section-label-line"></span>
+    </div>
+    <p class="section-desc">16 countries. 23+ integrated mobile money platforms. Every corridor verified and live.</p>
+
+    <!-- Southeast Asia -->
+    <div class="region-block" data-region="0">
+      <div class="region-header">
+        <span class="region-icon">🌏</span>
+        <span class="region-name">Southeast Asia</span>
+        <span class="region-line"></span>
+        <span class="region-count">2 countries &middot; 5 platforms</span>
+      </div>
+      <div class="cards-grid">
+        <div class="country-card" data-delay="0">
+          <div class="card-top">
+            <div class="flag-name">
+              <span class="flag">🇮🇩</span>
+              <span class="country-name">Indonesia</span>
+            </div>
+            <span class="live-badge">Live</span>
+          </div>
+          <div class="platform-list">
+            <span class="platform-chip">Dana</span>
+            <span class="platform-chip">GoPay</span>
+            <span class="platform-chip">LinkAja</span>
+            <span class="platform-chip">OVO</span>
+          </div>
+        </div>
+        <div class="country-card" data-delay="1">
+          <div class="card-top">
+            <div class="flag-name">
+              <span class="flag">🇵🇭</span>
+              <span class="country-name">Philippines</span>
+            </div>
+            <span class="live-badge">Live</span>
+          </div>
+          <div class="platform-list">
+            <span class="platform-chip">Coins</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- South Asia -->
+    <div class="region-block" data-region="1">
+      <div class="region-header">
+        <span class="region-icon">🌏</span>
+        <span class="region-name">South Asia</span>
+        <span class="region-line"></span>
+        <span class="region-count">4 countries &middot; 6 platforms</span>
+      </div>
+      <div class="cards-grid">
+        <div class="country-card" data-delay="0">
+          <div class="card-top">
+            <div class="flag-name">
+              <span class="flag">🇧🇩</span>
+              <span class="country-name">Bangladesh</span>
+            </div>
+            <span class="live-badge">Live</span>
+          </div>
+          <div class="platform-list">
+            <span class="platform-chip">BKash</span>
+          </div>
+        </div>
+        <div class="country-card" data-delay="1">
+          <div class="card-top">
+            <div class="flag-name">
+              <span class="flag">🇳🇵</span>
+              <span class="country-name">Nepal</span>
+            </div>
+            <span class="live-badge">Live</span>
+          </div>
+          <div class="platform-list">
+            <span class="platform-chip">eSewa</span>
+          </div>
+        </div>
+        <div class="country-card" data-delay="2">
+          <div class="card-top">
+            <div class="flag-name">
+              <span class="flag">🇵🇰</span>
+              <span class="country-name">Pakistan</span>
+            </div>
+            <span class="live-badge">Live</span>
+          </div>
+          <div class="platform-list">
+            <span class="platform-chip">Easy Paisa</span>
+            <span class="platform-chip">Jazz Cash</span>
+          </div>
+        </div>
+        <div class="country-card" data-delay="3">
+          <div class="card-top">
+            <div class="flag-name">
+              <span class="flag">🇱🇰</span>
+              <span class="country-name">Sri Lanka</span>
+            </div>
+            <span class="live-badge">Live</span>
+          </div>
+          <div class="platform-list">
+            <span class="platform-chip">Ez Cash</span>
+            <span class="platform-chip">mCash</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- East Africa -->
+    <div class="region-block" data-region="2">
+      <div class="region-header">
+        <span class="region-icon">🌍</span>
+        <span class="region-name">East Africa</span>
+        <span class="region-line"></span>
+        <span class="region-count">4 countries &middot; 5 platforms</span>
+      </div>
+      <div class="cards-grid">
+        <div class="country-card" data-delay="0">
+          <div class="card-top">
+            <div class="flag-name">
+              <span class="flag">🇪🇹</span>
+              <span class="country-name">Ethiopia</span>
+            </div>
+            <span class="live-badge">Live</span>
+          </div>
+          <div class="platform-list">
+            <span class="platform-chip">HelloCash</span>
+          </div>
+        </div>
+        <div class="country-card" data-delay="1">
+          <div class="card-top">
+            <div class="flag-name">
+              <span class="flag">🇰🇪</span>
+              <span class="country-name">Kenya</span>
+            </div>
+            <span class="live-badge">Live</span>
+          </div>
+          <div class="platform-list">
+            <span class="platform-chip">Equitel Money</span>
+          </div>
+        </div>
+        <div class="country-card" data-delay="2">
+          <div class="card-top">
+            <div class="flag-name">
+              <span class="flag">🇲🇼</span>
+              <span class="country-name">Malawi</span>
+            </div>
+            <span class="live-badge">Live</span>
+          </div>
+          <div class="platform-list">
+            <span class="platform-chip">Airtel Money</span>
+          </div>
+        </div>
+        <div class="country-card" data-delay="3">
+          <div class="card-top">
+            <div class="flag-name">
+              <span class="flag">🇺🇬</span>
+              <span class="country-name">Uganda</span>
+            </div>
+            <span class="live-badge">Live</span>
+          </div>
+          <div class="platform-list">
+            <span class="platform-chip">Airtel Money</span>
+            <span class="platform-chip">MTN Money</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- West Africa -->
+    <div class="region-block" data-region="3">
+      <div class="region-header">
+        <span class="region-icon">🌍</span>
+        <span class="region-name">West Africa</span>
+        <span class="region-line"></span>
+        <span class="region-count">1 country &middot; 1 platform</span>
+      </div>
+      <div class="cards-grid">
+        <div class="country-card" data-delay="0">
+          <div class="card-top">
+            <div class="flag-name">
+              <span class="flag">🇬🇭</span>
+              <span class="country-name">Ghana</span>
+            </div>
+            <span class="live-badge">Live</span>
+          </div>
+          <div class="platform-list">
+            <span class="platform-chip">MTN Money</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Pacific Islands -->
+    <div class="region-block" data-region="4">
+      <div class="region-header">
+        <span class="region-icon">🌊</span>
+        <span class="region-name">Pacific Islands</span>
+        <span class="region-line"></span>
+        <span class="region-count">3 countries &middot; 3 platforms</span>
+      </div>
+      <div class="cards-grid">
+        <div class="country-card" data-delay="0">
+          <div class="card-top">
+            <div class="flag-name">
+              <span class="flag">🇫🇯</span>
+              <span class="country-name">Fiji</span>
+            </div>
+            <span class="live-badge">Live</span>
+          </div>
+          <div class="platform-list">
+            <span class="platform-chip">Digicel</span>
+          </div>
+        </div>
+        <div class="country-card" data-delay="1">
+          <div class="card-top">
+            <div class="flag-name">
+              <span class="flag">🇹🇴</span>
+              <span class="country-name">Tonga</span>
+            </div>
+            <span class="live-badge">Live</span>
+          </div>
+          <div class="platform-list">
+            <span class="platform-chip">Digicel</span>
+          </div>
+        </div>
+        <div class="country-card" data-delay="2">
+          <div class="card-top">
+            <div class="flag-name">
+              <span class="flag">🇼🇸</span>
+              <span class="country-name">Samoa</span>
+            </div>
+            <span class="live-badge">Live</span>
+          </div>
+          <div class="platform-list">
+            <span class="platform-chip">Digicel</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Central America -->
+    <div class="region-block" data-region="5">
+      <div class="region-header">
+        <span class="region-icon">🌎</span>
+        <span class="region-name">Central America</span>
+        <span class="region-line"></span>
+        <span class="region-count">2 countries &middot; 2 platforms</span>
+      </div>
+      <div class="cards-grid">
+        <div class="country-card" data-delay="0">
+          <div class="card-top">
+            <div class="flag-name">
+              <span class="flag">🇸🇻</span>
+              <span class="country-name">El Salvador</span>
+            </div>
+            <span class="live-badge">Live</span>
+          </div>
+          <div class="platform-list">
+            <span class="platform-chip">Tigo Money</span>
+          </div>
+        </div>
+        <div class="country-card" data-delay="1">
+          <div class="card-top">
+            <div class="flag-name">
+              <span class="flag">🇬🇹</span>
+              <span class="country-name">Guatemala</span>
+            </div>
+            <span class="live-badge">Live</span>
+          </div>
+          <div class="platform-list">
+            <span class="platform-chip">Tigo Money</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div><!-- /section -->
+
+  <!-- ═══════════════════════════ FEE CHART ═══════════════════════════ -->
+  <div class="chart-section">
+    <div class="section-label">
+      <span class="section-label-text">Fee Comparison</span>
+      <span class="section-label-line"></span>
+    </div>
+    <div class="fee-chart">
+      <div class="chart-title">What Remittance Really Costs</div>
+      <div class="chart-subtitle">Typical fee as % of amount sent &mdash; lower is better</div>
+
+      <div class="chart-max-label">
+        <span class="chart-max-tick">0%</span>
+        <span class="chart-max-tick">2%</span>
+        <span class="chart-max-tick">4%</span>
+        <span class="chart-max-tick">6%</span>
+        <span class="chart-max-tick">8%</span>
+        <span class="chart-max-tick">10%</span>
+      </div>
+
+      <div class="bar-chart">
+        <!-- Western Union: 8% (mid of 3-8%) -->
+        <div class="bar-row" data-width="80" data-color="wu">
+          <div class="bar-label">
+            <div class="bar-label-name">Western Union</div>
+            <div class="bar-label-type">Traditional wire</div>
+          </div>
+          <div class="bar-track">
+            <div class="bar-fill wu" style="width:0%">
+              <span class="bar-value">~8%</span>
+            </div>
+          </div>
+          <div class="bar-note">Typical high end</div>
+        </div>
+
+        <!-- World Bank Avg: 6.3% -->
+        <div class="bar-row" data-width="63" data-color="wb">
+          <div class="bar-label">
+            <div class="bar-label-name">World Bank Avg</div>
+            <div class="bar-label-type">Global average fee</div>
+          </div>
+          <div class="bar-track">
+            <div class="bar-fill wb" style="width:0%">
+              <span class="bar-value">6.3%</span>
+            </div>
+          </div>
+          <div class="bar-note">Industry benchmark</div>
+        </div>
+
+        <!-- MoneyGram: 6% (mid of 4-6%) -->
+        <div class="bar-row" data-width="60" data-color="mg">
+          <div class="bar-label">
+            <div class="bar-label-name">MoneyGram</div>
+            <div class="bar-label-type">Traditional wire</div>
+          </div>
+          <div class="bar-track">
+            <div class="bar-fill mg" style="width:0%">
+              <span class="bar-value">~6%</span>
+            </div>
+          </div>
+          <div class="bar-note">Typical high end</div>
+        </div>
+
+        <!-- Telcoin: ≤2% -->
+        <div class="bar-row" data-width="20" data-color="tc">
+          <div class="bar-label">
+            <div class="bar-label-name">Telcoin</div>
+            <div class="bar-label-type">Mobile blockchain</div>
+          </div>
+          <div class="bar-track">
+            <div class="bar-fill tc" style="width:0%">
+              <span class="bar-value">&le;2%</span>
+            </div>
+          </div>
+          <div class="bar-note highlight">Up to 4&times; lower</div>
+        </div>
+      </div>
+
+      <div class="savings-callout">
+        <span class="savings-callout-icon">💡</span>
+        <div class="savings-callout-text">
+          On a <strong>$200 remittance</strong>, paying 8% costs <strong>$16 in fees</strong>. At Telcoin's target of &le;2%, that fee drops to <strong>$4 or less</strong> &mdash; saving <strong>$12+ per transfer</strong> that stays with the family.
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════ CTA ═══════════════════════════ -->
+  <div class="cta-section">
+    <div class="cta-block">
+      <div class="cta-eyebrow">Available Now &mdash; iOS &amp; Android</div>
+      <h2 class="cta-headline">Send Money Home.<br />Keep More of It.</h2>
+      <p class="cta-sub">
+        Telcoin Wallet connects directly to 23+ mobile money platforms across 16 countries. No branches. No hidden fees. Real corridors, real impact.
+      </p>
+      <a href="https://telco.in" class="cta-button" target="_blank" rel="noopener">
+        Send via Telcoin Wallet
+        <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+          <path d="M3 8H13M13 8L9 4M13 8L9 12" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </a>
+      <div class="cta-url">telco.in</div>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════ FOOTER ═══════════════════════════ -->
+  <div class="footer">
+    <div class="footer-source">
+      Source: <a href="https://telcoin.org" target="_blank" rel="noopener">telcoin.org</a> &nbsp;&middot;&nbsp;
+      <a href="https://remittanceprices.worldbank.org" target="_blank" rel="noopener">World Bank Remittance Prices Worldwide</a>
+      <br />Data current as of March 2026. Fee ranges are indicative and vary by corridor and transfer amount.
+    </div>
+    <div class="footer-brand">
+      TELCOIN
+      <svg width="18" height="18" viewBox="0 0 18 18" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+        <circle cx="9" cy="9" r="8" stroke="#00D4FF" stroke-width="1.5"/>
+        <circle cx="9" cy="9" r="3" fill="#00D4FF"/>
+      </svg>
+      telco.in
+    </div>
+  </div>
+
+</div><!-- /infographic-wrapper -->
+
+<script>
+  // ─── Intersection Observer: region blocks ───
+  const regionBlocks = document.querySelectorAll('.region-block');
+  const regionObserver = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        const block = entry.target;
+        const regionIndex = parseInt(block.dataset.region, 10);
+        setTimeout(() => {
+          block.classList.add('visible');
+          // Stagger cards within this region
+          const cards = block.querySelectorAll('.country-card');
+          cards.forEach((card, i) => {
+            const delay = parseInt(card.dataset.delay || 0, 10);
+            setTimeout(() => {
+              card.classList.add('card-visible');
+            }, delay * 90);
+          });
+        }, regionIndex * 80);
+        regionObserver.unobserve(block);
+      }
+    });
+  }, { threshold: 0.1, rootMargin: '0px 0px -60px 0px' });
+
+  regionBlocks.forEach(block => regionObserver.observe(block));
+
+  // ─── Bar chart animation ───
+  const barRows = document.querySelectorAll('.bar-row');
+  const chartObserver = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        barRows.forEach((row, i) => {
+          const targetWidth = row.dataset.width;
+          const fill = row.querySelector('.bar-fill');
+          setTimeout(() => {
+            row.classList.add('bar-visible');
+            setTimeout(() => {
+              fill.style.width = targetWidth + '%';
+            }, 100);
+          }, i * 150);
+        });
+        chartObserver.unobserve(entry.target);
+      }
+    });
+  }, { threshold: 0.3 });
+
+  const feeChart = document.querySelector('.fee-chart');
+  if (feeChart) chartObserver.observe(feeChart);
+</script>
+
+</body>
+</html>
