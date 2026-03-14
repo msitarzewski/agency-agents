@@ -44,7 +44,7 @@ Each agent file contains:
 
 Browse the agents below and copy/adapt the ones you need!
 
-### Option 3: Use with Other Tools (Cursor, Aider, Windsurf, Gemini CLI, OpenCode)
+### Option 3: Use with Other Tools (Cursor, Aider, Windsurf, Gemini CLI, OpenCode, Kimi Code)
 
 ```bash
 # Step 1 -- generate integration files for all supported tools
@@ -58,6 +58,7 @@ Browse the agents below and copy/adapt the ones you need!
 ./scripts/install.sh --tool copilot
 ./scripts/install.sh --tool aider
 ./scripts/install.sh --tool windsurf
+./scripts/install.sh --tool kimi
 ```
 
 See the [Multi-Tool Integrations](#-multi-tool-integrations) section below for full details.
@@ -496,6 +497,7 @@ The Agency works natively with Claude Code, and ships conversion + install scrip
 - **[Windsurf](https://codeium.com/windsurf)** — single `.windsurfrules` → `./.windsurfrules`
 - **[OpenClaw](https://github.com/openclaw/openclaw)** — `SOUL.md` + `AGENTS.md` + `IDENTITY.md` per agent
 - **[Qwen Code](https://github.com/QwenLM/qwen-code)** — `.md` SubAgent files → `~/.qwen/agents/`
+- **[Kimi Code](https://github.com/MoonshotAI/kimi-cli)** — YAML agent specs → `~/.config/kimi/agents/`
 
 ---
 
@@ -530,8 +532,9 @@ The installer scans your system for installed tools, shows a checkbox UI, and le
   [ ]  8)  [ ]  Aider           (CONVENTIONS.md)
   [ ]  9)  [ ]  Windsurf        (.windsurfrules)
   [ ] 10)  [ ]  Qwen Code       (~/.qwen/agents)
+  [ ] 11)  [ ]  Kimi Code       (~/.config/kimi/agents)
 
-  [1-10] toggle   [a] all   [n] none   [d] detected
+  [1-11] toggle   [a] all   [n] none   [d] detected
   [Enter] install   [q] quit
 ```
 
@@ -731,6 +734,32 @@ cd /your/project
 
 </details>
 
+<details>
+<summary><strong>Kimi Code</strong></summary>
+
+Agents are converted to Kimi Code CLI format (YAML + system prompt) and installed to `~/.config/kimi/agents/`.
+
+```bash
+# Convert and install
+./scripts/convert.sh --tool kimi
+./scripts/install.sh --tool kimi
+```
+
+**Usage with Kimi Code:**
+```bash
+# Use an agent
+kimi --agent-file ~/.config/kimi/agents/frontend-developer/agent.yaml
+
+# In a project
+kimi --agent-file ~/.config/kimi/agents/frontend-developer/agent.yaml \
+     --work-dir /your/project \
+     "Review this React component"
+```
+
+See [integrations/kimi/README.md](integrations/kimi/README.md) for details.
+
+</details>
+
 ---
 
 ### Regenerating After Changes
@@ -748,7 +777,7 @@ When you add new agents or edit existing ones, regenerate all integration files:
 
 - [ ] Interactive agent selector web tool
 - [x] Multi-agent workflow examples -- see [examples/](examples/)
-- [x] Multi-tool integration scripts (Claude Code, GitHub Copilot, Antigravity, Gemini CLI, OpenCode, OpenClaw, Cursor, Aider, Windsurf, Qwen Code)
+- [x] Multi-tool integration scripts (Claude Code, GitHub Copilot, Antigravity, Gemini CLI, OpenCode, OpenClaw, Cursor, Aider, Windsurf, Qwen Code, Kimi Code)
 - [ ] Video tutorials on agent design
 - [ ] Community agent marketplace
 - [ ] Agent "personality quiz" for project matching
