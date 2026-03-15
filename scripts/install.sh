@@ -7,7 +7,7 @@
 # is missing or stale.
 #
 # Usage:
-#   ./scripts/install.sh [--tool <name>] [--interactive] [--no-interactive] [--help]
+#   ./scripts/install.sh [--tool <name>] [--interactive] [--no-interactive] [--parallel] [--jobs N] [--help]
 #
 # Tools:
 #   claude-code  -- Copy agents to ~/.claude/agents/
@@ -26,6 +26,8 @@
 #   --tool <name>     Install only the specified tool
 #   --interactive     Show interactive selector (default when run in a terminal)
 #   --no-interactive  Skip interactive selector, install all detected tools
+#   --parallel        Run install for each selected tool in parallel (output order may vary)
+#   --jobs N          Max parallel jobs when using --parallel (default: nproc or 4)
 #   --help            Show this help
 #
 # Platform support:
@@ -53,6 +55,20 @@ warn()   { printf "${C_YELLOW}[!!]${C_RESET}  %s\n" "$*"; }
 err()    { printf "${C_RED}[ERR]${C_RESET} %s\n" "$*" >&2; }
 header() { printf "\n${C_BOLD}%s${C_RESET}\n" "$*"; }
 dim()    { printf "${C_DIM}%s${C_RESET}\n" "$*"; }
+
+# Progress bar: [=======>    ] 3/8 (tqdm-style)
+progress_bar() {
+  local current="$1" total="$2" width="${3:-20}" i filled empty
+  (( total > 0 )) || return
+  filled=$(( width * current / total ))
+  empty=$(( width - filled ))
+  printf "\r  ["
+  for (( i=0; i<filled; i++ )); do printf "="; done
+  if (( filled < width )); then printf ">"; (( empty-- )); fi
+  for (( i=0; i<empty; i++ )); do printf " "; done
+  printf "] %s/%s" "$current" "$total"
+  [[ -t 1 ]] || printf "\n"
+}
 
 # ---------------------------------------------------------------------------
 # Box drawing -- pure ASCII, fixed 52-char wide
@@ -91,8 +107,16 @@ ALL_TOOLS=(claude-code copilot antigravity gemini-cli opencode openclaw cursor a
 # Usage
 # ---------------------------------------------------------------------------
 usage() {
-  sed -n '3,28p' "$0" | sed 's/^# \{0,1\}//'
+  sed -n '3,32p' "$0" | sed 's/^# \{0,1\}//'
   exit 0
+}
+
+# Default parallel job count (nproc on Linux; sysctl on macOS when nproc missing)
+parallel_jobs_default() {
+  local n
+  n=$(nproc 2>/dev/null) && [[ -n "$n" ]] && echo "$n" && return
+  n=$(sysctl -n hw.ncpu 2>/dev/null) && [[ -n "$n" ]] && echo "$n" && return
+  echo 4
 }
 
 # ---------------------------------------------------------------------------
@@ -465,12 +489,17 @@ install_tool() {
 main() {
   local tool="all"
   local interactive_mode="auto"
+  local use_parallel=false
+  local parallel_jobs
+  parallel_jobs="$(parallel_jobs_default)"
 
   while [[ $# -gt 0 ]]; do
     case "$1" in
       --tool)            tool="${2:?'--tool requires a value'}"; shift 2; interactive_mode="no" ;;
       --interactive)     interactive_mode="yes"; shift ;;
       --no-interactive)  interactive_mode="no"; shift ;;
+      --parallel)        use_parallel=true; shift ;;
+      --jobs)            parallel_jobs="${2:?'--jobs requires a value'}"; shift 2 ;;
       --help|-h)         usage ;;
       *)                 err "Unknown option: $1"; usage ;;
     esac
@@ -527,17 +556,48 @@ main() {
     exit 0
   fi
 
+  # When parent runs install.sh --parallel, it spawns workers with AGENCY_INSTALL_WORKER=1
+  # so each worker only runs install_tool(s) and skips header/done box (avoids duplicate output).
+  if [[ -n "${AGENCY_INSTALL_WORKER:-}" ]]; then
+    local t
+    for t in "${SELECTED_TOOLS[@]}"; do
+      install_tool "$t"
+    done
+    return 0
+  fi
+
   printf "\n"
   header "The Agency -- Installing agents"
   printf "  Repo:       %s\n" "$REPO_ROOT"
+  local n_selected=${#SELECTED_TOOLS[@]}
   printf "  Installing: %s\n" "${SELECTED_TOOLS[*]}"
+  if $use_parallel; then
+    ok "Installing $n_selected tools in parallel (output buffered per tool)."
+  fi
   printf "\n"
 
-  local installed=0 t
-  for t in "${SELECTED_TOOLS[@]}"; do
-    install_tool "$t"
-    (( installed++ )) || true
-  done
+  local installed=0 t i=0
+  if $use_parallel; then
+    local install_out_dir
+    install_out_dir="$(mktemp -d)"
+    export AGENCY_INSTALL_OUT_DIR="$install_out_dir"
+    export AGENCY_INSTALL_SCRIPT="$SCRIPT_DIR/install.sh"
+    printf '%s\n' "${SELECTED_TOOLS[@]}" | xargs -P "$parallel_jobs" -I {} sh -c 'AGENCY_INSTALL_WORKER=1 "$AGENCY_INSTALL_SCRIPT" --tool "{}" --no-interactive > "$AGENCY_INSTALL_OUT_DIR/{}" 2>&1'
+    for t in "${SELECTED_TOOLS[@]}"; do
+      [[ -f "$install_out_dir/$t" ]] && cat "$install_out_dir/$t"
+    done
+    rm -rf "$install_out_dir"
+    installed=$n_selected
+  else
+    for t in "${SELECTED_TOOLS[@]}"; do
+      (( i++ )) || true
+      progress_bar "$i" "$n_selected"
+      printf "\n"
+      printf "  ${C_DIM}[%s/%s]${C_RESET} %s\n" "$i" "$n_selected" "$t"
+      install_tool "$t"
+      (( installed++ )) || true
+    done
+  fi
 
   # Done box
   local msg="  Done!  Installed $installed tool(s)."
