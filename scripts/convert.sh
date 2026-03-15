@@ -313,6 +313,35 @@ HEREDOC
   fi
 }
 
+convert_cowork() {
+  local file="$1"
+  local division="$2"
+  local name description slug plugin_dir skill_dir body
+
+  name="$(get_field "name" "$file")"
+  description="$(get_field "description" "$file")"
+  slug="$(slugify "$name")"
+  body="$(get_body "$file")"
+
+  # Each division maps to one plugin folder: agency-<division>
+  plugin_dir="$OUT_DIR/claude-cowork/agency-${division}"
+  local agent_dir="$plugin_dir/agents"
+  mkdir -p "$agent_dir"
+
+  # Agent format: .md with YAML frontmatter in agents/ dir (same as ~/.claude/agents/)
+  cat > "$agent_dir/${slug}.md" <<HEREDOC
+---
+name: ${name}
+description: ${description}
+---
+${body}
+HEREDOC
+
+  # Track this agent slug for the plugin.json manifest
+  echo "${slug}" >> "$plugin_dir/.agent-list"
+}
+
+# Generate plugin.json manifests after all agents are processed
 convert_qwen() {
   local file="$1"
   local name description tools slug outfile body
@@ -346,6 +375,69 @@ description: ${description}
 ${body}
 HEREDOC
   fi
+}
+
+finalize_cowork() {
+  local plugin_dir
+  while IFS= read -r -d '' plugin_dir; do
+    local plugin_name
+    plugin_name="$(basename "$plugin_dir")"
+
+    # Build JSON array of skill slugs from tracked list
+    local skills_json=""
+    if [[ -f "$plugin_dir/.agent-list" ]]; then
+      while IFS= read -r skill_slug; do
+        [[ -n "$skill_slug" ]] || continue
+        skills_json="${skills_json}\"${skill_slug}\","
+      done < "$plugin_dir/.agent-list"
+      skills_json="[${skills_json%,}]"
+      rm -f "$plugin_dir/.agent-list"
+    else
+      skills_json="[]"
+    fi
+
+    # Human-readable plugin name for the description
+    local human_name
+    human_name="$(echo "$plugin_name" | sed 's/agency-//' | tr '-' ' ' | awk '{for(i=1;i<=NF;i++) $i=toupper(substr($i,1,1)) substr($i,2); print}')"
+
+    mkdir -p "$plugin_dir/.claude-plugin"
+    cat > "$plugin_dir/.claude-plugin/plugin.json" <<HEREDOC
+{
+  "name": "${plugin_name}",
+  "version": "1.0.0",
+  "description": "The Agency — ${human_name} specialists. Activate any skill by name to engage that agent.",
+  "agents": ${skills_json}
+}
+HEREDOC
+info "Wrote ${plugin_name}/plugin.json"
+  done < <(find "$OUT_DIR/claude-cowork" -mindepth 1 -maxdepth 1 -type d -print0 2>/dev/null | sort -z)
+
+  # Generate root marketplace.json
+  mkdir -p "$REPO_ROOT/.claude-plugin"
+  local marketplace_json="{
+  \"name\": \"agency-agents\",
+  \"description\": \"The Agency — Specialized AI agents.\",
+  \"plugins\": {
+"
+  local first=true
+  while IFS= read -r -d '' plugin_dir; do
+    local plugin_name
+    plugin_name="$(basename "$plugin_dir")"
+    if [ "$first" = true ]; then
+      first=false
+    else
+      marketplace_json+=",
+"
+    fi
+    marketplace_json+="    \"${plugin_name}\": \"integrations/claude-cowork/${plugin_name}\""
+  done < <(find "$OUT_DIR/claude-cowork" -mindepth 1 -maxdepth 1 -type d -print0 2>/dev/null | sort -z)
+  marketplace_json+="
+  }
+}
+"
+  
+  echo -e "$marketplace_json" > "$REPO_ROOT/.claude-plugin/marketplace.json"
+  info "Wrote .claude-plugin/marketplace.json"
 }
 
 # Aider and Windsurf are single-file formats — accumulate into temp files
@@ -447,6 +539,7 @@ run_conversions() {
         qwen)        convert_qwen        "$file" ;;
         aider)       accumulate_aider    "$file" ;;
         windsurf)    accumulate_windsurf "$file" ;;
+        claude-cowork) convert_cowork "$file" "$dir" ;;
       esac
 
       (( count++ )) || true
@@ -470,7 +563,7 @@ main() {
     esac
   done
 
-  local valid_tools=("antigravity" "gemini-cli" "opencode" "cursor" "aider" "windsurf" "openclaw" "qwen" "all")
+  local valid_tools=("antigravity" "gemini-cli" "opencode" "cursor" "aider" "windsurf" "openclaw" "claude-cowork" "qwen" "all")
   local valid=false
   for t in "${valid_tools[@]}"; do [[ "$t" == "$tool" ]] && valid=true && break; done
   if ! $valid; then
@@ -486,7 +579,7 @@ main() {
 
   local tools_to_run=()
   if [[ "$tool" == "all" ]]; then
-    tools_to_run=("antigravity" "gemini-cli" "opencode" "cursor" "aider" "windsurf" "openclaw" "qwen")
+    tools_to_run=("antigravity" "gemini-cli" "opencode" "cursor" "aider" "windsurf" "openclaw" "claude-cowork" "qwen")
   else
     tools_to_run=("$tool")
   fi
@@ -523,6 +616,11 @@ HEREDOC
     mkdir -p "$OUT_DIR/windsurf"
     cp "$WINDSURF_TMP" "$OUT_DIR/windsurf/.windsurfrules"
     info "Wrote integrations/windsurf/.windsurfrules"
+  fi
+
+  # Generate claude-cowork plugin.json manifests after all skills are accumulated
+  if [[ "$tool" == "all" || "$tool" == "claude-cowork" ]]; then
+    finalize_cowork
   fi
 
   echo ""

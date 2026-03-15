@@ -76,3 +76,6 @@ integrations/windsurf/.windsurfrules
 integrations/openclaw/*
 integrations/qwen/agents/
 !integrations/openclaw/README.md
+integrations/claude-cowork/
+!integrations/claude-cowork/README.md
+

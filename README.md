@@ -44,7 +44,7 @@ Each agent file contains:
 
 Browse the agents below and copy/adapt the ones you need!
 
-### Option 3: Use with Other Tools (Cursor, Aider, Windsurf, Gemini CLI, OpenCode)
+### Option 3: Use with Other Tools (Cursor, Aider, Windsurf, Gemini CLI, OpenCode, Claude Cowork)
 
 ```bash
 # Step 1 -- generate integration files for all supported tools
@@ -58,6 +58,7 @@ Browse the agents below and copy/adapt the ones you need!
 ./scripts/install.sh --tool copilot
 ./scripts/install.sh --tool aider
 ./scripts/install.sh --tool windsurf
+./scripts/install.sh --tool claude-cowork
 ```
 
 See the [Multi-Tool Integrations](#-multi-tool-integrations) section below for full details.
@@ -497,6 +498,7 @@ The Agency works natively with Claude Code, and ships conversion + install scrip
 - **[Cursor](https://cursor.sh)** — `.mdc` rule files → `.cursor/rules/`
 - **[Aider](https://aider.chat)** — single `CONVENTIONS.md` → `./CONVENTIONS.md`
 - **[Windsurf](https://codeium.com/windsurf)** — single `.windsurfrules` → `./.windsurfrules`
+- **[Claude Cowork](https://claude.ai)** — plugin folders (one per division) → `~/Library/Application Support/Claude/cowork-plugins/`
 - **[OpenClaw](https://github.com/openclaw/openclaw)** — `SOUL.md` + `AGENTS.md` + `IDENTITY.md` per agent
 - **[Qwen Code](https://github.com/QwenLM/qwen-code)** — `.md` SubAgent files → `~/.qwen/agents/`
 

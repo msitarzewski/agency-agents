@@ -85,7 +85,7 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 REPO_ROOT="$(cd "$SCRIPT_DIR/.." && pwd)"
 INTEGRATIONS="$REPO_ROOT/integrations"
 
-ALL_TOOLS=(claude-code copilot antigravity gemini-cli opencode openclaw cursor aider windsurf qwen)
+ALL_TOOLS=(claude-code copilot antigravity gemini-cli opencode openclaw cursor aider windsurf qwen claude-cowork)
 
 # ---------------------------------------------------------------------------
 # Usage
@@ -115,6 +115,10 @@ detect_gemini_cli()   { command -v gemini >/dev/null 2>&1 || [[ -d "${HOME}/.gem
 detect_cursor()       { command -v cursor >/dev/null 2>&1 || [[ -d "${HOME}/.cursor" ]]; }
 detect_opencode()     { command -v opencode >/dev/null 2>&1 || [[ -d "${HOME}/.config/opencode" ]]; }
 detect_aider()        { command -v aider >/dev/null 2>&1; }
+detect_claude_cowork() {
+  # macOS: ~/Library/Application Support/Claude  |  Linux: ~/.config/claude
+  [[ -d "${HOME}/Library/Application Support/Claude" ]] ||   [[ -d "${HOME}/.config/claude" ]] ||   [[ -n "${CLAUDE_COWORK_PLUGINS_DIR:-}" ]]
+}
 detect_openclaw()     { command -v openclaw >/dev/null 2>&1 || [[ -d "${HOME}/.openclaw" ]]; }
 detect_windsurf()     { command -v windsurf >/dev/null 2>&1 || [[ -d "${HOME}/.codeium" ]]; }
 detect_qwen()         { command -v qwen >/dev/null 2>&1 || [[ -d "${HOME}/.qwen" ]]; }
@@ -148,6 +152,7 @@ tool_label() {
     aider)       printf "%-14s  %s" "Aider"        "(CONVENTIONS.md)"        ;;
     windsurf)    printf "%-14s  %s" "Windsurf"     "(.windsurfrules)"        ;;
     qwen)        printf "%-14s  %s" "Qwen Code"    "(~/.qwen/agents)"        ;;
+    claude-cowork) printf "%-14s  %s" "Claude Cowork" "(cowork-plugins)"      ;;
   esac
 }
 
@@ -424,6 +429,36 @@ install_windsurf() {
   warn "Windsurf: project-scoped. Run from your project root to install there."
 }
 
+install_claude_cowork() {
+  local src="$INTEGRATIONS/claude-cowork"
+  local count=0
+
+  # Resolve destination: env var > macOS app support > Linux config
+  local dest
+  if [[ -n "${CLAUDE_COWORK_PLUGINS_DIR:-}" ]]; then
+    dest="$CLAUDE_COWORK_PLUGINS_DIR"
+  elif [[ -d "${HOME}/Library/Application Support/Claude" ]]; then
+    dest="${HOME}/Library/Application Support/Claude/cowork-plugins"
+  else
+    dest="${HOME}/.config/claude/cowork-plugins"
+  fi
+
+  [[ -d "$src" ]] || { err "integrations/claude-cowork missing. Run ./scripts/convert.sh first."; return 1; }
+
+  mkdir -p "$dest"
+
+  local plugin_dir plugin_name
+  while IFS= read -r -d '' plugin_dir; do
+    plugin_name="$(basename "$plugin_dir")"
+    rm -rf "${dest:?}/$plugin_name"
+    cp -r "$plugin_dir" "$dest/$plugin_name"
+    (( count++ )) || true
+  done < <(find "$src" -mindepth 1 -maxdepth 1 -type d -print0 | sort -z)
+
+  ok "Claude Cowork: $count plugins -> $dest"
+  warn "Claude Cowork: restart Claude to load newly installed plugins."
+}
+
 install_qwen() {
   local src="$INTEGRATIONS/qwen/agents"
   local dest="${PWD}/.qwen/agents"
@@ -444,6 +479,7 @@ install_qwen() {
   warn "Tip: Run '/agents manage' in Qwen Code to refresh, or restart session"
 }
 
+
 install_tool() {
   case "$1" in
     claude-code) install_claude_code ;;
@@ -456,6 +492,7 @@ install_tool() {
     aider)       install_aider       ;;
     windsurf)    install_windsurf    ;;
     qwen)        install_qwen        ;;
+    claude-cowork) install_claude_cowork ;;
   esac
 }
 
