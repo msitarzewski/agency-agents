@@ -7,7 +7,7 @@
 # is missing or stale.
 #
 # Usage:
-#   ./scripts/install.sh [--tool <name>] [--interactive] [--no-interactive] [--help]
+#   ./scripts/install.sh [--tool <name>] [--path <dir>] [--interactive] [--no-interactive] [--help]
 #
 # Tools:
 #   claude-code  -- Copy agents to ~/.claude/agents/
@@ -24,9 +24,20 @@
 #
 # Flags:
 #   --tool <name>     Install only the specified tool
+#   --path <dir>      Override the default install directory for the selected tool
 #   --interactive     Show interactive selector (default when run in a terminal)
 #   --no-interactive  Skip interactive selector, install all detected tools
 #   --help            Show this help
+#
+# Environment variables (override default paths per tool):
+#   CLAUDE_CONFIG_DIR    -- Claude Code config dir   (default: ~/.claude)
+#   COPILOT_AGENT_DIR    -- Copilot agent dir        (default: ~/.github/agents)
+#   ANTIGRAVITY_DIR      -- Antigravity skills dir   (default: ~/.gemini/antigravity/skills)
+#   GEMINI_CLI_DIR       -- Gemini CLI extension dir (default: ~/.gemini/extensions/agency-agents)
+#   OPENCODE_AGENT_DIR   -- OpenCode agent dir       (default: .opencode/agents)
+#   OPENCLAW_DIR         -- OpenClaw workspace dir   (default: ~/.openclaw/agency-agents)
+#   CURSOR_RULES_DIR     -- Cursor rules dir         (default: .cursor/rules)
+#   QWEN_AGENT_DIR       -- Qwen agent dir           (default: .qwen/agents)
 #
 # Platform support:
 #   Linux, macOS (requires bash 3.2+), Windows Git Bash / WSL
@@ -87,11 +98,14 @@ INTEGRATIONS="$REPO_ROOT/integrations"
 
 ALL_TOOLS=(claude-code copilot antigravity gemini-cli opencode openclaw cursor aider windsurf qwen)
 
+# Custom path override (set via --path flag)
+CUSTOM_PATH=""
+
 # ---------------------------------------------------------------------------
 # Usage
 # ---------------------------------------------------------------------------
 usage() {
-  sed -n '3,28p' "$0" | sed 's/^# \{0,1\}//'
+  sed -n '3,41p' "$0" | sed 's/^# \{0,1\}//'
   exit 0
 }
 
@@ -266,12 +280,39 @@ interactive_select() {
 }
 
 # ---------------------------------------------------------------------------
+# Path resolution: --path flag > env var > default
+# ---------------------------------------------------------------------------
+resolve_path() {
+  local env_val="$1"
+  local default_val="$2"
+  if [[ -n "$CUSTOM_PATH" ]]; then
+    echo "$CUSTOM_PATH"
+  elif [[ -n "$env_val" ]]; then
+    echo "$env_val"
+  else
+    echo "$default_val"
+  fi
+}
+
+# Warn if a resolved destination does not yet exist (non-fatal)
+warn_if_missing() {
+  local dir="$1"
+  local parent
+  parent="$(dirname "$dir")"
+  if [[ ! -d "$parent" ]]; then
+    warn "Parent directory '$parent' does not exist -- will be created."
+  fi
+}
+
+# ---------------------------------------------------------------------------
 # Installers
 # ---------------------------------------------------------------------------
 
 install_claude_code() {
-  local dest="${HOME}/.claude/agents"
+  local dest
+  dest="$(resolve_path "${CLAUDE_CONFIG_DIR:+${CLAUDE_CONFIG_DIR}/agents}" "${HOME}/.claude/agents")"
   local count=0
+  warn_if_missing "$dest"
   mkdir -p "$dest"
   local dir f first_line
   for dir in design engineering game-development marketing paid-media sales product project-management \
@@ -288,10 +329,18 @@ install_claude_code() {
 }
 
 install_copilot() {
-  local dest_github="${HOME}/.github/agents"
-  local dest_copilot="${HOME}/.copilot/agents"
+  local dest_github dest_copilot
+  if [[ -n "$CUSTOM_PATH" ]]; then
+    dest_github="$CUSTOM_PATH"
+    dest_copilot=""
+  else
+    dest_github="${COPILOT_AGENT_DIR:-${HOME}/.github/agents}"
+    dest_copilot="${HOME}/.copilot/agents"
+  fi
   local count=0
-  mkdir -p "$dest_github" "$dest_copilot"
+  warn_if_missing "$dest_github"
+  mkdir -p "$dest_github"
+  [[ -n "$dest_copilot" ]] && mkdir -p "$dest_copilot"
   local dir f first_line
   for dir in design engineering game-development marketing paid-media sales product project-management \
               testing support spatial-computing specialized; do
@@ -300,19 +349,23 @@ install_copilot() {
       first_line="$(head -1 "$f")"
       [[ "$first_line" == "---" ]] || continue
       cp "$f" "$dest_github/"
-      cp "$f" "$dest_copilot/"
+      [[ -n "$dest_copilot" ]] && cp "$f" "$dest_copilot/"
       (( count++ )) || true
     done < <(find "$REPO_ROOT/$dir" -name "*.md" -type f -print0)
   done
   ok "Copilot: $count agents -> $dest_github"
-  ok "Copilot: $count agents -> $dest_copilot"
+  [[ -n "$dest_copilot" ]] && ok "Copilot: $count agents -> $dest_copilot"
+  warn "Copilot: Ensure your VS Code 'chat.agentFilesLocations' setting includes '$dest_github'."
+  dim "  See: https://code.visualstudio.com/docs/copilot/customization/custom-agents#_custom-agent-file-locations"
 }
 
 install_antigravity() {
   local src="$INTEGRATIONS/antigravity"
-  local dest="${HOME}/.gemini/antigravity/skills"
+  local dest
+  dest="$(resolve_path "${ANTIGRAVITY_DIR:-}" "${HOME}/.gemini/antigravity/skills")"
   local count=0
   [[ -d "$src" ]] || { err "integrations/antigravity missing. Run convert.sh first."; return 1; }
+  warn_if_missing "$dest"
   mkdir -p "$dest"
   local d
   while IFS= read -r -d '' d; do
@@ -326,13 +379,15 @@ install_antigravity() {
 
 install_gemini_cli() {
   local src="$INTEGRATIONS/gemini-cli"
-  local dest="${HOME}/.gemini/extensions/agency-agents"
+  local dest
+  dest="$(resolve_path "${GEMINI_CLI_DIR:-}" "${HOME}/.gemini/extensions/agency-agents")"
   local count=0
   local manifest="$src/gemini-extension.json"
   local skills_dir="$src/skills"
   [[ -d "$src" ]] || { err "integrations/gemini-cli missing. Run ./scripts/convert.sh --tool gemini-cli first."; return 1; }
   [[ -f "$manifest" ]] || { err "integrations/gemini-cli/gemini-extension.json missing. Run ./scripts/convert.sh --tool gemini-cli first."; return 1; }
   [[ -d "$skills_dir" ]] || { err "integrations/gemini-cli/skills missing. Run ./scripts/convert.sh --tool gemini-cli first."; return 1; }
+  warn_if_missing "$dest"
   mkdir -p "$dest/skills"
   cp "$manifest" "$dest/gemini-extension.json"
   local d
@@ -347,9 +402,11 @@ install_gemini_cli() {
 
 install_opencode() {
   local src="$INTEGRATIONS/opencode/agents"
-  local dest="${PWD}/.opencode/agents"
+  local dest
+  dest="$(resolve_path "${OPENCODE_AGENT_DIR:-}" "${PWD}/.opencode/agents")"
   local count=0
   [[ -d "$src" ]] || { err "integrations/opencode missing. Run convert.sh first."; return 1; }
+  warn_if_missing "$dest"
   mkdir -p "$dest"
   local f
   while IFS= read -r -d '' f; do
@@ -361,9 +418,11 @@ install_opencode() {
 
 install_openclaw() {
   local src="$INTEGRATIONS/openclaw"
-  local dest="${HOME}/.openclaw/agency-agents"
+  local dest
+  dest="$(resolve_path "${OPENCLAW_DIR:-}" "${HOME}/.openclaw/agency-agents")"
   local count=0
   [[ -d "$src" ]] || { err "integrations/openclaw missing. Run convert.sh first."; return 1; }
+  warn_if_missing "$dest"
   mkdir -p "$dest"
   local d
   while IFS= read -r -d '' d; do
@@ -386,9 +445,11 @@ install_openclaw() {
 
 install_cursor() {
   local src="$INTEGRATIONS/cursor/rules"
-  local dest="${PWD}/.cursor/rules"
+  local dest
+  dest="$(resolve_path "${CURSOR_RULES_DIR:-}" "${PWD}/.cursor/rules")"
   local count=0
   [[ -d "$src" ]] || { err "integrations/cursor missing. Run convert.sh first."; return 1; }
+  warn_if_missing "$dest"
   mkdir -p "$dest"
   local f
   while IFS= read -r -d '' f; do
@@ -400,7 +461,9 @@ install_cursor() {
 
 install_aider() {
   local src="$INTEGRATIONS/aider/CONVENTIONS.md"
-  local dest="${PWD}/CONVENTIONS.md"
+  local dest_dir
+  dest_dir="$(resolve_path "" "${PWD}")"
+  local dest="${dest_dir}/CONVENTIONS.md"
   [[ -f "$src" ]] || { err "integrations/aider/CONVENTIONS.md missing. Run convert.sh first."; return 1; }
   if [[ -f "$dest" ]]; then
     warn "Aider: CONVENTIONS.md already exists at $dest (remove to reinstall)."
@@ -413,7 +476,9 @@ install_aider() {
 
 install_windsurf() {
   local src="$INTEGRATIONS/windsurf/.windsurfrules"
-  local dest="${PWD}/.windsurfrules"
+  local dest_dir
+  dest_dir="$(resolve_path "" "${PWD}")"
+  local dest="${dest_dir}/.windsurfrules"
   [[ -f "$src" ]] || { err "integrations/windsurf/.windsurfrules missing. Run convert.sh first."; return 1; }
   if [[ -f "$dest" ]]; then
     warn "Windsurf: .windsurfrules already exists at $dest (remove to reinstall)."
@@ -426,11 +491,13 @@ install_windsurf() {
 
 install_qwen() {
   local src="$INTEGRATIONS/qwen/agents"
-  local dest="${PWD}/.qwen/agents"
+  local dest
+  dest="$(resolve_path "${QWEN_AGENT_DIR:-}" "${PWD}/.qwen/agents")"
   local count=0
 
   [[ -d "$src" ]] || { err "integrations/qwen missing. Run convert.sh first."; return 1; }
 
+  warn_if_missing "$dest"
   mkdir -p "$dest"
 
   local f
@@ -469,6 +536,7 @@ main() {
   while [[ $# -gt 0 ]]; do
     case "$1" in
       --tool)            tool="${2:?'--tool requires a value'}"; shift 2; interactive_mode="no" ;;
+      --path)            CUSTOM_PATH="${2:?'--path requires a directory'}"; shift 2 ;;
       --interactive)     interactive_mode="yes"; shift ;;
       --no-interactive)  interactive_mode="no"; shift ;;
       --help|-h)         usage ;;
@@ -486,6 +554,12 @@ main() {
       err "Unknown tool '$tool'. Valid: ${ALL_TOOLS[*]}"
       exit 1
     fi
+  fi
+
+  # --path requires --tool (doesn't make sense with 'all')
+  if [[ -n "$CUSTOM_PATH" && "$tool" == "all" ]]; then
+    err "--path requires --tool <name> (cannot override path for all tools at once)"
+    exit 1
   fi
 
   # Decide whether to show interactive UI
