@@ -179,6 +179,49 @@ Source: TAN Council recap (March 12, 2026)
 - Developer pitch decks in development for outreach: highlighting Telcoin Network's MNO-validated infrastructure, defined earning mechanisms, and regulatory positioning
 - EVM compatibility pitch: build on Base now → redeploy to Telcoin Network at mainnet with minimal friction
 
+### TAN Application Layer — Trading Fee Rebate Program (Passed ~Mar 12, 2026)
+Source: forum.telcoin.org/t/tanip-trading-fee-rebate-program/824 — submitted Dec 8, 2025 by TAN Council; snapshot vote passed ~Mar 12, 2026
+
+**What it is**: A replacement of the original TANIP-1 issuance-based reward model with a capped rebate model. Preserves all TANIP-1 infrastructure and mechanics; the ONLY change is a rebate cap.
+
+**Why the change — TANIP-1 findings**:
+- Weekly distributions of 3.2M TEL worked reliably; computation framework performed as intended
+- But: fee activity during TANIP-1 converged around the issuance amount (fee cycling / "mercenary capital")
+- Fees dropped immediately when the program paused → organic demand was not the driver
+- Weekly active wallet counts remained flat; new wallets churned rather than accumulated
+- Referral flows often became circular (self-referential)
+
+**Rebate Formula**:
+- R = calculated issuance from own + referee fees (same as original TANIP-1 formula)
+- F = total TEL fees paid by the wallet during the period
+- **Final rebate = min(R, F)**
+- Result: a wallet cannot earn more TEL than it actually paid in fees → removes the core mercenary incentive
+
+**What stays the same**:
+- Stake requirement via StakingModule
+- Referral tree logic
+- On-chain fee verification (aggregator-to-AmirX transfers)
+- Deterministic off-chain calculation
+- Weekly batched uploads to TANIssuanceHistory
+- Network-agnostic design (future developers can adopt)
+- Eligibility rules
+
+**Funding & governance**:
+- Funded by existing TAN Council Safe (164–165M TEL carryforward from Y1+Y2)
+- Distributed weekly through a **newly deployed** TANIssuanceHistory contract
+- TANIssuanceHistory redeployment = **Lifetime TEL issuance resets to zero** for all wallets (unavoidable; flagged in proposal)
+- No new app integrations required for stakers
+
+**Implementation path**:
+- TAN Council engages TAO to update the off-chain rewards calculation script
+- Redeploy TANIssuanceHistory contract
+- Activate rebate program; maintain weekly uploads
+- Track participation under new model; evaluate return to full issuance model as network matures
+
+**What this is NOT**:
+- Not a developer incentive program (that is a future TANIP)
+- Does not change referral logic, staking logic, reward computation methods, or eligibility rules
+
 ### Open Source Contributions
 - **TanguyDeTaxis (Tan Guide)**: Streamlined execution environment, supporting multiple execution environments (avoids writing empty data when no transactions exist, improves performance), future-proofing protocol components
 
@@ -220,7 +263,7 @@ Source: TAN Council recap (March 12, 2026)
 - **Pools**: Balancer V2 (6 active markets), Uniswap V4 (migrated Nov 5, 2025)
 - **Yield**: Liquidity miners earn exchange fees + TEL rewards + governance rights
 - **Analytics**: telx.network/pools
-- **Staking**: Weekly rewards every Wednesday 00:00 UTC; 3.2 billion TEL distributed weekly based on activity
+- **Staking**: Weekly rewards every Wednesday 00:00 UTC; 3.2 million TEL distributed weekly based on activity
 - **TAN Council Safe**: 194.44 million TEL held
 - **eXYZ stablecoin pools**: USDC/eUSD pools live on Base (Uniswap) and Solana (Raydium)
 
@@ -316,8 +359,8 @@ Source: TELx Council recap (week of Mar 10, 2026)
 ### Staking
 - Deposit TEL via TAN staking contracts in Telcoin Wallet
 - Weekly reward distribution: every Wednesday 00:00 UTC
-- Weekly pool: 3.2 billion TEL distributed to all stakers based on activity
-- Reward types: Referral fees (real-time) + TEL issuance (adoption-based)
+- Weekly pool: **3.2 million TEL** distributed to all stakers based on activity (confirmed — TANIP findings report)
+- Reward types: Under active Trading Fee Rebate Program: capped rebate = min(calculated issuance, actual TEL fees paid)
 
 ---
 
@@ -406,7 +449,7 @@ Source: TAN Council recap (week of Mar 10, 2026)
 | Mar 2-5, 2026 | Mobile World Congress Barcelona — full team attended; private MNO partner meetings; no public mainnet reveal (intentional); focus on demonstrating new MNO revenue streams |
 | Mar 10, 2026 | Merkl trial snapshot vote closes — unanimous 6/6 approval |
 | Mar 12, 2026 | Platform & Treasury Council #26 — BLS fully resolved; external audits being scheduled; TIP 11 + unified web arch TIP presented; team expansion announced; Miner Council elections live |
-| Mar 12, 2026 | TAN Council — TANIP-1 passed snapshot vote (implementation target late March); 164-165M TEL carryforward confirmed; builder demos: .tel name service, lottery game, charity NFT |
+| Mar 12, 2026 | TAN Council — **Trading Fee Rebate Program** (TANIP successor) passed snapshot vote (implementation target late March); 164-165M TEL carryforward confirmed; builder demos: .tel name service, lottery game, charity NFT |
 | Mar 18, 2026 | TELx Council meeting (3PM EST, note: DST may affect calendar display) |
 | ~April 2026 | Merkl trial goes live on Base V4 TEL/ETH pool |
 | ~Late March 2026 | TANIP-1 deployment (target, flexible) |
@@ -439,7 +482,7 @@ TelcoinWiki is an unofficial community guide designed to demystify Telcoin for e
 - TEL Treasury issues at a rate of approximately **10% annually** of its inventory, redistributed via programmable flows across the platform.
 - A portion of all TEL gas fees paid each block are **destroyed and regenerated equally to the TEL Treasury** — tying Telcoin Network blockspace demand to the sustained yield of TEL for future generations of miners. (This is the gas fee burn/regeneration loop.)
 - Miner rewards are approximately **200M TEL per year** distributed to miners across all groups.
-- Weekly staker pool: approximately **3.2 million TEL per week** (wiki states this; research file had 3.2 billion — note discrepancy; verify against official source).
+- Weekly staker pool: **3.2 million TEL per week** — confirmed correct via TANIP findings report (forum, Dec 8, 2025). Earlier research file entry of "3.2 billion" was a unit error; corrected.
 
 ### TEL Staker Mechanics (TANIP-1 details)
 - Stakers earn up to **42% of referred users' trading fees**.
@@ -509,5 +552,5 @@ Categories include: official documentation, liquidity tools, regulatory filings,
 - [ ] Any new corridor/partnership announcements since Jan 2026
 - [ ] Personal/business bank account launch status
 - [x] Bridge partner — **LayerZero** confirmed (initial scoping doc delivered; Axelar no longer active)
-- [ ] Verify weekly TEL staker distribution: 3.2 million TEL/week (wiki) vs. 3.2 billion (research file) — one is likely a unit error; check official docs
+- [x] Verify weekly TEL staker distribution: **3.2 million TEL/week** — confirmed via TANIP findings report (forum.telcoin.org, Dec 8, 2025). Research file previously had "3.2 billion" — corrected.
 - [ ] Confirm current active remittance corridor count: research file shows 16 countries/23+ platforms; wiki/community sources cite 20+ countries/40+ e-wallets — may reflect different product versions or time periods; verify against current telco.in
