@@ -15,7 +15,7 @@
 #   antigravity  -- Copy skills to ~/.gemini/antigravity/skills/
 #   gemini-cli   -- Install extension to ~/.gemini/extensions/agency-agents/
 #   opencode     -- Copy agents to .opencode/agent/ in current directory
-#   cursor       -- Copy rules to .cursor/rules/ in current directory
+#   cursor       -- Copy skills to .agents/skills/ in current directory
 #   aider        -- Copy CONVENTIONS.md to current directory
 #   windsurf     -- Copy .windsurfrules to current directory
 #   openclaw     -- Copy workspaces to ~/.openclaw/agency-agents/
@@ -112,7 +112,7 @@ detect_claude_code() { [[ -d "${HOME}/.claude" ]]; }
 detect_copilot()      { command -v code >/dev/null 2>&1 || [[ -d "${HOME}/.github" || -d "${HOME}/.copilot" ]]; }
 detect_antigravity()  { [[ -d "${HOME}/.gemini/antigravity/skills" ]]; }
 detect_gemini_cli()   { command -v gemini >/dev/null 2>&1 || [[ -d "${HOME}/.gemini" ]]; }
-detect_cursor()       { command -v cursor >/dev/null 2>&1 || [[ -d "${HOME}/.cursor" ]]; }
+detect_cursor()       { command -v cursor >/dev/null 2>&1 || [[ -d "${PWD}/.agents/skills" || -d "${PWD}/.cursor" ]]; }
 detect_opencode()     { command -v opencode >/dev/null 2>&1 || [[ -d "${HOME}/.config/opencode" ]]; }
 detect_aider()        { command -v aider >/dev/null 2>&1; }
 detect_openclaw()     { command -v openclaw >/dev/null 2>&1 || [[ -d "${HOME}/.openclaw" ]]; }
@@ -144,7 +144,7 @@ tool_label() {
     gemini-cli)  printf "%-14s  %s" "Gemini CLI"   "(gemini extension)"      ;;
     opencode)    printf "%-14s  %s" "OpenCode"     "(opencode.ai)"           ;;
     openclaw)    printf "%-14s  %s" "OpenClaw"     "(~/.openclaw)"           ;;
-    cursor)      printf "%-14s  %s" "Cursor"       "(.cursor/rules)"         ;;
+    cursor)      printf "%-14s  %s" "Cursor"       "(.agents/skills)"         ;;
     aider)       printf "%-14s  %s" "Aider"        "(CONVENTIONS.md)"        ;;
     windsurf)    printf "%-14s  %s" "Windsurf"     "(.windsurfrules)"        ;;
     qwen)        printf "%-14s  %s" "Qwen Code"    "(~/.qwen/agents)"        ;;
@@ -385,16 +385,19 @@ install_openclaw() {
 }
 
 install_cursor() {
-  local src="$INTEGRATIONS/cursor/rules"
-  local dest="${PWD}/.cursor/rules"
+  local src="$INTEGRATIONS/cursor/skills"
+  local dest="${PWD}/.agents/skills"
   local count=0
   [[ -d "$src" ]] || { err "integrations/cursor missing. Run convert.sh first."; return 1; }
   mkdir -p "$dest"
-  local f
-  while IFS= read -r -d '' f; do
-    cp "$f" "$dest/"; (( count++ )) || true
-  done < <(find "$src" -maxdepth 1 -name "*.mdc" -print0)
-  ok "Cursor: $count rules -> $dest"
+  local d
+  while IFS= read -r -d '' d; do
+    local name; name="$(basename "$d")"
+    mkdir -p "$dest/$name"
+    cp "$d/SKILL.md" "$dest/$name/SKILL.md"
+    (( count++ )) || true
+  done < <(find "$src" -mindepth 1 -maxdepth 1 -type d -print0)
+  ok "Cursor: $count skills -> $dest"
   warn "Cursor: project-scoped. Run from your project root to install there."
 }
 

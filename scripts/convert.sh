@@ -13,7 +13,7 @@
 #   antigravity  — Antigravity skill files (~/.gemini/antigravity/skills/)
 #   gemini-cli   — Gemini CLI extension (skills/ + gemini-extension.json)
 #   opencode     — OpenCode agent files (.opencode/agent/*.md)
-#   cursor       — Cursor rule files (.cursor/rules/*.mdc)
+#   cursor       — Cursor rule files (.agents/skills/*/SKILL.md)
 #   aider        — Single CONVENTIONS.md for Aider
 #   windsurf     — Single .windsurfrules for Windsurf
 #   openclaw     — OpenClaw SOUL.md files (openclaw_workspace/<agent>/SOUL.md)
@@ -208,15 +208,14 @@ convert_cursor() {
   slug="$(slugify "$name")"
   body="$(get_body "$file")"
 
-  outfile="$OUT_DIR/cursor/rules/${slug}.mdc"
-  mkdir -p "$OUT_DIR/cursor/rules"
+  outfile="$OUT_DIR/cursor/skills/${slug}/SKILL.md"
+  mkdir -p "$OUT_DIR/cursor/skills/${slug}"
 
-  # Cursor .mdc format: description + globs + alwaysApply frontmatter
+  # Cursor skills format: description + name frontmatter
   cat > "$outfile" <<HEREDOC
 ---
+name: ${slug}
 description: ${description}
-globs: ""
-alwaysApply: false
 ---
 ${body}
 HEREDOC
