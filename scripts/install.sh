@@ -547,6 +547,12 @@ main() {
   box_bot
   printf "\n"
   dim "  Run ./scripts/convert.sh to regenerate after adding or editing agents."
+  
+  if [[ " ${SELECTED_TOOLS[*]} " =~ " copilot " ]]; then
+    printf "\n"
+    warn "Copilot: Ensure VS Code 'chat.agentFilesLocations' includes ~/.github/agents"
+    dim  "         See: https://code.visualstudio.com/docs/copilot/customization/custom-agents#_custom-agent-file-locations"
+  fi
   printf "\n"
 }
 
