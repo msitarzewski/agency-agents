@@ -60,11 +60,105 @@ Browse the agents below and copy/adapt the ones you need!
 ./scripts/install.sh --tool windsurf
 ```
 
+### Option 4: npm Package (TypeScript / Node.js)
+
+Install the package to get a typed API for loading agents programmatically in your Node.js or TypeScript project:
+
+```bash
+npm install agency-agents
+```
+
+```typescript
+import { getAgent, listAgents, buildSwarm } from 'agency-agents';
+
+// Get a single agent
+const agent = getAgent('frontend-developer');
+console.log(agent?.systemPrompt); // full system prompt
+
+// List all engineering agents
+const engineers = listAgents('engineering');
+
+// Build a multi-agent swarm orchestrator prompt
+const swarm = buildSwarm(
+  [getAgent('frontend-developer')!, getAgent('backend-architect')!],
+  { name: 'MVP Team', mission: 'Ship v1 in 4 weeks' }
+);
+// Feed swarm.orchestratorPrompt to your LLM as the system prompt
+```
+
+CLI usage:
+
+```bash
+npx agency-agents list                                   # list all agents
+npx agency-agents list --category engineering            # filter by category
+npx agency-agents get frontend-developer --prompt        # print system prompt only
+npx agency-agents swarm frontend-developer,backend-architect --mission "Build API"
+npx agency-agents categories                             # print all categories
+```
+
+### Option 5: GitHub Action
+
+Use the action in any GitHub workflow to load an agent or build a swarm and expose the system prompt as a step output:
+
+```yaml
+# .github/workflows/ai-review.yml
+jobs:
+  review:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      # Single agent
+      - name: Load Security Engineer agent
+        id: agent
+        uses: msitarzewski/agency-agents@main
+        with:
+          agent: security-engineer
+
+      - name: Use the system prompt
+        run: |
+          echo "Agent: ${{ steps.agent.outputs.agent_name }}"
+          # Pass ${{ steps.agent.outputs.system_prompt }} to your AI API call
+
+      # Swarm mode
+      - name: Build a startup swarm
+        id: swarm
+        uses: msitarzewski/agency-agents@main
+        with:
+          agents: 'frontend-developer,backend-architect,growth-hacker'
+          swarm_name: 'Startup MVP Team'
+          mission: 'Launch a SaaS MVP in 4 weeks'
+
+      - name: Launch swarm
+        env:
+          SWARM_PROMPT: ${{ steps.swarm.outputs.system_prompt }}
+        run: |
+          # $SWARM_PROMPT now contains the full orchestrator prompt
+          echo "Swarm loaded: ${{ steps.swarm.outputs.swarm_json }}"
+```
+
+**Action Inputs**
+
+| Input | Description | Required |
+|-------|-------------|----------|
+| `agent` | Single agent name or slug | One of these |
+| `agents` | Comma-separated slugs for swarm mode | ↕ |
+| `category` | Load all agents from a category | ↕ |
+| `swarm_name` | Swarm display name | No |
+| `mission` | Mission statement for the swarm prompt | No |
+
+**Action Outputs**
+
+| Output | Description |
+|--------|-------------|
+| `system_prompt` | Agent or swarm orchestrator prompt (Markdown) |
+| `agent_name` | Resolved agent name (single-agent only) |
+| `agent_json` | Agent metadata JSON (single-agent only) |
+| `swarm_json` | Array of agent metadata JSON (swarm mode) |
+
 See the [Multi-Tool Integrations](#-multi-tool-integrations) section below for full details.
 
----
 
-## 🎨 The Agency Roster
 
 ### 💻 Engineering Division
 
@@ -817,6 +911,6 @@ To everyone who has opened a PR, filed an issue, started a Discussion, or simply
 
 [⭐ Star this repo](https://github.com/msitarzewski/agency-agents) • [🍴 Fork it](https://github.com/msitarzewski/agency-agents/fork) • [🐛 Report an issue](https://github.com/msitarzewski/agency-agents/issues) • [❤️ Sponsor](https://github.com/sponsors/msitarzewski)
 
-Made with ❤️ by the community, for the community
+Made with ❤️ by [msitarzewski](https://github.com/msitarzewski) and [contributors](https://github.com/msitarzewski/agency-agents/graphs/contributors) including [el-j](https://github.com/el-j)
 
 </div>

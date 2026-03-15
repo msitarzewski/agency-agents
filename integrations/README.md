@@ -14,6 +14,7 @@ supported agentic coding tools.
 - **[Cursor](#cursor)** — `.mdc` rule files in `cursor/`
 - **[Aider](#aider)** — `CONVENTIONS.md` in `aider/`
 - **[Windsurf](#windsurf)** — `.windsurfrules` in `windsurf/`
+- **[Nexus Orchestrator](#nexus-orchestrator)** — route agent tasks to local LLMs via nexus-orchestrator
 
 ## Quick Install
 
@@ -172,3 +173,29 @@ cd /your/project && /path/to/agency-agents/scripts/install.sh --tool windsurf
 ```
 
 See [windsurf/README.md](windsurf/README.md) for details.
+
+---
+
+## Nexus Orchestrator
+
+Route agent tasks to local LLMs (LM Studio / Ollama) via the
+[nexus-orchestrator](https://github.com/el-j/nexus-orchestrator) daemon.
+Agency-agents selects the right agent(s) and system prompt; nexus-orchestrator
+handles LLM routing, session memory, and task queuing — all locally.
+
+```typescript
+import { getAgent } from 'agency-agents';
+import { NexusOrchestratorClient, agentTaskInstruction } from 'agency-agents';
+
+const nexus = new NexusOrchestratorClient();
+const agent = getAgent('backend-architect')!;
+
+const task = await nexus.submitTask({
+  projectPath: '/my/project',
+  targetFile:  'src/server.ts',
+  instruction: agentTaskInstruction(agent, 'Add rate-limiting middleware'),
+});
+console.log('Task ID:', task.id);
+```
+
+See [nexus-orchestrator/README.md](nexus-orchestrator/README.md) for full setup and usage details.

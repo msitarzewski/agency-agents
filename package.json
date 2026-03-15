@@ -1,0 +1,71 @@
+{
+  "name": "agency-agents",
+  "version": "1.0.0",
+  "description": "A curated collection of AI agent personalities with TypeScript orchestration API and GitHub Action support",
+  "type": "module",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js",
+      "require": "./dist/index.cjs"
+    }
+  },
+  "main": "./dist/index.cjs",
+  "module": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "bin": {
+    "agency-agents": "./dist/cli.js"
+  },
+  "files": [
+    "dist",
+    "design",
+    "engineering",
+    "game-development",
+    "marketing",
+    "paid-media",
+    "product",
+    "project-management",
+    "testing",
+    "support",
+    "spatial-computing",
+    "specialized"
+  ],
+  "scripts": {
+    "build": "tsc --project tsconfig.build.json && node scripts/build-cjs.mjs",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "test:coverage": "vitest run --coverage"
+  },
+  "keywords": [
+    "ai",
+    "agents",
+    "llm",
+    "claude",
+    "gpt",
+    "orchestration",
+    "swarm",
+    "agency",
+    "personality",
+    "prompt-engineering"
+  ],
+  "author": "msitarzewski",
+  "contributors": [
+    "el-j"
+  ],
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/msitarzewski/agency-agents.git"
+  },
+  "homepage": "https://github.com/msitarzewski/agency-agents#readme",
+  "dependencies": {},
+  "devDependencies": {
+    "@types/node": "^22.0.0",
+    "typescript": "^5.4.0",
+    "vitest": "^4.0.0"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  }
+}
