@@ -1,0 +1,71 @@
+- id: engineering
+  name_en: Engineering
+  name_zh: 工程开发
+  color: "#3b82f6"
+  emoji: "⚙️"
+
+- id: design
+  name_en: Design
+  name_zh: 设计
+  color: "#ec4899"
+  emoji: "🎨"
+
+- id: game-development
+  name_en: Game Development
+  name_zh: 游戏开发
+  color: "#8b5cf6"
+  emoji: "🎮"
+
+- id: marketing
+  name_en: Marketing
+  name_zh: 营销
+  color: "#f59e0b"
+  emoji: "📢"
+
+- id: paid-media
+  name_en: Paid Media
+  name_zh: 付费媒体
+  color: "#ef4444"
+  emoji: "💰"
+
+- id: product
+  name_en: Product
+  name_zh: 产品
+  color: "#06b6d4"
+  emoji: "📦"
+
+- id: project-management
+  name_en: Project Management
+  name_zh: 项目管理
+  color: "#84cc16"
+  emoji: "📋"
+
+- id: sales
+  name_en: Sales
+  name_zh: 销售
+  color: "#14b8a6"
+  emoji: "💼"
+
+- id: specialized
+  name_en: Specialized
+  name_zh: 专业化
+  color: "#6366f1"
+  emoji: "🔧"
+
+- id: spatial-computing
+  name_en: Spatial Computing
+  name_zh: 空间计算
+  color: "#f97316"
+  emoji: "🌐"
+
+- id: support
+  name_en: Support
+  name_zh: 支持
+  color: "#22c55e"
+  emoji: "🎧"
+
+- id: testing
+  name_en: Testing
+  name_zh: 测试
+  color: "#a855f7"
+  emoji: "🧪"

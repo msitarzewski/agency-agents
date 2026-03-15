@@ -1,0 +1,38 @@
+# Jekyll Configuration for Agency Agents Catalog
+
+title: "Agency Agents"
+description: "A comprehensive catalog of AI agents for software development, design, marketing, and more."
+url: "https://ssbun.github.io"
+baseurl: "/agency-agents"
+repository: "SSBun/agency-agents"
+
+# Build settings
+markdown: kramdown
+timezone: UTC
+
+# GitHub Pages compatibility
+plugins:
+  - jekyll-seo-tag
+  - jekyll-sitemap
+
+# Exclude from processing
+exclude:
+  - Gemfile
+  - Gemfile.lock
+  - node_modules
+  - vendor/bundle/
+  - scripts/
+
+# Default frontmatter
+defaults:
+  - scope:
+      path: ""
+      type: pages
+    values:
+      layout: default
+      lang: en
+
+# Header and footer links
+nav:
+  - title: Home
+    url: /

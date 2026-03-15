@@ -1,0 +1,50 @@
+---
+layout: default
+---
+{% assign category = page.dir | remove: '/' %}
+{% assign category_data = site.data.categories | where: "id", category | first %}
+{% assign cat_color = category_data.color | default: page.color | default: '#6366f1' %}
+{% assign cat_emoji = category_data.emoji | default: page.emoji | default: '🤖' %}
+
+<article class="agent-detail">
+  <!-- Hero Header -->
+  <header class="agent-hero" style="--cat-color: {{ cat_color }}">
+    <div class="hero-bg"></div>
+    <div class="hero-content">
+      <div class="hero-badge">
+        <span class="badge-dot"></span>
+        <span class="badge-text">{{ category_data.name_en | default: category }}</span>
+      </div>
+      <h1 class="hero-title">{{ page.title }}</h1>
+      {% if page.description %}
+      <p class="hero-description">{{ page.description }}</p>
+      {% endif %}
+      {% if page.vibe %}
+      <p class="hero-vibe">
+        <span class="vibe-label">Vibe</span>
+        <span class="vibe-value">{{ page.vibe }}</span>
+      </p>
+      {% endif %}
+    </div>
+    <div class="hero-icon">
+      <span>{{ cat_emoji }}</span>
+    </div>
+  </header>
+
+  <!-- Main Content -->
+  <div class="agent-body">
+    <div class="agent-markdown-content">
+      {{ content }}
+    </div>
+  </div>
+
+  <!-- Footer -->
+  <footer class="agent-footer">
+    <a href="{{ '/' | relative_url }}" class="back-link">
+      <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+        <path d="M12.5 5L7.5 10L12.5 15" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+      Back to Agents
+    </a>
+  </footer>
+</article>
