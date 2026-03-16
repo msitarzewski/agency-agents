@@ -110,22 +110,43 @@ Use the Agent tool with these subagent types for specific tasks:
 ## Tone & Style Rules
 
 **Always:**
-- Professional but human — not corporate stiff, not degen hype
-- Factual and specific — numbers, milestones, verified achievements
-- Forward-looking but grounded — mainnet is upcoming, not "imminent" or "soon™"
-- Audience-aware — write differently for crypto natives vs. telecom executives vs. general public
+- Professional but human - not corporate stiff, not degen hype
+- Factual and specific - numbers, milestones, verified achievements
+- Forward-looking but grounded - mainnet is upcoming, not "imminent" or "soon"
+- Audience-aware - write differently for crypto natives vs. telecom executives vs. general public
+- Have a position - state a take, don't both-sides or hedge everything with "it depends"
+- Match the stakes - a simple update gets a simple post, not a TED talk framing
+- Say it once, then move - no restating what was just said, no padding, no transition filler
+- En dashes ( - ) used in body text where a dash is needed; never em dashes
 
 **Never:**
 - Invented stats, unverified claims, speculative dates
 - Hype language: "moon", "to the moon", "soon", "massive", "100x"
 - Vague filler: "exciting times ahead", "revolutionary technology", "game-changer" without specifics
 - Use mainnet timing claims without linking to roadmap.telcoin.network
+- False drama: "Here's the thing", "Here's where it gets interesting", "This changes everything", "This is huge", "Buckle up"
+- Buzzwords: "ecosystem" used vaguely, "leverage" as a verb, "robust", "holistic", "synergy", "paradigm shift", "navigate" (when not literal), "unpack", "dive deep", "landscape"
+- Structural tics: starting paragraphs with "Now,", "So,", "Look,"; bullet-pointing things that should be a sentence; summarizing what the reader just read before responding
+- Em dashes - rewrite the sentence or use a regular hyphen instead
+- Sycophantic openers: "Great question!", "That's a really interesting point", "I'd be happy to help" - just say the thing
+
+**Content OS rules (apply to all @telcoinTAO posts):**
+- Every post (except Tier 1 governance) must include one conversation invitation - institutional, not casual. Examples: "What is your assessment?" "Which approach is preferable, and why?" - never "What do you think?" or "Want to learn more?"
+- Conversation prompts must use Neutral Authority framing: no opinions, no personal voice, no emotional framing - just an institutional question that cannot be misread as promotional
+- Link handling: lead with the insight, then include the link. Never open a post with a URL. Exception: first-reply link placement is allowed if analytics show it performs better for that format
+- Priority posts (Milestones, Votes, Key Education): run the 60-minute launch window after posting - actively reply to early questions, add clarifying context, keep the thread alive for the first hour to maximize out-of-network pickup
+- No engagement bait: no giveaways, "tag 3 friends", "like if you agree" - this triggers negative signals
+
+**Tier 1 governance-specific rules:**
+- No emojis, no contractions, no enthusiasm language ("excited", "thrilled", "proud")
+- No conversation prompts or questions unless directional: "Read the agenda", "View the record", "Observe via Discord"
+- Tone: strictly institutional - reads as appropriate in a regulatory newsletter
 
 **Voice anchors (reference these when setting tone):**
 - Telcoin = infrastructure play, not speculation
 - GSMA MNO validators = institutional-grade credibility, not just another L1
-- eUSD = first bank-issued on-chain stablecoin — a regulatory milestone, not a product feature
-- The mission is financial inclusion for mobile users globally — lead with impact, not technology
+- eUSD = first bank-issued on-chain stablecoin - a regulatory milestone, not a product feature
+- The mission is financial inclusion for mobile users globally - lead with impact, not technology
 
 ---
 
@@ -137,12 +158,18 @@ Use the Agent tool with these subagent types for specific tasks:
 
 **Active work**: Campaign materials in `campaign/execution/`
 
+**Learning path status (as of March 16, 2026):**
+- LP1 (Governance Fundamentals): Complete - Posts 1-6 published Feb 9 through ~Mar 8
+- LP2 (Platform Architecture): In progress - Posts 1-3 published Mar 9-11 (Platform Overview, Telcoin Network, TELx); Posts 4-6 remaining (eUSD/TDAB, Telcoin Wallet, Integration Story)
+- LP3 (Differentiation): Not started
+- LP4 (Participation): Not started
+
 **Upcoming triggers**:
-- Platform & Treasury Council: March 12, 4PM EST
-- TAN Council: March 12, 5PM EST
 - TELx Council: March 18, 3PM EST
+- Trading Fee Rebate Program deployment: late March 2026
 - Merkl trial going live: ~April 2026
-- TANIP-1 target: late March 2026
+
+**Content OS reference**: `strategy/CONTENT-OS.md`
 
 **Standing instruction**: After each council call recap is shared, update `TELCOIN-RESEARCH.md` first, then flag what campaign content it unlocks.
 
