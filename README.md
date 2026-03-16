@@ -48,16 +48,22 @@ Browse the agents below and copy/adapt the ones you need!
 
 ```bash
 # Step 1 -- generate integration files for all supported tools
+# Mac/Linux:
 ./scripts/convert.sh
+# Windows:
+.\scripts\convert.ps1
 
 # Step 2 -- install interactively (auto-detects what you have installed)
+# Mac/Linux:
 ./scripts/install.sh
+# Windows:
+.\scripts\install.ps1
 
 # Or target a specific tool directly
+# Mac/Linux:
 ./scripts/install.sh --tool cursor
-./scripts/install.sh --tool copilot
-./scripts/install.sh --tool aider
-./scripts/install.sh --tool windsurf
+# Windows:
+.\scripts\install.ps1 -Tool cursor
 ```
 
 See the [Multi-Tool Integrations](#-multi-tool-integrations) section below for full details.
