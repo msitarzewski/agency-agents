@@ -35,6 +35,21 @@ RECOMMENDED_SECTIONS=("Identity" "Core Mission" "Critical Rules")
 errors=0
 warnings=0
 
+classify_header_target() {
+  local header_lower="$1"
+
+  if [[ "$header_lower" =~ identity ]] ||
+     [[ "$header_lower" =~ learning.*memory ]] ||
+     [[ "$header_lower" =~ communication ]] ||
+     [[ "$header_lower" =~ style ]] ||
+     [[ "$header_lower" =~ critical.rule ]] ||
+     [[ "$header_lower" =~ rules.you.must.follow ]]; then
+    printf 'soul'
+  else
+    printf 'agents'
+  fi
+}
+
 lint_file() {
   local file="$1"
 
@@ -87,6 +102,32 @@ lint_file() {
   word_count=$(echo "$body" | wc -w | awk '{print $1}')
   if [[ "${word_count:-0}" -lt 50 ]]; then
     echo "WARN  $file: body seems very short (< 50 words)"
+    warnings=$((warnings + 1))
+  fi
+
+  local soul_headers=0
+  local agents_headers=0
+  while IFS= read -r line; do
+    if [[ "$line" =~ ^##[[:space:]] ]]; then
+      local header_lower
+      header_lower=$(printf '%s' "$line" | tr '[:upper:]' '[:lower:]')
+      local target
+      target=$(classify_header_target "$header_lower")
+      if [[ "$target" == "soul" ]]; then
+        soul_headers=$((soul_headers + 1))
+      else
+        agents_headers=$((agents_headers + 1))
+      fi
+    fi
+  done <<< "$body"
+
+  if [[ $soul_headers -eq 0 ]]; then
+    echo "WARN  $file: no section headers map to SOUL.md in convert.sh"
+    warnings=$((warnings + 1))
+  fi
+
+  if [[ $agents_headers -eq 0 ]]; then
+    echo "WARN  $file: no section headers map to AGENTS.md in convert.sh"
     warnings=$((warnings + 1))
   fi
 }
