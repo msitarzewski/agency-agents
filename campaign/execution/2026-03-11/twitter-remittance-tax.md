@@ -99,6 +99,36 @@ If you found this thread useful, share it — a lot of senders are looking for c
 
 ---
 
+## VISUAL SYSTEM
+
+This is a 7-tweet thread targeting remittance senders — a real-use, human-impact topic. Visuals should feel grounded and utilitarian rather than abstract: mobile devices in real use contexts, transaction light paths, simple fee comparison graphics. Header card anchors the policy hook; insert card on Tweet 6 makes the fee comparison visually immediate.
+
+---
+
+**Tweet 1 — IMAGE BRIEF**
+
+---
+**IMAGE BRIEF**
+- **Card**: 1200x675px Header
+- **Concept**: A mobile phone screen showing a remittance send interface, held in a hand against a dark atmospheric background with a faint geometric grid — grounding the policy change in the lived experience of someone actually sending money home.
+- **AI prompt**: `Close-up of a mobile phone displaying a transaction interface held in a hand, dark atmospheric environment, electric blue backlight glow from screen illuminating surrounding space, subtle hexagonal geometric grid overlay in background, real-world financial technology in use, institutional brand photography, governance aesthetic, glowing electric blue light #14C8FF, deep shadows, hexagonal geometric shapes, glass panels, solid background #090920, primary accent #3642B2, highlight accents #14C8FF, --ar 16:9 --v 6 --style raw --q 2 --no text watermark logo cartoon anime neon rainbow stock photo`
+- **On-card headline**: New 1% Tax on Some US Remittances
+- **Label tag**: Remittance
+---
+
+---
+
+**Tweet 6 — IMAGE BRIEF**
+
+---
+**IMAGE BRIEF**
+- **Card**: 1080x1080px Insert
+- **Concept**: Three vertical fee bars rendered as illuminated architectural columns of different heights — the tallest in dark gray (cash transfer), the middle in muted blue (world average), the shortest in TEL Blue (digital wallet). A visual anchor for the fee comparison without requiring text inside the image.
+- **AI prompt**: `Three vertical architectural columns of different heights rendered in dark glass and metal, tallest column in near-black with faint red edge light, middle column in dark steel blue, shortest column in bright electric blue #14C8FF glow, all emerging from a dark floor plane, clean geometric minimal composition, institutional brand photography, governance aesthetic, glowing electric blue light, deep shadows, crystalline structure, glass panels, solid background #090920, primary accent #3642B2, highlight accents #14C8FF, --ar 1:1 --v 6 --style raw --q 2 --no text watermark logo cartoon anime neon rainbow stock photo`
+- **On-card headline**: 6-8% vs. 2% — The Fee Gap Widened
+- **Label tag**: Remittance
+---
+
 ## Notes for Review
 
 - All stats sourced from: World Bank (6.3% global average), Western Union (3–8% range from research file and public reporting), Telcoin fee target (2% from TELCOIN-RESEARCH.md)

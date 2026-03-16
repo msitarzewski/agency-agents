@@ -134,6 +134,49 @@ More at telcoin.org
 
 ---
 
+## VISUAL SYSTEM
+
+This is an 8-tweet thread that functions as a regulatory education piece. The visual language must convey legal precision and institutional weight. Header card on Tweet 1 sets the legislative/framework context; insert card on Tweet 4 makes the structural legal distinction between bank-issued and company-issued stablecoins visually concrete. A second insert on Tweet 7 closes the loop by grounding eUSD's profile against the GENIUS Act template.
+
+---
+
+**Tweet 1 — IMAGE BRIEF**
+
+---
+**IMAGE BRIEF**
+- **Card**: 1200x675px Header
+- **Concept**: A legislative hall or regulatory chamber rendered in dark blue architectural geometry — high ceilings, columned walls, electric blue ambient light — evoking the formal weight of federal financial law being written. No people, no flags, no identifying symbols.
+- **AI prompt**: `Interior of a vast dark legislative chamber, towering geometric columns and vaulted ceiling, electric blue ambient light emanating from recessed architectural fixtures, empty formal space conveying institutional authority, institutional brand photography, governance aesthetic, glowing electric blue light #14C8FF, deep shadows, hexagonal geometric shapes, crystalline structure, glass panels, solid background #090920, primary accent #3642B2, highlight accents #14C8FF, --ar 16:9 --v 6 --style raw --q 2 --no text watermark logo cartoon anime neon rainbow stock photo`
+- **On-card headline**: The US Just Activated a Federal Stablecoin Framework
+- **Label tag**: eUSD
+---
+
+---
+
+**Tweet 4 — IMAGE BRIEF**
+
+---
+**IMAGE BRIEF**
+- **Card**: 1080x1080px Insert
+- **Concept**: Two distinct architectural containers side by side: on the left, a glass-and-steel structure loosely assembled, held together with tension cables (money transmitter / trust arrangement); on the right, a monolithic vault-grade structure with sealed hexagonal panels and regulated blue edge lighting (chartered bank). The contrast makes the structural legal distinction tangible.
+- **AI prompt**: `Side-by-side architectural comparison, left: loosely assembled glass structure held by tension cables, fragmented and provisional, cool gray light, right: monolithic sealed vault structure with hexagonal panel geometry, electric blue edge lighting, solid and institutional, dark background uniting both forms, institutional brand photography, governance aesthetic, glowing electric blue light #14C8FF, deep shadows, hexagonal geometric shapes, crystalline structure, glass panels, solid background #090920, primary accent #3642B2, highlight accents #14C8FF, --ar 1:1 --v 6 --style raw --q 2 --no text watermark logo cartoon anime neon rainbow stock photo`
+- **On-card headline**: Two Legal Structures. Not the Same Category.
+- **Label tag**: eUSD
+---
+
+---
+
+**Tweet 7 — IMAGE BRIEF**
+
+---
+**IMAGE BRIEF**
+- **Card**: 1080x1080px Insert
+- **Concept**: A digital dollar coin rendered as a glowing hexagonal glass disc — not metallic, not crypto-coin aesthetic — suspended above a dark surface with electric blue light tracing underneath it, connecting to a faint network of transaction paths. Positions eUSD as infrastructure, not a token.
+- **AI prompt**: `Hexagonal glass disc hovering above a dark reflective surface, electric blue light emanating from beneath it and tracing outward as transaction paths across a geometric grid, institutional financial infrastructure visual metaphor, no coin faces or currency markings, institutional brand photography, governance aesthetic, glowing electric blue light #14C8FF, deep shadows, hexagonal geometric shapes, crystalline structure, glass panels, solid background #090920, primary accent #3642B2, highlight accents #14C8FF, --ar 1:1 --v 6 --style raw --q 2 --no text watermark logo cartoon anime neon rainbow stock photo`
+- **On-card headline**: Private. Bank-Issued. Attested Monthly. On-Chain.
+- **Label tag**: eUSD
+---
+
 ## THREAD METADATA
 
 **Suggested publish window**: March 12–13, 2026 (capitalize on GENIUS Act news cycle — still within 1-week window per market intel priority rating)

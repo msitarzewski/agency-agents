@@ -21,7 +21,10 @@ Launch all three simultaneously:
 > Read `campaign/research/TELCOIN-RESEARCH.md`, `strategy/CONTENT-OS.md`, and the `## Current Campaign Status` section of `CLAUDE.md`. Determine: (1) which learning path post is next (LP2 status, LP3/LP4 not started), (2) any governance events in the upcoming week (council calls, votes, proposals), (3) any milestone triggers due (Trading Fee Rebate, Merkl trial). Output a proposed 7-post content mix with day/time, type (Governance/Education/Milestone/Community), topic, and one-line structural rationale for each slot. Apply Content OS volume rules for the week type (Standard/Event/Quiet).
 
 **Agent C — Twitter Engager**
-> Read `campaign/research/TELCOIN-RESEARCH.md` and `strategy/CONTENT-OS.md`. Draft the actual tweet text for each post in the week's proposed mix (use the mix from Agent B). For each post: write the complete tweet or thread (all tweets numbered), apply all tone and style rules from CLAUDE.md, include the correct conversation prompt for non-Tier-1 posts, note if a graphic is needed. Do NOT invent stats — only use verified facts from the research file.
+> Read `campaign/research/TELCOIN-RESEARCH.md` and `strategy/CONTENT-OS.md`. Draft the actual tweet text for each post in the week's proposed mix (use the mix from Agent B). For each post: write the complete tweet or thread (all tweets numbered), apply all tone and style rules from CLAUDE.md, include the correct conversation prompt for non-Tier-1 posts. Do NOT invent stats — only use verified facts from the research file.
+
+**Agent D — Image Prompt Engineer** *(launch simultaneously with Agent C)*
+> Read `strategy/BRAND-GUIDE.md`. For each post in the week's mix (use the topic list from Agent B), generate a Midjourney/Flux/DALL-E prompt for the accompanying image. Every post requires an image — no exceptions. Single tweet posts: one 1200x675px card prompt. Thread posts: one header prompt (1200x675px) + one insert prompt per 2-3 tweets. Apply brand rules: TEL Black #090920 background, Royal Blue #3642B2, TEL Blue #14C8FF highlights, hexagon motifs, glass effects. Include negative prompt. No text in generated images. Format as a compact one-liner per post (not the full 3-variant output from /brand-image-prompt — just the primary dark variant).
 
 ### Step 2 — Assemble the approval document
 
@@ -84,7 +87,7 @@ Use EXACTLY the format below.
 **Layer**: Education · [LP reference, e.g., LP2 Post 4 of 6]
 **Tier**: 2
 **Format**: [Single tweet / Thread (N tweets) / Quote tweet]
-**Graphic needed**: [Yes — brief spec | No]
+**Graphic**: REQUIRED — [card type: Header 1200x675 / Insert 1080x1080 / Thread pack]
 **Rationale**: [One sentence: why this topic now, why this format]
 **60-min launch window**: [Yes — priority post | No]
 

@@ -64,6 +64,14 @@ Before producing any visual, social media template, image brief, design spec, or
 - Visual motif: Hexagons, glowing blues, geometric shapes, glass effects on dark backgrounds
 - Voice test: "If it sounds like marketing copy, it's wrong."
 
+**Image mandate (applies to every tweet and thread):**
+- Every @telcoinTAO post requires an accompanying image — no exceptions
+- Single tweets: use `/tweet-card-brief` to generate a Figma-ready design spec
+- Threads: use `/thread-visual-pack` to generate a coordinated visual system (header + insert cards)
+- AI image generation: use `/brand-image-prompt` to produce Midjourney/Flux/DALL-E prompts
+- No text rendered inside AI-generated images — text placed in post-production via Figma
+- Image spec must be included in every content draft; never mark a post as ready-to-publish without one
+
 ---
 
 ## Directory Map
@@ -147,6 +155,7 @@ Use the Agent tool with these subagent types for specific tasks:
 - Sycophantic openers: "Great question!", "That's a really interesting point", "I'd be happy to help" - just say the thing
 
 **Content OS rules (apply to all @telcoinTAO posts):**
+- Every post requires an accompanying image — see Image mandate above
 - Every post (except Tier 1 governance) must include one conversation invitation - institutional, not casual. Examples: "What is your assessment?" "Which approach is preferable, and why?" - never "What do you think?" or "Want to learn more?"
 - Conversation prompts must use Neutral Authority framing: no opinions, no personal voice, no emotional framing - just an institutional question that cannot be misread as promotional
 - Link handling: lead with the insight, then include the link. Never open a post with a URL. Exception: first-reply link placement is allowed if analytics show it performs better for that format

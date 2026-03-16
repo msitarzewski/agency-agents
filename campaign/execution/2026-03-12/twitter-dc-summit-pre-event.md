@@ -103,6 +103,36 @@ telcoin.org | @telcoinTAO
 
 ---
 
+## VISUAL SYSTEM
+
+This is a 7-tweet thread for a policy/institutional audience at the DC Blockchain Summit. Visuals should feel legislative and architectural — the gravitas of a regulatory moment, not a conference promo. Header card on Tweet 1 establishes the institutional Washington setting; insert card on Tweet 3 anchors the eUSD/banking charter milestone that is the thread's core credential.
+
+---
+
+**Tweet 1 — IMAGE BRIEF**
+
+---
+**IMAGE BRIEF**
+- **Card**: 1200x675px Header
+- **Concept**: Neoclassical institutional architecture at night — columns, stone facades, dark sky — with electric blue light tracing geometric hexagonal patterns across the building face. Signals policy, governance, and Washington without depicting a specific building or people.
+- **AI prompt**: `Neoclassical institutional building facade at night, massive stone columns and geometric entablature, electric blue hexagonal light patterns projected across stone surfaces, deep atmospheric darkness beyond, institutional governance architecture, institutional brand photography, governance aesthetic, glowing electric blue light #14C8FF, deep shadows, hexagonal geometric shapes, crystalline structure, glass panels, solid background #090920, primary accent #3642B2, highlight accents #14C8FF, --ar 16:9 --v 6 --style raw --q 2 --no text watermark logo cartoon anime neon rainbow stock photo`
+- **On-card headline**: Telcoin at DC Blockchain Summit, March 17-18
+- **Label tag**: DC Summit
+---
+
+---
+
+**Tweet 3 — IMAGE BRIEF**
+
+---
+**IMAGE BRIEF**
+- **Card**: 1080x1080px Insert
+- **Concept**: A state seal or official document rendered as a glowing hexagonal glass plate — the visual language of a charter or official certification — suspended in a dark chamber with blue institutional light. Anchors the Nebraska DADI charter and eUSD launch claim without depicting real documents or people.
+- **AI prompt**: `Hexagonal glass plate with embossed institutional seal geometry, glowing electric blue edge light, suspended in a dark formal chamber with architectural columns receding in background, official certification visual metaphor, institutional brand photography, governance aesthetic, glowing electric blue light #14C8FF, deep shadows, hexagonal geometric shapes, crystalline structure, glass panels, solid background #090920, primary accent #3642B2, highlight accents #14C8FF, --ar 1:1 --v 6 --style raw --q 2 --no text watermark logo cartoon anime neon rainbow stock photo`
+- **On-card headline**: First Bank-Issued On-Chain Stablecoin, Dec 26, 2025
+- **Label tag**: eUSD
+---
+
 ## THREAD METADATA
 
 **Character counts** (approximate — verify in Twitter composer before publishing):

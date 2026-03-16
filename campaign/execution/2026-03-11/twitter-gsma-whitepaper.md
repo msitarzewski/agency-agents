@@ -74,6 +74,49 @@ telcoin.network
 
 ---
 
+## VISUAL SYSTEM
+
+This is a 7-tweet thread. Use a header card on Tweet 1, insert cards on Tweets 3 and 5 (the two sharpest competitive differentiation moments). Visual language: telecom infrastructure rendered as dark geometric architecture, glowing blue node networks, deep institutional atmosphere. No people, no stock imagery.
+
+---
+
+**Tweet 1 — IMAGE BRIEF**
+
+---
+**IMAGE BRIEF**
+- **Card**: 1200x675px Header
+- **Concept**: The GSMA as a physical institution — a vast, dark chamber of interconnected hexagonal nodes representing 750+ mobile operators across 220 countries, all anchored to a single glowing hub. Signals the scale of the organization before a word is read.
+- **AI prompt**: `Dark atmospheric view from inside a vast hexagonal node chamber, hundreds of luminous geometric cells linked by electric blue signal paths, central hub radiating outward, institutional architecture of global telecommunications infrastructure, institutional brand photography, governance aesthetic, glowing electric blue light #14C8FF, deep shadows, hexagonal geometric shapes, crystalline structure, glass panels, solid background #090920, primary accent #3642B2, highlight accents #14C8FF, depth of field, --ar 16:9 --v 6 --style raw --q 2 --no text watermark logo cartoon anime neon rainbow stock photo`
+- **On-card headline**: GSMA Publishes Telco Stablecoin Framework
+- **Label tag**: GSMA Partnership
+---
+
+---
+
+**Tweet 3 — IMAGE BRIEF**
+
+---
+**IMAGE BRIEF**
+- **Card**: 1080x1080px Insert
+- **Concept**: Two contrasting architectural forms side by side: a dark, anonymous server rack dissolving into static on the left; a structured telecom tower with hexagonal panels and regulated blue light paths on the right. Visualizes the distinction between anonymous validators and GSMA MNO validators.
+- **AI prompt**: `Split architectural composition, left side: fragmented anonymous dark server infrastructure dissolving into noise, right side: structured hexagonal telecom tower with ordered electric blue signal paths and institutional geometry, deep atmospheric contrast, institutional brand photography, governance aesthetic, glowing electric blue light #14C8FF, deep shadows, hexagonal geometric shapes, crystalline structure, glass panels, solid background #090920, primary accent #3642B2, highlight accents #14C8FF, --ar 1:1 --v 6 --style raw --q 2 --no text watermark logo cartoon anime neon rainbow stock photo`
+- **On-card headline**: Licensed Telecoms. Not Anonymous Nodes.
+- **Label tag**: GSMA Partnership
+---
+
+---
+
+**Tweet 5 — IMAGE BRIEF**
+
+---
+**IMAGE BRIEF**
+- **Card**: 1080x1080px Insert
+- **Concept**: A bank vault door rendered in deep blue glass and metal, with a hexagonal seal and a faint "eUSD" glyph pattern — conveying chartered banking infrastructure rather than fintech software. Anchors the Nebraska charter and bank-issued stablecoin claim visually.
+- **AI prompt**: `Monumental glass and steel bank vault door with hexagonal geometric seal, electric blue edge lighting tracing the vault frame, institutional financial architecture, deep dark chamber beyond, no text visible, institutional brand photography, governance aesthetic, glowing electric blue light #14C8FF, deep shadows, hexagonal geometric shapes, crystalline structure, glass panels, solid background #090920, primary accent #3642B2, highlight accents #14C8FF, --ar 1:1 --v 6 --style raw --q 2 --no text watermark logo cartoon anime neon rainbow stock photo`
+- **On-card headline**: First Bank-Issued On-Chain Stablecoin
+- **Label tag**: eUSD
+---
+
 ## PUBLISHING NOTES
 
 - Lead tweet should include the GSMA whitepaper link when available (source: telcoinmagazine.substack.com/p/gsma-stablecoin)

@@ -7,6 +7,26 @@
 
 ---
 
+## VISUAL PACK
+
+**Thread visual system**: All cards in this thread use TEL Black (#090920) as the deep background field, with a layered geometric composition built from large semi-transparent hexagonal forms in Royal Blue (#3642B2) receding into the frame. A single sharp highlight line or plane in TEL Blue (#14C8FF) cuts across each card diagonally, suggesting infrastructure and signal. The atmosphere is institutional and precise - no gradients that bleed into pastels, no warm tones. Cards feel like classified briefing documents: structured, high-contrast, authoritative. All type and logos are placed in Figma post-production; the AI image provides only the visual environment.
+
+### Header Card - Tweet 1
+- **Card**: 1200x675px
+- **Concept**: A formal, architectural composition evoking Washington DC policy gravity - the Capitol dome silhouette rendered as a dark geometric form against a deep near-black sky, overlaid with a hexagonal grid pattern in Royal Blue that frames the dome as if it were a node in a network. A single bright TEL Blue horizontal light streak bisects the lower third, like a data signal crossing institutional architecture. The mood is serious and deliberate - a blockchain governance body stepping into the most consequential regulatory venue of the year.
+- **AI prompt**: `Architectural digital art, United States Capitol dome silhouette abstracted into dark geometric form against deep near-black background #090920, overlaid with large semi-transparent hexagonal grid in Royal Blue #3642B2, single horizontal light streak in electric cyan-blue #14C8FF crossing lower third of frame, volumetric atmospheric depth, glass panel effect, photorealistic rendering, institutional gravitas, no figures, no text, no logos, clean compositional space in left and center thirds, --ar 16:9 --v 6 --style raw --q 2 --no text watermark logo cartoon anime neon confetti rockets`
+- **On-card headline**: The policy event. Telcoin Association is there.
+- **Label tag**: DC Blockchain Summit 2026
+
+### Insert Card - Tweet 3 (most visual moment: licensed entity behind every block)
+- **Card**: 1080x1080px
+- **Concept**: An abstract network topology rendered as interconnected hexagonal nodes floating in deep space. Each node glows softly in Royal Blue with TEL Blue point-source highlights at the connection junctions - visualizing the idea that every node in this network has an institutional identity behind it. The composition is structured: nodes are arranged in a loose grid, not a chaotic scatter, suggesting governance and accountability. One central node is brighter than the others - the anchor point of a regulated chain.
+- **AI prompt**: `Abstract network topology, interconnected hexagonal nodes floating in deep near-black space #090920, nodes rendered in Royal Blue #3642B2 with semi-transparent glass surfaces, electric cyan-blue #14C8FF point-source glow at each connection junction, central node distinctly brighter as anchor, grid-structured arrangement suggesting institutional order, volumetric depth of field, photorealistic 3D render, no human figures, no text, no logos, generous negative space in lower half of frame, --ar 1:1 --v 6 --style raw --q 2 --no text watermark logo cartoon anime neon confetti rockets`
+- **On-card headline**: A licensed entity behind every block.
+- **Label tag**: Telcoin Network — MNO Validators
+
+---
+
 ## THREAD (6 tweets)
 
 ---

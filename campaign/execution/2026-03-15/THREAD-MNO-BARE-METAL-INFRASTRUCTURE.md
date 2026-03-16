@@ -7,6 +7,26 @@
 
 ---
 
+## VISUAL PACK
+
+**Thread visual system**: All cards in this thread operate in a hardware and infrastructure register - the visual language of carrier-grade data centers, not software dashboards. The background is TEL Black (#090920) throughout. The primary structural motif is bare-metal server rack geometry: dense, parallel, physical - rendered as dark architectural forms with Royal Blue (#3642B2) surface detail. Fiber-optic light trails in TEL Blue (#14C8FF) run through or alongside these structures as thin luminous lines, evoking actual fiber interconnects at scale. The overall tone is technical precision and physical permanence - the opposite of a cloud server farm. All type and logos are placed in Figma post-production.
+
+### Header Card - Tweet 1
+- **Card**: 1200x675px
+- **Concept**: A split-field composition that establishes the cloud-vs-bare-metal contrast without using text. Left half of the frame: a faint, pale, diffuse cloud-like vapor form dissolving upward - suggesting impermanence and abstraction. Right half: a solid, sharp-edged server rack form in dark tones with Royal Blue surface highlights and a single TEL Blue fiber-optic light trail running vertically through it - physicality, weight, permanence. A clean vertical centerline divides the two environments. The right side is clearly dominant in contrast and structural confidence.
+- **AI prompt**: `Split composition digital art, left half showing diffuse pale vapor dissolving upward against near-black background #090920 suggesting cloud impermanence, right half showing dark angular server rack architecture with Royal Blue #3642B2 edge highlights and single vertical electric cyan-blue #14C8FF fiber-optic light trail, clean vertical centerline dividing environments, photorealistic 3D render, right side dominant in contrast, no human figures, no text, no logos, generous composition space for overlay elements, --ar 16:9 --v 6 --style raw --q 2 --no text watermark logo cartoon anime neon confetti rockets`
+- **On-card headline**: Cloud won't cut it. Bare-metal will.
+- **Label tag**: Telcoin Network — Infrastructure
+
+### Insert Card - Tweet 4 (most visual moment: 297,000 TPS / 2-second finality vs. HotStuff)
+- **Card**: 1080x1080px
+- **Concept**: A DAG (directed acyclic graph) structure rendered as a flowing three-dimensional lattice of nodes and directional edges, visualizing the Narwhal + Bullshark consensus architecture. The graph flows from upper-left to lower-right with a sense of high-velocity throughput - edges rendered as TEL Blue light trails moving simultaneously across multiple parallel paths. Nodes are small Royal Blue hexagonal points. The composition conveys parallelism and speed through the sheer density of concurrent paths, not through blur or motion-trail effects - it reads as engineered, not chaotic.
+- **AI prompt**: `Three-dimensional directed acyclic graph structure rendered as flowing lattice, nodes as small hexagonal Royal Blue #3642B2 geometric points, directional edges as electric cyan-blue #14C8FF light trails flowing from upper-left to lower-right, multiple parallel paths conveying high-throughput parallelism, deep near-black background #090920, photorealistic 3D visualization, volumetric depth, engineered precision not chaos, no human figures, no text, no logos, clean negative space in upper-right corner for overlay text, --ar 1:1 --v 6 --style raw --q 2 --no text watermark logo cartoon anime neon confetti rockets`
+- **On-card headline**: ~297,000 TPS. 2-second finality.
+- **Label tag**: Narwhal + Bullshark Consensus
+
+---
+
 ## THREAD (7 tweets)
 
 ---
