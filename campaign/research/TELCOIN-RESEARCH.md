@@ -568,3 +568,197 @@ Categories include: official documentation, liquidity tools, regulatory filings,
 - [x] Bridge partner — **LayerZero** confirmed (initial scoping doc delivered; Axelar no longer active)
 - [x] Verify weekly TEL staker distribution: **3.2 million TEL/week** — confirmed via TANIP findings report (forum.telcoin.org, Dec 8, 2025). Research file previously had "3.2 billion" — corrected.
 - [ ] Confirm current active remittance corridor count: research file shows 16 countries/23+ platforms; wiki/community sources cite 20+ countries/40+ e-wallets — may reflect different product versions or time periods; verify against current telco.in
+
+---
+
+## 11. DEEP GOVERNANCE ARCHITECTURE (Source: governance docs uploaded March 16, 2026)
+
+> These files are authoritative primary source documents from Telcoin Association's governance system. All details below are verified from assets/.
+
+### Constitutional Values (23 Core Principles)
+The Telcoin Association Constitution explicitly enshrines:
+- **Sustained Yield**: Platform resources managed on sustained yield principle
+- **Self-Governance**: Miners possess full authority over the governance system
+- **User-Ownership**: Right to access system, harvest benefits, participate in rule-crafting
+- **Credible Neutrality**: All miner groups maintain property rights; interests cannot be revoked without consent
+- **Incentives Compatibility**: Rules enable stakeholders to realize own interests while benefiting the whole
+- **Informed Consent**: Every miner group has representation on every council
+- **Separation of Powers**: Councils across levels with specific jurisdictional domains
+- **Local Autonomy**: Each miner group has local council representation
+- **Balanced Representation**: Global councils have balanced representation
+- **Functional Representation**: Based on miner groups' functionally differentiated roles
+- **Inclusive Decision-Making**: 75%+ super-majority approval for platform improvements
+- **Equal Voting Power**: Equal votes in constitutional-choice processes
+- **Privacy**: Consent-based information sharing
+- **Long-Term Thinking**: Consider long-term ecosystem implications
+- **Subtraction**: Maintain checks and balances to prevent power concentration
+- **Freedom**: Promote participant freedom; foster creativity and growth
+- **Reject Panaceas**: No one-size-fits-all approach; encourage experimentation
+- **Rules Changes as Experiments**: Policy changes treated as experiments
+- **Stewardship of Values**: Commitment to decentralization and equal access
+
+### Ostrom's 8 Design Principles (Explicitly Integrated)
+Telcoin Association's constitution explicitly adopts all 8 of Elinor Ostrom's design principles for governing common-pool resources:
+1. Clearly defined boundaries (who can harvest TEL)
+2. Proportional equivalence between costs and benefits
+3. Collective-choice arrangements (all affected miners modify operational rules)
+4. Monitoring (active auditing; monitors accountable to miners)
+5. Graduated sanctions (escalating penalties by severity)
+6. Conflict-resolution mechanisms (rapid, low-cost local dispute resolution)
+7. Minimal recognition of rights to organize (external governments don't challenge)
+8. Nested enterprises (harvesting, provision, enforcement organized in multiple layers)
+
+### Property Regime: Communal Proprietorship
+TEL is classified as a **common pool resource** (high exclusion costs + high subtractability of use).
+
+**5-Class Property Rights Model:**
+- **Consumers** (Authorized Entrants): Access only - no withdrawal, management, or exclusion rights
+- **Miners** (Proprietors): Individual + Collective-Choice rights
+  - Access: Use platform and consume services
+  - Withdrawal: Harvest TEL issuance and fees based on efforts
+  - Management: Participate in improving platform; regulate TEL flows
+  - Exclusion: Determine who participates in harvesting and management
+  - NO Alienation Rights: Cannot sell, lease, bequeath, or transfer governance rights
+
+### Governance Organizations
+**Telcoin Association (TA)**: Swiss Verein - holds final constitutional authority
+
+**Telcoin Autonomous Ops, Ltd. (TAO)**: Operations subsidiary registered as UAB (Lithuanian entity). Administers day-to-day governance. Runs KYM (Know Your Member) verification. Acts as proxy voter if Miner Groups fail to reach quorum.
+
+### Complete Council Breakdown
+
+| Council | Seats | Authority | Voting Threshold | Quorum |
+|---|---|---|---|---|
+| Platform Council | 8 (2 per miner group) | Platform-wide policies, maintenance, construction | 75%+ | 20% per group |
+| Treasury Council | 4 (1 per miner group) | TEL Treasury allocation, issuance rules | 100% unanimous | 100% |
+| TAN Council | 6 | TAN operational/harvesting rules | 75%+ | 20% per group |
+| TELx Council | 6 | TELx rules, liquidity, fee schedules | 75%+ | 20% per group |
+| Compliance Council | 4 (requires JD degree) | Legal compliance, KYC/AML, dispute resolution | 75%+ | 20% per group |
+
+**TAN Council Seat Breakdown by Role:**
+- Staker Rep 1: Marketing (campaign design, initiatives)
+- Staker Rep 2: Education (learning programs)
+- Developer Rep 1: Incentives (adoption mechanics)
+- Developer Rep 2: Data (analytics systems)
+- Liquidity Miner Rep: Communication (documentation, social channels, forum, Discord)
+- Validator Rep: Production Coordination (TAO coordination, implementation)
+
+**Treasury Council Special Roles:**
+- Staker Rep: Data analytics coordination
+- Developer Rep: Distribution mechanism design
+- Liquidity Miner Rep: Financing collective goods (grants)
+- Validator Rep: Storage facility design/security
+
+### Improvement Proposal Types (All 7)
+| Type | Abbreviation | Authority |
+|---|---|---|
+| Telcoin Improvement Proposal | TIP | Platform Council |
+| TEL Improvement Proposal | TELIP | Platform + Treasury Councils (bi-cameral) |
+| TAN Improvement Proposal | TANIP | TAN Council |
+| TELx Improvement Proposal | TELxIP | TELx Council |
+| Compliance Council Improvement Proposal | CCIP | Compliance Council |
+| Telcoin Governance System IP | TGIP | Miner Assembly (super-majority from all groups) |
+| Telcoin Representative IP | TRIP | Miner Assembly |
+
+### Election Rules (Quantified)
+| Metric | Value |
+|---|---|
+| Frequency | Annual (every 12 months) |
+| Voting duration | 7 days per vote |
+| Nomination window | 1 month prior (min 24 hours before election) |
+| Quorum requirement | 20% of Miner Group voting stake |
+| Approval method | Plurality (most votes wins) |
+| Outcome | Governance NFT + TEL issuance stream |
+| Fallback | TAO votes on behalf of Miner Group if quorum not met |
+| KYM deadline | 30 days post-election to complete Know Your Member verification |
+| Compliance Council eligibility | Requires Juris Doctorate (JD) degree |
+
+---
+
+## 12. TEL TOKENOMICS DEEP DIVE (Source: governance docs uploaded March 16, 2026)
+
+### Total Supply & Treasury
+- **TEL Treasury (starting)**: 10 billion TEL
+- **Annual issuance rate**: 10% of current Treasury balance
+- **Year 1 total issuance**: 2 billion TEL (initial airdrops + streams)
+- **Regeneration**: TEL burned on Telcoin Network replenishes Treasury proportionately
+- **Treasury governance**: Platform & Treasury Councils via TELIP process
+
+### Year 1 Annual Issuance Breakdown (2 Billion TEL)
+
+| Recipient | Annual TEL | % of Y1 Issuance | Distribution |
+|---|---|---|---|
+| Validators | 400M | 20% | ~1,095,890 TEL/day per block production |
+| Liquidity Miners (TELx) | 400M | 20% | 100M TEL/quarter |
+| TAN Developers | 166.66M | 8.33% | 3.2M TEL/week |
+| TAN Merchant Stakers | 166.66M | 8.33% | 3.2M TEL/week |
+| TAN Retail Stakers | 166.66M | 8.33% | 3.2M TEL/week |
+| Council Members | 60M | 3% | 2.375 TEL/block per NFT holder |
+| TAO Operations | 50M | 2.5% | Streamed per block |
+| TAO Legal & Org (one-time) | 40M | 2% | One-time airdrop |
+
+**Key architecture**: Equal 20% allocations to validators AND liquidity miners; equal 33% combined to application-layer actors (developers + stakers). This rewards adoption and ecosystem density, not only infrastructure.
+
+### Staker Referral Fee Schedule (by staked TEL amount)
+| Staked TEL | Referral Fee % |
+|---|---|
+| 10 - 9,999 | 15% |
+| 10,000 | 22.5% |
+| 100,000 | 30% |
+| 1,000,000 | 34% |
+| 100,000,000 | 42% |
+
+### Staker/Developer Harvesting Rule (Maximum Weekly)
+```
+Can harvest weekly issuance IF:
+Total staked TEL > (Lifetime TEL earned + Current week TEL earned)
+```
+This prevents farming while incentivizing genuine participation. Excess TEL due to insufficient stake carries over to next week.
+
+### TELx Liquidity Miner Harvesting
+- Pro-rata share of staked liquidity in individual markets over time
+- Individual market incentives determined by TELx Council governance
+
+### Validator Block Rewards
+- 15.84 TEL per block
+- Pro-rata based on stake weight relative to total validator stake
+- Requires authorization by Compliance Council and GSMA Operator Member status
+
+### Treasury Drawdown Projection (Deflationary Mechanism)
+| Year | Treasury Start | Annual Issuance (10%) | Treasury End |
+|---|---|---|---|
+| 1 | 10B TEL | 1B (plus 1B initial airdrops) | ~8B |
+| 2 | ~9B | ~900M | ~8.1B |
+| 3 | ~8.1B | ~810M | ~7.3B |
+
+Note: TEL burned in network transactions replenishes the Treasury - this is the regeneration loop that ties long-term issuance to real usage.
+
+### Council Member Compensation
+- Treasury Council: 2,272,727 TEL/year per member (streamed per block while holding NFT)
+- Other councils: Pro-rated from 60M annual council allocation
+- 33 total council members across all 5 councils
+
+---
+
+## 13. MARKETING ANGLES UNLOCKED BY GOVERNANCE DOCS
+
+### Differentiators vs. Other Protocols
+1. **Ostrom-anchored governance** - 30+ years of peer-reviewed commons research as foundation. Not governance theater.
+2. **Communal proprietorship** - Miners own and control; no founder veto; no alienation of governance rights
+3. **Polycentric nested councils** - Not one central DAO; specialized councils at different scales prevent gridlock
+4. **GSMA MNO validators embedded in governance** - Institutional credibility + telecom regulatory relationships
+5. **Activity-based issuance** - Distribution tied to measurable work (fees, liquidity, blocks, adoption), not passive stake
+6. **Four-group equity** - Mobile app users and institutional operators hold equal council weight
+7. **Sustained yield principle** - Treasury managed for long-term sustainability; 10-year+ designed runway
+8. **JD-credentialed Compliance Council** - Professional compliance in governance structure
+9. **Annual elections with KYM** - Accountability + background verification for all elected council members
+10. **Self-renewing treasury** - TEL burned in usage replenishes issuance; aligns incentives across time
+
+### Content Angles for Educational Threads (Not Yet Published)
+- "How Telcoin uses Ostrom's Nobel Prize-winning framework" (institutional credibility story)
+- "Why miners own the platform but can't sell governance" (communal proprietorship)
+- "5 councils, 6 miner groups, 33 elected members: how Telcoin governance works" (governance architecture)
+- "Why TEL issuance is tied to what you actually do" (activity-based vs passive stake)
+- "From mobile app user to platform governor: the path to council" (participation story)
+- "How the TEL Treasury manages 10B TEL over time" (tokenomics education)
+- "What it means to be a GSMA MNO validator" (institutional validator story)

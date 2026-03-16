@@ -44,9 +44,25 @@ This file is the agency brain. Read it at the start of every session. It replace
 
 Before acting on ANY client task:
 1. Read `campaign/research/TELCOIN-RESEARCH.md` for verified facts, figures, product details, roadmap status
-2. Never invent stats, dates, or claims — only use what's in the research file or explicitly provided by the user
+2. Never invent stats, dates, or claims - only use what's in the research file or explicitly provided by the user
 3. Roadmap info: use ONLY what's confirmed from roadmap.telcoin.network (documented in research file)
 4. When you receive new intel (council recaps, announcements, screenshots): update `TELCOIN-RESEARCH.md` immediately, then proceed to the campaign task
+
+## Brand Standards (Mandatory for All Media and Creative Work)
+
+**`strategy/BRAND-GUIDE.md` is the authoritative source for all branding and media decisions.**
+
+Before producing any visual, social media template, image brief, design spec, or content with brand implications:
+1. Read `strategy/BRAND-GUIDE.md`
+2. Follow all color, typography, logo, and visual direction rules
+3. Confirm tone matches: Institutional. Precise. Neutral. Credible.
+
+**Non-negotiables:**
+- Colors: Tel Royal Blue #3642B2 anchors; TEL Blue #14C8FF highlights; TEL Black #090920 dark backgrounds
+- Typography: New Hero (geometric sans-serif), Regular and Bold
+- Logo: Horizontal version is official default; top-left placement; hexagon mark + wordmark
+- Visual motif: Hexagons, glowing blues, geometric shapes, glass effects on dark backgrounds
+- Voice test: "If it sounds like marketing copy, it's wrong."
 
 ---
 
