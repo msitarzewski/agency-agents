@@ -236,6 +236,15 @@ What role should blockchain infrastructure play in reducing remittance costs for
 **Conversation Prompt:** What role should blockchain infrastructure play in reducing remittance costs for emerging markets?
 
 ---
+**IMAGE BRIEF**
+- **Card**: 1200x675px Header
+- **Concept**: A world map rendered as a dark geometric node network — continents as faint hexagonal grids — with seven glowing TEL Blue point-nodes marking the active remittance corridor destinations (Bangladesh, Ethiopia, Kenya, Nepal, Pakistan, Philippines, Uganda) connected by luminous transaction paths originating from a single US origin point.
+- **AI prompt**: `Dark world map rendered as hexagonal geometric grid with faint continent outlines, seven glowing electric blue #14C8FF point-nodes marking destination countries across South Asia, Southeast Asia, and Sub-Saharan Africa, luminous transaction paths connecting a single western hemisphere origin point to all seven destinations, remittance infrastructure visualization, institutional brand photography, governance aesthetic, glowing electric blue light, deep shadows, hexagonal geometric shapes, crystalline structure, glass panels, solid background #090920, primary accent #3642B2, highlight accents #14C8FF, --ar 16:9 --v 6 --style raw --q 2 --no text watermark logo cartoon anime neon rainbow stock photo`
+- **On-card headline**: 16 Countries. 23+ Platforms. 2% Target Cost.
+- **Label tag**: Remittance
+---
+
+---
 
 ## LP3-08: Credible Neutrality
 
@@ -259,6 +268,15 @@ What structural safeguards do you believe are most important for maintaining neu
 **Rationale:** Closes the differentiation path by tying the governance architecture back to a core property that institutions and developers evaluate. Positions credible neutrality as an engineering outcome, not a philosophical claim.
 
 **Conversation Prompt:** What structural safeguards do you believe are most important for maintaining neutrality in blockchain governance?
+
+---
+**IMAGE BRIEF**
+- **Card**: 1200x675px Header
+- **Concept**: Four equal-mass geometric forms arranged symmetrically around a central point of light — each form distinct in shape but identical in size and luminosity — none of them touching the center, which glows independently. Visualizes structural balance without any single node dominating.
+- **AI prompt**: `Four equal-mass hexagonal geometric forms arranged in perfect rotational symmetry around a central glowing point of electric blue #14C8FF light, each form in royal blue #3642B2 with glowing edges, none of the four forms touching the central point which radiates independently, precise structural balance with deep atmospheric background, institutional brand photography, governance aesthetic, glowing electric blue light, deep shadows, hexagonal geometric shapes, crystalline structure, glass panels, solid background #090920, --ar 16:9 --v 6 --style raw --q 2 --no text watermark logo cartoon anime neon rainbow stock photo`
+- **On-card headline**: No Single Group Controls the Network
+- **Label tag**: Governance Design
+---
 
 ---
 
@@ -294,6 +312,15 @@ What factors do you consider most important when deciding whether to stake in a 
 **Conversation Prompt:** What factors do you consider most important when deciding whether to stake in a blockchain ecosystem?
 
 ---
+**IMAGE BRIEF**
+- **Card**: 1200x675px Header
+- **Concept**: A mobile wallet interface held in context — the phone screen emitting electric blue light outward, with governance architecture (hexagonal node network) visible in the background, treating the phone not as a consumer device but as the entry point into a governance system.
+- **AI prompt**: `Mobile phone with glowing electric blue #14C8FF interface screen held at a slight angle, screen light illuminating surrounding dark space, background revealing a glowing hexagonal governance node network fading into deep darkness, technology as governance entry point, institutional brand photography, governance aesthetic, glowing electric blue light, deep shadows, hexagonal geometric shapes, crystalline structure, glass panels, solid background #090920, primary accent #3642B2, highlight accents #14C8FF, --ar 16:9 --v 6 --style raw --q 2 --no text watermark logo cartoon anime neon rainbow stock photo`
+- **On-card headline**: Staking Is Governance, Not Just Yield
+- **Label tag**: Staking
+---
+
+---
 
 ## LP4-02: How to Become a Liquidity Miner
 
@@ -321,6 +348,15 @@ What would make you more likely to provide liquidity in a decentralized exchange
 **Conversation Prompt:** What would make you more likely to provide liquidity in a decentralized exchange – higher yield, or governance rights?
 
 ---
+**IMAGE BRIEF**
+- **Card**: 1200x675px Header
+- **Concept**: Two pools of electric blue liquid rendered as glowing geometric basins — one on each side of the frame (Polygon / Base chains) — connected by a luminous channel flowing toward a central hexagonal governance structure. Visualizes liquidity provision as an active contribution to shared infrastructure, not passive capital parking.
+- **AI prompt**: `Two geometric glowing basins of electric blue liquid on either side of frame, each connected by a luminous channel flowing toward a central hexagonal crystalline governance structure, deep dark platform below, infrastructure of shared liquidity visual metaphor, institutional brand photography, governance aesthetic, glowing electric blue light #14C8FF, deep shadows, hexagonal geometric shapes, crystalline structure, glass panels, solid background #090920, primary accent #3642B2, --ar 16:9 --v 6 --style raw --q 2 --no text watermark logo cartoon anime neon rainbow stock photo`
+- **On-card headline**: Liquidity Providers Are Governance Partners
+- **Label tag**: TELx
+---
+
+---
 
 ## LP4-03: How to Become a Developer
 
@@ -346,6 +382,15 @@ If you are building on EVM-compatible chains, what would you need to know before
 **Rationale:** Practical and inviting without being promotional. Leads with EVM compatibility (lowest barrier to entry), provides the GitHub link for self-verification, and contextualizes the developer role within governance. References the TAN Council's builder philosophy from the research file.
 
 **Conversation Prompt:** If you are building on EVM-compatible chains, what would you need to know before evaluating Telcoin Network as a deployment target?
+
+---
+**IMAGE BRIEF**
+- **Card**: 1200x675px Header
+- **Concept**: An open code-layer architecture rendered in dark geometric panels — stacked transparent glass planes with circuit-like blue trace patterns, suggesting open infrastructure ready to be built upon, with a single active terminal-point glowing in TEL Blue at the front layer.
+- **AI prompt**: `Stacked transparent dark glass planes with geometric circuit-trace patterns in royal blue #3642B2, receding in perspective into deep darkness, frontmost plane with a single glowing active terminal point in electric blue #14C8FF, open modular architecture visual metaphor, EVM compatibility as open platform, institutional brand photography, governance aesthetic, glowing electric blue light, deep shadows, hexagonal geometric shapes, crystalline structure, glass panels, solid background #090920, --ar 16:9 --v 6 --style raw --q 2 --no text watermark logo cartoon anime neon rainbow stock photo`
+- **On-card headline**: EVM-Compatible. Open Source. 23 Repositories.
+- **Label tag**: Developer
+---
 
 ---
 
@@ -380,6 +425,15 @@ How do you think requiring institutional validators changes the trust model for 
 **Conversation Prompt:** How do you think requiring institutional validators changes the trust model for a blockchain network?
 
 ---
+**IMAGE BRIEF**
+- **Card**: 1200x675px Header
+- **Concept**: A single institutional validator node — rendered as a large dark hexagonal server tower with GSMA-grade geometric cladding and regulated blue edge lighting — connected by luminous paths to a ring of smaller subscriber-device forms below it. The node is both infrastructure and distribution channel.
+- **AI prompt**: `Monumental dark hexagonal server tower with institutional geometric cladding, royal blue #3642B2 structural panels, electric blue #14C8FF edge lighting, luminous signal paths descending from its base to a ring of small glowing device forms arranged below on a dark ground plane, validator as distribution hub visual metaphor, institutional brand photography, governance aesthetic, glowing electric blue light, deep shadows, hexagonal geometric shapes, crystalline structure, glass panels, solid background #090920, --ar 16:9 --v 6 --style raw --q 2 --no text watermark logo cartoon anime neon rainbow stock photo`
+- **On-card headline**: GSMA MNO Validators. Regulated. Accountable. Incentivized.
+- **Label tag**: GSMA Partnership
+---
+
+---
 
 ## LP4-05: How Elections Work
 
@@ -409,6 +463,15 @@ What qualities do you think are most important in a blockchain governance repres
 **Conversation Prompt:** What qualities do you think are most important in a blockchain governance representative?
 
 ---
+**IMAGE BRIEF**
+- **Card**: 1200x675px Header
+- **Concept**: Four distinct hexagonal platforms arranged in a row at equal elevation — each one lit from within, suggesting a seat that can be occupied or vacated — with a thin ring of light at the base of each indicating the annual accountability cycle. Represents the election process as structured turnover, not appointment.
+- **AI prompt**: `Four equal hexagonal platform pedestals arranged in a horizontal row at equal elevation, each glowing from within with electric blue #14C8FF internal light and a thin ring of royal blue #3642B2 light at the base, dark atmospheric space surrounding them, structured governance seats visual metaphor, no figures or silhouettes, institutional brand photography, governance aesthetic, glowing electric blue light, deep shadows, hexagonal geometric shapes, crystalline structure, glass panels, solid background #090920, --ar 16:9 --v 6 --style raw --q 2 --no text watermark logo cartoon anime neon rainbow stock photo`
+- **On-card headline**: Annual Elections. Four Groups. Accountable Representatives.
+- **Label tag**: Elections
+---
+
+---
 
 ## LP4-06: How Liquid Delegation Works
 
@@ -436,6 +499,15 @@ Do you prefer direct voting on every governance proposal, or delegating to a tru
 **Conversation Prompt:** Do you prefer direct voting on every governance proposal, or delegating to a trusted representative? What factors influence that choice?
 
 ---
+**IMAGE BRIEF**
+- **Card**: 1200x675px Header
+- **Concept**: A luminous signal path flowing from one node to another — but with a branching point midway where a secondary path peels off, indicating the participant's retained ability to override. The delegated path continues in Royal Blue; the override branch glows in TEL Blue, showing it is always available.
+- **AI prompt**: `Luminous signal path flowing from a source hexagonal node to a destination node in royal blue #3642B2, a branching override path peeling away from the midpoint glowing in electric blue #14C8FF, the two paths running in parallel without merging, override capability as always-present architecture, dark geometric background, institutional brand photography, governance aesthetic, glowing electric blue light, deep shadows, hexagonal geometric shapes, crystalline structure, glass panels, solid background #090920, --ar 16:9 --v 6 --style raw --q 2 --no text watermark logo cartoon anime neon rainbow stock photo`
+- **On-card headline**: Delegate. Retain Override. Reclaim Anytime.
+- **Label tag**: Liquid Delegation
+---
+
+---
 
 ## LP4-07: How to Submit a Proposal
 
@@ -459,6 +531,15 @@ What elements do you think are most important in a well-structured blockchain go
 **Rationale:** Grounds the process explanation in a real, recent example (Merkl trial – passed March 10, 2026). This demonstrates that the proposal system is actively used and produces concrete outcomes. The details of the Merkl proposal (cost, timeline, methodology) show the level of rigor involved.
 
 **Conversation Prompt:** What elements do you think are most important in a well-structured blockchain governance proposal?
+
+---
+**IMAGE BRIEF**
+- **Card**: 1200x675px Header
+- **Concept**: A proposal document rendered as a dark glass panel with structured geometric section dividers — four horizontal bands of increasing luminosity from top to bottom, each representing a stage in the proposal lifecycle (submission, deliberation, vote, outcome). The lowest band glows brightest in TEL Blue, representing passage.
+- **AI prompt**: `Dark glass panel divided into four horizontal bands of increasing luminosity, top band near-dark in deep navy, each successive band brightening toward a bottom band glowing in electric blue #14C8FF, structured progression visual metaphor for a governance proposal lifecycle, geometric section dividers in royal blue #3642B2, suspended against dark background, institutional brand photography, governance aesthetic, glowing electric blue light, deep shadows, hexagonal geometric shapes, crystalline structure, glass panels, solid background #090920, --ar 16:9 --v 6 --style raw --q 2 --no text watermark logo cartoon anime neon rainbow stock photo`
+- **On-card headline**: Submit. Deliberate. Vote. Outcome Binding.
+- **Label tag**: Governance Proposals
+---
 
 ---
 
@@ -490,6 +571,15 @@ How important is it to you that governance votes in a blockchain ecosystem carry
 **Rationale:** Closes the participation path by connecting voting mechanics to tangible outcomes (the Merkl allocation). Emphasizes that votes are binding, not advisory – a meaningful distinction from many blockchain governance systems. References Snapshot for credibility with crypto-native audiences who recognize the platform.
 
 **Conversation Prompt:** How important is it to you that governance votes in a blockchain ecosystem carry binding authority over real resources?
+
+---
+**IMAGE BRIEF**
+- **Card**: 1200x675px Header
+- **Concept**: A single hexagonal seal — like an official stamp — glowing in TEL Blue as it makes contact with a dark glass surface, leaving a permanent electric blue imprint. Represents the binding nature of a governance vote: once cast, it has real consequence. No ambiguity, no advisory softness.
+- **AI prompt**: `Hexagonal crystalline seal descending to make contact with a dark glass surface, electric blue #14C8FF glow radiating from the point of contact, leaving a permanent hexagonal light imprint on the surface, binding finality visual metaphor, institutional authority and consequence, institutional brand photography, governance aesthetic, glowing electric blue light, deep shadows, hexagonal geometric shapes, crystalline structure, glass panels, solid background #090920, primary accent #3642B2, highlight accents #14C8FF, --ar 16:9 --v 6 --style raw --q 2 --no text watermark logo cartoon anime neon rainbow stock photo`
+- **On-card headline**: Votes Are Binding. Real Resources. Real Authority.
+- **Label tag**: Governance Voting
+---
 
 ---
 
