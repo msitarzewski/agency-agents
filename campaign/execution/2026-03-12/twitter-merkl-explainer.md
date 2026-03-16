@@ -111,6 +111,49 @@ Forum thread with full detail: forum.telcoin.org
 
 ---
 
+## VISUAL SYSTEM
+
+This is a 7-tweet thread for a DeFi-aware governance audience. The visual language should reflect protocol mechanics and institutional deliberation — precision over atmosphere. Header card on Tweet 1 anchors the governance vote milestone; insert card on Tweet 4 makes the trial parameters visually immediate; insert card on Tweet 5 illustrates the parallel test structure. No abstract crypto imagery, no charts, no stock photography.
+
+---
+
+**Tweet 1 — IMAGE BRIEF**
+
+---
+**IMAGE BRIEF**
+- **Card**: 1200x675px Header
+- **Concept**: A governance chamber rendered as a dark geometric architecture — six interconnected hexagonal nodes arranged in a tight formation, all fully illuminated in TEL Blue, against a deep dark background. Visually represents a unanimous 6/6 vote without any text or numbers.
+- **AI prompt**: `Six hexagonal crystalline nodes arranged in a circular formation, all glowing with uniform electric blue light #14C8FF, connected by luminous signal paths, suspended against deep dark space, perfect symmetry conveying unanimous alignment, institutional brand photography, governance aesthetic, glowing electric blue light, deep shadows, hexagonal geometric shapes, crystalline structure, glass panels, solid background #090920, primary accent #3642B2, highlight accents #14C8FF, --ar 16:9 --v 6 --style raw --q 2 --no text watermark logo cartoon anime neon rainbow stock photo`
+- **On-card headline**: TELx Records First Unanimous Council Vote
+- **Label tag**: Merkl Protocol
+---
+
+---
+
+**Tweet 4 — IMAGE BRIEF**
+
+---
+**IMAGE BRIEF**
+- **Card**: 1080x1080px Insert
+- **Concept**: A precision instrument panel — dark glass surface with six segmented readout fields arranged in a structured grid, each lit in restrained electric blue, suggesting defined parameters being tracked. Represents the trial's specificity: pool, reward rate, duration, checkpoint, go-live, funding source.
+- **AI prompt**: `Close view of a dark glass instrument panel with six recessed readout fields arranged in a grid, each field illuminated by precise electric blue edge lighting, minimal geometric precision, no dials or gauges — flat hexagonal cells with glowing borders, institutional measurement and monitoring aesthetic, institutional brand photography, governance aesthetic, glowing electric blue light #14C8FF, deep shadows, hexagonal geometric shapes, crystalline structure, glass panels, solid background #090920, primary accent #3642B2, highlight accents #14C8FF, --ar 1:1 --v 6 --style raw --q 2 --no text watermark logo cartoon anime neon rainbow stock photo`
+- **On-card headline**: 6 Months. 363K TEL/Month. April Go-Live.
+- **Label tag**: Merkl Protocol
+---
+
+---
+
+**Tweet 5 — IMAGE BRIEF**
+
+---
+**IMAGE BRIEF**
+- **Card**: 1080x1080px Insert
+- **Concept**: Two parallel light channels running side by side without merging — one in Royal Blue (existing hook system), one in TEL Blue (Merkl) — both feeding into the same dark pool structure at the bottom of the frame. Illustrates the controlled parallel test with a single shared outcome point.
+- **AI prompt**: `Two parallel luminous channels running vertically downward side by side, one channel in deep royal blue #3642B2, one in electric blue #14C8FF, both terminating at a shared dark hexagonal pool form at the base of the frame, controlled parallel flow visual metaphor, clean geometric composition, no merging of channels, institutional brand photography, governance aesthetic, glowing electric blue light, deep shadows, hexagonal geometric shapes, crystalline structure, glass panels, solid background #090920, --ar 1:1 --v 6 --style raw --q 2 --no text watermark logo cartoon anime neon rainbow stock photo`
+- **On-card headline**: Parallel Test. Same Pool. One Comparison.
+- **Label tag**: Merkl Protocol
+---
+
 ## PRODUCTION NOTES
 
 **Companion content flagged for follow-up:**

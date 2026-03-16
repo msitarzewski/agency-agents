@@ -26,7 +26,7 @@ This positioning speaks to: institutional investors, GSMA members evaluating val
 
 ### Layer 1: Governance
 - **Purpose**: Document council activity and governance decisions
-- **Content types**: Meeting reminders, recaps, proposal alerts, vote announcements
+- **Content types**: Meeting reminders, recaps, proposal alerts, vote announcements (image required)
 - **Frequency**: Tied to actual council events
 - **Flexibility**: Low
 - **Tone**: Strictly institutional (Tier 1) - no emojis, no contractions, no enthusiasm language
@@ -35,7 +35,7 @@ This positioning speaks to: institutional investors, GSMA members evaluating val
 
 ### Layer 2: Education
 - **Purpose**: Build systematic understanding of the platform and governance system
-- **Content types**: Explainers, concept introductions, process documentation
+- **Content types**: Explainers, concept introductions, process documentation (image required)
 - **Frequency**: 2-4 posts per week depending on governance activity
 - **Flexibility**: Medium - can compress or expand based on other layers
 - **Tone**: Institutional but accessible (Tier 2)
@@ -43,14 +43,14 @@ This positioning speaks to: institutional investors, GSMA members evaluating val
 
 ### Layer 3: Milestone
 - **Purpose**: Communicate major developments and announcements
-- **Content types**: Announcements, explainer threads, progress updates
+- **Content types**: Announcements, explainer threads, progress updates (image required)
 - **Frequency**: As events occur
 - **Flexibility**: High - overrides other content when active
 - **Priority posts**: Run the 60-minute launch window after publishing
 
 ### Layer 4: Community
 - **Purpose**: Maintain connection with participants, acknowledge ecosystem activity
-- **Content types**: Week in governance summaries, meeting reminders, participation invitations
+- **Content types**: Week in governance summaries, meeting reminders, participation invitations (image required)
 - **Frequency**: 1-2 posts per week
 - **Flexibility**: Medium - tied to meeting rhythm
 
@@ -104,6 +104,54 @@ This does NOT change the tone of the post. It changes how you handle the first h
 
 ### Engagement bait avoidance
 No giveaways, "tag 3 friends", "like if you agree" patterns. These trigger negative algorithmic signals.
+
+---
+
+## Image Production Workflow
+
+Every @telcoinTAO post requires an accompanying image. No exceptions, across all four layers and all tiers.
+
+### Skill selection
+
+| Post type | Skill to use |
+|---|---|
+| Single tweet | `/tweet-card-brief` - generates a Figma-ready design brief for one card |
+| Thread (2+ tweets) | `/thread-visual-pack` - generates a coordinated visual pack: header card + 2-3 insert card briefs + AI image prompts for the full thread |
+| AI-generated visual element needed | `/brand-image-prompt` - generates 3 Midjourney/Flux/DALL-E prompt variants (dark, abstract, human-focused) for a specific topic |
+
+These skills are complementary. `/tweet-card-brief` and `/thread-visual-pack` produce the full design brief; both reference `/brand-image-prompt` output when an AI-generated visual is part of the card.
+
+### Production pipeline
+
+1. **Generate tweet text** - draft the post(s) per Content OS rules
+2. **Generate image brief alongside** - run the appropriate skill in parallel with or immediately after writing the tweet; do not treat image production as a separate step
+3. **Composite in Figma** - import AI-generated visual (if used) as background layer; apply glass panel overlay; place typography in New Hero; add logo and hexagon motif per brand template
+4. **Publish together** - tweet text and image go out as a unit; do not queue text without a corresponding image ready
+
+Image briefs are saved alongside tweet drafts in the same `campaign/execution/[date]/` folder.
+
+### Tier-based image guidance
+
+**Tier 1 - Governance**: Type-only card or minimal dark card. No decorative illustration. Background: TEL Black #090920. Headline only, no supporting graphic element. Hexagon motif at very low opacity (8%) is acceptable. No AI-generated imagery.
+
+**Tier 2 - Education**: Concept visual, architecture diagram, or abstract illustration tied to the topic. Richer visual treatment allowed. AI-generated imagery appropriate. Diagrams preferred when explaining a system or process (e.g., council hierarchy, token flow, validator structure).
+
+**Tier 3 - Milestone**: Bold announcement card. High contrast, strong visual presence. AI-generated imagery or a purpose-built graphic. Proud but controlled - no hype imagery (no upward arrows, rockets, confetti). The visual should communicate institutional significance, not excitement.
+
+**Tier 4 - Community**: Warmer treatment. Human element allowed where relevant - real-world contexts, people in genuine use scenarios. Still institutional; warmth is a register shift, not a visual style departure.
+
+### Brand parameters (apply to every image produced)
+
+| Parameter | Rule |
+|---|---|
+| Primary background | TEL Black #090920 (dark templates) or TEL White #F1F4FF (light templates) |
+| Primary accent | Tel Royal Blue #3642B2 |
+| Highlight | TEL Blue #14C8FF |
+| Typography | New Hero Bold for headlines; New Hero Regular for body; placed in Figma post-production |
+| No text in AI-generated images | All text is placed in Figma after image generation - never prompt AI tools to render text |
+| Logo placement | Horizontal version, top-left, 1 mark height from top, 1.5 mark widths from left edge |
+| Geometric motif | Hexagons - the brand signature shape; present on all cards |
+| Prohibited imagery | Rockets, moons, upward arrows, confetti, explosions, neon/meme aesthetic, stock photo corporate blandness |
 
 ---
 
@@ -275,3 +323,41 @@ Pre-launch content strategy:
 Launch week: all four core posts (announcement, technical explainer, validator status, what comes next) are Priority Posts and must use the 60-minute launch window procedure.
 
 Post-launch: weekly or biweekly network status updates; education content shifts to "Telcoin Network in practice" topics.
+
+---
+
+## Weekly Approval Process
+
+The weekly approval cycle runs every Wednesday via `/weekly-tweet-approval`. Running it on another day is permitted but note that the output file will flag the timing deviation.
+
+### How the skill works
+
+`/weekly-tweet-approval` launches four agents in parallel before writing anything:
+
+- **Analytics Reporter** - reviews `campaign/execution/` for the prior 7 days; returns a 4-line summary: top post, bottom post, format insight, one recommendation. If no analytics data exists, defaults to Content OS baseline.
+- **Sprint Prioritizer** - reads the research file, this document, and the Current Campaign Status section of `CLAUDE.md`; determines the next learning path post, upcoming governance events, and any milestone triggers; outputs a proposed 7-post content mix with day, time, type, topic, and structural rationale for each slot.
+- **Twitter Engager** - drafts the complete tweet text for every post in the proposed mix, applying all tone and style rules; no invented stats.
+- **Image Prompt Engineer** - generates a Midjourney/Flux/DALL-E prompt for the accompanying image for each post in the mix; single tweet posts get one 1200x675px prompt; thread posts get a header prompt plus one insert prompt per 2-3 tweets.
+
+All four agents complete before the approval document is assembled.
+
+### Output
+
+The approval document is saved to `campaign/execution/[week-start-date]/WEEKLY-APPROVAL.md`.
+
+It contains:
+- **Schedule at a Glance** - a table of all posts for the week with day, time, layer, format, topic, and an approval checkbox per row. This is the bulk sign-off mechanism.
+- **Structural Rationale** - 2-3 sentences on the week's overall content logic, one sentence on any analytics adjustment, one sentence on timing choices.
+- **Individual post blocks** - full tweet text, image prompt, tier, format, rationale, 60-min launch window flag, and a three-option decision field (APPROVE / EDIT / SKIP) for post-level edits.
+- **Bulk Approval line** - sign once to approve all posts as written.
+- **Analytics Tracking table** - filled in after publishing; feeds the following Wednesday's performance signal.
+
+### Approval workflow
+
+1. The skill prints the Schedule at a Glance table directly in the chat response for a fast scan without opening the file.
+2. To approve all posts as written, sign the Bulk Approval line in the file.
+3. To edit individual posts, mark EDIT on the relevant row in the schedule table and add a note in that post's decision field.
+4. To remove a post from the week, mark SKIP.
+5. Return the marked-up file or relay decisions in chat.
+
+The file is the approval mechanism. The skill does not request approval in the chat response.
