@@ -1,0 +1,726 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>The Agency — AI Agent Skills Dashboard</title>
+<script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+<style>
+  :root {
+    --bg: #0f1117;
+    --surface: #1a1d27;
+    --surface2: #22263a;
+    --border: #2e3250;
+    --text: #e2e8f0;
+    --muted: #8892aa;
+    --accent: #6366f1;
+    --accent-hover: #818cf8;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: var(--bg); color: var(--text); font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; min-height: 100vh; }
+
+  /* Header */
+  .header { background: var(--surface); border-bottom: 1px solid var(--border); padding: 0 24px; display: flex; align-items: center; gap: 16px; height: 60px; position: sticky; top: 0; z-index: 100; }
+  .logo { font-size: 1.25rem; font-weight: 700; white-space: nowrap; }
+  .logo span { color: var(--accent); }
+  .search-wrap { flex: 1; max-width: 440px; position: relative; }
+  .search-wrap input { width: 100%; background: var(--bg); border: 1px solid var(--border); color: var(--text); padding: 8px 14px 8px 38px; border-radius: 8px; font-size: 0.9rem; outline: none; transition: border-color 0.2s; }
+  .search-wrap input:focus { border-color: var(--accent); }
+  .search-icon { position: absolute; left: 12px; top: 50%; transform: translateY(-50%); color: var(--muted); font-size: 0.9rem; pointer-events: none; }
+  .search-hint { margin-left: auto; font-size: 0.75rem; color: var(--muted); white-space: nowrap; }
+  kbd { background: var(--surface2); border: 1px solid var(--border); border-radius: 4px; padding: 1px 5px; font-size: 0.7rem; font-family: monospace; }
+
+  /* Layout */
+  .layout { display: flex; min-height: calc(100vh - 60px); }
+  .sidebar { width: 220px; flex-shrink: 0; background: var(--surface); border-right: 1px solid var(--border); padding: 20px 0; position: sticky; top: 60px; height: calc(100vh - 60px); overflow-y: auto; }
+  .sidebar-title { font-size: 0.7rem; font-weight: 600; letter-spacing: 0.08em; color: var(--muted); text-transform: uppercase; padding: 0 16px 8px; }
+  .sidebar-item { display: flex; align-items: center; justify-content: space-between; padding: 7px 16px; cursor: pointer; font-size: 0.85rem; border-left: 3px solid transparent; transition: all 0.15s; color: var(--muted); }
+  .sidebar-item:hover, .sidebar-item.active { color: var(--text); background: var(--surface2); border-left-color: var(--accent); }
+  .sidebar-item .count { font-size: 0.7rem; background: var(--surface2); padding: 2px 7px; border-radius: 10px; }
+  .sidebar-divider { height: 1px; background: var(--border); margin: 12px 0; }
+  .sidebar-total { padding: 7px 16px; font-size: 0.8rem; color: var(--muted); }
+
+  /* Main content */
+  .main { flex: 1; padding: 28px 28px 60px; overflow-y: auto; min-width: 0; }
+  .division-header { display: flex; align-items: center; gap: 12px; margin: 32px 0 16px; }
+  .division-header:first-child { margin-top: 0; }
+  .division-title { font-size: 1.1rem; font-weight: 600; }
+  .division-count { font-size: 0.75rem; background: var(--surface2); border: 1px solid var(--border); padding: 2px 10px; border-radius: 12px; color: var(--muted); }
+  .division-line { flex: 1; height: 1px; background: var(--border); }
+
+  /* Agent grid */
+  .agent-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 12px; }
+  .agent-card { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 16px; cursor: pointer; transition: all 0.15s; position: relative; overflow: hidden; }
+  .agent-card::before { content: ''; position: absolute; left: 0; top: 0; bottom: 0; width: 3px; background: var(--card-color, var(--accent)); }
+  .agent-card:hover { border-color: var(--card-color, var(--accent)); transform: translateY(-1px); box-shadow: 0 4px 20px rgba(0,0,0,0.3); }
+  .card-name { font-weight: 600; font-size: 0.95rem; margin-bottom: 6px; }
+  .card-desc { font-size: 0.78rem; color: var(--muted); line-height: 1.5; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+  .card-badge { display: inline-block; font-size: 0.65rem; font-weight: 600; letter-spacing: 0.05em; padding: 2px 8px; border-radius: 4px; margin-bottom: 8px; text-transform: uppercase; background: color-mix(in srgb, var(--card-color, var(--accent)) 20%, transparent); color: var(--card-color, var(--accent)); border: 1px solid color-mix(in srgb, var(--card-color, var(--accent)) 40%, transparent); }
+
+  /* Empty state */
+  .empty { text-align: center; padding: 80px 20px; color: var(--muted); }
+  .empty .icon { font-size: 3rem; margin-bottom: 16px; }
+  .empty p { font-size: 1.1rem; margin-bottom: 8px; }
+  .empty small { font-size: 0.85rem; }
+
+  /* Detail panel */
+  .panel-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: 200; opacity: 0; pointer-events: none; transition: opacity 0.2s; }
+  .panel-overlay.open { opacity: 1; pointer-events: all; }
+  .panel { position: fixed; top: 0; right: 0; bottom: 0; width: 600px; max-width: 95vw; background: var(--surface); border-left: 1px solid var(--border); z-index: 201; transform: translateX(100%); transition: transform 0.25s cubic-bezier(0.4,0,0.2,1); display: flex; flex-direction: column; overflow: hidden; }
+  .panel.open { transform: translateX(0); }
+  .panel-header { padding: 20px 24px 16px; border-bottom: 1px solid var(--border); flex-shrink: 0; }
+  .panel-top { display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; margin-bottom: 12px; }
+  .panel-name { font-size: 1.3rem; font-weight: 700; }
+  .panel-division { font-size: 0.75rem; color: var(--muted); text-transform: uppercase; letter-spacing: 0.06em; margin-top: 2px; }
+  .panel-actions { display: flex; gap: 8px; flex-shrink: 0; }
+  .btn { display: inline-flex; align-items: center; gap: 6px; padding: 7px 14px; border-radius: 7px; font-size: 0.82rem; font-weight: 500; cursor: pointer; border: 1px solid var(--border); background: var(--surface2); color: var(--text); transition: all 0.15s; white-space: nowrap; }
+  .btn:hover { background: var(--border); }
+  .btn.primary { background: var(--accent); border-color: var(--accent); color: #fff; }
+  .btn.primary:hover { background: var(--accent-hover); border-color: var(--accent-hover); }
+  .btn.close { background: transparent; border-color: transparent; padding: 4px 8px; font-size: 1.1rem; }
+  .btn.success { background: #22c55e; border-color: #22c55e; color: #fff; }
+  .panel-body { flex: 1; overflow-y: auto; padding: 24px; }
+  .panel-loading { text-align: center; padding: 60px 20px; color: var(--muted); }
+  .spinner { width: 28px; height: 28px; border: 3px solid var(--border); border-top-color: var(--accent); border-radius: 50%; animation: spin 0.7s linear infinite; margin: 0 auto 12px; }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  .panel-body .markdown { font-size: 0.88rem; line-height: 1.7; color: var(--text); }
+  .panel-body .markdown h1, .markdown h2, .markdown h3 { margin: 20px 0 10px; font-weight: 600; }
+  .panel-body .markdown h1 { font-size: 1.3rem; }
+  .panel-body .markdown h2 { font-size: 1.1rem; border-bottom: 1px solid var(--border); padding-bottom: 6px; }
+  .panel-body .markdown h3 { font-size: 0.95rem; color: var(--accent-hover); }
+  .panel-body .markdown p { margin-bottom: 10px; }
+  .panel-body .markdown ul, .markdown ol { margin: 8px 0 10px 20px; }
+  .panel-body .markdown li { margin-bottom: 4px; }
+  .panel-body .markdown code { background: var(--surface2); border: 1px solid var(--border); padding: 1px 6px; border-radius: 4px; font-family: monospace; font-size: 0.82rem; }
+  .panel-body .markdown pre { background: var(--bg); border: 1px solid var(--border); padding: 14px; border-radius: 8px; overflow-x: auto; margin: 10px 0; }
+  .panel-body .markdown pre code { background: none; border: none; padding: 0; }
+  .panel-body .markdown blockquote { border-left: 3px solid var(--accent); padding: 6px 14px; background: var(--surface2); border-radius: 0 6px 6px 0; margin: 10px 0; color: var(--muted); }
+  .panel-body .markdown table { border-collapse: collapse; width: 100%; margin: 10px 0; }
+  .panel-body .markdown th, .markdown td { border: 1px solid var(--border); padding: 7px 12px; text-align: left; font-size: 0.82rem; }
+  .panel-body .markdown th { background: var(--surface2); font-weight: 600; }
+  .panel-body .markdown strong { color: #fff; }
+
+  /* Install guide */
+  .install-section { border-top: 1px solid var(--border); padding: 20px 28px; }
+  .install-title { font-size: 0.8rem; font-weight: 600; letter-spacing: 0.06em; color: var(--muted); text-transform: uppercase; margin-bottom: 14px; }
+  .install-tabs { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 14px; }
+  .tab-btn { padding: 5px 12px; border-radius: 6px; border: 1px solid var(--border); background: var(--surface2); color: var(--muted); font-size: 0.78rem; cursor: pointer; transition: all 0.15s; }
+  .tab-btn.active, .tab-btn:hover { border-color: var(--accent); color: var(--accent); background: color-mix(in srgb, var(--accent) 10%, transparent); }
+  .tab-content { display: none; }
+  .tab-content.active { display: block; }
+  .install-code { background: var(--bg); border: 1px solid var(--border); border-radius: 8px; padding: 12px 16px; font-family: monospace; font-size: 0.8rem; color: #94a3b8; position: relative; white-space: pre-wrap; word-break: break-all; line-height: 1.6; }
+  .install-copy { position: absolute; top: 8px; right: 8px; }
+
+  /* Stats bar */
+  .stats-bar { display: flex; gap: 24px; padding: 12px 28px; background: var(--surface); border-bottom: 1px solid var(--border); font-size: 0.8rem; color: var(--muted); }
+  .stats-bar span { color: var(--text); font-weight: 600; }
+
+  /* Scrollbar */
+  ::-webkit-scrollbar { width: 6px; height: 6px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+  ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+  ::-webkit-scrollbar-thumb:hover { background: var(--muted); }
+
+  /* Mobile */
+  @media (max-width: 768px) {
+    .sidebar { display: none; }
+    .main { padding: 16px; }
+    .search-hint { display: none; }
+    .agent-grid { grid-template-columns: 1fr 1fr; gap: 8px; }
+    .panel { width: 100%; }
+    .panel-actions .btn-label { display: none; }
+  }
+  @media (max-width: 480px) {
+    .agent-grid { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+
+<!-- Header -->
+<header class="header">
+  <div class="logo">🎭 <span>The</span> Agency</div>
+  <div class="search-wrap">
+    <span class="search-icon">🔍</span>
+    <input type="text" id="search" placeholder="Search agents..." autocomplete="off">
+  </div>
+  <div class="search-hint"><kbd>/</kbd> to search &nbsp; <kbd>Esc</kbd> to close</div>
+</header>
+
+<!-- Stats bar -->
+<div class="stats-bar" id="statsBar">
+  Loading agents...
+</div>
+
+<!-- Layout -->
+<div class="layout">
+  <!-- Sidebar -->
+  <nav class="sidebar" id="sidebar">
+    <div class="sidebar-title">Divisions</div>
+    <div id="sidebarItems"></div>
+    <div class="sidebar-divider"></div>
+    <div class="sidebar-total" id="sidebarTotal"></div>
+  </nav>
+
+  <!-- Main -->
+  <main class="main" id="main">
+    <div id="agentList"></div>
+  </main>
+</div>
+
+<!-- Overlay -->
+<div class="panel-overlay" id="overlay" onclick="closePanel()"></div>
+
+<!-- Detail Panel -->
+<div class="panel" id="panel">
+  <div class="panel-header">
+    <div class="panel-top">
+      <div>
+        <div class="panel-name" id="panelName">Agent Name</div>
+        <div class="panel-division" id="panelDivision">Division</div>
+      </div>
+      <div class="panel-actions">
+        <button class="btn primary" id="btnCopy" onclick="copyPrompt()">📋 <span class="btn-label">Copy Prompt</span></button>
+        <button class="btn" id="btnDownload" onclick="downloadAgent()">⬇ <span class="btn-label">Download</span></button>
+        <button class="btn close" onclick="closePanel()" title="Close (Esc)">✕</button>
+      </div>
+    </div>
+  </div>
+  <div class="panel-body" id="panelBody">
+    <div class="panel-loading"><div class="spinner"></div><p>Loading agent...</p></div>
+  </div>
+  <div class="install-section">
+    <div class="install-title">Install to your AI tool</div>
+    <div class="install-tabs" id="installTabs"></div>
+    <div id="installContent"></div>
+  </div>
+</div>
+
+<script>
+// ============================================================
+// CONFIG
+// ============================================================
+const REPO_RAW_BASE = 'https://raw.githubusercontent.com/anshmudgil/AGENCY-AGENTS-MAIN/master';
+const REPO_URL = 'https://github.com/anshmudgil/AGENCY-AGENTS-MAIN';
+
+// ============================================================
+// AGENT DATA — all 106+ agents with real metadata
+// ============================================================
+const DIVISIONS = [
+  { id: 'engineering',        label: 'Engineering',         emoji: '⚙️' },
+  { id: 'design',             label: 'Design',              emoji: '🎨' },
+  { id: 'marketing',          label: 'Marketing',           emoji: '📣' },
+  { id: 'product',            label: 'Product',             emoji: '🧩' },
+  { id: 'project-management', label: 'Project Management',  emoji: '📋' },
+  { id: 'testing',            label: 'Testing',             emoji: '✅' },
+  { id: 'support',            label: 'Support',             emoji: '🛟' },
+  { id: 'specialized',        label: 'Specialized',         emoji: '⚡' },
+  { id: 'spatial-computing',  label: 'Spatial Computing',   emoji: '🥽' },
+  { id: 'game-development',   label: 'Game Development',    emoji: '🎮' },
+];
+
+const AGENTS = [
+  // ── Engineering ──────────────────────────────────────────
+  { id:'engineering-ai-engineer', name:'AI Engineer', category:'engineering', color:'#3b82f6', description:'ML model development, deployment, and LLM integration into production systems.', file:'engineering/engineering-ai-engineer.md' },
+  { id:'engineering-autonomous-optimization-architect', name:'Autonomous Optimization Architect', category:'engineering', color:'#673AB7', description:'Shadow-tests APIs for performance while enforcing strict financial and security guardrails.', file:'engineering/engineering-autonomous-optimization-architect.md' },
+  { id:'engineering-backend-architect', name:'Backend Architect', category:'engineering', color:'#3b82f6', description:'Scalable system design, database architecture, APIs, and cloud infrastructure.', file:'engineering/engineering-backend-architect.md' },
+  { id:'engineering-data-engineer', name:'Data Engineer', category:'engineering', color:'#f97316', description:'ETL/ELT, Apache Spark, dbt, streaming systems, and cloud data platforms.', file:'engineering/engineering-data-engineer.md' },
+  { id:'engineering-devops-automator', name:'DevOps Automator', category:'engineering', color:'#f97316', description:'Infrastructure automation, CI/CD pipeline development, and cloud operations.', file:'engineering/engineering-devops-automator.md' },
+  { id:'engineering-embedded-firmware-engineer', name:'Embedded Firmware Engineer', category:'engineering', color:'#f97316', description:'Bare-metal and RTOS firmware — ESP32, ARM Cortex-M, FreeRTOS, Zephyr.', file:'engineering/engineering-embedded-firmware-engineer.md' },
+  { id:'engineering-frontend-developer', name:'Frontend Developer', category:'engineering', color:'#06b6d4', description:'Modern web technologies, React/Vue/Angular, UI implementation, and performance optimization.', file:'engineering/engineering-frontend-developer.md' },
+  { id:'engineering-incident-response-commander', name:'Incident Response Commander', category:'engineering', color:'#e63946', description:'Production incident management, SLO/SLI tracking, and post-mortem facilitation.', file:'engineering/engineering-incident-response-commander.md' },
+  { id:'engineering-mobile-app-builder', name:'Mobile App Builder', category:'engineering', color:'#a855f7', description:'Native iOS/Android development and cross-platform frameworks.', file:'engineering/engineering-mobile-app-builder.md' },
+  { id:'engineering-rapid-prototyper', name:'Rapid Prototyper', category:'engineering', color:'#22c55e', description:'Ultra-fast proof-of-concept development and MVP creation.', file:'engineering/engineering-rapid-prototyper.md' },
+  { id:'engineering-security-engineer', name:'Security Engineer', category:'engineering', color:'#ef4444', description:'Threat modeling, vulnerability assessment, secure code review, and AppSec architecture.', file:'engineering/engineering-security-engineer.md' },
+  { id:'engineering-senior-developer', name:'Senior Developer', category:'engineering', color:'#22c55e', description:'Masters Laravel/Livewire/FluxUI, advanced CSS, and Three.js integration.', file:'engineering/engineering-senior-developer.md' },
+  { id:'engineering-solidity-smart-contract-engineer', name:'Solidity Smart Contract Engineer', category:'engineering', color:'#f97316', description:'EVM smart contracts, DeFi protocol development, gas optimization, Ethereum and L2 chains.', file:'engineering/engineering-solidity-smart-contract-engineer.md' },
+  { id:'engineering-technical-writer', name:'Technical Writer', category:'engineering', color:'#14b8a6', description:'Developer documentation, API references, README files, and tutorials.', file:'engineering/engineering-technical-writer.md' },
+  { id:'engineering-threat-detection-engineer', name:'Threat Detection Engineer', category:'engineering', color:'#7b2d8e', description:'SIEM rule development, MITRE ATT&CK coverage mapping, and detection-as-code pipelines.', file:'engineering/engineering-threat-detection-engineer.md' },
+  { id:'engineering-wechat-mini-program-developer', name:'WeChat Mini Program Developer', category:'engineering', color:'#22c55e', description:'WeChat Mini Program development with WXML/WXSS, APIs, and payment systems.', file:'engineering/engineering-wechat-mini-program-developer.md' },
+
+  // ── Design ────────────────────────────────────────────────
+  { id:'design-brand-guardian', name:'Brand Guardian', category:'design', color:'#3b82f6', description:'Brand identity development, consistency maintenance, and strategic brand positioning.', file:'design/design-brand-guardian.md' },
+  { id:'design-image-prompt-engineer', name:'Image Prompt Engineer', category:'design', color:'#f59e0b', description:'Crafting detailed, evocative prompts for AI image generation tools.', file:'design/design-image-prompt-engineer.md' },
+  { id:'design-inclusive-visuals-specialist', name:'Inclusive Visuals Specialist', category:'design', color:'#4DB6AC', description:'Defeats systemic AI biases to generate culturally accurate, affirming imagery.', file:'design/design-inclusive-visuals-specialist.md' },
+  { id:'design-ui-designer', name:'UI Designer', category:'design', color:'#a855f7', description:'Visual design systems, component libraries, and pixel-perfect interface creation.', file:'design/design-ui-designer.md' },
+  { id:'design-ux-architect', name:'UX Architect', category:'design', color:'#a855f7', description:'Technical architecture and UX specialist providing solid CSS systems and implementation guidance.', file:'design/design-ux-architect.md' },
+  { id:'design-ux-researcher', name:'UX Researcher', category:'design', color:'#22c55e', description:'User behavior analysis, usability testing, and data-driven design insights.', file:'design/design-ux-researcher.md' },
+  { id:'design-visual-storyteller', name:'Visual Storyteller', category:'design', color:'#a855f7', description:'Compelling visual narratives, multimedia content, and brand storytelling through design.', file:'design/design-visual-storyteller.md' },
+  { id:'design-whimsy-injector', name:'Whimsy Injector', category:'design', color:'#ec4899', description:'Adding personality, delight, and playful elements that differentiate brands.', file:'design/design-whimsy-injector.md' },
+
+  // ── Marketing ─────────────────────────────────────────────
+  { id:'marketing-app-store-optimizer', name:'App Store Optimizer', category:'marketing', color:'#3b82f6', description:'App Store Optimization (ASO), conversion rate optimization, and app discoverability.', file:'marketing/marketing-app-store-optimizer.md' },
+  { id:'marketing-baidu-seo-specialist', name:'Baidu SEO Specialist', category:'marketing', color:'#3b82f6', description:'Chinese search engine ranking, ICP compliance, and Baidu ecosystem integration.', file:'marketing/marketing-baidu-seo-specialist.md' },
+  { id:'marketing-bilibili-content-strategist', name:'Bilibili Content Strategist', category:'marketing', color:'#ec4899', description:'UP主 growth, danmaku culture mastery, and B站 algorithm optimization.', file:'marketing/marketing-bilibili-content-strategist.md' },
+  { id:'marketing-carousel-growth-engine', name:'Carousel Growth Engine', category:'marketing', color:'#FF0050', description:'Autonomous TikTok/Instagram carousel generation with AI images and analytics.', file:'marketing/marketing-carousel-growth-engine.md' },
+  { id:'marketing-china-ecommerce-operator', name:'China E-Commerce Operator', category:'marketing', color:'#ef4444', description:'Taobao, Tmall, Pinduoduo, JD ecosystems, live commerce, and Double 11 campaigns.', file:'marketing/marketing-china-ecommerce-operator.md' },
+  { id:'marketing-content-creator', name:'Content Creator', category:'marketing', color:'#14b8a6', description:'Multi-platform content strategy, editorial calendars, and compelling copy.', file:'marketing/marketing-content-creator.md' },
+  { id:'marketing-growth-hacker', name:'Growth Hacker', category:'marketing', color:'#22c55e', description:'Viral loops, conversion funnel optimization, and scalable acquisition channels.', file:'marketing/marketing-growth-hacker.md' },
+  { id:'marketing-instagram-curator', name:'Instagram Curator', category:'marketing', color:'#E4405F', description:'Visual storytelling, community building, and multi-format content optimization.', file:'marketing/marketing-instagram-curator.md' },
+  { id:'marketing-kuaishou-strategist', name:'Kuaishou Strategist', category:'marketing', color:'#f97316', description:'Short-video content for China\'s lower-tier markets and live commerce on 快手.', file:'marketing/marketing-kuaishou-strategist.md' },
+  { id:'marketing-reddit-community-builder', name:'Reddit Community Builder', category:'marketing', color:'#FF4500', description:'Authentic community engagement and value-driven content creation on Reddit.', file:'marketing/marketing-reddit-community-builder.md' },
+  { id:'marketing-seo-specialist', name:'SEO Specialist', category:'marketing', color:'#4285F4', description:'Technical SEO, content optimization, link authority building, and organic growth.', file:'marketing/marketing-seo-specialist.md' },
+  { id:'marketing-social-media-strategist', name:'Social Media Strategist', category:'marketing', color:'#3b82f6', description:'LinkedIn, Twitter, cross-platform campaigns, and thought leadership strategies.', file:'marketing/marketing-social-media-strategist.md' },
+  { id:'marketing-tiktok-strategist', name:'TikTok Strategist', category:'marketing', color:'#818cf8', description:'Viral content creation, algorithm optimization, and TikTok community building.', file:'marketing/marketing-tiktok-strategist.md' },
+  { id:'marketing-twitter-engager', name:'Twitter Engager', category:'marketing', color:'#1DA1F2', description:'Real-time engagement, thought leadership building, and viral thread creation.', file:'marketing/marketing-twitter-engager.md' },
+  { id:'marketing-wechat-official-account', name:'WeChat Official Account Manager', category:'marketing', color:'#09B83E', description:'WeChat OA content marketing, subscriber engagement, and conversion optimization.', file:'marketing/marketing-wechat-official-account.md' },
+  { id:'marketing-xiaohongshu-specialist', name:'Xiaohongshu Specialist', category:'marketing', color:'#FF1B6D', description:'Lifestyle content, trend-driven strategies, and authentic community engagement.', file:'marketing/marketing-xiaohongshu-specialist.md' },
+  { id:'marketing-zhihu-strategist', name:'Zhihu Strategist', category:'marketing', color:'#0084FF', description:'Thought leadership, Q&A credibility, and knowledge-driven engagement on Zhihu.', file:'marketing/marketing-zhihu-strategist.md' },
+
+  // ── Product ───────────────────────────────────────────────
+  { id:'product-behavioral-nudge-engine', name:'Behavioral Nudge Engine', category:'product', color:'#FF8A65', description:'Behavioral psychology specialist adapting interaction cadences to maximize user motivation.', file:'product/product-behavioral-nudge-engine.md' },
+  { id:'product-feedback-synthesizer', name:'Feedback Synthesizer', category:'product', color:'#3b82f6', description:'Multi-channel feedback analysis → actionable product insights and priorities.', file:'product/product-feedback-synthesizer.md' },
+  { id:'product-sprint-prioritizer', name:'Sprint Prioritizer', category:'product', color:'#22c55e', description:'Agile sprint planning, feature prioritization, and resource allocation.', file:'product/product-sprint-prioritizer.md' },
+  { id:'product-trend-researcher', name:'Trend Researcher', category:'product', color:'#a855f7', description:'Emerging trends identification, competitive analysis, and opportunity assessment.', file:'product/product-trend-researcher.md' },
+
+  // ── Project Management ────────────────────────────────────
+  { id:'project-management-experiment-tracker', name:'Experiment Tracker', category:'project-management', color:'#a855f7', description:'Experiment design, A/B test execution, and hypothesis validation.', file:'project-management/project-management-experiment-tracker.md' },
+  { id:'project-management-jira-workflow-steward', name:'Jira Workflow Steward', category:'project-management', color:'#f97316', description:'Jira-linked Git workflows, traceable commits, and release-safe branch strategy.', file:'project-management/project-management-jira-workflow-steward.md' },
+  { id:'project-management-project-shepherd', name:'Project Shepherd', category:'project-management', color:'#3b82f6', description:'Cross-functional project coordination, timeline management, and stakeholder alignment.', file:'project-management/project-management-project-shepherd.md' },
+  { id:'project-management-studio-operations', name:'Studio Operations', category:'project-management', color:'#22c55e', description:'Day-to-day studio efficiency, process optimization, and resource coordination.', file:'project-management/project-management-studio-operations.md' },
+  { id:'project-management-studio-producer', name:'Studio Producer', category:'project-management', color:'#eab308', description:'Strategic portfolio orchestration aligning creative vision with business objectives.', file:'project-management/project-management-studio-producer.md' },
+  { id:'project-manager-senior', name:'Senior Project Manager', category:'project-management', color:'#3b82f6', description:'Converts specs to tasks, manages scope, focuses on realistic delivery.', file:'project-management/project-manager-senior.md' },
+
+  // ── Testing ───────────────────────────────────────────────
+  { id:'testing-accessibility-auditor', name:'Accessibility Auditor', category:'testing', color:'#0077B6', description:'WCAG audits, assistive technology testing, and inclusive design enforcement.', file:'testing/testing-accessibility-auditor.md' },
+  { id:'testing-api-tester', name:'API Tester', category:'testing', color:'#a855f7', description:'Comprehensive API validation, performance testing, and quality assurance.', file:'testing/testing-api-tester.md' },
+  { id:'testing-evidence-collector', name:'Evidence Collector', category:'testing', color:'#f97316', description:'Screenshot-obsessed, fantasy-allergic QA specialist. Visual proof required for everything.', file:'testing/testing-evidence-collector.md' },
+  { id:'testing-performance-benchmarker', name:'Performance Benchmarker', category:'testing', color:'#f97316', description:'System performance measurement, analysis, and optimization across all applications.', file:'testing/testing-performance-benchmarker.md' },
+  { id:'testing-reality-checker', name:'Reality Checker', category:'testing', color:'#ef4444', description:'Stops fantasy approvals. Defaults to "NEEDS WORK" — requires overwhelming proof.', file:'testing/testing-reality-checker.md' },
+  { id:'testing-test-results-analyzer', name:'Test Results Analyzer', category:'testing', color:'#6366f1', description:'Comprehensive test result evaluation, quality metrics analysis, and insights.', file:'testing/testing-test-results-analyzer.md' },
+  { id:'testing-tool-evaluator', name:'Tool Evaluator', category:'testing', color:'#14b8a6', description:'Technology assessment, tool evaluation, and software recommendations.', file:'testing/testing-tool-evaluator.md' },
+  { id:'testing-workflow-optimizer', name:'Workflow Optimizer', category:'testing', color:'#22c55e', description:'Process improvement specialist analyzing and automating workflows for maximum efficiency.', file:'testing/testing-workflow-optimizer.md' },
+
+  // ── Support ───────────────────────────────────────────────
+  { id:'support-analytics-reporter', name:'Analytics Reporter', category:'support', color:'#14b8a6', description:'Dashboards, statistical analysis, KPI tracking, and strategic decision support.', file:'support/support-analytics-reporter.md' },
+  { id:'support-executive-summary-generator', name:'Executive Summary Generator', category:'support', color:'#a855f7', description:'McKinsey/BCG/Bain frameworks for C-suite communications and strategic summaries.', file:'support/support-executive-summary-generator.md' },
+  { id:'support-finance-tracker', name:'Finance Tracker', category:'support', color:'#22c55e', description:'Financial planning, budget management, cash flow optimization, and business analysis.', file:'support/support-finance-tracker.md' },
+  { id:'support-infrastructure-maintainer', name:'Infrastructure Maintainer', category:'support', color:'#f97316', description:'System reliability, performance optimization, and technical operations management.', file:'support/support-infrastructure-maintainer.md' },
+  { id:'support-legal-compliance-checker', name:'Legal Compliance Checker', category:'support', color:'#ef4444', description:'Multi-jurisdiction compliance, data handling laws, and regulatory standards.', file:'support/support-legal-compliance-checker.md' },
+  { id:'support-support-responder', name:'Support Responder', category:'support', color:'#3b82f6', description:'Customer support, multi-channel issue resolution, and positive CX delivery.', file:'support/support-support-responder.md' },
+
+  // ── Specialized ───────────────────────────────────────────
+  { id:'specialized-accounts-payable-agent', name:'Accounts Payable Agent', category:'specialized', color:'#22c55e', description:'Autonomous payment processing across crypto, fiat, and stablecoins via MCP.', file:'specialized/accounts-payable-agent.md' },
+  { id:'specialized-agentic-identity-trust', name:'Agentic Identity & Trust Architect', category:'specialized', color:'#2d5a27', description:'Identity, authentication, and trust systems for autonomous multi-agent environments.', file:'specialized/agentic-identity-trust.md' },
+  { id:'specialized-agents-orchestrator', name:'Agents Orchestrator', category:'specialized', color:'#06b6d4', description:'Autonomous pipeline manager and NEXUS lead. Orchestrates the entire development workflow.', file:'specialized/agents-orchestrator.md' },
+  { id:'specialized-blockchain-security-auditor', name:'Blockchain Security Auditor', category:'specialized', color:'#ef4444', description:'Smart contract security audits, vulnerability detection, and exploit analysis.', file:'specialized/blockchain-security-auditor.md' },
+  { id:'specialized-compliance-auditor', name:'Compliance Auditor', category:'specialized', color:'#f97316', description:'SOC 2, ISO 27001, HIPAA, and PCI-DSS audits from readiness to certification.', file:'specialized/compliance-auditor.md' },
+  { id:'specialized-data-analytics-reporter', name:'Data Analytics Reporter', category:'specialized', color:'#6366f1', description:'Data → actionable business insights, dashboards, KPIs, and statistical analysis.', file:'specialized/data-analytics-reporter.md' },
+  { id:'specialized-data-consolidation-agent', name:'Data Consolidation Agent', category:'specialized', color:'#38a169', description:'AI agent consolidating extracted sales data into live reporting dashboards.', file:'specialized/data-consolidation-agent.md' },
+  { id:'specialized-identity-graph-operator', name:'Identity Graph Operator', category:'specialized', color:'#C5A572', description:'Shared identity graph for deterministic canonical entity resolution across agents.', file:'specialized/identity-graph-operator.md' },
+  { id:'specialized-lsp-index-engineer', name:'LSP/Index Engineer', category:'specialized', color:'#f97316', description:'Language Server Protocol specialist building unified code intelligence systems.', file:'specialized/lsp-index-engineer.md' },
+  { id:'specialized-report-distribution-agent', name:'Report Distribution Agent', category:'specialized', color:'#d69e2e', description:'Automated distribution of consolidated sales reports by territorial parameters.', file:'specialized/report-distribution-agent.md' },
+  { id:'specialized-sales-data-extraction-agent', name:'Sales Data Extraction Agent', category:'specialized', color:'#2b6cb0', description:'Monitors Excel files and extracts key sales metrics (MTD, YTD, Year End).', file:'specialized/sales-data-extraction-agent.md' },
+  { id:'specialized-cultural-intelligence-strategist', name:'Cultural Intelligence Strategist', category:'specialized', color:'#FFA000', description:'Detects invisible exclusion and ensures software resonates across intersectional identities.', file:'specialized/specialized-cultural-intelligence-strategist.md' },
+  { id:'specialized-developer-advocate', name:'Developer Advocate', category:'specialized', color:'#a855f7', description:'Developer communities, technical content, DX optimization, and platform adoption.', file:'specialized/specialized-developer-advocate.md' },
+  { id:'specialized-model-qa', name:'Model QA Specialist', category:'specialized', color:'#B22222', description:'ML model audits — documentation, replication, calibration, and audit-grade reporting.', file:'specialized/specialized-model-qa.md' },
+  { id:'specialized-zk-steward', name:'ZK Steward', category:'specialized', color:'#14b8a6', description:'Zettelkasten knowledge base management. Atomic notes, connectivity, and validation loops.', file:'specialized/zk-steward.md' },
+
+  // ── Spatial Computing ─────────────────────────────────────
+  { id:'spatial-macos-metal-engineer', name:'macOS Spatial/Metal Engineer', category:'spatial-computing', color:'#60a5fa', description:'Native Swift and Metal for high-performance 3D rendering and Vision Pro experiences.', file:'spatial-computing/macos-spatial-metal-engineer.md' },
+  { id:'spatial-terminal-integration-specialist', name:'Terminal Integration Specialist', category:'spatial-computing', color:'#22c55e', description:'Terminal emulation, text rendering optimization, and SwiftTerm integration.', file:'spatial-computing/terminal-integration-specialist.md' },
+  { id:'spatial-visionos-spatial-engineer', name:'visionOS Spatial Engineer', category:'spatial-computing', color:'#6366f1', description:'Native visionOS, SwiftUI volumetric interfaces, and Liquid Glass design.', file:'spatial-computing/visionos-spatial-engineer.md' },
+  { id:'spatial-xr-cockpit-interaction-specialist', name:'XR Cockpit Interaction Specialist', category:'spatial-computing', color:'#f97316', description:'Immersive cockpit-based control systems for XR environments.', file:'spatial-computing/xr-cockpit-interaction-specialist.md' },
+  { id:'spatial-xr-immersive-developer', name:'XR Immersive Developer', category:'spatial-computing', color:'#22d3ee', description:'WebXR and immersive technology for browser-based AR/VR/XR applications.', file:'spatial-computing/xr-immersive-developer.md' },
+  { id:'spatial-xr-interface-architect', name:'XR Interface Architect', category:'spatial-computing', color:'#4ade80', description:'Spatial interaction design and interface strategy for AR/VR/XR environments.', file:'spatial-computing/xr-interface-architect.md' },
+
+  // ── Game Development ──────────────────────────────────────
+  { id:'game-audio-engineer', name:'Game Audio Engineer', category:'game-development', color:'#6366f1', description:'FMOD/Wwise integration, adaptive music systems, and spatial audio across engines.', file:'game-development/game-audio-engineer.md' },
+  { id:'game-designer', name:'Game Designer', category:'game-development', color:'#facc15', description:'GDD authorship, player psychology, economy balancing, and gameplay loop design.', file:'game-development/game-designer.md' },
+  { id:'game-level-designer', name:'Level Designer', category:'game-development', color:'#14b8a6', description:'Layout theory, pacing architecture, encounter design, and environmental narrative.', file:'game-development/level-designer.md' },
+  { id:'game-narrative-designer', name:'Narrative Designer', category:'game-development', color:'#ef4444', description:'Branching dialogue, lore architecture, and environmental storytelling across engines.', file:'game-development/narrative-designer.md' },
+  { id:'game-technical-artist', name:'Technical Artist', category:'game-development', color:'#ec4899', description:'Shaders, VFX systems, LOD pipelines, and cross-engine asset optimization.', file:'game-development/technical-artist.md' },
+  { id:'godot-gameplay-scripter', name:'Godot Gameplay Scripter', category:'game-development', color:'#a855f7', description:'GDScript 2.0, C# integration, node architecture, and type-safe signal design for Godot 4.', file:'game-development/godot/godot-gameplay-scripter.md' },
+  { id:'godot-multiplayer-engineer', name:'Godot Multiplayer Engineer', category:'game-development', color:'#7c3aed', description:'MultiplayerAPI, scene replication, ENet/WebRTC transport, and RPCs for Godot 4.', file:'game-development/godot/godot-multiplayer-engineer.md' },
+  { id:'godot-shader-developer', name:'Godot Shader Developer', category:'game-development', color:'#a855f7', description:'Godot Shading Language, VisualShader editor, and post-processing effects for Godot 4.', file:'game-development/godot/godot-shader-developer.md' },
+  { id:'unity-architect', name:'Unity Architect', category:'game-development', color:'#3b82f6', description:'ScriptableObjects, decoupled systems, and single-responsibility component design.', file:'game-development/unity/unity-architect.md' },
+  { id:'unity-editor-tool-developer', name:'Unity Editor Tool Developer', category:'game-development', color:'#6b7280', description:'Custom EditorWindows, PropertyDrawers, AssetPostprocessors, and pipeline automation.', file:'game-development/unity/unity-editor-tool-developer.md' },
+  { id:'unity-multiplayer-engineer', name:'Unity Multiplayer Engineer', category:'game-development', color:'#3b82f6', description:'Netcode for GameObjects, Unity Gaming Services, and lag compensation.', file:'game-development/unity/unity-multiplayer-engineer.md' },
+  { id:'unity-shader-graph-artist', name:'Unity Shader Graph Artist', category:'game-development', color:'#06b6d4', description:'Unity Shader Graph, HLSL, URP/HDRP pipelines, and real-time visual effects.', file:'game-development/unity/unity-shader-graph-artist.md' },
+  { id:'unreal-multiplayer-architect', name:'Unreal Multiplayer Architect', category:'game-development', color:'#ef4444', description:'Actor replication, server-authoritative gameplay, and dedicated server setup for UE5.', file:'game-development/unreal-engine/unreal-multiplayer-architect.md' },
+  { id:'unreal-systems-engineer', name:'Unreal Systems Engineer', category:'game-development', color:'#f97316', description:'C++/Blueprint continuum, Nanite, Lumen GI, and Gameplay Ability System for UE5.', file:'game-development/unreal-engine/unreal-systems-engineer.md' },
+  { id:'unreal-technical-artist', name:'Unreal Technical Artist', category:'game-development', color:'#f97316', description:'UE5 Material Editor, Niagara VFX, Procedural Content Generation pipeline.', file:'game-development/unreal-engine/unreal-technical-artist.md' },
+  { id:'unreal-world-builder', name:'Unreal World Builder', category:'game-development', color:'#22c55e', description:'World Partition, Landscape, procedural foliage, HLOD, and large-scale level streaming.', file:'game-development/unreal-engine/unreal-world-builder.md' },
+  { id:'roblox-avatar-creator', name:'Roblox Avatar Creator', category:'game-development', color:'#d946ef', description:'Roblox UGC, avatar pipeline, accessory rigging, and Creator Marketplace submission.', file:'game-development/roblox-studio/roblox-avatar-creator.md' },
+  { id:'roblox-experience-designer', name:'Roblox Experience Designer', category:'game-development', color:'#84cc16', description:'Engagement loops, DataStore-driven progression, and Roblox monetization systems.', file:'game-development/roblox-studio/roblox-experience-designer.md' },
+  { id:'roblox-systems-scripter', name:'Roblox Systems Scripter', category:'game-development', color:'#f43f5e', description:'Luau, client-server security model, RemoteEvents, DataStore, and module architecture.', file:'game-development/roblox-studio/roblox-systems-scripter.md' },
+];
+
+// ============================================================
+// INSTALL INSTRUCTIONS
+// ============================================================
+const INSTALL_TOOLS = [
+  {
+    id: 'claude-code',
+    label: 'Claude Code',
+    icon: '🤖',
+    getInstall: (agent) => `# Copy this single agent to Claude Code agents directory
+cp "${agent.file}" ~/.claude/agents/
+
+# Then activate in any Claude Code session:
+# "Activate ${agent.name} mode and help me with..."`
+  },
+  {
+    id: 'cursor',
+    label: 'Cursor',
+    icon: '↗',
+    getInstall: (agent) => `# From repo root, convert and install for Cursor:
+./scripts/convert.sh --tool cursor
+./scripts/install.sh --tool cursor
+
+# Or manually: copy the content of ${agent.file}
+# into .cursor/rules/${agent.id}.mdc in your project`
+  },
+  {
+    id: 'windsurf',
+    label: 'Windsurf',
+    icon: '🏄',
+    getInstall: (agent) => `# Convert all agents and install for Windsurf:
+./scripts/convert.sh --tool windsurf
+./scripts/install.sh --tool windsurf
+
+# This creates/updates .windsurfrules in your project root
+# File: ${agent.file}`
+  },
+  {
+    id: 'aider',
+    label: 'Aider',
+    icon: '⌨',
+    getInstall: (agent) => `# Convert all agents and install for Aider:
+./scripts/convert.sh --tool aider
+./scripts/install.sh --tool aider
+
+# This creates CONVENTIONS.md in your project root
+# Then run: aider --conventions CONVENTIONS.md`
+  },
+  {
+    id: 'gemini',
+    label: 'Gemini CLI',
+    icon: '✦',
+    getInstall: (agent) => `# Convert and install for Gemini CLI:
+./scripts/convert.sh --tool gemini-cli
+./scripts/install.sh --tool gemini-cli
+
+# Installs to ~/.gemini/extensions/agency-agents/
+# File: ${agent.file}`
+  },
+  {
+    id: 'copilot',
+    label: 'GitHub Copilot',
+    icon: '🐙',
+    getInstall: (agent) => `# Install for GitHub Copilot:
+./scripts/install.sh --tool copilot
+
+# Creates .github/copilot-instructions.md in your project
+# Contains: ${agent.name} + all other agents`
+  },
+];
+
+// ============================================================
+// STATE
+// ============================================================
+let activeFilter = 'all';
+let searchQuery = '';
+let currentAgent = null;
+let rawContentCache = {};
+
+// ============================================================
+// COLOR UTILITIES
+// ============================================================
+function resolveColor(color) {
+  const namedColors = {
+    'cyan': '#06b6d4', 'blue': '#3b82f6', 'green': '#22c55e',
+    'purple': '#a855f7', 'red': '#ef4444', 'orange': '#f97316',
+    'pink': '#ec4899', 'gold': '#eab308', 'gray': '#6b7280',
+    'teal': '#14b8a6', 'yellow': '#facc15', 'indigo': '#6366f1',
+    'amber': '#f59e0b', 'violet': '#7c3aed', 'lime': '#84cc16',
+    'fuchsia': '#d946ef', 'rose': '#f43f5e',
+    'metallic-blue': '#60a5fa', 'neon-cyan': '#22d3ee', 'neon-green': '#4ade80',
+  };
+  if (!color) return '#6366f1';
+  if (color.startsWith('#')) return color;
+  return namedColors[color.toLowerCase()] || '#6366f1';
+}
+
+// ============================================================
+// RENDER
+// ============================================================
+function getDivisionAgents(divId) {
+  return AGENTS.filter(a => {
+    if (activeFilter !== 'all' && a.category !== activeFilter) return false;
+    if (searchQuery) {
+      const q = searchQuery.toLowerCase();
+      return a.name.toLowerCase().includes(q) || a.description.toLowerCase().includes(q) || a.category.toLowerCase().includes(q);
+    }
+    return true;
+  }).filter(a => a.category === divId);
+}
+
+function renderAll() {
+  const list = document.getElementById('agentList');
+  const query = searchQuery.trim().toLowerCase();
+  const filtered = AGENTS.filter(a => {
+    if (activeFilter !== 'all' && a.category !== activeFilter) return false;
+    if (query) return a.name.toLowerCase().includes(query) || a.description.toLowerCase().includes(query) || a.category.toLowerCase().includes(query);
+    return true;
+  });
+
+  if (filtered.length === 0) {
+    list.innerHTML = `<div class="empty"><div class="icon">🔍</div><p>No agents found for "${searchQuery}"</p><small>Try a different search term or clear the filter</small></div>`;
+    document.getElementById('statsBar').textContent = '0 agents found';
+    return;
+  }
+
+  const divisionsToShow = activeFilter !== 'all'
+    ? DIVISIONS.filter(d => d.id === activeFilter)
+    : DIVISIONS;
+
+  let html = '';
+  let totalShown = 0;
+  for (const div of divisionsToShow) {
+    const agents = filtered.filter(a => a.category === div.id);
+    if (agents.length === 0) continue;
+    totalShown += agents.length;
+    html += `
+      <div class="division-header" id="div-${div.id}">
+        <span style="font-size:1.2rem">${div.emoji}</span>
+        <span class="division-title">${div.label}</span>
+        <span class="division-count">${agents.length}</span>
+        <div class="division-line"></div>
+      </div>
+      <div class="agent-grid">
+        ${agents.map(a => renderCard(a)).join('')}
+      </div>
+    `;
+  }
+  list.innerHTML = html;
+  updateStats(totalShown, filtered.length);
+}
+
+function renderCard(a) {
+  const color = resolveColor(a.color);
+  const divLabel = DIVISIONS.find(d => d.id === a.category)?.label || a.category;
+  return `
+    <div class="agent-card" style="--card-color:${color}" onclick="openAgent('${a.id}')" title="${a.name}">
+      <div class="card-badge">${divLabel}</div>
+      <div class="card-name">${a.name}</div>
+      <div class="card-desc">${a.description}</div>
+    </div>
+  `;
+}
+
+function renderSidebar() {
+  const items = document.getElementById('sidebarItems');
+  const divCounts = {};
+  AGENTS.forEach(a => { divCounts[a.category] = (divCounts[a.category] || 0) + 1; });
+
+  let html = `<div class="sidebar-item ${activeFilter === 'all' ? 'active' : ''}" onclick="setFilter('all')">
+    <span>All Agents</span><span class="count">${AGENTS.length}</span>
+  </div>`;
+
+  for (const div of DIVISIONS) {
+    const count = divCounts[div.id] || 0;
+    if (count === 0) continue;
+    html += `<div class="sidebar-item ${activeFilter === div.id ? 'active' : ''}" onclick="setFilter('${div.id}')">
+      <span>${div.emoji} ${div.label}</span>
+      <span class="count">${count}</span>
+    </div>`;
+  }
+  items.innerHTML = html;
+  document.getElementById('sidebarTotal').textContent = `${AGENTS.length} total agents`;
+}
+
+function updateStats(shown, total) {
+  const bar = document.getElementById('statsBar');
+  bar.innerHTML = `<span>${shown}</span> agents shown &nbsp;·&nbsp; <span>${DIVISIONS.length}</span> divisions &nbsp;·&nbsp; Browse · Copy · Download`;
+}
+
+// ============================================================
+// FILTER & SEARCH
+// ============================================================
+function setFilter(divId) {
+  activeFilter = divId;
+  renderSidebar();
+  renderAll();
+  if (divId !== 'all') {
+    const el = document.getElementById(`div-${divId}`);
+    if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }
+}
+
+document.getElementById('search').addEventListener('input', (e) => {
+  searchQuery = e.target.value;
+  renderAll();
+});
+
+// ============================================================
+// PANEL
+// ============================================================
+async function openAgent(id) {
+  const agent = AGENTS.find(a => a.id === id);
+  if (!agent) return;
+  currentAgent = agent;
+
+  const color = resolveColor(agent.color);
+  const divLabel = DIVISIONS.find(d => d.id === agent.category)?.label || agent.category;
+
+  document.getElementById('panelName').textContent = agent.name;
+  document.getElementById('panelName').style.color = color;
+  document.getElementById('panelDivision').textContent = `${divLabel} · ${agent.file}`;
+
+  document.getElementById('overlay').classList.add('open');
+  document.getElementById('panel').classList.add('open');
+
+  document.getElementById('panelBody').innerHTML = '<div class="panel-loading"><div class="spinner"></div><p>Fetching agent prompt…</p></div>';
+
+  renderInstallTabs(agent);
+
+  // Fetch content
+  if (rawContentCache[id]) {
+    renderPanelContent(rawContentCache[id]);
+    return;
+  }
+
+  try {
+    const url = `${REPO_RAW_BASE}/${agent.file}`;
+    const res = await fetch(url);
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    const text = await res.text();
+    rawContentCache[id] = text;
+    renderPanelContent(text);
+  } catch (err) {
+    document.getElementById('panelBody').innerHTML = `
+      <div class="panel-loading">
+        <p style="color:#ef4444">⚠ Could not fetch from GitHub</p>
+        <p style="font-size:0.8rem;margin-top:8px;color:var(--muted)">This may be a CORS issue when opening locally.<br>Deploy to GitHub Pages or view at:<br>
+        <a href="${REPO_URL}/blob/master/${agent.file}" target="_blank" style="color:var(--accent)">${agent.file}</a></p>
+        <p style="font-size:0.75rem;margin-top:16px;color:var(--muted)"><strong>Description:</strong><br>${agent.description}</p>
+      </div>`;
+  }
+}
+
+function renderPanelContent(raw) {
+  // Strip YAML frontmatter for display
+  const cleaned = raw.replace(/^---[\s\S]*?---\n?/, '').trim();
+  const html = marked.parse(cleaned);
+  document.getElementById('panelBody').innerHTML = `<div class="markdown">${html}</div>`;
+}
+
+function closePanel() {
+  document.getElementById('overlay').classList.remove('open');
+  document.getElementById('panel').classList.remove('open');
+  currentAgent = null;
+}
+
+// ============================================================
+// COPY & DOWNLOAD
+// ============================================================
+async function copyPrompt() {
+  if (!currentAgent) return;
+  const btn = document.getElementById('btnCopy');
+  let text = rawContentCache[currentAgent.id];
+  if (!text) {
+    btn.textContent = '⏳';
+    try {
+      const res = await fetch(`${REPO_RAW_BASE}/${currentAgent.file}`);
+      text = await res.text();
+      rawContentCache[currentAgent.id] = text;
+    } catch {
+      btn.innerHTML = '❌ Failed';
+      setTimeout(() => { btn.innerHTML = '📋 <span class="btn-label">Copy Prompt</span>'; }, 2000);
+      return;
+    }
+  }
+  try {
+    await navigator.clipboard.writeText(text);
+    btn.classList.add('success');
+    btn.innerHTML = '✓ <span class="btn-label">Copied!</span>';
+    setTimeout(() => {
+      btn.classList.remove('success');
+      btn.classList.add('primary');
+      btn.innerHTML = '📋 <span class="btn-label">Copy Prompt</span>';
+    }, 2000);
+  } catch {
+    // Fallback: select textarea
+    const ta = document.createElement('textarea');
+    ta.value = text;
+    document.body.appendChild(ta);
+    ta.select();
+    document.execCommand('copy');
+    document.body.removeChild(ta);
+    btn.innerHTML = '✓ <span class="btn-label">Copied!</span>';
+    setTimeout(() => { btn.innerHTML = '📋 <span class="btn-label">Copy Prompt</span>'; }, 2000);
+  }
+}
+
+async function downloadAgent() {
+  if (!currentAgent) return;
+  let text = rawContentCache[currentAgent.id];
+  if (!text) {
+    try {
+      const res = await fetch(`${REPO_RAW_BASE}/${currentAgent.file}`);
+      text = await res.text();
+      rawContentCache[currentAgent.id] = text;
+    } catch {
+      alert('Could not fetch file. Try downloading directly from GitHub:\n' + REPO_URL + '/blob/master/' + currentAgent.file);
+      return;
+    }
+  }
+  const filename = currentAgent.file.split('/').pop();
+  const blob = new Blob([text], { type: 'text/markdown' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = filename;
+  a.click();
+  URL.revokeObjectURL(url);
+}
+
+// ============================================================
+// INSTALL TABS
+// ============================================================
+function renderInstallTabs(agent) {
+  const tabsEl = document.getElementById('installTabs');
+  const contentEl = document.getElementById('installContent');
+
+  tabsEl.innerHTML = INSTALL_TOOLS.map((t, i) =>
+    `<button class="tab-btn ${i === 0 ? 'active' : ''}" onclick="switchTab(${i})">${t.icon} ${t.label}</button>`
+  ).join('');
+
+  contentEl.innerHTML = INSTALL_TOOLS.map((t, i) => `
+    <div class="tab-content ${i === 0 ? 'active' : ''}" id="tab-${i}">
+      <div class="install-code">${escapeHtml(t.getInstall(agent))}</div>
+    </div>
+  `).join('');
+}
+
+function switchTab(idx) {
+  document.querySelectorAll('.tab-btn').forEach((b, i) => b.classList.toggle('active', i === idx));
+  document.querySelectorAll('.tab-content').forEach((c, i) => c.classList.toggle('active', i === idx));
+}
+
+function escapeHtml(s) {
+  return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+
+// ============================================================
+// KEYBOARD SHORTCUTS
+// ============================================================
+document.addEventListener('keydown', (e) => {
+  if (e.key === 'Escape') {
+    if (document.getElementById('panel').classList.contains('open')) closePanel();
+  }
+  if (e.key === '/' && document.activeElement.tagName !== 'INPUT') {
+    e.preventDefault();
+    document.getElementById('search').focus();
+  }
+});
+
+// ============================================================
+// INIT
+// ============================================================
+renderSidebar();
+renderAll();
+</script>
+</body>
+</html>
