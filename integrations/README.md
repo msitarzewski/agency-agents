@@ -9,6 +9,7 @@ supported agentic coding tools.
 - **[GitHub Copilot](#github-copilot)** — `.md` agents, use the repo directly
 - **[Antigravity](#antigravity)** — `SKILL.md` per agent in `antigravity/`
 - **[Gemini CLI](#gemini-cli)** — extension + `SKILL.md` files in `gemini-cli/`
+- **[Codex](#codex)** — `.codex/config.toml` + role files in `codex/`
 - **[OpenCode](#opencode)** — `.md` agent files in `opencode/`
 - **[OpenClaw](#openclaw)** — `SOUL.md` + `AGENTS.md` + `IDENTITY.md` workspaces
 - **[Cursor](#cursor)** — `.mdc` rule files in `cursor/`
@@ -30,9 +31,14 @@ supported agentic coding tools.
 # Gemini CLI needs generated integration files on a fresh clone
 ./scripts/convert.sh --tool gemini-cli
 ./scripts/install.sh --tool gemini-cli
+
+# Codex is project-scoped and installs into .codex/
+cd /your/project
+/path/to/agency-agents/scripts/convert.sh --tool codex
+/path/to/agency-agents/scripts/install.sh --tool codex
 ```
 
-For project-scoped tools such as OpenCode, Cursor, Aider, and Windsurf, run
+For project-scoped tools such as Codex, OpenCode, Cursor, Aider, and Windsurf, run
 the installer from your target project root as shown in the tool-specific
 sections below.
 
@@ -100,6 +106,25 @@ Because the Gemini manifest and skill folders are generated artifacts, run
 ```
 
 See [gemini-cli/README.md](gemini-cli/README.md) for details.
+
+---
+
+## Codex
+
+Agents are converted into Codex multi-agent role files for a project-local
+`.codex/` directory. The generated `config.toml` enables the `multi_agent`
+feature and registers each role under `[agents.<slug>]`.
+
+```bash
+cd /your/project
+/path/to/agency-agents/scripts/convert.sh --tool codex
+/path/to/agency-agents/scripts/install.sh --tool codex
+```
+
+If `.codex/config.toml` already exists, the installer keeps it intact and
+writes `.codex/agency-agents.snippet.toml` for manual merging.
+
+See [codex/README.md](codex/README.md) for details.
 
 ---
 

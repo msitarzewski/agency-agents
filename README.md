@@ -44,7 +44,7 @@ Each agent file contains:
 
 Browse the agents below and copy/adapt the ones you need!
 
-### Option 3: Use with Other Tools (Cursor, Aider, Windsurf, Gemini CLI, OpenCode)
+### Option 3: Use with Other Tools (Codex, Cursor, Aider, Windsurf, Gemini CLI, OpenCode)
 
 ```bash
 # Step 1 -- generate integration files for all supported tools
@@ -55,6 +55,7 @@ Browse the agents below and copy/adapt the ones you need!
 
 # Or target a specific tool directly
 ./scripts/install.sh --tool cursor
+./scripts/install.sh --tool codex
 ./scripts/install.sh --tool copilot
 ./scripts/install.sh --tool aider
 ./scripts/install.sh --tool windsurf
@@ -509,6 +510,7 @@ The Agency works natively with Claude Code, and ships conversion + install scrip
 - **[GitHub Copilot](https://github.com/copilot)** — native `.md` agents, no conversion needed → `~/.github/agents/` + `~/.copilot/agents/`
 - **[Antigravity](https://github.com/google-gemini/antigravity)** — `SKILL.md` per agent → `~/.gemini/antigravity/skills/`
 - **[Gemini CLI](https://github.com/google-gemini/gemini-cli)** — extension + `SKILL.md` files → `~/.gemini/extensions/agency-agents/`
+- **[Codex](https://developers.openai.com/codex/multi-agent/)** — project-scoped multi-agent roles → `.codex/config.toml` + `.codex/agents/*.toml`
 - **[OpenCode](https://opencode.ai)** — `.md` agent files → `.opencode/agents/`
 - **[Cursor](https://cursor.sh)** — `.mdc` rule files → `.cursor/rules/`
 - **[Aider](https://aider.chat)** — single `CONVENTIONS.md` → `./CONVENTIONS.md`
@@ -551,14 +553,16 @@ The installer scans your system for installed tools, shows a checkbox UI, and le
   [ ]  8)  [ ]  Aider           (CONVENTIONS.md)
   [ ]  9)  [ ]  Windsurf        (.windsurfrules)
   [ ] 10)  [ ]  Qwen Code       (~/.qwen/agents)
+  [ ] 11)  [ ]  Codex           (.codex/config.toml)
 
-  [1-10] toggle   [a] all   [n] none   [d] detected
+  [1-11] toggle   [a] all   [n] none   [d] detected
   [Enter] install   [q] quit
 ```
 
 **Or install a specific tool directly:**
 ```bash
 ./scripts/install.sh --tool cursor
+./scripts/install.sh --tool codex
 ./scripts/install.sh --tool opencode
 ./scripts/install.sh --tool openclaw
 ./scripts/install.sh --tool antigravity
@@ -646,6 +650,31 @@ On a fresh clone, generate the Gemini extension files before running the install
 ```
 
 See [integrations/gemini-cli/README.md](integrations/gemini-cli/README.md) for details.
+</details>
+
+<details>
+<summary><strong>Codex</strong></summary>
+
+Agency agents are converted into Codex multi-agent role files under `.codex/`.
+Each role is registered in `.codex/config.toml` and points to a matching
+`.codex/agents/<slug>.toml` file containing the agent instructions.
+
+```bash
+# Convert and install (run from your project root)
+cd /your/project
+/path/to/agency-agents/scripts/convert.sh --tool codex
+/path/to/agency-agents/scripts/install.sh --tool codex
+```
+
+If your project already has `.codex/config.toml`, the installer leaves it
+unchanged and writes `.codex/agency-agents.snippet.toml` for manual merging.
+
+Prompt Codex to use the roles, for example:
+```
+Review this branch against main. Use frontend-developer for UI risks and reality-checker for release readiness.
+```
+
+See [integrations/codex/README.md](integrations/codex/README.md) for details.
 </details>
 
 <details>

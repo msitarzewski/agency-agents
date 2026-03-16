@@ -20,6 +20,7 @@
 #   windsurf     -- Copy .windsurfrules to current directory
 #   openclaw     -- Copy workspaces to ~/.openclaw/agency-agents/
 #   qwen         -- Copy SubAgents to ~/.qwen/agents/ (user-wide) or .qwen/agents/ (project)
+#   codex        -- Copy role configs to .codex/ in current directory
 #   all          -- Install for all detected tools (default)
 #
 # Flags:
@@ -101,7 +102,7 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 REPO_ROOT="$(cd "$SCRIPT_DIR/.." && pwd)"
 INTEGRATIONS="$REPO_ROOT/integrations"
 
-ALL_TOOLS=(claude-code copilot antigravity gemini-cli opencode openclaw cursor aider windsurf qwen)
+ALL_TOOLS=(claude-code copilot antigravity gemini-cli opencode openclaw cursor aider windsurf qwen codex)
 
 # ---------------------------------------------------------------------------
 # Usage
@@ -142,6 +143,7 @@ detect_aider()        { command -v aider >/dev/null 2>&1; }
 detect_openclaw()     { command -v openclaw >/dev/null 2>&1 || [[ -d "${HOME}/.openclaw" ]]; }
 detect_windsurf()     { command -v windsurf >/dev/null 2>&1 || [[ -d "${HOME}/.codeium" ]]; }
 detect_qwen()         { command -v qwen >/dev/null 2>&1 || [[ -d "${HOME}/.qwen" ]]; }
+detect_codex()        { command -v codex >/dev/null 2>&1 || [[ -d "${HOME}/.codex" ]]; }
 
 is_detected() {
   case "$1" in
@@ -155,6 +157,7 @@ is_detected() {
     aider)       detect_aider       ;;
     windsurf)    detect_windsurf    ;;
     qwen)        detect_qwen        ;;
+    codex)       detect_codex       ;;
     *)           return 1 ;;
   esac
 }
@@ -172,6 +175,7 @@ tool_label() {
     aider)       printf "%-14s  %s" "Aider"        "(CONVENTIONS.md)"        ;;
     windsurf)    printf "%-14s  %s" "Windsurf"     "(.windsurfrules)"        ;;
     qwen)        printf "%-14s  %s" "Qwen Code"    "(~/.qwen/agents)"        ;;
+    codex)       printf "%-14s  %s" "Codex"        "(.codex/config.toml)"    ;;
   esac
 }
 
@@ -468,6 +472,42 @@ install_qwen() {
   warn "Tip: Run '/agents manage' in Qwen Code to refresh, or restart session"
 }
 
+install_codex() {
+  local src_dir="$INTEGRATIONS/codex"
+  local src_agents="$src_dir/agents"
+  local src_config="$src_dir/config.toml"
+  local dest_dir="${PWD}/.codex"
+  local dest_agents="$dest_dir/agents"
+  local dest_config="$dest_dir/config.toml"
+  local snippet="$dest_dir/agency-agents.snippet.toml"
+  local count=0
+
+  [[ -d "$src_dir" ]] || { err "integrations/codex missing. Run ./scripts/convert.sh --tool codex first."; return 1; }
+  [[ -d "$src_agents" ]] || { err "integrations/codex/agents missing. Run ./scripts/convert.sh --tool codex first."; return 1; }
+  [[ -f "$src_config" ]] || { err "integrations/codex/config.toml missing. Run ./scripts/convert.sh --tool codex first."; return 1; }
+
+  mkdir -p "$dest_agents"
+
+  local f
+  while IFS= read -r -d '' f; do
+    cp "$f" "$dest_agents/"
+    (( count++ )) || true
+  done < <(find "$src_agents" -maxdepth 1 -name "*.toml" -print0)
+
+  if [[ -f "$dest_config" ]]; then
+    cp "$src_config" "$snippet"
+    ok "Codex: installed $count role configs -> $dest_agents"
+    warn "Codex: existing .codex/config.toml detected; left it unchanged."
+    warn "Codex: merge $snippet into $dest_config to register Agency roles."
+  else
+    cp "$src_config" "$dest_config"
+    ok "Codex: installed $count role configs -> $dest_agents"
+    ok "Codex: installed config -> $dest_config"
+  fi
+
+  warn "Codex: project-scoped. Run from your project root to install there."
+}
+
 install_tool() {
   case "$1" in
     claude-code) install_claude_code ;;
@@ -480,6 +520,7 @@ install_tool() {
     aider)       install_aider       ;;
     windsurf)    install_windsurf    ;;
     qwen)        install_qwen        ;;
+    codex)       install_codex       ;;
   esac
 }
 
