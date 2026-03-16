@@ -136,6 +136,15 @@ How often do you encounter blockchain governance models built on peer-reviewed i
 **Conversation Prompt:** How often do you encounter blockchain governance models built on peer-reviewed institutional research?
 
 ---
+**IMAGE BRIEF**
+- **Card**: 1200x675px Header
+- **Concept**: Eight distinct hexagonal cells arranged in a structured honeycomb formation, each cell connected to adjacent cells by luminous blue pathways — a direct visual echo of Ostrom's eight design principles as a living, interconnected system rather than a static list.
+- **AI prompt**: `Eight hexagonal crystalline cells arranged in a honeycomb formation, each cell glowing with internal electric blue light #14C8FF, luminous connecting pathways between adjacent cells in royal blue #3642B2, entire structure suspended against deep dark background with subtle depth, systematic and interdependent geometry, institutional brand photography, governance aesthetic, glowing electric blue light, deep shadows, hexagonal geometric shapes, crystalline structure, glass panels, solid background #090920, --ar 16:9 --v 6 --style raw --q 2 --no text watermark logo cartoon anime neon rainbow stock photo`
+- **On-card headline**: Governance Grounded in Nobel Prize Research
+- **Label tag**: Governance Design
+---
+
+---
 
 ## LP3-05: User Ownership vs. Investor Control
 
@@ -158,6 +167,15 @@ Should governance power in a blockchain network be proportional to capital inves
 **Rationale:** Directly addresses one of the most persistent criticisms of blockchain governance (plutocracy). The Swiss Verein structure is a genuine legal mechanism that prevents investor capture. Frames the contrast without attacking competitors.
 
 **Conversation Prompt:** Should governance power in a blockchain network be proportional to capital invested or to active participation?
+
+---
+**IMAGE BRIEF**
+- **Card**: 1200x675px Header
+- **Concept**: Four equal hexagonal panels arranged in a balanced 2x2 grid, each identically sized and lit, facing a single large coin-like form in the background that is dimmed and receding — visually contrasting equal participation with capital-weighted control.
+- **AI prompt**: `Four identically sized hexagonal glass panels arranged in a balanced 2x2 grid, each glowing with equal electric blue #14C8FF illumination, facing a large receding circular coin-form in the background rendered in dim gray and fading out of focus, equal panels dominating the foreground composition, institutional brand photography, governance aesthetic, glowing electric blue light, deep shadows, hexagonal geometric shapes, crystalline structure, glass panels, solid background #090920, primary accent #3642B2, highlight accents #14C8FF, --ar 16:9 --v 6 --style raw --q 2 --no text watermark logo cartoon anime neon rainbow stock photo`
+- **On-card headline**: Authority Follows Participation, Not Investment
+- **Label tag**: Governance Design
+---
 
 ---
 
@@ -183,6 +201,15 @@ How do you evaluate the importance of regulatory clarity when comparing blockcha
 **Rationale:** Leads with verifiable legal facts (charter date, governor's signature, jurisdiction). Frames regulation as a strategic asset rather than a burden. The dual-jurisdiction structure is genuinely distinctive and appeals to institutional audiences.
 
 **Conversation Prompt:** How do you evaluate the importance of regulatory clarity when comparing blockchain platforms?
+
+---
+**IMAGE BRIEF**
+- **Card**: 1200x675px Header
+- **Concept**: Two architectural forms connected by a single luminous bridge — one structure rendered with European classical geometry (arched, stone-like, dark) on the left representing the Swiss Verein framework, one rendered with Federal Reserve-style institutional mass on the right representing the U.S. banking charter — the bridge between them lit in TEL Blue.
+- **AI prompt**: `Two monumental dark architectural structures connected by a single luminous electric blue #14C8FF bridge path, left structure with classical European arched stone geometry, right structure with severe rectangular federal institutional mass, bridge glowing as the sole point of active connection between jurisdictions, deep atmospheric darkness surrounding both, institutional brand photography, governance aesthetic, glowing electric blue light, deep shadows, hexagonal geometric shapes, crystalline structure, glass panels, solid background #090920, primary accent #3642B2, --ar 16:9 --v 6 --style raw --q 2 --no text watermark logo cartoon anime neon rainbow stock photo`
+- **On-card headline**: Swiss Governance. US Banking Charter. One Platform.
+- **Label tag**: Regulatory Positioning
+---
 
 ---
 
