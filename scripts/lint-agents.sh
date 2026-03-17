@@ -11,11 +11,13 @@
 set -euo pipefail
 
 AGENT_DIRS=(
+  academic
   design
   engineering
   game-development
   marketing
   paid-media
+  sales
   product
   project-management
   testing
