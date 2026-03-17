@@ -87,7 +87,7 @@ Two categories exist under current U.S. law:
 
 Non-bank stablecoin issuers - companies like Circle (USDC) - operate under frameworks still being negotiated. The CLARITY Act, if passed, would define their regulatory path. Until then, that path is unresolved.
 
-Bank-issued stablecoins are already covered. The GENIUS Act (signed July 2025) established a payment stablecoin framework for federally chartered depository institutions. Issuers in this category operate under their primary federal regulator - no pending legislation required.
+Bank-issued stablecoins are already covered. The GENIUS Act (signed July 2025) established a payment stablecoin framework for bank-chartered issuers. Issuers in this category operate under existing banking supervision - no pending legislation required.
 
 [2/3]
 
