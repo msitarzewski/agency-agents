@@ -18,7 +18,7 @@ Born from a Reddit thread and months of iteration, **The Agency** is a growing c
 - **📋 Deliverable-Focused**: Real code, processes, and measurable outcomes
 - **✅ Production-Ready**: Battle-tested workflows and success metrics
 
-**Think of it as**: Assembling your dream team, except they're AI specialists who never sleep, never complain, and always deliver.
+**Think of it as**: Assembling your dream team, except they're AI specialistasdASDAs who never sleep, never complain, and always deliver.
 
 ---
 
