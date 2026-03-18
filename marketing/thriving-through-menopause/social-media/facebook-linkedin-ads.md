@@ -16,15 +16,15 @@
 `Where Women Come to Thrive.`
 
 **Primary Text:**
-You've done the research. You've spoken to your GP. But you still have questions no one seems to answer.
+Your menopausal clients deserve practitioners who truly understand what they're going through.
 
-That's exactly why we created the **Thriving Through Menopause Symposium**.
+That's exactly why Chiza Westcarr created the **Thriving Through Menopause Symposium** — Australia's most respected boutique conference for aesthetics and wellness practitioners.
 
-Join Michelle Bridges, Prof. Rod Baber AM, and Australia's most respected menopause experts for one extraordinary day in Sydney.
+Join Prof. Rod Baber AM, Dr. David Kosenko, Dr. Nneka Nwokolo, and 7 more world-class specialists for a full day of cutting-edge knowledge in Sydney.
 
-Real conversations. Evidence-based insights. A room full of women who *get it*.
+Real clinical answers. Evidence-based insights. A room full of practitioners *leading the change*.
 
-Only 200 seats available.
+Only 200 seats available. From $497 AUD.
 
 📍 State Library of NSW, Sydney
 🎟️ Tickets: thrivingthroughmenopause.com.au
@@ -41,23 +41,22 @@ Only 200 seats available.
 **Audience**: Retargeting website visitors + lookalike of past attendees
 
 **Headline:**
-`200 seats. 6 world-class speakers. One day that changes everything.`
+`200 seats. 10 world-class specialists. One day that transforms your practice.`
 
 **Primary Text:**
-Perimenopause. Menopause. Postmenopause.
+Your female clients over 40 are experiencing menopause right now — are you equipped to truly support them?
 
-Whatever stage you're at — **you deserve expert guidance, not guesswork.**
+The **Thriving Through Menopause Symposium** curated by Chiza Westcarr brings together 10 world-class experts to give aesthetics and wellness practitioners the clinical knowledge to lead the change:
 
-The Thriving Through Menopause Symposium brings together Australia's leading voices in women's health:
-
-✨ **Michelle Bridges** — Creator of The Menopause Method
-🔬 **Prof. Rod Baber AM** — University of Sydney, Past President, International Menopause Society
+🔬 **Prof. Rod Baber AM** — Past President, International Menopause Society
 💊 **Dr. David Kosenko** — President, Cosmetic Physicians College of Australasia
-🩺 **Dr. Shauna Watts** — Cosmetic Physician & Women's Health Specialist
-🌍 **Dr. Nneka Nwokolo** — London Menopause Clinic Specialist
-💪 **Agnes Dube** — Health Advocate & Speaker
+🩺 **Dr. Shauna Watts** — Women's Health & Cosmetic Physician Specialist
+🌍 **Dr. Nneka Nwokolo** — London's Specialist Menopause Clinic
+🏥 **Dr. Anoop Rastogi** — President, Australasian College of Cosmetic Surgery
+⚕️ **Dr. Zhuoran Chen** — Urogynaecologist & Pelvic Floor Specialist
++ Dr. Judy Craig, Dr. Martina Lavery, Kellie Jackson RN, Tracey Dennison NP
 
-Boutique-style. Intimate. Transformative.
+Full day 8AM–6PM · From $497 AUD · Boutique-style. Intimate. Transformative.
 
 Places are filling — secure yours before they're gone.
 
@@ -75,9 +74,9 @@ Places are filling — secure yours before they're gone.
 **Primary Text:**
 We keep our symposium at **200 seats** because intimate is transformative.
 
-No massive conference halls. No information overwhelm. Just the experts, the insights, and the women who are ready to take back control of their health.
+No massive conference halls. No information overwhelm. Just the experts, the clinical insights, and the practitioners ready to lead the change in menopause care.
 
-Last year sold out.
+From $497 AUD. Last year sold out.
 
 If you've been thinking about joining us — **now is the time.**
 

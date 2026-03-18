@@ -1,13 +1,19 @@
 # Thriving Through Menopause — Brand Guidelines
 
 ## Brand Overview
-**Thriving Through Menopause** is Australia's premier boutique symposium dedicated to advancing women's health through the menopause transition. It brings together world-class medical professionals, wellness experts, and industry leaders to deliver evidence-based insights in an intimate, empowering setting.
+**Thriving Through Menopause** is Australia's premier boutique symposium dedicated to advancing menopause care within the aesthetics and wellness industry. Founded by Chiza Westcarr — dermal therapist, nutritionist, and menopause educator — it equips practitioners with the clinical knowledge and community to confidently support women through the menopause journey.
 
 **Website**: https://thrivingthroughmenopause.com.au
-**Founder/Curator**: Chiza Westcarr
-**Venue**: State Library of NSW, Sydney
+**Instagram**: @thrivingthroughmenopausebycw
+**Founder**: Chiza Westcarr (Clinical Dermal Therapist, Nutritionist, CIDESCO / ITEC Hons / CIBTAC)
+**Venue**: State Library of NSW, 1 Shakespeare Place, Sydney NSW 2000
+**Event time**: 8:00 AM – 6:00 PM (full day)
+**Ticket pricing**: AUD $497 – $897
+**Ticket platform**: Humanitix
 **Style**: Boutique-style conference
-**Target audience**: Healthcare professionals, wellness practitioners, and women seeking expert guidance through perimenopause, menopause, and postmenopause.
+**Primary target audience**: Aesthetic Doctors, Aesthetic Nurses, Dermal Clinicians, Wellness Practitioners, Nutritionists
+**Secondary audience**: Women seeking expert-guided understanding of the menopause journey
+**Sub-brand**: Menopause Skin Academy (ongoing education platform)
 
 ---
 
@@ -59,31 +65,43 @@
 
 ## Key Messages
 
-### Primary Tagline
-> **"Where Women Come to Thrive"**
+### Official Taglines (from brand)
+> **"Addressing menopausal and ageing changes with confidence."**
+> **"Empowering Skin Specialists."**
+> **"Thriving Through Menopause exists to improve the wellbeing of women throughout the menopause journey."**
 
-### Supporting Messages
-- "Expert knowledge. Real answers. Life-changing conversations."
-- "Because menopause is a beginning, not an ending."
-- "Your health. Your power. Your time to thrive."
-- "Curated by women who've walked this path. Led by experts who understand it."
-- "200 seats. Life-changing insights. One unforgettable day."
+### Campaign Taglines
+- "Where practitioners come to lead the change."
+- "Expert knowledge. Real answers. Transformative conversations."
+- "Because menopausal women deserve practitioners who truly understand."
+- "Curated by Chiza Westcarr. Delivered by the world's best."
+- "200 seats. Cutting-edge knowledge. One unforgettable day."
+
+### Mission Language (from brand)
+- "An organisation grown from the belief that women deserve to have the knowledge and support to thrive."
+- "Leading the change in menopause care within the aesthetics industry."
+- "Significantly enhance the quality of life for menopausal women through your practice."
+- "Transform the approach to menopause."
 
 ### Urgency Messaging (Non-Pushy)
-- "Limited seats available — secure yours today."
-- "Join 200 women ready to reclaim their vitality."
-- "Be part of Australia's most intimate menopause event."
+- "Act now — limited seats available. Don't miss out on this unique opportunity."
+- "Be part of Australia's most intimate menopause symposium."
 - "Places are filling fast. Don't miss your seat at the table."
+- "From $497 AUD — investment in knowledge that transforms your practice."
 
 ---
 
 ## Confirmed Speakers (2025 Symposium)
-- **Michelle Bridges** — Co-founder 12WBT, Creator of The Menopause Method, best-selling author
-- **Prof. Rod Baber AM** — Professor of Obstetrics & Gynaecology, University of Sydney; Past President, International Menopause Society
-- **Dr. David Kosenko** — President, Cosmetic Physicians College of Australasia
+- **Prof. Rod Baber AM** — Professor of Obstetrics & Gynaecology, University of Sydney; heads menopause clinic at Royal North Shore Hospital; Past President, International & Australasian Menopause Societies
+- **Dr. David Kosenko** — President, Cosmetic Physicians College of Australasia; Women's Health Specialist
 - **Dr. Shauna Watts** — Cosmetic Physician & Women's Health Specialist
-- **Dr. Nneka Nwokolo** — Honorary Consultant in Sexual Health & HIV Medicine, Chelsea & Westminster Hospital, London
-- **Agnes Dube** — Speaker & Expert
+- **Dr. Anoop Rastogi** — Fellow & President, Australasian College of Cosmetic Surgery and Medicine (ACCSM)
+- **Dr. Nneka Nwokolo** — Honorary Consultant Physician in Sexual Health & HIV Medicine, Chelsea & Westminster Hospital, London; specialist menopause clinic
+- **Dr. Zhuoran Chen** — Urogynaecologist, Pelvic Floor Reconstructive & Robotic Surgeon
+- **Dr. Judy Craig** — Women's Health Specialist & Menopause Educator
+- **Dr. Martina Lavery** — Aesthetic Dentist with special interest in menopause
+- **Kellie Jackson** — RN & Clinic Owner, menopause specialist
+- **Tracey Dennison** — Nurse Practitioner & Clinic Owner, menopause specialist
 
 ---
 
@@ -125,7 +143,9 @@
 
 ## Social Media Handles
 - **Website**: https://thrivingthroughmenopause.com.au
-- **Hashtags**: #ThrivingThroughMenopause #MenopauseAwareness #MenopauseSymposium #WomensHealth #MenopauseSupport #Perimenopause #WomenOver40 #MenopauseMatters #ThrivingWomen
+- **Instagram**: @thrivingthroughmenopausebycw (1,374+ followers)
+- **Ticket platform**: events.humanitix.com/thriving-through-menopause-by-chiza-westcarr
+- **Hashtags**: #ThrivingThroughMenopause #MenopauseAwareness #MenopauseSymposium #WomensHealth #AestheticsMedicine #DermalTherapist #MenopauseSkinAcademy #EmpoweringSkinSpecialists #WomensWellness #MenopauseMatters
 
 ---
 
