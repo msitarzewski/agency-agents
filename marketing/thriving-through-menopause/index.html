@@ -68,6 +68,55 @@
       padding: 8px 20px !important;
       border-radius: 2px;
     }
+    .hamburger {
+      display: none;
+      flex-direction: column;
+      gap: 5px;
+      cursor: pointer;
+      background: none;
+      border: none;
+      padding: 4px;
+    }
+    .hamburger span {
+      display: block;
+      width: 24px;
+      height: 2px;
+      background: var(--plum);
+      transition: transform 0.3s, opacity 0.3s;
+      transform-origin: center;
+    }
+    .hamburger.open span:nth-child(1) { transform: translateY(7px) rotate(45deg); }
+    .hamburger.open span:nth-child(2) { opacity: 0; }
+    .hamburger.open span:nth-child(3) { transform: translateY(-7px) rotate(-45deg); }
+    @media (max-width: 640px) {
+      nav { padding: 0 20px; }
+      .hamburger { display: flex; }
+      .nav-links {
+        display: none;
+        position: absolute;
+        top: 60px;
+        left: 0;
+        right: 0;
+        flex-direction: column;
+        gap: 0;
+        background: rgba(250,247,244,0.98);
+        backdrop-filter: blur(12px);
+        border-bottom: 1px solid rgba(92,45,110,0.15);
+        padding: 12px 0;
+      }
+      .nav-links.open { display: flex; }
+      .nav-links li { width: 100%; }
+      .nav-links a {
+        display: block;
+        padding: 14px 24px;
+        font-size: 11px;
+      }
+      .nav-cta {
+        margin: 8px 24px !important;
+        text-align: center;
+        border-radius: 2px;
+      }
+    }
 
     /* ─── HERO ─── */
     .hero {
@@ -527,13 +576,30 @@
   <!-- NAV -->
   <nav>
     <div class="nav-logo">Thriving Through Menopause</div>
-    <ul class="nav-links">
-      <li><a href="#campaign">Campaign Assets</a></li>
-      <li><a href="#speakers">Speakers</a></li>
-      <li><a href="#messaging">Key Messages</a></li>
+    <button class="hamburger" id="hamburger" aria-label="Toggle menu">
+      <span></span><span></span><span></span>
+    </button>
+    <ul class="nav-links" id="nav-links">
+      <li><a href="#campaign" class="nav-link">Campaign Assets</a></li>
+      <li><a href="#speakers" class="nav-link">Speakers</a></li>
+      <li><a href="#messaging" class="nav-link">Key Messages</a></li>
       <li><a href="https://thrivingthroughmenopause.com.au/" class="nav-cta">Get Tickets</a></li>
     </ul>
   </nav>
+  <script>
+    const hamburger = document.getElementById('hamburger');
+    const navLinks = document.getElementById('nav-links');
+    hamburger.addEventListener('click', () => {
+      hamburger.classList.toggle('open');
+      navLinks.classList.toggle('open');
+    });
+    document.querySelectorAll('.nav-link').forEach(link => {
+      link.addEventListener('click', () => {
+        hamburger.classList.remove('open');
+        navLinks.classList.remove('open');
+      });
+    });
+  </script>
 
   <!-- HERO -->
   <section class="hero">
