@@ -1,0 +1,597 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>A Rapidly Expanding Addressable Market — Telcoin Association</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --tel-black:      #090920;
+      --tel-dark-blue:  #192E58;
+      --tel-royal-blue: #3642B2;
+      --tel-indigo:     #7393EA;
+      --tel-blue:       #14C8FF;
+      --tel-white:      #F1F4FF;
+      --tel-gray:       #424761;
+      --dao-blue:       #524CF8;
+
+      /* Tier color scale */
+      --tier-1: #14C8FF;    /* Native Digital Cash + Bank Accounts */
+      --tier-2: #3642B2;    /* Native Digital Cash Rails */
+      --tier-3: #524CF8;    /* Direct Stablecoin Rails */
+      --tier-4: #7393EA;    /* Partner Stablecoin Rails */
+      --tier-5: #424761;    /* Send/Receive Remittance Only */
+    }
+
+    html, body {
+      width: 1920px;
+      height: 1080px;
+      overflow: hidden;
+      background: var(--tel-black);
+      color: var(--tel-white);
+      font-family: 'Inter', sans-serif;
+    }
+
+    /* ── BACKGROUND ──────────────────────────────────────────── */
+    .bg-layer {
+      position: absolute;
+      inset: 0;
+      overflow: hidden;
+      z-index: 0;
+    }
+
+    /* ── LAYOUT ──────────────────────────────────────────────── */
+    .canvas {
+      position: relative;
+      z-index: 1;
+      width: 1920px;
+      height: 1080px;
+      display: grid;
+      grid-template-rows: 90px auto 1fr 52px;
+      grid-template-columns: 420px 1fr;
+      grid-template-areas:
+        "header   header"
+        "stat     stat"
+        "left     right"
+        "footer   footer";
+      padding: 0 64px;
+      row-gap: 0;
+      column-gap: 0;
+    }
+
+    /* ── HEADER ──────────────────────────────────────────────── */
+    header {
+      grid-area: header;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      border-bottom: 1px solid rgba(20, 200, 255, 0.16);
+    }
+
+    .logo-mark {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+    }
+
+    .logo-text {
+      font-size: 15px;
+      font-weight: 600;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--tel-white);
+      opacity: 0.9;
+    }
+
+    .slide-label {
+      font-size: 12px;
+      font-weight: 500;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--tel-blue);
+      opacity: 0.7;
+    }
+
+    /* ── STAT BANNER ─────────────────────────────────────────── */
+    .stat-banner {
+      grid-area: stat;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0;
+      padding: 24px 0 18px;
+    }
+
+    .stat-block {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 0 56px;
+    }
+
+    .stat-number {
+      font-size: 62px;
+      font-weight: 700;
+      line-height: 1;
+      letter-spacing: -0.02em;
+      background: linear-gradient(135deg, #14C8FF 0%, #7393EA 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .stat-label {
+      font-size: 13px;
+      font-weight: 500;
+      color: rgba(241, 244, 255, 0.60);
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      margin-top: 4px;
+      text-align: center;
+    }
+
+    .stat-divider {
+      width: 1px;
+      height: 64px;
+      background: rgba(54, 66, 178, 0.35);
+    }
+
+    .stat-target-chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: rgba(20, 200, 255, 0.08);
+      border: 1px solid rgba(20, 200, 255, 0.25);
+      border-radius: 20px;
+      padding: 8px 20px;
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--tel-blue);
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      margin-left: 20px;
+    }
+
+    /* ── LEFT: LEGEND ────────────────────────────────────────── */
+    .left-col {
+      grid-area: left;
+      display: flex;
+      flex-direction: column;
+      justify-content: flex-start;
+      padding: 16px 40px 16px 0;
+      gap: 14px;
+      border-right: 1px solid rgba(54, 66, 178, 0.18);
+    }
+
+    .legend-title {
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+      color: rgba(241, 244, 255, 0.40);
+      margin-bottom: 4px;
+    }
+
+    .legend-item {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .legend-dot {
+      width: 12px;
+      height: 12px;
+      border-radius: 2px;
+      flex-shrink: 0;
+    }
+
+    .legend-text {
+      font-size: 12.5px;
+      font-weight: 500;
+      color: rgba(241, 244, 255, 0.72);
+      line-height: 1.4;
+    }
+
+    .legend-divider {
+      height: 1px;
+      background: rgba(54, 66, 178, 0.18);
+      margin: 4px 0;
+    }
+
+    .footnote {
+      font-size: 11px;
+      font-weight: 400;
+      color: rgba(241, 244, 255, 0.35);
+      line-height: 1.6;
+      margin-top: auto;
+      padding-top: 12px;
+      border-top: 1px solid rgba(54, 66, 178, 0.15);
+    }
+
+    /* ── RIGHT: COUNTRY GRID ─────────────────────────────────── */
+    .right-col {
+      grid-area: right;
+      padding: 16px 0 16px 40px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .grid-title {
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+      color: rgba(241, 244, 255, 0.40);
+      margin-bottom: 4px;
+    }
+
+    .country-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+      flex: 1;
+    }
+
+    .country-card {
+      display: flex;
+      align-items: flex-start;
+      gap: 12px;
+      padding: 12px 16px;
+      border-radius: 8px;
+      border: 1px solid transparent;
+      background: rgba(25, 46, 88, 0.18);
+      position: relative;
+    }
+
+    /* Tier color coding via left border */
+    .tier-1 { border-left: 3px solid var(--tier-1); background: rgba(20, 200, 255, 0.06); }
+    .tier-2 { border-left: 3px solid var(--tier-2); background: rgba(54, 66, 178, 0.10); }
+    .tier-3 { border-left: 3px solid var(--tier-3); background: rgba(82, 76, 248, 0.08); }
+    .tier-4 { border-left: 3px solid var(--tier-4); }
+    .tier-5 { border-left: 3px solid var(--tier-5); }
+
+    .country-flag {
+      font-size: 22px;
+      line-height: 1;
+      flex-shrink: 0;
+    }
+
+    .country-info {
+      flex: 1;
+      min-width: 0;
+    }
+
+    .country-name {
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--tel-white);
+      margin-bottom: 3px;
+      white-space: nowrap;
+    }
+
+    .license-list {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 1px;
+    }
+
+    .license-list li {
+      font-size: 10.5px;
+      font-weight: 400;
+      color: rgba(241, 244, 255, 0.52);
+      line-height: 1.45;
+    }
+
+    .pending-mark {
+      color: var(--tel-blue);
+      font-size: 9px;
+    }
+
+    .tier-badge {
+      font-size: 9px;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      padding: 2px 7px;
+      border-radius: 3px;
+      flex-shrink: 0;
+      align-self: flex-start;
+      margin-top: 1px;
+    }
+
+    .tier-badge.t1 { background: rgba(20, 200, 255, 0.15); color: var(--tier-1); }
+    .tier-badge.t2 { background: rgba(54, 66, 178, 0.22); color: #9aabf0; }
+    .tier-badge.t3 { background: rgba(82, 76, 248, 0.15); color: #a09cf8; }
+
+    /* ── FOOTER ──────────────────────────────────────────────── */
+    footer {
+      grid-area: footer;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      border-top: 1px solid rgba(20, 200, 255, 0.10);
+    }
+
+    .footer-note {
+      font-size: 11px;
+      color: rgba(241, 244, 255, 0.30);
+    }
+
+    .footer-url {
+      font-size: 11px;
+      font-weight: 500;
+      color: rgba(20, 200, 255, 0.45);
+      letter-spacing: 0.05em;
+    }
+
+  </style>
+</head>
+<body>
+
+<!-- Background geometry -->
+<div class="bg-layer" aria-hidden="true">
+  <svg style="position:absolute;top:-100px;right:-80px;width:500px;height:500px;opacity:0.05;" viewBox="0 0 500 500">
+    <polygon points="250,20 460,130 460,370 250,480 40,370 40,130" fill="none" stroke="#14C8FF" stroke-width="1.5"/>
+    <polygon points="250,60 420,150 420,350 250,440 80,350 80,150" fill="none" stroke="#3642B2" stroke-width="1"/>
+  </svg>
+  <svg style="position:absolute;bottom:-60px;left:-40px;width:380px;height:380px;opacity:0.05;" viewBox="0 0 380 380">
+    <polygon points="190,16 350,100 350,280 190,364 30,280 30,100" fill="none" stroke="#3642B2" stroke-width="1.5"/>
+  </svg>
+  <!-- subtle horizontal gradient band -->
+  <div style="position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,transparent,#14C8FF,transparent);opacity:0.3;"></div>
+</div>
+
+<div class="canvas">
+
+  <!-- HEADER -->
+  <header>
+    <div class="logo-mark">
+      <svg width="38" height="38" viewBox="0 0 38 38" fill="none">
+        <polygon points="19,2 35,10.5 35,27.5 19,36 3,27.5 3,10.5" fill="#3642B2" stroke="#14C8FF" stroke-width="1.2"/>
+        <text x="19" y="24" text-anchor="middle" fill="#F1F4FF" font-family="Inter,sans-serif" font-size="14" font-weight="700">t</text>
+      </svg>
+      <span class="logo-text">Telcoin Association</span>
+    </div>
+    <span class="slide-label">A Rapidly Expanding Addressable Market</span>
+  </header>
+
+  <!-- STAT BANNER -->
+  <div class="stat-banner">
+    <div class="stat-block">
+      <div class="stat-number">3B</div>
+      <div class="stat-label">People Targeted — H1 2026</div>
+    </div>
+    <div class="stat-divider"></div>
+    <div class="stat-block">
+      <div class="stat-number">2.5B</div>
+      <div class="stat-label">With Local Bank Account Numbers</div>
+    </div>
+    <div class="stat-divider"></div>
+    <div class="stat-block">
+      <div class="stat-number">12+</div>
+      <div class="stat-label">Countries, Active or in Progress</div>
+    </div>
+    <div class="stat-target-chip">
+      Native Digital Cash Rails Targeting H1 2026
+    </div>
+  </div>
+
+  <!-- LEFT: LEGEND -->
+  <div class="left-col">
+    <div class="legend-title">Service Tier by Market</div>
+
+    <div class="legend-item">
+      <div class="legend-dot" style="background:var(--tier-1);"></div>
+      <div class="legend-text">Native Digital Cash<br>with Bank Accounts &amp; Payment Cards</div>
+    </div>
+    <div class="legend-item">
+      <div class="legend-dot" style="background:var(--tier-2);"></div>
+      <div class="legend-text">Native Digital Cash Rails</div>
+    </div>
+    <div class="legend-item">
+      <div class="legend-dot" style="background:var(--tier-3);"></div>
+      <div class="legend-text">Direct Stablecoin Rails</div>
+    </div>
+    <div class="legend-item">
+      <div class="legend-dot" style="background:var(--tier-4);"></div>
+      <div class="legend-text">Partner Stablecoin Rails</div>
+    </div>
+    <div class="legend-item">
+      <div class="legend-dot" style="background:var(--tier-5);"></div>
+      <div class="legend-text">Send / Receive Remittance Only</div>
+    </div>
+
+    <div class="legend-divider"></div>
+
+    <div style="font-size:11px;font-weight:600;letter-spacing:0.08em;text-transform:uppercase;color:rgba(241,244,255,0.40);margin-bottom:2px;">License Types Secured</div>
+    <div style="font-size:12px;color:rgba(241,244,255,0.55);line-height:1.7;">
+      Money Services Business<br>
+      Digital Asset Depository Institution<br>
+      E-money Institution<br>
+      Crypto Asset Service Provider<br>
+      Major Payment Institution<br>
+      Virtual Asset Service Provider<br>
+      Remittance Service Provider<br>
+      Crypto-asset Exchange Service<br>
+      E-money Issuer
+    </div>
+
+    <div class="footnote">
+      * Applications in preparation or processing, expected within the next year.<br>
+      License status is current as of March 2026. Subject to regulatory approval.
+    </div>
+  </div>
+
+  <!-- RIGHT: COUNTRY GRID -->
+  <div class="right-col">
+    <div class="grid-title">Active and In-Progress Markets</div>
+    <div class="country-grid">
+
+      <!-- USA -->
+      <div class="country-card tier-1">
+        <div class="country-flag">🇺🇸</div>
+        <div class="country-info">
+          <div class="country-name">United States</div>
+          <ul class="license-list">
+            <li>Money Services Business</li>
+            <li>Digital Asset Depository Institution</li>
+          </ul>
+        </div>
+        <div class="tier-badge t1">Tier 1</div>
+      </div>
+
+      <!-- EU -->
+      <div class="country-card tier-1">
+        <div class="country-flag">🇪🇺</div>
+        <div class="country-info">
+          <div class="country-name">European Union (EEA)</div>
+          <ul class="license-list">
+            <li>Virtual Asset Service Provider</li>
+            <li>Crypto Asset Service Provider <span class="pending-mark">*</span></li>
+            <li>E-money Institution <span class="pending-mark">*</span></li>
+          </ul>
+        </div>
+        <div class="tier-badge t1">Tier 1</div>
+      </div>
+
+      <!-- Canada -->
+      <div class="country-card tier-2">
+        <div class="country-flag">🇨🇦</div>
+        <div class="country-info">
+          <div class="country-name">Canada</div>
+          <ul class="license-list">
+            <li>Money Services Business (Money Transferring, Virtual Currencies)</li>
+            <li>Payment Service Provider <span class="pending-mark">*</span></li>
+          </ul>
+        </div>
+        <div class="tier-badge t2">Tier 2</div>
+      </div>
+
+      <!-- Singapore -->
+      <div class="country-card tier-2">
+        <div class="country-flag">🇸🇬</div>
+        <div class="country-info">
+          <div class="country-name">Singapore</div>
+          <ul class="license-list">
+            <li>Major Payment Institution (Cross-border Transfers)</li>
+            <li>Digital Payment Tokens <span class="pending-mark">*</span></li>
+          </ul>
+        </div>
+        <div class="tier-badge t2">Tier 2</div>
+      </div>
+
+      <!-- Australia -->
+      <div class="country-card tier-2">
+        <div class="country-flag">🇦🇺</div>
+        <div class="country-info">
+          <div class="country-name">Australia</div>
+          <ul class="license-list">
+            <li>Remittance Service Provider</li>
+            <li>Digital Currency Exchange</li>
+          </ul>
+        </div>
+        <div class="tier-badge t2">Tier 2</div>
+      </div>
+
+      <!-- UK -->
+      <div class="country-card tier-3">
+        <div class="country-flag">🇬🇧</div>
+        <div class="country-info">
+          <div class="country-name">United Kingdom</div>
+          <ul class="license-list">
+            <li>Crypto Asset Exchange <span class="pending-mark">*</span></li>
+          </ul>
+        </div>
+        <div class="tier-badge t3">Tier 3</div>
+      </div>
+
+      <!-- Mexico -->
+      <div class="country-card tier-2">
+        <div class="country-flag">🇲🇽</div>
+        <div class="country-info">
+          <div class="country-name">Mexico</div>
+          <ul class="license-list">
+            <li>Virtual Asset Service Provider</li>
+            <li>Institution of Electronic Payment Funds <span class="pending-mark">*</span></li>
+          </ul>
+        </div>
+        <div class="tier-badge t2">Tier 2</div>
+      </div>
+
+      <!-- India -->
+      <div class="country-card tier-3">
+        <div class="country-flag">🇮🇳</div>
+        <div class="country-info">
+          <div class="country-name">India</div>
+          <ul class="license-list">
+            <li>Virtual Asset Service Provider <span class="pending-mark">*</span></li>
+          </ul>
+        </div>
+        <div class="tier-badge t3">Tier 3</div>
+      </div>
+
+      <!-- Argentina -->
+      <div class="country-card tier-3">
+        <div class="country-flag">🇦🇷</div>
+        <div class="country-info">
+          <div class="country-name">Argentina</div>
+          <ul class="license-list">
+            <li>Virtual Asset Service Provider</li>
+          </ul>
+        </div>
+        <div class="tier-badge t3">Tier 3</div>
+      </div>
+
+      <!-- Turkey -->
+      <div class="country-card tier-3">
+        <div class="country-flag">🇹🇷</div>
+        <div class="country-info">
+          <div class="country-name">Turkey</div>
+          <ul class="license-list">
+            <li>Virtual Asset Service Provider <span class="pending-mark">*</span></li>
+          </ul>
+        </div>
+        <div class="tier-badge t3">Tier 3</div>
+      </div>
+
+      <!-- Japan -->
+      <div class="country-card tier-3">
+        <div class="country-flag">🇯🇵</div>
+        <div class="country-info">
+          <div class="country-name">Japan</div>
+          <ul class="license-list">
+            <li>Crypto-asset Exchange Service <span class="pending-mark">*</span></li>
+          </ul>
+        </div>
+        <div class="tier-badge t3">Tier 3</div>
+      </div>
+
+      <!-- Kenya -->
+      <div class="country-card tier-3">
+        <div class="country-flag">🇰🇪</div>
+        <div class="country-info">
+          <div class="country-name">Kenya</div>
+          <ul class="license-list">
+            <li>E-money Issuer <span class="pending-mark">*</span></li>
+          </ul>
+        </div>
+        <div class="tier-badge t3">Tier 3</div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- FOOTER -->
+  <footer>
+    <span class="footer-note">Source: Telcoin Association licensing data, March 2026. * Applications in preparation or processing, expected within the next year.</span>
+    <span class="footer-url">telcoin.network</span>
+  </footer>
+
+</div>
+</body>
+</html>

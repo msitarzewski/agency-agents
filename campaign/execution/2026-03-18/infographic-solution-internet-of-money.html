@@ -1,0 +1,572 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>The Solution — The Internet of Money</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      background-color: #090920;
+      color: #FFFFFF;
+      font-family: 'Inter', sans-serif;
+      width: 1920px;
+      height: 1080px;
+      overflow: hidden;
+      position: relative;
+    }
+
+    /* Hexagon background motif */
+    .hex-bg {
+      position: absolute;
+      top: 0; left: 0; right: 0; bottom: 0;
+      pointer-events: none;
+      z-index: 0;
+      opacity: 0.04;
+    }
+
+    /* Blue radial glow — center-right, behind the diagram */
+    .glow-bg {
+      position: absolute;
+      top: 50%;
+      right: 300px;
+      transform: translateY(-50%);
+      width: 900px;
+      height: 900px;
+      border-radius: 50%;
+      background: radial-gradient(ellipse at center, rgba(20,200,255,0.06) 0%, rgba(54,66,178,0.04) 50%, transparent 75%);
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    .canvas {
+      display: flex;
+      flex-direction: column;
+      width: 1920px;
+      height: 1080px;
+      position: relative;
+      z-index: 1;
+    }
+
+    /* ── Header bar ── */
+    .header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 36px 80px 28px;
+      border-bottom: 1px solid rgba(20, 200, 255, 0.2);
+      flex-shrink: 0;
+    }
+
+    .logo-area {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+    }
+
+    .hex-mark {
+      width: 40px;
+      height: 40px;
+      flex-shrink: 0;
+    }
+
+    .wordmark {
+      font-size: 15px;
+      font-weight: 600;
+      color: #F1F4FF;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+    }
+
+    .slide-label {
+      font-size: 13px;
+      font-weight: 400;
+      color: #424761;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+    }
+
+    .slide-num {
+      width: 40px;
+      height: 40px;
+      border: 1px solid rgba(20, 200, 255, 0.35);
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 18px;
+      font-weight: 700;
+      color: #14C8FF;
+    }
+
+    /* ── Main content area ── */
+    .main {
+      flex: 1;
+      display: grid;
+      grid-template-columns: 640px 1fr;
+      gap: 0;
+      padding: 0 80px;
+      overflow: hidden;
+    }
+
+    /* ── Left column ── */
+    .left-col {
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      padding-right: 60px;
+      gap: 0;
+    }
+
+    .section-eyebrow {
+      font-size: 12px;
+      font-weight: 600;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: #10B981;
+      margin-bottom: 14px;
+    }
+
+    .section-title {
+      font-size: 34px;
+      font-weight: 700;
+      line-height: 1.18;
+      color: #FFFFFF;
+      margin-bottom: 10px;
+    }
+
+    .section-title span {
+      color: #14C8FF;
+    }
+
+    .section-subtitle {
+      font-size: 14px;
+      font-weight: 400;
+      line-height: 1.6;
+      color: #C9CFED;
+      margin-bottom: 40px;
+      max-width: 480px;
+    }
+
+    .transform-list {
+      display: flex;
+      flex-direction: column;
+      gap: 22px;
+    }
+
+    .transform-item {
+      display: flex;
+      gap: 16px;
+      align-items: flex-start;
+    }
+
+    .transform-icon {
+      width: 36px;
+      height: 36px;
+      border-radius: 8px;
+      background: rgba(16, 185, 129, 0.1);
+      border: 1px solid rgba(16, 185, 129, 0.3);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      font-size: 16px;
+      margin-top: 2px;
+    }
+
+    .transform-text {
+      flex: 1;
+    }
+
+    .transform-title {
+      font-size: 14px;
+      font-weight: 700;
+      color: #10B981;
+      margin-bottom: 5px;
+      line-height: 1.3;
+    }
+
+    .transform-desc {
+      font-size: 13px;
+      font-weight: 400;
+      color: #C9CFED;
+      line-height: 1.55;
+    }
+
+    /* ── Quote block ── */
+    .quote-block {
+      margin-top: 36px;
+      border-left: 3px solid rgba(20, 200, 255, 0.5);
+      padding: 14px 20px;
+      background: rgba(20, 200, 255, 0.04);
+      border-radius: 0 8px 8px 0;
+    }
+
+    .quote-text {
+      font-size: 12.5px;
+      font-style: italic;
+      line-height: 1.6;
+      color: #C9CFED;
+      margin-bottom: 8px;
+    }
+
+    .quote-source {
+      font-size: 11px;
+      font-weight: 600;
+      color: #424761;
+      letter-spacing: 0.04em;
+    }
+
+    /* ── Right column ── */
+    .right-col {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+    }
+
+    .diagram-label {
+      position: absolute;
+      top: 28px;
+      left: 0;
+      right: 0;
+      text-align: center;
+      font-size: 12px;
+      font-weight: 600;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: #14C8FF;
+      opacity: 0.7;
+    }
+  </style>
+</head>
+<body>
+
+<!-- Hexagon background SVG -->
+<svg class="hex-bg" xmlns="http://www.w3.org/2000/svg" width="1920" height="1080">
+  <defs>
+    <pattern id="hex-pattern" x="0" y="0" width="80" height="92" patternUnits="userSpaceOnUse">
+      <polygon points="40,4 76,24 76,68 40,88 4,68 4,24" fill="none" stroke="#3642B2" stroke-width="1"/>
+    </pattern>
+  </defs>
+  <rect width="1920" height="1080" fill="url(#hex-pattern)"/>
+</svg>
+
+<!-- Radial glow behind diagram -->
+<div class="glow-bg"></div>
+
+<div class="canvas">
+
+  <!-- Header -->
+  <header class="header">
+    <div class="logo-area">
+      <svg class="hex-mark" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <polygon points="20,2 37,11 37,29 20,38 3,29 3,11" fill="#3642B2"/>
+        <text x="20" y="26" font-family="Inter,sans-serif" font-size="16" font-weight="700"
+              fill="#14C8FF" text-anchor="middle">t</text>
+      </svg>
+      <span class="wordmark">Telcoin Association</span>
+    </div>
+    <span class="slide-label">Problem / Solution Series · Slide 4 of 4</span>
+    <div class="slide-num">04</div>
+  </header>
+
+  <!-- Main content -->
+  <div class="main">
+
+    <!-- Left column: transformations + quote -->
+    <div class="left-col">
+      <div class="section-eyebrow">The Solution</div>
+      <h1 class="section-title">The <span>Internet of Money</span> -<br>a single global ledger.</h1>
+      <p class="section-subtitle">Global regulated digital asset banks issuing multi-currency Digital Cash stablecoins as doorways into a single, borderless blockchain ledger. No intermediaries required.</p>
+
+      <div class="transform-list">
+        <div class="transform-item">
+          <div class="transform-icon">✅</div>
+          <div class="transform-text">
+            <div class="transform-title">Transforming Financial Infrastructure</div>
+            <div class="transform-desc">Global peer-to-peer transactions with digital ownership independent of third parties. Openly accessible, more efficient, and fully transparent by default.</div>
+          </div>
+        </div>
+        <div class="transform-item">
+          <div class="transform-icon">✅</div>
+          <div class="transform-text">
+            <div class="transform-title">Redefining Money and Payments</div>
+            <div class="transform-desc">Digital Cash enables the digital equivalent of handing a merchant a 20 dollar bill. Free-floating, borderless money and direct settlement without clearing layers.</div>
+          </div>
+        </div>
+        <div class="transform-item">
+          <div class="transform-icon">✅</div>
+          <div class="transform-text">
+            <div class="transform-title">Rearchitecting Financial Services</div>
+            <div class="transform-desc">Code replaces intermediaries with decentralized digital markets infrastructure, reducing costs and operational risks. Financial services become as accessible as the Internet.</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="quote-block">
+        <p class="quote-text">"Internet 3.0 is what we're talking about today, and that's the Internet of value."</p>
+        <span class="quote-source">U.S. Representative Glenn Thompson — Feb 4, 2025</span>
+      </div>
+    </div>
+
+    <!-- Right column: peer-to-peer SVG diagram -->
+    <div class="right-col">
+      <span class="diagram-label">The Internet of Money — Peer-to-Peer Network</span>
+
+      <svg width="1100" height="860" viewBox="0 0 1100 860" xmlns="http://www.w3.org/2000/svg">
+        <defs>
+          <!-- Strong blue glow for globe center -->
+          <filter id="globe-glow" x="-50%" y="-50%" width="200%" height="200%">
+            <feGaussianBlur in="SourceGraphic" stdDeviation="14" result="blur"/>
+            <feColorMatrix in="blur" type="matrix" values="0 0 0 0 0  0.3 0 0 0 0.8  3 0 0 0 1  0 0 0 0.8 0" result="glow"/>
+            <feMerge><feMergeNode in="glow"/><feMergeNode in="SourceGraphic"/></feMerge>
+          </filter>
+
+          <!-- Node glow -->
+          <filter id="node-glow" x="-40%" y="-40%" width="180%" height="180%">
+            <feGaussianBlur in="SourceGraphic" stdDeviation="7" result="blur"/>
+            <feColorMatrix in="blur" type="matrix" values="0 0 0 0 0  0.3 0 0 0 0.8  2 0 0 0 1  0 0 0 0.7 0" result="glow"/>
+            <feMerge><feMergeNode in="glow"/><feMergeNode in="SourceGraphic"/></feMerge>
+          </filter>
+
+          <!-- Green glow for eUSD -->
+          <filter id="green-glow" x="-40%" y="-40%" width="180%" height="180%">
+            <feGaussianBlur in="SourceGraphic" stdDeviation="7" result="blur"/>
+            <feColorMatrix in="blur" type="matrix" values="0 0 0 0 0  2 0 0 0 0.8  0 0 0 0 0.2  0 0 0 0.7 0" result="glow"/>
+            <feMerge><feMergeNode in="glow"/><feMergeNode in="SourceGraphic"/></feMerge>
+          </filter>
+
+          <!-- Soft connection line gradient -->
+          <linearGradient id="link-grad" x1="0%" y1="0%" x2="100%" y2="0%">
+            <stop offset="0%" style="stop-color:#14C8FF;stop-opacity:0.4"/>
+            <stop offset="50%" style="stop-color:#3642B2;stop-opacity:0.6"/>
+            <stop offset="100%" style="stop-color:#14C8FF;stop-opacity:0.4"/>
+          </linearGradient>
+
+          <!-- Globe gradient fill -->
+          <radialGradient id="globe-fill" cx="50%" cy="50%" r="50%">
+            <stop offset="0%" style="stop-color:#192E58;stop-opacity:1"/>
+            <stop offset="60%" style="stop-color:#090920;stop-opacity:1"/>
+            <stop offset="100%" style="stop-color:#3642B2;stop-opacity:0.3"/>
+          </radialGradient>
+
+          <!-- Node fill gradient -->
+          <radialGradient id="node-fill" cx="50%" cy="35%" r="65%">
+            <stop offset="0%" style="stop-color:#192E58;stop-opacity:1"/>
+            <stop offset="100%" style="stop-color:#090920;stop-opacity:1"/>
+          </radialGradient>
+        </defs>
+
+        <!--
+          Layout: central globe at (550, 430)
+          8 currency nodes arranged in a ring at radius ~240px
+          All nodes connect directly to each other (peer-to-peer)
+          Node positions (approximate clock positions):
+            eUSD  → 12:00 → (550, 190)
+            eMXN  → 1:30  → (710, 240)
+            eEUR  → 3:00  → (790, 430)
+            eGBP  → 4:30  → (710, 620)
+            eSGD  → 6:00  → (550, 670)
+            eINR  → 7:30  → (390, 620)
+            eBRL  → 9:00  → (310, 430)
+            eJPY  → 10:30 → (390, 240)
+        -->
+
+        <!-- ── Peer-to-peer mesh connection lines (drawn first, behind nodes) ── -->
+        <!-- Using a soft, low-opacity stroke so the mesh reads as a field, not clutter -->
+
+        <!-- eUSD ↔ all others -->
+        <line x1="550" y1="190" x2="710" y2="240" stroke="#14C8FF" stroke-width="1" opacity="0.25"/>
+        <line x1="550" y1="190" x2="790" y2="430" stroke="#14C8FF" stroke-width="1" opacity="0.22"/>
+        <line x1="550" y1="190" x2="710" y2="620" stroke="#14C8FF" stroke-width="1" opacity="0.18"/>
+        <line x1="550" y1="190" x2="550" y2="670" stroke="#14C8FF" stroke-width="1" opacity="0.18"/>
+        <line x1="550" y1="190" x2="390" y2="620" stroke="#14C8FF" stroke-width="1" opacity="0.18"/>
+        <line x1="550" y1="190" x2="310" y2="430" stroke="#14C8FF" stroke-width="1" opacity="0.22"/>
+        <line x1="550" y1="190" x2="390" y2="240" stroke="#14C8FF" stroke-width="1" opacity="0.25"/>
+
+        <!-- eMXN ↔ remaining -->
+        <line x1="710" y1="240" x2="790" y2="430" stroke="#14C8FF" stroke-width="1" opacity="0.25"/>
+        <line x1="710" y1="240" x2="710" y2="620" stroke="#14C8FF" stroke-width="1" opacity="0.18"/>
+        <line x1="710" y1="240" x2="550" y2="670" stroke="#14C8FF" stroke-width="1" opacity="0.18"/>
+        <line x1="710" y1="240" x2="390" y2="620" stroke="#14C8FF" stroke-width="1" opacity="0.15"/>
+        <line x1="710" y1="240" x2="310" y2="430" stroke="#14C8FF" stroke-width="1" opacity="0.18"/>
+        <line x1="710" y1="240" x2="390" y2="240" stroke="#14C8FF" stroke-width="1" opacity="0.25"/>
+
+        <!-- eEUR ↔ remaining -->
+        <line x1="790" y1="430" x2="710" y2="620" stroke="#14C8FF" stroke-width="1" opacity="0.25"/>
+        <line x1="790" y1="430" x2="550" y2="670" stroke="#14C8FF" stroke-width="1" opacity="0.22"/>
+        <line x1="790" y1="430" x2="390" y2="620" stroke="#14C8FF" stroke-width="1" opacity="0.18"/>
+        <line x1="790" y1="430" x2="310" y2="430" stroke="#14C8FF" stroke-width="1" opacity="0.18"/>
+        <line x1="790" y1="430" x2="390" y2="240" stroke="#14C8FF" stroke-width="1" opacity="0.18"/>
+
+        <!-- eGBP ↔ remaining -->
+        <line x1="710" y1="620" x2="550" y2="670" stroke="#14C8FF" stroke-width="1" opacity="0.25"/>
+        <line x1="710" y1="620" x2="390" y2="620" stroke="#14C8FF" stroke-width="1" opacity="0.22"/>
+        <line x1="710" y1="620" x2="310" y2="430" stroke="#14C8FF" stroke-width="1" opacity="0.18"/>
+        <line x1="710" y1="620" x2="390" y2="240" stroke="#14C8FF" stroke-width="1" opacity="0.15"/>
+
+        <!-- eSGD ↔ remaining -->
+        <line x1="550" y1="670" x2="390" y2="620" stroke="#14C8FF" stroke-width="1" opacity="0.25"/>
+        <line x1="550" y1="670" x2="310" y2="430" stroke="#14C8FF" stroke-width="1" opacity="0.22"/>
+        <line x1="550" y1="670" x2="390" y2="240" stroke="#14C8FF" stroke-width="1" opacity="0.18"/>
+
+        <!-- eINR ↔ remaining -->
+        <line x1="390" y1="620" x2="310" y2="430" stroke="#14C8FF" stroke-width="1" opacity="0.25"/>
+        <line x1="390" y1="620" x2="390" y2="240" stroke="#14C8FF" stroke-width="1" opacity="0.18"/>
+
+        <!-- eBRL ↔ eJPY -->
+        <line x1="310" y1="430" x2="390" y2="240" stroke="#14C8FF" stroke-width="1" opacity="0.25"/>
+
+        <!-- ── Highlighted direct paths (thicker, for visual emphasis) ── -->
+        <!-- eUSD → eEUR highlighted path -->
+        <line x1="550" y1="190" x2="790" y2="430" stroke="#14C8FF" stroke-width="2" opacity="0.55"/>
+        <!-- eBRL → eEUR highlighted path -->
+        <line x1="310" y1="430" x2="790" y2="430" stroke="#14C8FF" stroke-width="1.5" opacity="0.45"/>
+        <!-- eMXN → eSGD highlighted path -->
+        <line x1="710" y1="240" x2="550" y2="670" stroke="#14C8FF" stroke-width="1.5" opacity="0.4"/>
+
+        <!-- ── Central Globe node ── -->
+        <g transform="translate(550, 430)" filter="url(#globe-glow)">
+          <circle r="72" fill="url(#globe-fill)" stroke="#14C8FF" stroke-width="2"/>
+          <!-- Latitude lines -->
+          <ellipse cx="0" cy="-16" rx="72" ry="22" fill="none" stroke="#14C8FF" stroke-width="0.7" opacity="0.3"/>
+          <ellipse cx="0" cy="16" rx="72" ry="22" fill="none" stroke="#14C8FF" stroke-width="0.7" opacity="0.3"/>
+          <!-- Equator -->
+          <line x1="-72" y1="0" x2="72" y2="0" stroke="#14C8FF" stroke-width="0.7" opacity="0.3"/>
+          <!-- Meridian -->
+          <ellipse cx="0" cy="0" rx="28" ry="72" fill="none" stroke="#14C8FF" stroke-width="0.7" opacity="0.25"/>
+          <!-- Center cross -->
+          <circle r="5" fill="#14C8FF" opacity="0.8"/>
+          <!-- Globe outer ring -->
+          <circle r="72" fill="none" stroke="#14C8FF" stroke-width="1.5" opacity="0.6"/>
+          <!-- Label -->
+          <text y="100" font-family="Inter,sans-serif" font-size="13" font-weight="700" fill="#14C8FF" text-anchor="middle" letter-spacing="0.08em">BLOCKCHAIN</text>
+          <text y="118" font-family="Inter,sans-serif" font-size="11" fill="#7393EA" text-anchor="middle" letter-spacing="0.04em">Single Global Ledger</text>
+        </g>
+
+        <!-- ── Currency nodes ── -->
+
+        <!-- MACRO for a currency node: circle + flag emoji + token label + currency label -->
+        <!-- eUSD (12:00) — top -->
+        <g transform="translate(550, 190)" filter="url(#green-glow)">
+          <circle r="46" fill="url(#node-fill)" stroke="#10B981" stroke-width="2"/>
+          <circle r="41" fill="none" stroke="#10B981" stroke-width="0.8" opacity="0.4"/>
+          <!-- Connection dot on globe side -->
+          <circle cy="46" r="4" fill="#10B981" opacity="0.8"/>
+          <text y="-10" font-family="Inter,sans-serif" font-size="18" text-anchor="middle">🇺🇸</text>
+          <text y="12" font-family="Inter,sans-serif" font-size="13" font-weight="700" fill="#10B981" text-anchor="middle">eUSD</text>
+          <text y="28" font-family="Inter,sans-serif" font-size="10" fill="#C9CFED" text-anchor="middle">$</text>
+          <text y="-62" font-family="Inter,sans-serif" font-size="11" fill="#C9CFED" text-anchor="middle" opacity="0.7">US Dollar</text>
+        </g>
+
+        <!-- eMXN (1:30) — upper right -->
+        <g transform="translate(710, 240)" filter="url(#node-glow)">
+          <circle r="42" fill="url(#node-fill)" stroke="#14C8FF" stroke-width="2"/>
+          <circle r="37" fill="none" stroke="#14C8FF" stroke-width="0.8" opacity="0.4"/>
+          <circle cx="-30" cy="30" r="4" fill="#14C8FF" opacity="0.8"/>
+          <text y="-8" font-family="Inter,sans-serif" font-size="18" text-anchor="middle">🇲🇽</text>
+          <text y="11" font-family="Inter,sans-serif" font-size="12" font-weight="700" fill="#14C8FF" text-anchor="middle">eMXN</text>
+          <text y="26" font-family="Inter,sans-serif" font-size="10" fill="#C9CFED" text-anchor="middle">MX$</text>
+          <text x="60" y="-6" font-family="Inter,sans-serif" font-size="11" fill="#C9CFED" text-anchor="start" opacity="0.7">Peso</text>
+        </g>
+
+        <!-- eEUR (3:00) — right -->
+        <g transform="translate(790, 430)" filter="url(#node-glow)">
+          <circle r="42" fill="url(#node-fill)" stroke="#14C8FF" stroke-width="2"/>
+          <circle r="37" fill="none" stroke="#14C8FF" stroke-width="0.8" opacity="0.4"/>
+          <circle cx="-42" cy="0" r="4" fill="#14C8FF" opacity="0.8"/>
+          <text y="-8" font-family="Inter,sans-serif" font-size="18" text-anchor="middle">🇪🇺</text>
+          <text y="11" font-family="Inter,sans-serif" font-size="12" font-weight="700" fill="#14C8FF" text-anchor="middle">eEUR</text>
+          <text y="26" font-family="Inter,sans-serif" font-size="10" fill="#C9CFED" text-anchor="middle">€</text>
+          <text x="52" y="5" font-family="Inter,sans-serif" font-size="11" fill="#C9CFED" text-anchor="start" opacity="0.7">Euro</text>
+        </g>
+
+        <!-- eGBP (4:30) — lower right -->
+        <g transform="translate(710, 620)" filter="url(#node-glow)">
+          <circle r="42" fill="url(#node-fill)" stroke="#14C8FF" stroke-width="2"/>
+          <circle r="37" fill="none" stroke="#14C8FF" stroke-width="0.8" opacity="0.4"/>
+          <circle cx="-30" cy="-30" r="4" fill="#14C8FF" opacity="0.8"/>
+          <text y="-8" font-family="Inter,sans-serif" font-size="18" text-anchor="middle">🇬🇧</text>
+          <text y="11" font-family="Inter,sans-serif" font-size="12" font-weight="700" fill="#14C8FF" text-anchor="middle">eGBP</text>
+          <text y="26" font-family="Inter,sans-serif" font-size="10" fill="#C9CFED" text-anchor="middle">£</text>
+          <text x="54" y="5" font-family="Inter,sans-serif" font-size="11" fill="#C9CFED" text-anchor="start" opacity="0.7">Sterling</text>
+        </g>
+
+        <!-- eSGD (6:00) — bottom -->
+        <g transform="translate(550, 670)" filter="url(#node-glow)">
+          <circle r="42" fill="url(#node-fill)" stroke="#14C8FF" stroke-width="2"/>
+          <circle r="37" fill="none" stroke="#14C8FF" stroke-width="0.8" opacity="0.4"/>
+          <circle cy="-42" r="4" fill="#14C8FF" opacity="0.8"/>
+          <text y="-8" font-family="Inter,sans-serif" font-size="18" text-anchor="middle">🇸🇬</text>
+          <text y="11" font-family="Inter,sans-serif" font-size="12" font-weight="700" fill="#14C8FF" text-anchor="middle">eSGD</text>
+          <text y="26" font-family="Inter,sans-serif" font-size="10" fill="#C9CFED" text-anchor="middle">S$</text>
+          <text y="62" font-family="Inter,sans-serif" font-size="11" fill="#C9CFED" text-anchor="middle" opacity="0.7">Singapore Dollar</text>
+        </g>
+
+        <!-- eINR (7:30) — lower left -->
+        <g transform="translate(390, 620)" filter="url(#node-glow)">
+          <circle r="42" fill="url(#node-fill)" stroke="#14C8FF" stroke-width="2"/>
+          <circle r="37" fill="none" stroke="#14C8FF" stroke-width="0.8" opacity="0.4"/>
+          <circle cx="30" cy="-30" r="4" fill="#14C8FF" opacity="0.8"/>
+          <text y="-8" font-family="Inter,sans-serif" font-size="18" text-anchor="middle">🇮🇳</text>
+          <text y="11" font-family="Inter,sans-serif" font-size="12" font-weight="700" fill="#14C8FF" text-anchor="middle">eINR</text>
+          <text y="26" font-family="Inter,sans-serif" font-size="10" fill="#C9CFED" text-anchor="middle">₹</text>
+          <text x="-54" y="5" font-family="Inter,sans-serif" font-size="11" fill="#C9CFED" text-anchor="end" opacity="0.7">Rupee</text>
+        </g>
+
+        <!-- eBRL (9:00) — left -->
+        <g transform="translate(310, 430)" filter="url(#node-glow)">
+          <circle r="42" fill="url(#node-fill)" stroke="#14C8FF" stroke-width="2"/>
+          <circle r="37" fill="none" stroke="#14C8FF" stroke-width="0.8" opacity="0.4"/>
+          <circle cx="42" cy="0" r="4" fill="#14C8FF" opacity="0.8"/>
+          <text y="-8" font-family="Inter,sans-serif" font-size="18" text-anchor="middle">🇧🇷</text>
+          <text y="11" font-family="Inter,sans-serif" font-size="12" font-weight="700" fill="#14C8FF" text-anchor="middle">eBRL</text>
+          <text y="26" font-family="Inter,sans-serif" font-size="10" fill="#C9CFED" text-anchor="middle">R$</text>
+          <text x="-54" y="5" font-family="Inter,sans-serif" font-size="11" fill="#C9CFED" text-anchor="end" opacity="0.7">Real</text>
+        </g>
+
+        <!-- eJPY (10:30) — upper left -->
+        <g transform="translate(390, 240)" filter="url(#node-glow)">
+          <circle r="42" fill="url(#node-fill)" stroke="#14C8FF" stroke-width="2"/>
+          <circle r="37" fill="none" stroke="#14C8FF" stroke-width="0.8" opacity="0.4"/>
+          <circle cx="30" cy="30" r="4" fill="#14C8FF" opacity="0.8"/>
+          <text y="-8" font-family="Inter,sans-serif" font-size="18" text-anchor="middle">🇯🇵</text>
+          <text y="11" font-family="Inter,sans-serif" font-size="12" font-weight="700" fill="#14C8FF" text-anchor="middle">eJPY</text>
+          <text y="26" font-family="Inter,sans-serif" font-size="10" fill="#C9CFED" text-anchor="middle">¥</text>
+          <text x="-56" y="5" font-family="Inter,sans-serif" font-size="11" fill="#C9CFED" text-anchor="end" opacity="0.7">Yen</text>
+        </g>
+
+        <!-- ── "No intermediaries" callout ── -->
+        <g transform="translate(550, 430)">
+          <!-- Direct path annotation: eUSD → eEUR path label -->
+        </g>
+
+        <!-- ── Legend ── -->
+        <g transform="translate(60, 770)">
+          <circle r="5" cx="5" cy="8" fill="#14C8FF" opacity="0.7"/>
+          <line x1="15" y1="8" x2="45" y2="8" stroke="#14C8FF" stroke-width="1.5" opacity="0.5"/>
+          <circle r="5" cx="55" cy="8" fill="#14C8FF" opacity="0.7"/>
+          <text x="68" y="13" font-family="Inter,sans-serif" font-size="12" fill="#C9CFED">Direct peer-to-peer settlement</text>
+
+          <circle r="7" cx="5" cy="38" fill="url(#globe-fill)" stroke="#14C8FF" stroke-width="1.5"/>
+          <text x="20" y="43" font-family="Inter,sans-serif" font-size="12" fill="#C9CFED">Telcoin Network — global blockchain ledger</text>
+
+          <circle r="7" cx="5" cy="62" fill="#090920" stroke="#10B981" stroke-width="1.5"/>
+          <text x="20" y="67" font-family="Inter,sans-serif" font-size="12" fill="#C9CFED">eUSD — bank-issued stablecoin (Telcoin Digital Asset Bank, Nebraska charter)</text>
+
+          <text x="0" y="92" font-family="Inter,sans-serif" font-size="11" fill="#424761">All currency nodes issue Digital Cash stablecoins through regulated digital asset banks. No SWIFT routing. No correspondent banking.</text>
+        </g>
+      </svg>
+    </div>
+  </div>
+</div>
+
+</body>
+</html>
