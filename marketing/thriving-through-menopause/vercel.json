@@ -1,5 +1,4 @@
 {
-  "outputDirectory": ".",
-  "builds": [{ "src": "**/*.html", "use": "@vercel/static" }],
-  "routes": [{ "src": "/(.*)", "dest": "/$1" }]
+  "cleanUrls": false,
+  "trailingSlash": false
 }
