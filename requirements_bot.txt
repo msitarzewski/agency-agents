@@ -1,0 +1,16 @@
+# Polymarket LP Bot — Dependencies
+# Install: pip install -r requirements_bot.txt
+
+# HTTP client (async)
+httpx>=0.27.0
+
+# Numerical / statistical
+numpy>=1.26.0
+pandas>=2.2.0
+scipy>=1.13.0
+
+# Live trading only (comment out if paper trading)
+# py-clob-client>=0.14.0
+
+# Optional: load .env file automatically
+python-dotenv>=1.0.0
