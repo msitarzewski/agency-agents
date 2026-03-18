@@ -1,7 +1,9 @@
 # Thriving Through Menopause — Brand Guidelines
 
 ## Brand Overview
-**Thriving Through Menopause** is Australia's premier boutique symposium dedicated to advancing menopause care within the aesthetics and wellness industry. Founded by Chiza Westcarr — dermal therapist, nutritionist, and menopause educator — it equips practitioners with the clinical knowledge and community to confidently support women through the menopause journey.
+**Thriving Through Menopause** is Australia's **first and premier** boutique symposium for the medical aesthetics industry dedicated to menopause. Founded by Chiza Westcarr — Clinical Dermal Therapist, Nutritionist, PhD researcher, and Menopause Educator — it equips practitioners with the cutting-edge clinical knowledge and community to confidently support women through the menopause journey.
+
+**Chiza's philosophy**: *"An ageing female skin is a menopausal skin"* — a guiding insight that underpins the entire brand and event programming.
 
 **Website**: https://thrivingthroughmenopause.com.au
 **Instagram**: @thrivingthroughmenopausebycw
@@ -65,10 +67,18 @@
 
 ## Key Messages
 
+### Chiza Westcarr's Signature Phrase (use as headline/hook)
+> **"An ageing female skin is a menopausal skin."**
+
+*This is the single most powerful piece of copy for the aesthetics practitioner audience. Use it as a hook, a thought-starter, and a reason to attend.*
+
 ### Official Taglines (from brand)
 > **"Addressing menopausal and ageing changes with confidence."**
 > **"Empowering Skin Specialists."**
 > **"Thriving Through Menopause exists to improve the wellbeing of women throughout the menopause journey."**
+
+### Historic Brand Positioning
+> **"Australia's first menopause symposium for the medical aesthetics industry."**
 
 ### Campaign Taglines
 - "Where practitioners come to lead the change."
@@ -101,6 +111,7 @@
 - **Dr. Judy Craig** — Women's Health Specialist & Menopause Educator
 - **Dr. Martina Lavery** — Aesthetic Dentist with special interest in menopause
 - **Kellie Jackson** — RN & Clinic Owner, menopause specialist
+- **Dr. Aman Bhinder** — Founder, Clinic Auriq; RACGP / ACNEM / ACAM Fellow; latest advancements in women's intimate health
 - **Tracey Dennison** — Nurse Practitioner & Clinic Owner, menopause specialist
 
 ---

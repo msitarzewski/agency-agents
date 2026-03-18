@@ -113,35 +113,39 @@ Share this with a woman who deserves to thrive. 💜
 
 ---
 
-## THREAD 2: Educational Thread
+## THREAD 2: Educational Thread (Practitioner-Focused)
 *Best for: Mid-campaign engagement, positioning as thought leaders*
 
 ---
 
 **Tweet 1/6 (Hook)**
-5 things I wish every woman knew about menopause before it started:
+"An ageing female skin is a menopausal skin." — @ChizaWestcarr
+
+If that sentence just reframed how you see your entire client base, keep reading.
+
+5 things every aesthetics practitioner needs to know about menopause:
 
 🧵
 
 ---
 
 **Tweet 2/6**
-1. Perimenopause can start in your late 30s.
+1. Every ageing skin you treat is likely a menopausal skin.
 
-Most women don't realise the transition begins 7–10 years before periods stop.
+Perimenopause can start in the late 30s — 7–10 years before periods stop.
 
-Brain fog, weight changes, sleep disruption, anxiety — it can all start earlier than you think.
+Collagen loss, barrier dysfunction, sebum changes, vascular changes — the skin your client brings to you is profoundly shaped by hormones.
 
-You're not imagining it.
+Are you factoring this in?
 
 ---
 
 **Tweet 3/6**
-2. Menopause affects your heart, bones, and brain — not just your cycle.
+2. The oestrogen drop affects far more than cycles.
 
-The drop in oestrogen has far-reaching effects on cardiovascular health, bone density, and cognitive function.
+Cardiovascular health, bone density, cognitive function, oral health, pelvic floor integrity, intimate wellbeing.
 
-This is why getting the right information *early* matters.
+As a practitioner, your clients are asking YOU about these. The Thriving Through Menopause Symposium gives you the answers — from 11 of the world's best specialists.
 
 ---
 
@@ -184,6 +188,21 @@ The Thriving Through Menopause Symposium — Sydney, 2026.
 
 ## STANDALONE TWEETS
 *Mix into scheduling calendar 3–5x per week in lead-up to event*
+
+---
+
+**Signature Hook Tweet (pin-worthy):**
+
+> "An ageing female skin is a menopausal skin."
+>
+> — Chiza Westcarr, Clinical Dermal Therapist, Nutritionist & PhD researcher
+>
+> If that reframes how you see every client over 40 in your clinic — imagine what a full day with her and 10 world-class specialists does.
+>
+> The Thriving Through Menopause Symposium. Sydney. 200 seats.
+> 🔗 thrivingthroughmenopause.com.au
+>
+> #ThrivingThroughMenopause #EmpoweringSkinSpecialists
 
 ---
 

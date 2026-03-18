@@ -10,13 +10,15 @@
 
 ### Facebook Ad 1 — Awareness / Reach
 **Objective**: Brand awareness, top of funnel
-**Audience**: Women 40–65, Australia, interests: women's health, menopause, wellness, fitness
+**Audience**: Aesthetic doctors, nurses, dermal clinicians, wellness practitioners — Australia
 
 **Headline:**
-`Where Women Come to Thrive.`
+`"An ageing female skin is a menopausal skin." — Chiza Westcarr`
 
 **Primary Text:**
-Your menopausal clients deserve practitioners who truly understand what they're going through.
+If every ageing client in your clinic is potentially a menopausal client — do you have the knowledge to treat her holistically?
+
+Your clients deserve a practitioner who truly understands what they're going through.
 
 That's exactly why Chiza Westcarr created the **Thriving Through Menopause Symposium** — Australia's most respected boutique conference for aesthetics and wellness practitioners.
 
