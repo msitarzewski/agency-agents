@@ -1,0 +1,568 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Mobile Financial Services 2.0 — Telcoin Association</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --tel-black:      #090920;
+      --tel-dark-blue:  #192E58;
+      --tel-royal-blue: #3642B2;
+      --tel-indigo:     #7393EA;
+      --tel-blue:       #14C8FF;
+      --tel-white:      #F1F4FF;
+      --tel-gray:       #424761;
+      --dao-blue:       #524CF8;
+    }
+
+    html, body {
+      width: 1920px;
+      height: 1080px;
+      overflow: hidden;
+      background: var(--tel-black);
+      color: var(--tel-white);
+      font-family: 'Inter', sans-serif;
+    }
+
+    /* ── BACKGROUND GEOMETRY ─────────────────────────────────── */
+    .bg-layer {
+      position: absolute;
+      inset: 0;
+      overflow: hidden;
+      z-index: 0;
+    }
+
+    .hex-bg {
+      position: absolute;
+      opacity: 0.06;
+    }
+
+    /* ── LAYOUT ──────────────────────────────────────────────── */
+    .canvas {
+      position: relative;
+      z-index: 1;
+      width: 1920px;
+      height: 1080px;
+      display: grid;
+      grid-template-rows: 96px 1fr 80px;
+      grid-template-columns: 1fr 1fr;
+      grid-template-areas:
+        "header  header"
+        "left    right"
+        "footer  footer";
+      padding: 0 72px 0 72px;
+      gap: 0;
+    }
+
+    /* ── HEADER ──────────────────────────────────────────────── */
+    header {
+      grid-area: header;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      border-bottom: 1px solid rgba(20, 200, 255, 0.18);
+      padding: 0 0 0 0;
+    }
+
+    .logo-mark {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+    }
+
+    .hex-logo {
+      width: 38px;
+      height: 38px;
+    }
+
+    .logo-text {
+      font-size: 15px;
+      font-weight: 600;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--tel-white);
+      opacity: 0.9;
+    }
+
+    .slide-label {
+      font-size: 12px;
+      font-weight: 500;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--tel-blue);
+      opacity: 0.7;
+    }
+
+    /* ── LEFT COLUMN ─────────────────────────────────────────── */
+    .left-col {
+      grid-area: left;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      padding: 32px 56px 32px 0;
+      gap: 32px;
+    }
+
+    .section-eyebrow {
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: var(--tel-blue);
+      margin-bottom: 4px;
+    }
+
+    .section-title {
+      font-size: 36px;
+      font-weight: 700;
+      line-height: 1.15;
+      color: #ffffff;
+      margin-bottom: 6px;
+    }
+
+    .section-sub {
+      font-size: 14px;
+      font-weight: 400;
+      color: var(--tel-indigo);
+      line-height: 1.6;
+      max-width: 560px;
+    }
+
+    /* ── VALUE PROPS ─────────────────────────────────────────── */
+    .value-props {
+      display: flex;
+      flex-direction: column;
+      gap: 18px;
+    }
+
+    .vp-card {
+      display: flex;
+      align-items: flex-start;
+      gap: 18px;
+      background: rgba(54, 66, 178, 0.10);
+      border: 1px solid rgba(54, 66, 178, 0.28);
+      border-left: 3px solid var(--tel-royal-blue);
+      border-radius: 8px;
+      padding: 18px 22px;
+      transition: border-left-color 0.2s;
+    }
+
+    .vp-card.highlight {
+      border-left-color: var(--tel-blue);
+      background: rgba(20, 200, 255, 0.06);
+    }
+
+    .vp-icon {
+      width: 40px;
+      height: 40px;
+      flex-shrink: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: rgba(54, 66, 178, 0.22);
+      border-radius: 8px;
+      font-size: 20px;
+    }
+
+    .vp-content {}
+
+    .vp-title {
+      font-size: 14px;
+      font-weight: 700;
+      color: #ffffff;
+      margin-bottom: 5px;
+      line-height: 1.3;
+    }
+
+    .vp-desc {
+      font-size: 12.5px;
+      font-weight: 400;
+      color: rgba(241, 244, 255, 0.70);
+      line-height: 1.6;
+    }
+
+    .vp-bullets {
+      list-style: none;
+      margin-top: 6px;
+      display: flex;
+      flex-direction: column;
+      gap: 3px;
+    }
+
+    .vp-bullets li {
+      font-size: 12px;
+      color: rgba(241, 244, 255, 0.62);
+      padding-left: 14px;
+      position: relative;
+      line-height: 1.5;
+    }
+
+    .vp-bullets li::before {
+      content: '';
+      position: absolute;
+      left: 0;
+      top: 8px;
+      width: 5px;
+      height: 1px;
+      background: var(--tel-blue);
+    }
+
+    /* ── ANALOGY ROW ─────────────────────────────────────────── */
+    .analogy-row {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      background: rgba(82, 76, 248, 0.08);
+      border: 1px solid rgba(82, 76, 248, 0.22);
+      border-radius: 8px;
+      padding: 14px 20px;
+    }
+
+    .analogy-label {
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--tel-indigo);
+      white-space: nowrap;
+      margin-right: 6px;
+    }
+
+    .analogy-chip {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      background: rgba(54, 66, 178, 0.25);
+      border: 1px solid rgba(54, 66, 178, 0.40);
+      border-radius: 20px;
+      padding: 5px 12px;
+      font-size: 12px;
+      font-weight: 500;
+      color: var(--tel-white);
+      white-space: nowrap;
+    }
+
+    .analogy-arrow {
+      font-size: 16px;
+      color: var(--tel-blue);
+      flex-shrink: 0;
+    }
+
+    .analogy-chip.new {
+      background: rgba(20, 200, 255, 0.12);
+      border-color: rgba(20, 200, 255, 0.35);
+      color: var(--tel-blue);
+      font-weight: 600;
+    }
+
+    /* ── RIGHT COLUMN ────────────────────────────────────────── */
+    .right-col {
+      grid-area: right;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      padding: 24px 0 24px 48px;
+      gap: 24px;
+      border-left: 1px solid rgba(54, 66, 178, 0.20);
+    }
+
+    .network-label {
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: var(--tel-blue);
+      opacity: 0.8;
+      text-align: center;
+    }
+
+    /* ── P2P NETWORK DIAGRAM ─────────────────────────────────── */
+    .network-diagram {
+      width: 580px;
+      height: 380px;
+      position: relative;
+    }
+
+    .network-diagram svg {
+      width: 100%;
+      height: 100%;
+      overflow: visible;
+    }
+
+    /* ── QUOTE BLOCK ─────────────────────────────────────────── */
+    .quote-block {
+      background: rgba(25, 46, 88, 0.45);
+      border: 1px solid rgba(20, 200, 255, 0.18);
+      border-left: 3px solid var(--tel-blue);
+      border-radius: 8px;
+      padding: 18px 24px;
+      max-width: 580px;
+      width: 100%;
+    }
+
+    .quote-text {
+      font-size: 13px;
+      font-style: italic;
+      font-weight: 400;
+      color: rgba(241, 244, 255, 0.82);
+      line-height: 1.65;
+      margin-bottom: 10px;
+    }
+
+    .quote-attribution {
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 0.08em;
+      color: var(--tel-blue);
+      text-transform: uppercase;
+    }
+
+    .quote-source {
+      font-size: 10.5px;
+      font-weight: 400;
+      color: rgba(241, 244, 255, 0.40);
+      margin-top: 2px;
+    }
+
+    /* ── FOOTER ──────────────────────────────────────────────── */
+    footer {
+      grid-area: footer;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      border-top: 1px solid rgba(20, 200, 255, 0.10);
+      padding-top: 0;
+    }
+
+    .footer-caption {
+      font-size: 11px;
+      font-weight: 400;
+      color: rgba(241, 244, 255, 0.35);
+      letter-spacing: 0.04em;
+    }
+
+    .footer-url {
+      font-size: 11px;
+      font-weight: 500;
+      color: rgba(20, 200, 255, 0.45);
+      letter-spacing: 0.05em;
+    }
+
+  </style>
+</head>
+<body>
+
+<!-- Background hexagon geometry -->
+<div class="bg-layer" aria-hidden="true">
+  <svg class="hex-bg" style="top:-80px;left:-40px;width:520px;height:520px;" viewBox="0 0 520 520">
+    <polygon points="260,20 480,140 480,380 260,500 40,380 40,140" fill="none" stroke="#3642B2" stroke-width="1.5"/>
+    <polygon points="260,60 440,160 440,360 260,460 80,360 80,160" fill="none" stroke="#3642B2" stroke-width="1"/>
+  </svg>
+  <svg class="hex-bg" style="bottom:-120px;right:-60px;width:600px;height:600px;" viewBox="0 0 600 600">
+    <polygon points="300,20 560,160 560,440 300,580 40,440 40,160" fill="none" stroke="#14C8FF" stroke-width="1.5"/>
+  </svg>
+  <svg class="hex-bg" style="top:180px;left:880px;width:200px;height:200px;" viewBox="0 0 200 200">
+    <polygon points="100,10 185,55 185,145 100,190 15,145 15,55" fill="none" stroke="#7393EA" stroke-width="1"/>
+  </svg>
+</div>
+
+<!-- Main canvas -->
+<div class="canvas">
+
+  <!-- HEADER -->
+  <header>
+    <div class="logo-mark">
+      <!-- Hexagon logo mark (CSS-drawn) -->
+      <svg class="hex-logo" viewBox="0 0 38 38" fill="none">
+        <polygon points="19,2 35,10.5 35,27.5 19,36 3,27.5 3,10.5" fill="#3642B2" stroke="#14C8FF" stroke-width="1.2"/>
+        <text x="19" y="24" text-anchor="middle" fill="#F1F4FF" font-family="Inter,sans-serif" font-size="14" font-weight="700">t</text>
+      </svg>
+      <span class="logo-text">Telcoin Association</span>
+    </div>
+    <span class="slide-label">Mobile Financial Services 2.0 — MNO Opportunity Brief</span>
+  </header>
+
+  <!-- LEFT COLUMN -->
+  <div class="left-col">
+    <div>
+      <div class="section-eyebrow">Infrastructure Thesis</div>
+      <div class="section-title">Mobile Networks Are<br>the Blockchain Economy's<br>Natural Backbone</div>
+      <div class="section-sub">By running blockchain as a network service, MNOs earn revenue settling direct Digital Cash payments - without becoming a bank or custodying funds.</div>
+    </div>
+
+    <div class="value-props">
+
+      <!-- VP 1: Infrastructure -->
+      <div class="vp-card">
+        <div class="vp-icon">📡</div>
+        <div class="vp-content">
+          <div class="vp-title">Mobile networks are best positioned to power the blockchain economy</div>
+          <div class="vp-desc">Mobile networks are the most distributed infrastructure on the planet, already operating at the scale needed to support a global blockchain network.</div>
+        </div>
+      </div>
+
+      <!-- VP 2: Node Operators -->
+      <div class="vp-card">
+        <div class="vp-icon">⚙️</div>
+        <div class="vp-content">
+          <div class="vp-title">MNOs are ideal blockchain node operators</div>
+          <ul class="vp-bullets">
+            <li>Present in every country: 2-3 MNOs per market, trusted and regulated</li>
+            <li>Data centers already deployed close to every smartphone in the world</li>
+            <li>KYC infrastructure touching ~7 billion people globally</li>
+            <li>Proven ability to handle mission-critical, fraud-resistant systems</li>
+          </ul>
+        </div>
+      </div>
+
+      <!-- VP 3: Switch Digital Cash -->
+      <div class="vp-card highlight">
+        <div class="vp-icon">💱</div>
+        <div class="vp-content">
+          <div class="vp-title">Just as telecoms switch calls, SMS, and data - they can now switch Digital Cash</div>
+          <ul class="vp-bullets">
+            <li>Run the settlement layer of stablecoin-based payments directly between consumers and merchants</li>
+            <li>No need to become a custodian or bank - just operate the network</li>
+          </ul>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- ANALOGY ROW -->
+    <div class="analogy-row">
+      <span class="analogy-label">Then</span>
+      <div class="analogy-chip">📞 Switch Calls</div>
+      <div class="analogy-chip">💬 Route SMS</div>
+      <div class="analogy-chip">🌐 Transfer Data</div>
+      <span class="analogy-arrow">→</span>
+      <span class="analogy-label">Now</span>
+      <div class="analogy-chip new">💵 Switch Digital Cash</div>
+    </div>
+
+  </div>
+
+  <!-- RIGHT COLUMN -->
+  <div class="right-col">
+    <div class="network-label">The Internet of Money — Peer-to-Peer Digital Cash Settlement</div>
+
+    <!-- P2P Network SVG diagram -->
+    <div class="network-diagram" role="img" aria-label="Peer-to-peer network diagram showing eUSD, eMXN, eEUR and eGBP currency nodes connected directly without a central hub">
+      <svg viewBox="0 0 580 380" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <defs>
+          <filter id="glow-blue" x="-40%" y="-40%" width="180%" height="180%">
+            <feGaussianBlur stdDeviation="6" result="blur"/>
+            <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
+          </filter>
+          <filter id="glow-soft" x="-20%" y="-20%" width="140%" height="140%">
+            <feGaussianBlur stdDeviation="3" result="blur"/>
+            <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
+          </filter>
+          <radialGradient id="node-grad-eusd" cx="50%" cy="50%" r="50%">
+            <stop offset="0%" stop-color="#14C8FF" stop-opacity="0.28"/>
+            <stop offset="100%" stop-color="#3642B2" stop-opacity="0.12"/>
+          </radialGradient>
+          <radialGradient id="node-grad-emxn" cx="50%" cy="50%" r="50%">
+            <stop offset="0%" stop-color="#7393EA" stop-opacity="0.25"/>
+            <stop offset="100%" stop-color="#3642B2" stop-opacity="0.10"/>
+          </radialGradient>
+          <radialGradient id="center-glow" cx="50%" cy="50%" r="50%">
+            <stop offset="0%" stop-color="#14C8FF" stop-opacity="0.12"/>
+            <stop offset="100%" stop-color="#090920" stop-opacity="0"/>
+          </radialGradient>
+          <!-- Animated dash -->
+          <style>
+            .flow-line { stroke-dasharray: 8 6; animation: dash 2.4s linear infinite; }
+            .flow-line-slow { stroke-dasharray: 8 6; animation: dash 3.6s linear infinite; }
+            @keyframes dash { to { stroke-dashoffset: -100; } }
+          </style>
+        </defs>
+
+        <!-- Central glow -->
+        <ellipse cx="290" cy="190" rx="110" ry="80" fill="url(#center-glow)"/>
+
+        <!-- Connection lines (no central hub — direct P2P mesh) -->
+        <!-- eUSD (top-center) ↔ eMXN (bottom-left) -->
+        <line x1="290" y1="72" x2="100" y2="300" stroke="#3642B2" stroke-width="1.5" opacity="0.45"/>
+        <line x1="290" y1="72" x2="100" y2="300" class="flow-line" stroke="#14C8FF" stroke-width="1" opacity="0.6"/>
+
+        <!-- eUSD ↔ eEUR (bottom-right) -->
+        <line x1="290" y1="72" x2="480" y2="300" stroke="#3642B2" stroke-width="1.5" opacity="0.45"/>
+        <line x1="290" y1="72" x2="480" y2="300" class="flow-line-slow" stroke="#14C8FF" stroke-width="1" opacity="0.6"/>
+
+        <!-- eUSD ↔ eGBP (right-mid) -->
+        <line x1="290" y1="72" x2="510" y2="155" stroke="#7393EA" stroke-width="1.2" opacity="0.35"/>
+        <line x1="290" y1="72" x2="510" y2="155" class="flow-line" stroke="#7393EA" stroke-width="0.8" opacity="0.5"/>
+
+        <!-- eMXN ↔ eEUR -->
+        <line x1="100" y1="300" x2="480" y2="300" stroke="#3642B2" stroke-width="1.5" opacity="0.40"/>
+        <line x1="100" y1="300" x2="480" y2="300" class="flow-line-slow" stroke="#14C8FF" stroke-width="1" opacity="0.55"/>
+
+        <!-- eMXN ↔ eGBP -->
+        <line x1="100" y1="300" x2="510" y2="155" stroke="#7393EA" stroke-width="1.2" opacity="0.30"/>
+
+        <!-- eEUR ↔ eGBP -->
+        <line x1="480" y1="300" x2="510" y2="155" stroke="#7393EA" stroke-width="1.2" opacity="0.30"/>
+
+        <!-- eUSD node (top center) -->
+        <g filter="url(#glow-blue)">
+          <polygon points="290,30 326,50 326,90 290,110 254,90 254,50" fill="url(#node-grad-eusd)" stroke="#14C8FF" stroke-width="2"/>
+        </g>
+        <text x="290" y="64" text-anchor="middle" fill="#14C8FF" font-family="Inter,sans-serif" font-size="13" font-weight="700">eUSD</text>
+        <text x="290" y="80" text-anchor="middle" fill="rgba(241,244,255,0.55)" font-family="Inter,sans-serif" font-size="10">🇺🇸 US Dollar</text>
+
+        <!-- eMXN node (bottom left) -->
+        <g filter="url(#glow-soft)">
+          <polygon points="100,258 136,278 136,318 100,338 64,318 64,278" fill="url(#node-grad-emxn)" stroke="#7393EA" stroke-width="1.8"/>
+        </g>
+        <text x="100" y="292" text-anchor="middle" fill="#7393EA" font-family="Inter,sans-serif" font-size="13" font-weight="700">eMXN</text>
+        <text x="100" y="308" text-anchor="middle" fill="rgba(241,244,255,0.55)" font-family="Inter,sans-serif" font-size="10">🇲🇽 Peso</text>
+
+        <!-- eEUR node (bottom right) -->
+        <g filter="url(#glow-soft)">
+          <polygon points="480,258 516,278 516,318 480,338 444,318 444,278" fill="url(#node-grad-emxn)" stroke="#7393EA" stroke-width="1.8"/>
+        </g>
+        <text x="480" y="292" text-anchor="middle" fill="#7393EA" font-family="Inter,sans-serif" font-size="13" font-weight="700">eEUR</text>
+        <text x="480" y="308" text-anchor="middle" fill="rgba(241,244,255,0.55)" font-family="Inter,sans-serif" font-size="10">🇪🇺 Euro</text>
+
+        <!-- eGBP node (right mid) -->
+        <g filter="url(#glow-soft)">
+          <polygon points="510,118 540,134 540,162 510,178 480,162 480,134" fill="rgba(54,66,178,0.22)" stroke="#3642B2" stroke-width="1.6"/>
+        </g>
+        <text x="510" y="148" text-anchor="middle" fill="#F1F4FF" font-family="Inter,sans-serif" font-size="12" font-weight="600" opacity="0.75">eGBP</text>
+        <text x="510" y="163" text-anchor="middle" fill="rgba(241,244,255,0.45)" font-family="Inter,sans-serif" font-size="9">🇬🇧 GBP</text>
+
+        <!-- "Bank Node" labels on connecting lines (mid-points) -->
+        <!-- Label: MNO Settlement Node on middle of a line -->
+        <rect x="216" y="170" width="150" height="26" rx="4" fill="rgba(9,9,32,0.80)" stroke="rgba(20,200,255,0.22)" stroke-width="1"/>
+        <text x="291" y="187" text-anchor="middle" fill="rgba(20,200,255,0.75)" font-family="Inter,sans-serif" font-size="10" font-weight="600" letter-spacing="0.08em">MNO SETTLEMENT NODE</text>
+
+        <!-- P2P label at bottom -->
+        <text x="290" y="362" text-anchor="middle" fill="rgba(241,244,255,0.32)" font-family="Inter,sans-serif" font-size="10.5" letter-spacing="0.05em">Direct peer-to-peer — no correspondent bank intermediary</text>
+
+      </svg>
+    </div>
+
+    <!-- QUOTE BLOCK -->
+    <div class="quote-block">
+      <div class="quote-text">"Telecoms around the world run the internet [...] Why shouldn't they also process blocks and, effectively, the settlement layer of Digital Cash floating around the Internet of Money?"</div>
+      <div class="quote-attribution">Paul Neuner — Founder &amp; CEO, Telcoin</div>
+      <div class="quote-source">American Banker</div>
+    </div>
+
+  </div>
+
+  <!-- FOOTER -->
+  <footer>
+    <span class="footer-caption">The Internet of Money will usher in direct Digital Cash payments without intermediaries. Global MNOs can take over the settlement layer of banking in this new world of decentralized direct payments.</span>
+    <span class="footer-url">telcoin.network</span>
+  </footer>
+
+</div>
+</body>
+</html>

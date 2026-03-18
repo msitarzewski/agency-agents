@@ -1,0 +1,505 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>The Problem — Legacy Financial Infrastructure</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      background-color: #090920;
+      color: #FFFFFF;
+      font-family: 'Inter', sans-serif;
+      width: 1920px;
+      height: 1080px;
+      overflow: hidden;
+      position: relative;
+    }
+
+    /* Hexagon background motif */
+    .hex-bg {
+      position: absolute;
+      top: 0; left: 0; right: 0; bottom: 0;
+      pointer-events: none;
+      z-index: 0;
+      opacity: 0.04;
+    }
+
+    .canvas {
+      display: flex;
+      flex-direction: column;
+      width: 1920px;
+      height: 1080px;
+      position: relative;
+      z-index: 1;
+    }
+
+    /* ── Header bar ── */
+    .header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 36px 80px 28px;
+      border-bottom: 1px solid rgba(54, 66, 178, 0.35);
+      flex-shrink: 0;
+    }
+
+    .logo-area {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+    }
+
+    .hex-mark {
+      width: 40px;
+      height: 40px;
+      flex-shrink: 0;
+    }
+
+    .wordmark {
+      font-size: 15px;
+      font-weight: 600;
+      color: #F1F4FF;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+    }
+
+    .slide-label {
+      font-size: 13px;
+      font-weight: 400;
+      color: #424761;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+    }
+
+    /* ── Slide number badge ── */
+    .slide-num {
+      width: 40px;
+      height: 40px;
+      border: 1px solid rgba(54, 66, 178, 0.5);
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 18px;
+      font-weight: 700;
+      color: #3642B2;
+    }
+
+    /* ── Main content area ── */
+    .main {
+      flex: 1;
+      display: grid;
+      grid-template-columns: 640px 1fr;
+      gap: 0;
+      padding: 0 80px;
+      overflow: hidden;
+    }
+
+    /* ── Left column ── */
+    .left-col {
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      padding-right: 60px;
+      gap: 0;
+    }
+
+    .section-eyebrow {
+      font-size: 12px;
+      font-weight: 600;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: #EF4444;
+      margin-bottom: 14px;
+    }
+
+    .section-title {
+      font-size: 34px;
+      font-weight: 700;
+      line-height: 1.18;
+      color: #FFFFFF;
+      margin-bottom: 10px;
+    }
+
+    .section-subtitle {
+      font-size: 14px;
+      font-weight: 400;
+      line-height: 1.6;
+      color: #C9CFED;
+      margin-bottom: 40px;
+      max-width: 480px;
+    }
+
+    .failure-list {
+      display: flex;
+      flex-direction: column;
+      gap: 22px;
+    }
+
+    .failure-item {
+      display: flex;
+      gap: 16px;
+      align-items: flex-start;
+    }
+
+    .failure-icon {
+      width: 36px;
+      height: 36px;
+      border-radius: 8px;
+      background: rgba(239, 68, 68, 0.12);
+      border: 1px solid rgba(239, 68, 68, 0.3);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      font-size: 16px;
+      margin-top: 2px;
+    }
+
+    .failure-text {
+      flex: 1;
+    }
+
+    .failure-title {
+      font-size: 14px;
+      font-weight: 700;
+      color: #EF4444;
+      margin-bottom: 5px;
+      line-height: 1.3;
+    }
+
+    .failure-desc {
+      font-size: 13px;
+      font-weight: 400;
+      color: #C9CFED;
+      line-height: 1.55;
+    }
+
+    /* ── Quote block ── */
+    .quote-block {
+      margin-top: 36px;
+      border-left: 3px solid rgba(239, 68, 68, 0.5);
+      padding: 14px 20px;
+      background: rgba(239, 68, 68, 0.05);
+      border-radius: 0 8px 8px 0;
+    }
+
+    .quote-text {
+      font-size: 12.5px;
+      font-style: italic;
+      line-height: 1.6;
+      color: #C9CFED;
+      margin-bottom: 8px;
+    }
+
+    .quote-source {
+      font-size: 11px;
+      font-weight: 600;
+      color: #424761;
+      letter-spacing: 0.04em;
+    }
+
+    /* ── Right column — SVG diagram ── */
+    .right-col {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+    }
+
+    .diagram-label {
+      position: absolute;
+      top: 28px;
+      left: 0;
+      right: 0;
+      text-align: center;
+      font-size: 12px;
+      font-weight: 600;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: #424761;
+    }
+
+    /* ── SVG node styles injected via attributes ── */
+  </style>
+</head>
+<body>
+
+<!-- Hexagon background SVG -->
+<svg class="hex-bg" xmlns="http://www.w3.org/2000/svg" width="1920" height="1080">
+  <defs>
+    <pattern id="hex-pattern" x="0" y="0" width="80" height="92" patternUnits="userSpaceOnUse">
+      <polygon points="40,4 76,24 76,68 40,88 4,68 4,24" fill="none" stroke="#3642B2" stroke-width="1"/>
+    </pattern>
+  </defs>
+  <rect width="1920" height="1080" fill="url(#hex-pattern)"/>
+</svg>
+
+<div class="canvas">
+
+  <!-- Header -->
+  <header class="header">
+    <div class="logo-area">
+      <!-- Hexagon mark (inline SVG) -->
+      <svg class="hex-mark" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <polygon points="20,2 37,11 37,29 20,38 3,29 3,11" fill="#3642B2"/>
+        <text x="20" y="26" font-family="Inter,sans-serif" font-size="16" font-weight="700"
+              fill="#14C8FF" text-anchor="middle">t</text>
+      </svg>
+      <span class="wordmark">Telcoin Association</span>
+    </div>
+    <span class="slide-label">Problem / Solution Series · Slide 3 of 4</span>
+    <div class="slide-num">03</div>
+  </header>
+
+  <!-- Main content -->
+  <div class="main">
+
+    <!-- Left column: failure modes + quote -->
+    <div class="left-col">
+      <div class="section-eyebrow">The Problem</div>
+      <h1 class="section-title">Legacy systems aren't built<br>for a borderless economy.</h1>
+      <p class="section-subtitle">Fintech firms are forced to build on top of shaky foundations - siloed, slow, and costly infrastructure that was never designed for a global, Internet-driven economy.</p>
+
+      <div class="failure-list">
+        <div class="failure-item">
+          <div class="failure-icon">❌</div>
+          <div class="failure-text">
+            <div class="failure-title">Fragmented System of Private Bank Ledgers</div>
+            <div class="failure-desc">Siloed domestic ledgers run at varying speeds, forced to route through numerous intermediaries via hub-and-spoke legacy architecture. No single coherent global layer.</div>
+          </div>
+        </div>
+        <div class="failure-item">
+          <div class="failure-icon">❌</div>
+          <div class="failure-text">
+            <div class="failure-title">Complex and Expensive to Maintain</div>
+            <div class="failure-desc">Legacy systems were built as standalone entities - often in archaic COBOL - with little capacity for seamless interoperability. Technical debt compounds with every generation.</div>
+          </div>
+        </div>
+        <div class="failure-item">
+          <div class="failure-icon">❌</div>
+          <div class="failure-text">
+            <div class="failure-title">"Circuit Switched" Banking Is Costly for Consumers</div>
+            <div class="failure-desc">Core banking systems impose heavy operational costs on each institution. Those costs are passed directly to consumers as fees, friction, and exclusion from financial services.</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="quote-block">
+        <p class="quote-text">"The Bank Behind the Fintech Revolution Stumbles After Customer Funds Go Missing. Fintechs to date have been built upon Banking as a Service (BaaS) banks with legacy infrastructure not fit for purpose."</p>
+        <span class="quote-source">Wall Street Journal — Dec 25, 2024</span>
+      </div>
+    </div>
+
+    <!-- Right column: hub-and-spoke SVG diagram -->
+    <div class="right-col">
+      <span class="diagram-label">Legacy SWIFT Hub-and-Spoke Network</span>
+
+      <svg width="1100" height="860" viewBox="0 0 1100 860" xmlns="http://www.w3.org/2000/svg">
+        <defs>
+          <!-- Red glow filter for problem nodes -->
+          <filter id="red-glow" x="-30%" y="-30%" width="160%" height="160%">
+            <feGaussianBlur in="SourceGraphic" stdDeviation="6" result="blur"/>
+            <feColorMatrix in="blur" type="matrix" values="3 0 0 0 0  0 0 0 0 0  0 0 0 0 0  0 0 0 0.7 0" result="glow"/>
+            <feMerge><feMergeNode in="glow"/><feMergeNode in="SourceGraphic"/></feMerge>
+          </filter>
+          <filter id="blue-glow" x="-30%" y="-30%" width="160%" height="160%">
+            <feGaussianBlur in="SourceGraphic" stdDeviation="5" result="blur"/>
+            <feColorMatrix in="blur" type="matrix" values="0 0 0 0 0  0 0 0 0 0  0 2 3 0 0  0 0 0 0.6 0" result="glow"/>
+            <feMerge><feMergeNode in="glow"/><feMergeNode in="SourceGraphic"/></feMerge>
+          </filter>
+          <filter id="orange-glow" x="-30%" y="-30%" width="160%" height="160%">
+            <feGaussianBlur in="SourceGraphic" stdDeviation="5" result="blur"/>
+            <feColorMatrix in="blur" type="matrix" values="2 0 0 0 0.2  0.5 0 0 0 0.1  0 0 0 0 0  0 0 0 0.6 0" result="glow"/>
+            <feMerge><feMergeNode in="glow"/><feMergeNode in="SourceGraphic"/></feMerge>
+          </filter>
+
+          <!-- Arrow marker -->
+          <marker id="arrow-red" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto">
+            <path d="M0,0 L0,6 L8,3 z" fill="#EF4444" opacity="0.7"/>
+          </marker>
+          <marker id="arrow-dim" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto">
+            <path d="M0,0 L0,6 L8,3 z" fill="#424761"/>
+          </marker>
+        </defs>
+
+        <!-- ────────────────────────────────────────────────
+             FLOW: Consumer → BaaS Banks → PSPs → Fed → SWIFT → Countries → Merchant
+             Layout: left-to-right flow with SWIFT as central hub
+        ──────────────────────────────────────────────── -->
+
+        <!-- === TIER 1: Consumer (far left) === -->
+        <!-- Consumer node -->
+        <g transform="translate(60, 420)" filter="url(#blue-glow)">
+          <circle r="42" fill="#090920" stroke="#14C8FF" stroke-width="1.5"/>
+          <circle r="38" fill="#192E58" opacity="0.6"/>
+          <!-- person icon -->
+          <circle cx="0" cy="-10" r="10" fill="#14C8FF" opacity="0.9"/>
+          <path d="M-14,14 Q-14,2 0,2 Q14,2 14,14" fill="#14C8FF" opacity="0.9"/>
+          <text y="30" font-family="Inter,sans-serif" font-size="11" font-weight="600" fill="#C9CFED" text-anchor="middle">Consumer</text>
+        </g>
+
+        <!-- Arrow: Consumer → BaaS Banks -->
+        <line x1="104" y1="420" x2="178" y2="340" stroke="#EF4444" stroke-width="1.5" stroke-dasharray="5,3" opacity="0.6" marker-end="url(#arrow-red)"/>
+        <line x1="104" y1="420" x2="178" y2="500" stroke="#EF4444" stroke-width="1.5" stroke-dasharray="5,3" opacity="0.6" marker-end="url(#arrow-red)"/>
+
+        <!-- === TIER 2: BaaS Banks === -->
+        <!-- Bank of America -->
+        <g transform="translate(220, 340)" filter="url(#orange-glow)">
+          <rect x="-52" y="-28" width="104" height="56" rx="10" fill="#090920" stroke="#EF4444" stroke-width="1.5" opacity="0.9"/>
+          <text y="-8" font-family="Inter,sans-serif" font-size="11" font-weight="700" fill="#EF4444" text-anchor="middle">Bank of</text>
+          <text y="8" font-family="Inter,sans-serif" font-size="11" font-weight="700" fill="#EF4444" text-anchor="middle">America</text>
+          <text y="24" font-family="Inter,sans-serif" font-size="10" fill="#424761" text-anchor="middle">BaaS</text>
+        </g>
+
+        <!-- Wells Fargo -->
+        <g transform="translate(220, 500)" filter="url(#orange-glow)">
+          <rect x="-52" y="-28" width="104" height="56" rx="10" fill="#090920" stroke="#EF4444" stroke-width="1.5" opacity="0.9"/>
+          <text y="-8" font-family="Inter,sans-serif" font-size="11" font-weight="700" fill="#EF4444" text-anchor="middle">Wells</text>
+          <text y="8" font-family="Inter,sans-serif" font-size="11" font-weight="700" fill="#EF4444" text-anchor="middle">Fargo</text>
+          <text y="24" font-family="Inter,sans-serif" font-size="10" fill="#424761" text-anchor="middle">BaaS</text>
+        </g>
+
+        <!-- Arrows: BaaS → PSPs -->
+        <line x1="272" y1="340" x2="358" y2="340" stroke="#EF4444" stroke-width="1.5" stroke-dasharray="5,3" opacity="0.6" marker-end="url(#arrow-red)"/>
+        <line x1="272" y1="500" x2="358" y2="500" stroke="#EF4444" stroke-width="1.5" stroke-dasharray="5,3" opacity="0.6" marker-end="url(#arrow-red)"/>
+
+        <!-- === TIER 3: Payment Service Providers === -->
+        <!-- Visa -->
+        <g transform="translate(420, 340)" filter="url(#orange-glow)">
+          <rect x="-46" y="-28" width="92" height="56" rx="10" fill="#090920" stroke="#EF4444" stroke-width="1.5" opacity="0.9"/>
+          <text y="-6" font-family="Inter,sans-serif" font-size="13" font-weight="700" fill="#EF4444" text-anchor="middle">Visa</text>
+          <text y="14" font-family="Inter,sans-serif" font-size="10" fill="#424761" text-anchor="middle">PSP</text>
+        </g>
+
+        <!-- Mastercard -->
+        <g transform="translate(420, 500)" filter="url(#orange-glow)">
+          <rect x="-52" y="-28" width="104" height="56" rx="10" fill="#090920" stroke="#EF4444" stroke-width="1.5" opacity="0.9"/>
+          <text y="-6" font-family="Inter,sans-serif" font-size="12" font-weight="700" fill="#EF4444" text-anchor="middle">Mastercard</text>
+          <text y="14" font-family="Inter,sans-serif" font-size="10" fill="#424761" text-anchor="middle">PSP</text>
+        </g>
+
+        <!-- Arrows: PSPs → Federal Reserve -->
+        <line x1="466" y1="340" x2="548" y2="400" stroke="#EF4444" stroke-width="1.5" stroke-dasharray="5,3" opacity="0.6" marker-end="url(#arrow-red)"/>
+        <line x1="466" y1="500" x2="548" y2="440" stroke="#EF4444" stroke-width="1.5" stroke-dasharray="5,3" opacity="0.6" marker-end="url(#arrow-red)"/>
+
+        <!-- === TIER 4: Federal Reserve / FedLine === -->
+        <g transform="translate(600, 420)" filter="url(#red-glow)">
+          <rect x="-64" y="-36" width="128" height="72" rx="12" fill="#090920" stroke="#EF4444" stroke-width="2"/>
+          <!-- Building icon suggestion -->
+          <rect x="-40" y="-10" width="80" height="16" rx="2" fill="#EF4444" opacity="0.15"/>
+          <text y="-12" font-family="Inter,sans-serif" font-size="12" font-weight="700" fill="#EF4444" text-anchor="middle">Federal Reserve</text>
+          <text y="6" font-family="Inter,sans-serif" font-size="10" fill="#EF4444" opacity="0.7" text-anchor="middle">FedLine</text>
+          <text y="24" font-family="Inter,sans-serif" font-size="10" fill="#424761" text-anchor="middle">Domestic hub</text>
+        </g>
+
+        <!-- Arrow: Federal Reserve → SWIFT -->
+        <line x1="664" y1="420" x2="736" y2="420" stroke="#EF4444" stroke-width="2" stroke-dasharray="5,3" opacity="0.8" marker-end="url(#arrow-red)"/>
+
+        <!-- === TIER 5: SWIFT — Central global hub === -->
+        <g transform="translate(800, 420)" filter="url(#red-glow)">
+          <circle r="56" fill="#090920" stroke="#EF4444" stroke-width="2.5"/>
+          <circle r="50" fill="rgba(239,68,68,0.07)"/>
+          <!-- Globe lines -->
+          <ellipse cx="0" cy="0" rx="50" ry="18" fill="none" stroke="#EF4444" stroke-width="0.8" opacity="0.35"/>
+          <line x1="-50" y1="0" x2="50" y2="0" stroke="#EF4444" stroke-width="0.8" opacity="0.35"/>
+          <line x1="0" y1="-50" x2="0" y2="50" stroke="#EF4444" stroke-width="0.8" opacity="0.35"/>
+          <text y="-6" font-family="Inter,sans-serif" font-size="15" font-weight="700" fill="#EF4444" text-anchor="middle">SWIFT</text>
+          <text y="12" font-family="Inter,sans-serif" font-size="10" fill="#EF4444" opacity="0.7" text-anchor="middle">Global Hub</text>
+        </g>
+
+        <!-- === TIER 6: Country nodes radiating from SWIFT === -->
+        <!-- U.K. (top-left) -->
+        <g transform="translate(660, 250)" filter="url(#orange-glow)">
+          <circle r="34" fill="#090920" stroke="#EF4444" stroke-width="1.5" opacity="0.85"/>
+          <text y="-4" font-family="Inter,sans-serif" font-size="14" text-anchor="middle">🇬🇧</text>
+          <text y="14" font-family="Inter,sans-serif" font-size="11" font-weight="600" fill="#C9CFED" text-anchor="middle">U.K.</text>
+        </g>
+        <line x1="693" y1="282" x2="753" y2="370" stroke="#EF4444" stroke-width="1.2" stroke-dasharray="4,3" opacity="0.5" marker-end="url(#arrow-red)"/>
+
+        <!-- Europe (top) -->
+        <g transform="translate(800, 210)" filter="url(#orange-glow)">
+          <circle r="34" fill="#090920" stroke="#EF4444" stroke-width="1.5" opacity="0.85"/>
+          <text y="-4" font-family="Inter,sans-serif" font-size="14" text-anchor="middle">🇪🇺</text>
+          <text y="14" font-family="Inter,sans-serif" font-size="11" font-weight="600" fill="#C9CFED" text-anchor="middle">Europe</text>
+        </g>
+        <line x1="800" y1="244" x2="800" y2="364" stroke="#EF4444" stroke-width="1.2" stroke-dasharray="4,3" opacity="0.5" marker-end="url(#arrow-red)"/>
+
+        <!-- China (top-right) -->
+        <g transform="translate(940, 250)" filter="url(#orange-glow)">
+          <circle r="34" fill="#090920" stroke="#EF4444" stroke-width="1.5" opacity="0.85"/>
+          <text y="-4" font-family="Inter,sans-serif" font-size="14" text-anchor="middle">🇨🇳</text>
+          <text y="14" font-family="Inter,sans-serif" font-size="11" font-weight="600" fill="#C9CFED" text-anchor="middle">China</text>
+        </g>
+        <line x1="910" y1="282" x2="852" y2="370" stroke="#EF4444" stroke-width="1.2" stroke-dasharray="4,3" opacity="0.5" marker-end="url(#arrow-red)"/>
+
+        <!-- Japan (right) -->
+        <g transform="translate(1020, 420)" filter="url(#orange-glow)">
+          <circle r="34" fill="#090920" stroke="#EF4444" stroke-width="1.5" opacity="0.85"/>
+          <text y="-4" font-family="Inter,sans-serif" font-size="14" text-anchor="middle">🇯🇵</text>
+          <text y="14" font-family="Inter,sans-serif" font-size="11" font-weight="600" fill="#C9CFED" text-anchor="middle">Japan</text>
+        </g>
+        <line x1="986" y1="420" x2="856" y2="420" stroke="#EF4444" stroke-width="1.2" stroke-dasharray="4,3" opacity="0.5" marker-end="url(#arrow-red)"/>
+
+        <!-- Brazil (bottom-right) -->
+        <g transform="translate(940, 590)" filter="url(#orange-glow)">
+          <circle r="34" fill="#090920" stroke="#EF4444" stroke-width="1.5" opacity="0.85"/>
+          <text y="-4" font-family="Inter,sans-serif" font-size="14" text-anchor="middle">🇧🇷</text>
+          <text y="14" font-family="Inter,sans-serif" font-size="11" font-weight="600" fill="#C9CFED" text-anchor="middle">Brazil</text>
+        </g>
+        <line x1="910" y1="558" x2="852" y2="470" stroke="#EF4444" stroke-width="1.2" stroke-dasharray="4,3" opacity="0.5" marker-end="url(#arrow-red)"/>
+
+        <!-- U.S.A. (bottom) -->
+        <g transform="translate(800, 640)" filter="url(#orange-glow)">
+          <circle r="34" fill="#090920" stroke="#EF4444" stroke-width="1.5" opacity="0.85"/>
+          <text y="-4" font-family="Inter,sans-serif" font-size="14" text-anchor="middle">🇺🇸</text>
+          <text y="14" font-family="Inter,sans-serif" font-size="11" font-weight="600" fill="#C9CFED" text-anchor="middle">U.S.A.</text>
+        </g>
+        <line x1="800" y1="606" x2="800" y2="476" stroke="#EF4444" stroke-width="1.2" stroke-dasharray="4,3" opacity="0.5" marker-end="url(#arrow-red)"/>
+
+        <!-- === Merchant (far right) — receives after traversing the whole network === -->
+        <!-- Arrow from Japan area to merchant -->
+        <g transform="translate(1080, 160)">
+          <text x="0" y="0" font-family="Inter,sans-serif" font-size="11" font-weight="600" fill="#EF4444" opacity="0.8">Each hop</text>
+          <text x="0" y="16" font-family="Inter,sans-serif" font-size="11" font-weight="600" fill="#EF4444" opacity="0.8">= fees + delay</text>
+        </g>
+
+        <!-- Intermediary count label near SWIFT -->
+        <g transform="translate(800, 510)">
+          <rect x="-70" y="-12" width="140" height="24" rx="6" fill="rgba(239,68,68,0.12)" stroke="rgba(239,68,68,0.3)" stroke-width="1"/>
+          <text y="5" font-family="Inter,sans-serif" font-size="11" font-weight="600" fill="#EF4444" text-anchor="middle">5–7 intermediaries</text>
+        </g>
+
+        <!-- Caption labels for diagram context -->
+        <g transform="translate(220, 580)">
+          <text font-family="Inter,sans-serif" font-size="11" fill="#424761" text-anchor="middle">Banking as a Service</text>
+        </g>
+        <g transform="translate(420, 566)">
+          <text font-family="Inter,sans-serif" font-size="11" fill="#424761" text-anchor="middle">Payment Service</text>
+          <text y="14" font-family="Inter,sans-serif" font-size="11" fill="#424761" text-anchor="middle">Providers</text>
+        </g>
+        <g transform="translate(600, 500)">
+          <text font-family="Inter,sans-serif" font-size="11" fill="#424761" text-anchor="middle">Central Bank</text>
+          <text y="14" font-family="Inter,sans-serif" font-size="11" fill="#424761" text-anchor="middle">Clearing</text>
+        </g>
+
+        <!-- Legend -->
+        <g transform="translate(60, 760)">
+          <line x1="0" y1="8" x2="30" y2="8" stroke="#EF4444" stroke-width="2" stroke-dasharray="5,3"/>
+          <text x="38" y="13" font-family="Inter,sans-serif" font-size="12" fill="#C9CFED">Intermediated routing path</text>
+          <text x="0" y="36" font-family="Inter,sans-serif" font-size="11" fill="#424761">Every dashed line = added latency, counterparty risk, and cost.</text>
+        </g>
+      </svg>
+    </div>
+  </div>
+</div>
+
+</body>
+</html>
