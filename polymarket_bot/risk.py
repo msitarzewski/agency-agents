@@ -170,8 +170,20 @@ class RiskState:
             market_id[:16], outcome, price, size_usdc, tokens,
         )
 
-    def record_sell(self, market_id: str, outcome: str, size_usdc: float, price: float) -> None:
-        tokens_sold = size_usdc / price if price > 0 else 0.0
+    def record_sell(
+        self,
+        market_id: str,
+        outcome: str,
+        size_usdc: float,
+        price: float,
+        tokens_override: Optional[float] = None,
+    ) -> None:
+        # tokens_override lets callers (e.g. settle_position on a loss where
+        # payout_usdc=0) explicitly supply the token count so that tokens_held
+        # is correctly cleared even when the math would produce 0/near-0.
+        tokens_sold = tokens_override if tokens_override is not None else (
+            size_usdc / price if price > 0 else 0.0
+        )
         if market_id not in self.positions or outcome not in self.positions[market_id]:
             logger.warning("Sell recorded for unknown position: %s %s", market_id, outcome)
             return

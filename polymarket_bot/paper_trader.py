@@ -148,7 +148,14 @@ class PaperTrader:
         payout_usdc = tokens * payout_price
         pnl = payout_usdc - cost_basis
 
-        self.risk.record_sell(market_id, outcome, payout_usdc, payout_price if payout_price > 0 else 1e-9)
+        # Pass tokens_override so that loss settlements (payout_price=0, payout_usdc=0)
+        # still clear tokens_held correctly — without it, 0/1e-9=0 tokens would be
+        # deducted and the position would never be removed, causing infinite re-settlement.
+        self.risk.record_sell(
+            market_id, outcome, payout_usdc,
+            payout_price if payout_price > 0 else 1e-9,
+            tokens_override=tokens,
+        )
 
         result = FillResult(
             success=True,
