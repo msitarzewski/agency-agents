@@ -122,7 +122,7 @@ class Config:
     # ── Execution ─────────────────────────────────────────────
     # Seconds between full market scans
     scan_interval_sec: int = field(
-        default_factory=lambda: int(os.environ.get("SCAN_INTERVAL_SEC", "5"))
+        default_factory=lambda: int(os.environ.get("SCAN_INTERVAL_SEC", "1"))
     )
     # Seconds between individual order placements (rate limiting)
     order_delay_sec: float = field(
