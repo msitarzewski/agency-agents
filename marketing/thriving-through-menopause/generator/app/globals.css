@@ -1,0 +1,29 @@
+@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400;1,600&family=Lato:wght@300;400;700&family=Cormorant+Garamond:ital,wght@0,400;1,400;1,500&display=swap');
+
+:root {
+  --deep-plum: #5C2D6E;
+  --warm-rose: #C9778A;
+  --blush-cream: #F5EDE8;
+  --champagne-gold: #C9A96E;
+  --soft-mauve: #A67D9B;
+  --charcoal: #2D2B2E;
+  --off-white: #FAF7F4;
+  --gradient-primary: linear-gradient(135deg, #5C2D6E 0%, #A67D9B 50%, #C9778A 100%);
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: 'Lato', 'Inter', sans-serif;
+  background-color: var(--off-white);
+  color: var(--charcoal);
+  min-height: 100vh;
+}
+
+h1, h2, h3 {
+  font-family: 'Playfair Display', serif;
+}
