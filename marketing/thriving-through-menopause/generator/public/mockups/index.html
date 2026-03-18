@@ -1,0 +1,850 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Thriving Through Menopause — Marketing Campaign Showcase</title>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400;1,700;1,600&family=Lato:wght@300;400;700;900&family=Cormorant+Garamond:ital,wght@0,300;0,400;1,300;1,400&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --plum: #5C2D6E;
+      --deep-plum: #3D1A4B;
+      --rose: #C9778A;
+      --blush: #F5EDE8;
+      --gold: #C9A96E;
+      --mauve: #A67D9B;
+      --charcoal: #2D2B2E;
+      --off-white: #FAF7F4;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      background: var(--off-white);
+      font-family: 'Lato', sans-serif;
+      color: var(--charcoal);
+    }
+
+    /* ─── NAV ─── */
+    nav {
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      background: rgba(250,247,244,0.95);
+      backdrop-filter: blur(12px);
+      border-bottom: 1px solid rgba(92,45,110,0.1);
+      padding: 0 40px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      height: 60px;
+    }
+    .nav-logo {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 16px;
+      font-style: italic;
+      color: var(--plum);
+    }
+    .nav-links {
+      display: flex;
+      gap: 32px;
+      list-style: none;
+    }
+    .nav-links a {
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      color: var(--mauve);
+      text-decoration: none;
+      transition: color 0.2s;
+    }
+    .nav-links a:hover { color: var(--plum); }
+    .nav-cta {
+      background: var(--plum);
+      color: white !important;
+      padding: 8px 20px !important;
+      border-radius: 2px;
+    }
+
+    /* ─── HERO ─── */
+    .hero {
+      min-height: 90vh;
+      background: linear-gradient(150deg, var(--deep-plum) 0%, var(--plum) 45%, #8B4A7A 75%, var(--rose) 100%);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      padding: 80px 40px;
+      position: relative;
+      overflow: hidden;
+    }
+    .hero-bg-1 {
+      position: absolute;
+      width: 600px; height: 600px;
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(201,169,110,0.12) 0%, transparent 70%);
+      top: -200px; right: -200px;
+    }
+    .hero-bg-2 {
+      position: absolute;
+      width: 400px; height: 400px;
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(245,237,232,0.06) 0%, transparent 70%);
+      bottom: -100px; left: -100px;
+    }
+    .hero-eyebrow {
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 4px;
+      text-transform: uppercase;
+      color: var(--gold);
+      margin-bottom: 24px;
+      position: relative;
+    }
+    .hero h1 {
+      font-family: 'Playfair Display', serif;
+      font-size: clamp(48px, 8vw, 88px);
+      font-weight: 700;
+      color: var(--off-white);
+      line-height: 1.05;
+      position: relative;
+      margin-bottom: 24px;
+    }
+    .hero h1 em { font-style: italic; color: #E8B4C0; }
+    .hero-divider {
+      width: 60px; height: 2px;
+      background: linear-gradient(90deg, transparent, var(--gold), transparent);
+      margin: 0 auto 28px;
+      position: relative;
+    }
+    .hero-sub {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 22px;
+      font-style: italic;
+      color: rgba(245,237,232,0.8);
+      line-height: 1.6;
+      max-width: 560px;
+      position: relative;
+      margin-bottom: 40px;
+    }
+    .hero-meta {
+      display: flex;
+      gap: 32px;
+      justify-content: center;
+      flex-wrap: wrap;
+      position: relative;
+      margin-bottom: 48px;
+    }
+    .hero-meta-item {
+      text-align: center;
+    }
+    .hero-meta-item .label {
+      font-size: 9px;
+      font-weight: 700;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      color: rgba(201,169,110,0.7);
+      margin-bottom: 4px;
+    }
+    .hero-meta-item .value {
+      font-family: 'Playfair Display', serif;
+      font-size: 18px;
+      color: var(--off-white);
+    }
+    .hero-cta {
+      position: relative;
+      display: inline-block;
+      background: linear-gradient(135deg, var(--gold), #E8D5B5);
+      color: var(--charcoal);
+      font-size: 12px;
+      font-weight: 700;
+      letter-spacing: 2.5px;
+      text-transform: uppercase;
+      padding: 18px 52px;
+      border-radius: 2px;
+      text-decoration: none;
+      box-shadow: 0 8px 32px rgba(0,0,0,0.3);
+      transition: transform 0.2s, box-shadow 0.2s;
+    }
+    .hero-cta:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 12px 40px rgba(0,0,0,0.4);
+    }
+
+    /* ─── SECTION WRAPPER ─── */
+    .section {
+      padding: 80px 40px;
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+    .section-header {
+      text-align: center;
+      margin-bottom: 56px;
+    }
+    .section-eyebrow {
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 3px;
+      text-transform: uppercase;
+      color: var(--rose);
+      margin-bottom: 12px;
+    }
+    .section-title-h2 {
+      font-family: 'Playfair Display', serif;
+      font-size: 36px;
+      color: var(--plum);
+      line-height: 1.2;
+      margin-bottom: 16px;
+    }
+    .section-title-h2 em { font-style: italic; }
+    .section-desc {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 18px;
+      font-style: italic;
+      color: #7B6B78;
+      max-width: 500px;
+      margin: 0 auto;
+      line-height: 1.6;
+    }
+
+    /* ─── BRAND COLOURS STRIP ─── */
+    .brand-section { background: var(--charcoal); padding: 60px 40px; }
+    .color-swatches {
+      display: flex;
+      gap: 16px;
+      justify-content: center;
+      flex-wrap: wrap;
+      max-width: 900px;
+      margin: 0 auto;
+    }
+    .swatch {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 8px;
+    }
+    .swatch-color {
+      width: 80px; height: 80px;
+      border-radius: 50%;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.2);
+    }
+    .swatch-name {
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 1px;
+      color: rgba(245,237,232,0.6);
+      text-align: center;
+    }
+    .swatch-hex {
+      font-size: 9px;
+      color: rgba(245,237,232,0.3);
+      font-family: 'Courier New', monospace;
+    }
+
+    /* ─── CAMPAIGN GRID ─── */
+    .campaign-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+      gap: 28px;
+    }
+    .campaign-card {
+      background: white;
+      border-radius: 12px;
+      overflow: hidden;
+      box-shadow: 0 4px 24px rgba(92,45,110,0.1);
+      transition: transform 0.3s, box-shadow 0.3s;
+      text-decoration: none;
+      color: inherit;
+    }
+    .campaign-card:hover {
+      transform: translateY(-6px);
+      box-shadow: 0 12px 48px rgba(92,45,110,0.18);
+    }
+    .card-preview {
+      height: 200px;
+      position: relative;
+      overflow: hidden;
+    }
+    .card-preview-insta {
+      background: linear-gradient(150deg, var(--deep-plum), var(--plum), var(--rose));
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .card-preview-stories {
+      background: linear-gradient(150deg, #1A0A26, var(--plum));
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 12px;
+      padding: 24px;
+    }
+    .mini-story {
+      width: 60px; height: 100px;
+      background: linear-gradient(170deg, #1A0A26, var(--plum));
+      border-radius: 8px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.4);
+    }
+    .mini-story:nth-child(2) { background: linear-gradient(135deg, var(--plum), var(--mauve)); height: 110px; }
+    .mini-story:nth-child(3) { background: linear-gradient(170deg, var(--charcoal), #4A3A5A); }
+    .card-preview-email {
+      background: linear-gradient(135deg, var(--plum), var(--rose));
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .email-icon {
+      width: 80px; height: 60px;
+      background: rgba(255,255,255,0.15);
+      border-radius: 8px;
+      border: 2px solid rgba(255,255,255,0.3);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .email-icon::before {
+      content: "✉";
+      font-size: 32px;
+      color: rgba(255,255,255,0.8);
+    }
+    .card-preview-facebook {
+      background: #1877F2;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .fb-icon {
+      font-size: 64px;
+      color: white;
+      opacity: 0.3;
+    }
+    .card-preview-twitter {
+      background: var(--charcoal);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .card-preview-brand {
+      background: linear-gradient(135deg, var(--blush), #E8D5D0);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 24px;
+    }
+
+    /* Preview text overlays */
+    .preview-text-overlay {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      padding: 20px;
+    }
+    .preview-headline {
+      font-family: 'Playfair Display', serif;
+      font-size: 24px;
+      font-style: italic;
+      color: white;
+      text-shadow: 0 2px 8px rgba(0,0,0,0.4);
+    }
+    .preview-sub {
+      font-family: 'Lato', sans-serif;
+      font-size: 10px;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      color: rgba(201,169,110,0.9);
+      margin-top: 8px;
+    }
+
+    .card-body {
+      padding: 24px;
+    }
+    .card-tag {
+      font-size: 9px;
+      font-weight: 700;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      color: var(--rose);
+      margin-bottom: 8px;
+    }
+    .card-title {
+      font-family: 'Playfair Display', serif;
+      font-size: 18px;
+      color: var(--plum);
+      margin-bottom: 8px;
+      line-height: 1.25;
+    }
+    .card-desc {
+      font-size: 13px;
+      color: #7B6B78;
+      line-height: 1.6;
+      margin-bottom: 16px;
+    }
+    .card-link {
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+      color: var(--plum);
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .card-link::after { content: "→"; }
+
+    /* ─── SPEAKERS SECTION ─── */
+    .speakers-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 20px;
+    }
+    .speaker-card {
+      background: white;
+      border-radius: 12px;
+      padding: 24px;
+      border-top: 4px solid var(--rose);
+      box-shadow: 0 2px 16px rgba(92,45,110,0.08);
+    }
+    .speaker-card:nth-child(2) { border-top-color: var(--gold); }
+    .speaker-card:nth-child(3) { border-top-color: var(--mauve); }
+    .speaker-card:nth-child(4) { border-top-color: var(--plum); }
+    .speaker-card:nth-child(5) { border-top-color: var(--rose); }
+    .speaker-card:nth-child(6) { border-top-color: var(--gold); }
+    .speaker-name {
+      font-family: 'Playfair Display', serif;
+      font-size: 18px;
+      color: var(--plum);
+      margin-bottom: 6px;
+    }
+    .speaker-title {
+      font-size: 12px;
+      color: #7B6B78;
+      line-height: 1.5;
+    }
+
+    /* ─── MESSAGING SECTION ─── */
+    .messages-bg { background: var(--blush); padding: 80px 40px; }
+    .messages-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+      gap: 20px;
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+    .message-card {
+      background: white;
+      border-radius: 12px;
+      padding: 28px;
+      box-shadow: 0 2px 16px rgba(92,45,110,0.06);
+    }
+    .message-platform {
+      font-size: 9px;
+      font-weight: 700;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      color: var(--rose);
+      margin-bottom: 12px;
+    }
+    .message-text {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 15px;
+      font-style: italic;
+      color: var(--charcoal);
+      line-height: 1.65;
+    }
+
+    /* ─── URGENCY BAND ─── */
+    .urgency-band {
+      background: var(--charcoal);
+      padding: 60px 40px;
+      text-align: center;
+    }
+    .urgency-band h2 {
+      font-family: 'Playfair Display', serif;
+      font-size: clamp(32px, 5vw, 56px);
+      color: var(--off-white);
+      margin-bottom: 12px;
+    }
+    .urgency-band h2 em { font-style: italic; color: var(--rose); }
+    .urgency-band p {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 18px;
+      font-style: italic;
+      color: rgba(245,237,232,0.6);
+      max-width: 480px;
+      margin: 0 auto 32px;
+      line-height: 1.6;
+    }
+    .urgency-cta {
+      display: inline-block;
+      background: linear-gradient(135deg, var(--gold), #E8D5B5);
+      color: var(--charcoal);
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 2.5px;
+      text-transform: uppercase;
+      padding: 16px 48px;
+      border-radius: 2px;
+      text-decoration: none;
+    }
+
+    /* ─── FOOTER ─── */
+    footer {
+      background: var(--deep-plum);
+      padding: 40px;
+      text-align: center;
+    }
+    footer p {
+      font-size: 11px;
+      color: rgba(245,237,232,0.3);
+      line-height: 1.8;
+    }
+    footer strong { color: rgba(201,169,110,0.6); }
+    .footer-hashtags {
+      font-size: 10px;
+      color: rgba(201,169,110,0.4);
+      letter-spacing: 1px;
+      margin-top: 8px;
+    }
+
+    .gradient-text {
+      background: linear-gradient(135deg, var(--plum), var(--rose));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- NAV -->
+  <nav>
+    <div class="nav-logo">Thriving Through Menopause</div>
+    <ul class="nav-links">
+      <li><a href="#campaign">Campaign Assets</a></li>
+      <li><a href="#speakers">Speakers</a></li>
+      <li><a href="#messaging">Key Messages</a></li>
+      <li><a href="https://thrivingthroughmenopause.com.au/" class="nav-cta">Get Tickets</a></li>
+    </ul>
+  </nav>
+
+  <!-- HERO -->
+  <section class="hero">
+    <div class="hero-bg-1"></div>
+    <div class="hero-bg-2"></div>
+    <div class="hero-eyebrow">2026 Marketing Campaign · Curated by Chiza Westcarr · Melbourne, Australia</div>
+    <h1>Thriving<br /><em>Through</em><br />Menopause</h1>
+    <div class="hero-divider"></div>
+    <p class="hero-sub">Multi-channel marketing campaign for Australia's most respected boutique symposium for aesthetic doctors, cosmetic nurses, dermal clinicians and allied health practitioners.</p>
+    <div class="hero-meta">
+      <div class="hero-meta-item">
+        <div class="label">Date</div>
+        <div class="value">19 October 2026</div>
+      </div>
+      <div class="hero-meta-item">
+        <div class="label">Venue</div>
+        <div class="value">Pullman Melbourne on the Park</div>
+      </div>
+      <div class="hero-meta-item">
+        <div class="label">Location</div>
+        <div class="value">Melbourne, Victoria</div>
+      </div>
+      <div class="hero-meta-item">
+        <div class="label">Capacity</div>
+        <div class="value">Limited First Release</div>
+      </div>
+      <div class="hero-meta-item">
+        <div class="label">Tickets</div>
+        <div class="value">General Admission &amp; VIP</div>
+      </div>
+    </div>
+    <a href="https://thrivingthroughmenopause.com.au/" class="hero-cta">Secure Your Seat Today</a>
+  </section>
+
+  <!-- BRAND COLOURS -->
+  <div class="brand-section">
+    <div style="text-align:center;margin-bottom:32px;">
+      <div style="font-size:10px;font-weight:700;letter-spacing:3px;text-transform:uppercase;color:rgba(201,169,110,0.6);margin-bottom:8px;">Brand Identity</div>
+      <div style="font-family:'Playfair Display',serif;font-size:28px;color:#FAF7F4;">Colour Palette</div>
+    </div>
+    <div class="color-swatches">
+      <div class="swatch">
+        <div class="swatch-color" style="background:#5C2D6E;"></div>
+        <div class="swatch-name">Deep Plum</div>
+        <div class="swatch-hex">#5C2D6E</div>
+      </div>
+      <div class="swatch">
+        <div class="swatch-color" style="background:#C9778A;"></div>
+        <div class="swatch-name">Warm Rose</div>
+        <div class="swatch-hex">#C9778A</div>
+      </div>
+      <div class="swatch">
+        <div class="swatch-color" style="background:#F5EDE8;box-shadow:0 4px 20px rgba(0,0,0,0.1);"></div>
+        <div class="swatch-name">Blush Cream</div>
+        <div class="swatch-hex">#F5EDE8</div>
+      </div>
+      <div class="swatch">
+        <div class="swatch-color" style="background:#C9A96E;"></div>
+        <div class="swatch-name">Champagne Gold</div>
+        <div class="swatch-hex">#C9A96E</div>
+      </div>
+      <div class="swatch">
+        <div class="swatch-color" style="background:#A67D9B;"></div>
+        <div class="swatch-name">Soft Mauve</div>
+        <div class="swatch-hex">#A67D9B</div>
+      </div>
+      <div class="swatch">
+        <div class="swatch-color" style="background:#2D2B2E;"></div>
+        <div class="swatch-name">Charcoal</div>
+        <div class="swatch-hex">#2D2B2E</div>
+      </div>
+      <div class="swatch">
+        <div class="swatch-color" style="background:#FAF7F4;box-shadow:0 4px 20px rgba(0,0,0,0.08);"></div>
+        <div class="swatch-name">Off-White</div>
+        <div class="swatch-hex">#FAF7F4</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- CAMPAIGN ASSETS -->
+  <section class="section" id="campaign">
+    <div class="section-header">
+      <div class="section-eyebrow">Multi-Channel Campaign</div>
+      <h2 class="section-title-h2">Marketing <em>Assets</em></h2>
+      <p class="section-desc">Every asset crafted to the same brand standards — warm, expert, empowering. Adapted for each platform's unique audience.</p>
+    </div>
+
+    <div class="campaign-grid">
+
+      <!-- Instagram Posts -->
+      <a href="social-media/instagram-posts.html" class="campaign-card">
+        <div class="card-preview card-preview-insta">
+          <div class="preview-text-overlay">
+            <div class="preview-headline">3 Feed Post<br />Variations</div>
+            <div class="preview-sub">Instagram · 1080×1080</div>
+          </div>
+        </div>
+        <div class="card-body">
+          <div class="card-tag">Instagram</div>
+          <div class="card-title">Feed Post Mockups</div>
+          <p class="card-desc">Three 1:1 format posts — hero announcement, speaker spotlight, and urgency/limited seats. Each one optimised for scroll-stopping impact.</p>
+          <div class="card-link">View Mockups</div>
+        </div>
+      </a>
+
+      <!-- Instagram Stories -->
+      <a href="social-media/instagram-stories.html" class="campaign-card">
+        <div class="card-preview card-preview-stories">
+          <div class="mini-story"></div>
+          <div class="mini-story"></div>
+          <div class="mini-story"></div>
+        </div>
+        <div class="card-body">
+          <div class="card-tag">Instagram · TikTok</div>
+          <div class="card-title">Stories / Short-Form Ads</div>
+          <p class="card-desc">Three 9:16 Story designs — Save the Date, Speaker Spotlight, and Limited Seats urgency. Built for Stories, Reels covers, and TikTok ads.</p>
+          <div class="card-link">View Mockups</div>
+        </div>
+      </a>
+
+      <!-- Facebook Ads -->
+      <a href="ads/facebook-ad-mockups.html" class="campaign-card">
+        <div class="card-preview card-preview-facebook">
+          <div class="preview-text-overlay">
+            <div class="preview-headline" style="font-size:20px;">3 Ad Variations</div>
+            <div class="preview-sub">Facebook · 1200×628</div>
+          </div>
+        </div>
+        <div class="card-body">
+          <div class="card-tag">Facebook · Instagram Ads</div>
+          <div class="card-title">Paid Social Ad Mockups</div>
+          <p class="card-desc">Three Facebook ad designs shown in phone frames — awareness, speaker spotlight, and conversion/urgency. Ready for Meta Ads Manager.</p>
+          <div class="card-link">View Mockups</div>
+        </div>
+      </a>
+
+      <!-- Email Campaign -->
+      <a href="email/email-campaign.html" class="campaign-card">
+        <div class="card-preview card-preview-email">
+          <div class="preview-text-overlay">
+            <div style="width:80px;height:60px;background:rgba(255,255,255,0.15);border-radius:8px;border:2px solid rgba(255,255,255,0.3);display:flex;align-items:center;justify-content:center;font-size:32px;">✉️</div>
+          </div>
+        </div>
+        <div class="card-body">
+          <div class="card-tag">Email Marketing</div>
+          <div class="card-title">Invitation Email Template</div>
+          <p class="card-desc">A full HTML email with hero section, speaker bios, topic highlights, testimonial, and urgency CTA. Mobile-responsive and inbox-ready.</p>
+          <div class="card-link">View Template</div>
+        </div>
+      </a>
+
+      <!-- Facebook/LinkedIn Copy -->
+      <a href="social-media/facebook-linkedin-ads.md" class="campaign-card">
+        <div class="card-preview" style="background:linear-gradient(135deg,#0077B5,#00A0DC);display:flex;align-items:center;justify-content:center;">
+          <div class="preview-text-overlay">
+            <div class="preview-headline" style="font-size:18px;">6 Ad Copy<br />Variations</div>
+            <div class="preview-sub">Facebook · LinkedIn</div>
+          </div>
+        </div>
+        <div class="card-body">
+          <div class="card-tag">Facebook · LinkedIn</div>
+          <div class="card-title">Ad Copy & Strategy</div>
+          <p class="card-desc">Three Facebook ads (awareness, consideration, conversion) and three LinkedIn ads (healthcare professionals, wellness industry, organic post).</p>
+          <div class="card-link">View Copy</div>
+        </div>
+      </a>
+
+      <!-- Twitter/X Thread -->
+      <a href="social-media/twitter-x-thread.md" class="campaign-card">
+        <div class="card-preview card-preview-twitter">
+          <div class="preview-text-overlay">
+            <div class="preview-headline" style="font-size:20px;">2 Threads +<br />12 Standalone</div>
+            <div class="preview-sub">Twitter / X · Content</div>
+          </div>
+        </div>
+        <div class="card-body">
+          <div class="card-tag">Twitter / X</div>
+          <div class="card-title">Thread Campaign</div>
+          <p class="card-desc">An announcement thread, an educational thread, plus 12 standalone tweets covering awareness, speaker spotlights, and urgency. Includes a full posting schedule.</p>
+          <div class="card-link">View Threads</div>
+        </div>
+      </a>
+
+    </div>
+  </section>
+
+  <!-- SPEAKERS -->
+  <div style="background:var(--blush);padding:80px 40px;" id="speakers">
+    <div style="max-width:1200px;margin:0 auto;">
+      <div class="section-header">
+        <div class="section-eyebrow">2025 Speaker Alumni</div>
+        <h2 class="section-title-h2">World-Class <em>Specialists</em></h2>
+        <p class="section-desc">Curated by Chiza Westcarr. Speakers from the 2025 symposium — 100% of delegates rated it Good or Excellent. 2026 speakers to be announced.</p>
+      </div>
+      <div class="speakers-grid">
+        <div class="speaker-card">
+          <div class="speaker-name">Prof. Rod Baber AM</div>
+          <div class="speaker-title">Professor of Obstetrics & Gynaecology, University of Sydney · Past President, International & Australasian Menopause Societies</div>
+        </div>
+        <div class="speaker-card">
+          <div class="speaker-name">Dr. David Kosenko</div>
+          <div class="speaker-title">President, Cosmetic Physicians College of Australasia · Women's Health Specialist</div>
+        </div>
+        <div class="speaker-card">
+          <div class="speaker-name">Dr. Shauna Watts</div>
+          <div class="speaker-title">Cosmetic Physician & Women's Health Specialist · Hormones and aesthetic wellbeing</div>
+        </div>
+        <div class="speaker-card">
+          <div class="speaker-name">Dr. Anoop Rastogi</div>
+          <div class="speaker-title">Fellow & President, Australasian College of Cosmetic Surgery and Medicine (ACCSM)</div>
+        </div>
+        <div class="speaker-card">
+          <div class="speaker-name">Dr. Nneka Nwokolo</div>
+          <div class="speaker-title">Honorary Consultant Physician, Chelsea & Westminster Hospital, London · Specialist Menopause Clinic</div>
+        </div>
+        <div class="speaker-card">
+          <div class="speaker-name">Dr. Zhuoran Chen</div>
+          <div class="speaker-title">Urogynaecologist, Pelvic Floor Reconstructive & Robotic Surgeon</div>
+        </div>
+        <div class="speaker-card">
+          <div class="speaker-name">Dr. Judy Craig</div>
+          <div class="speaker-title">Women's Health Specialist & Menopause Educator</div>
+        </div>
+        <div class="speaker-card">
+          <div class="speaker-name">Dr. Martina Lavery</div>
+          <div class="speaker-title">Aesthetic Dentist & Clinic Owner · Special interest in menopause and oral health</div>
+        </div>
+        <div class="speaker-card">
+          <div class="speaker-name">Kellie Jackson RN</div>
+          <div class="speaker-title">Registered Nurse & Clinic Owner · Menopause specialist practitioner</div>
+        </div>
+        <div class="speaker-card">
+          <div class="speaker-name">Dr. Aman Bhinder</div>
+          <div class="speaker-title">Founder, Clinic Auriq · RACGP / ACNEM / ACAM Fellow · Women's Intimate Health Innovations</div>
+        </div>
+        <div class="speaker-card">
+          <div class="speaker-name">Tracey Dennison NP</div>
+          <div class="speaker-title">Nurse Practitioner & Clinic Owner · Menopause specialist</div>
+        </div>
+      </div>
+      <!-- Signature phrase callout -->
+      <div style="margin-top:48px;background:linear-gradient(135deg,#3D1A4B,#5C2D6E);border-radius:12px;padding:40px 48px;text-align:center;">
+        <p style="font-family:'Lato',sans-serif;font-size:10px;font-weight:700;letter-spacing:3px;text-transform:uppercase;color:rgba(201,169,110,0.7);margin-bottom:16px;">Chiza Westcarr's Guiding Insight</p>
+        <p style="font-family:'Playfair Display',serif;font-size:28px;font-style:italic;color:#FAF7F4;line-height:1.3;margin-bottom:16px;">"An ageing female skin is a menopausal skin."</p>
+        <p style="font-family:'Lato',sans-serif;font-size:12px;color:rgba(245,237,232,0.5);letter-spacing:1px;">Clinical Dermal Therapist · Nutritionist · PhD Researcher · Menopause Educator</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- KEY MESSAGES -->
+  <section class="section" id="messaging">
+    <div class="section-header">
+      <div class="section-eyebrow">Campaign Messaging</div>
+      <h2 class="section-title-h2">Key <em>Messages</em> by Channel</h2>
+      <p class="section-desc">Adapted to each platform while maintaining a unified brand voice — warm, expert, and empowering.</p>
+    </div>
+    <div class="messages-grid">
+      <div class="message-card">
+        <div class="message-platform">Instagram · Hero Post</div>
+        <p class="message-text">"Where Practitioners Come to Lead the Change. Australia's most respected boutique symposium for aesthetics and allied health professionals."</p>
+      </div>
+      <div class="message-card">
+        <div class="message-platform">Facebook · Awareness</div>
+        <p class="message-text">"An ageing female skin is a menopausal skin." — If that reframes every client in your clinic, imagine what a full day with world-class specialists does for your practice.</p>
+      </div>
+      <div class="message-card">
+        <div class="message-platform">LinkedIn · Healthcare</div>
+        <p class="message-text">"Menopause affects 13 million Australian women — and many are still not receiving evidence-based care. The Thriving Through Menopause Symposium exists to close that gap."</p>
+      </div>
+      <div class="message-card">
+        <div class="message-platform">Email · Subject Line</div>
+        <p class="message-text">"First Release tickets are now open — 19 October 2026, Pullman Melbourne on the Park." / "Your practice. Your clients. One day that changes everything."</p>
+      </div>
+      <div class="message-card">
+        <div class="message-platform">Twitter / X · Thread Hook</div>
+        <p class="message-text">"The most common thing women say after attending the Thriving Through Menopause Symposium? 'Why did no one tell me any of this sooner?'"</p>
+      </div>
+      <div class="message-card">
+        <div class="message-platform">Instagram Stories · Urgency</div>
+        <p class="message-text">"First Release allocation is limited. 19 October 2026 · Pullman Melbourne on the Park. Secure your seat now — don't miss your place at the table."</p>
+      </div>
+      <div class="message-card">
+        <div class="message-platform">2025 Delegate Feedback</div>
+        <p class="message-text">75% rated it Excellent. 25% rated it Good. 100% rated it Good or Excellent. This year builds on 2025 and moves decisively into clinical application and regenerative strategies.</p>
+      </div>
+      <div class="message-card">
+        <div class="message-platform">Historic Positioning</div>
+        <p class="message-text">"Australia's first menopause symposium for the medical aesthetics industry — curated by Chiza Westcarr, Clinical Dermal Therapist, Nutritionist & PhD researcher."</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- URGENCY BAND -->
+  <div class="urgency-band">
+    <h2>Secure <em>First Release</em><br />Tickets Now.</h2>
+    <p>Join Australia's most respected boutique symposium for aesthetic practitioners who want to lead the change in menopause care.</p>
+    <a href="https://thrivingthroughmenopause.com.au/" class="urgency-cta">Secure Your Seat Today →</a>
+    <p style="margin-top:16px;font-size:10px;color:rgba(201,169,110,0.3);letter-spacing:1px;">Pullman Melbourne on the Park · 19 October 2026 · thrivingthroughmenopause.com.au</p>
+  </div>
+
+  <!-- FOOTER -->
+  <footer>
+    <p>
+      <strong>Thriving Through Menopause</strong> · Symposium 2026 Marketing Campaign<br />
+      Curated by Chiza Westcarr (Clinical Dermal Therapist, Nutritionist &amp; Menopause Educator)<br />
+      Venue: Pullman Melbourne on the Park · <strong>19 October 2026 · General Admission &amp; VIP Tickets</strong>
+    </p>
+    <p class="footer-hashtags">
+      #ThrivingThroughMenopause · #EmpoweringSkinSpecialists · #MenopauseSkinAcademy · #AestheticsMedicine · @thrivingthroughmenopausebycw
+    </p>
+  </footer>
+
+</body>
+</html>

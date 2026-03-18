@@ -1,0 +1,428 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Thriving Through Menopause — Instagram Feed Posts</title>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400;1,600&family=Lato:wght@300;400;700&family=Cormorant+Garamond:ital,wght@0,400;1,300;1,400&display=swap" rel="stylesheet" />
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      background: #1a1a2e;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 40px;
+      padding: 40px;
+      justify-content: center;
+      font-family: 'Lato', sans-serif;
+    }
+
+    .post-wrapper {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .post-label {
+      color: #C9A96E;
+      font-family: 'Lato', sans-serif;
+      font-size: 12px;
+      font-weight: 700;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+    }
+
+    .post {
+      width: 480px;
+      height: 480px;
+      position: relative;
+      overflow: hidden;
+      border-radius: 4px;
+      box-shadow: 0 20px 60px rgba(0,0,0,0.5);
+    }
+
+    /* ─── POST 1: Announcement / Hero ─── */
+    .post-1 {
+      background: linear-gradient(150deg, #3D1A4B 0%, #5C2D6E 40%, #8B4A7A 70%, #C9778A 100%);
+    }
+    .post-1 .bg-circle-1 {
+      position: absolute;
+      width: 300px; height: 300px;
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(201,169,110,0.15) 0%, transparent 70%);
+      top: -80px; right: -80px;
+    }
+    .post-1 .bg-circle-2 {
+      position: absolute;
+      width: 200px; height: 200px;
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(245,237,232,0.08) 0%, transparent 70%);
+      bottom: -60px; left: -40px;
+    }
+    .post-1 .content {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      padding: 48px;
+    }
+    .post-1 .eyebrow {
+      font-family: 'Lato', sans-serif;
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 3px;
+      text-transform: uppercase;
+      color: #C9A96E;
+      margin-bottom: 16px;
+    }
+    .post-1 h1 {
+      font-family: 'Playfair Display', serif;
+      font-size: 42px;
+      font-weight: 700;
+      color: #FAF7F4;
+      line-height: 1.15;
+      margin-bottom: 16px;
+    }
+    .post-1 h1 em {
+      font-style: italic;
+      color: #E8B4C0;
+    }
+    .post-1 .divider {
+      width: 48px;
+      height: 2px;
+      background: linear-gradient(90deg, #C9A96E, transparent);
+      margin-bottom: 20px;
+    }
+    .post-1 .subtitle {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 16px;
+      font-style: italic;
+      color: rgba(245,237,232,0.85);
+      line-height: 1.6;
+      margin-bottom: 28px;
+    }
+    .post-1 .meta {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+    .post-1 .meta-item {
+      font-family: 'Lato', sans-serif;
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+      color: rgba(201,169,110,0.9);
+    }
+    .post-1 .meta-item span {
+      color: rgba(245,237,232,0.7);
+      font-weight: 400;
+      letter-spacing: 0;
+    }
+    .post-1 .badge {
+      position: absolute;
+      bottom: 40px;
+      right: 40px;
+      width: 90px;
+      height: 90px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, #C9A96E, #E8D5B5);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+    }
+    .post-1 .badge .num {
+      font-family: 'Playfair Display', serif;
+      font-size: 22px;
+      font-weight: 700;
+      color: #3D1A4B;
+      line-height: 1;
+    }
+    .post-1 .badge .unit {
+      font-family: 'Lato', sans-serif;
+      font-size: 9px;
+      font-weight: 700;
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+      color: #5C2D6E;
+    }
+
+    /* ─── POST 2: Speaker Spotlight ─── */
+    .post-2 {
+      background: #F5EDE8;
+    }
+    .post-2 .top-bar {
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      height: 8px;
+      background: linear-gradient(90deg, #5C2D6E, #C9778A, #C9A96E);
+    }
+    .post-2 .content {
+      position: absolute;
+      inset: 0;
+      padding: 48px 44px;
+      display: flex;
+      flex-direction: column;
+    }
+    .post-2 .eyebrow {
+      font-family: 'Lato', sans-serif;
+      font-size: 9px;
+      font-weight: 700;
+      letter-spacing: 3px;
+      text-transform: uppercase;
+      color: #C9778A;
+      margin-bottom: 8px;
+      margin-top: 16px;
+    }
+    .post-2 h2 {
+      font-family: 'Playfair Display', serif;
+      font-size: 28px;
+      font-weight: 600;
+      color: #5C2D6E;
+      line-height: 1.2;
+      margin-bottom: 24px;
+    }
+    .post-2 .speakers-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 14px;
+      flex: 1;
+    }
+    .post-2 .speaker-card {
+      background: white;
+      border-radius: 8px;
+      padding: 14px;
+      border-left: 3px solid #C9778A;
+      box-shadow: 0 2px 12px rgba(92,45,110,0.08);
+    }
+    .post-2 .speaker-card.gold {
+      border-left-color: #C9A96E;
+    }
+    .post-2 .speaker-card.mauve {
+      border-left-color: #A67D9B;
+    }
+    .post-2 .speaker-card.plum {
+      border-left-color: #5C2D6E;
+    }
+    .post-2 .speaker-name {
+      font-family: 'Playfair Display', serif;
+      font-size: 13px;
+      font-weight: 600;
+      color: #2D2B2E;
+      line-height: 1.2;
+      margin-bottom: 4px;
+    }
+    .post-2 .speaker-title {
+      font-family: 'Lato', sans-serif;
+      font-size: 10px;
+      color: #7B6B78;
+      line-height: 1.3;
+    }
+    .post-2 .footer {
+      margin-top: 16px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .post-2 .website {
+      font-family: 'Lato', sans-serif;
+      font-size: 10px;
+      color: #A67D9B;
+      font-weight: 700;
+      letter-spacing: 0.5px;
+    }
+    .post-2 .cta-pill {
+      background: linear-gradient(135deg, #5C2D6E, #A67D9B);
+      color: white;
+      font-family: 'Lato', sans-serif;
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+      padding: 8px 16px;
+      border-radius: 20px;
+    }
+
+    /* ─── POST 3: Urgency / Countdown ─── */
+    .post-3 {
+      background: #2D2B2E;
+    }
+    .post-3 .bg-lines {
+      position: absolute;
+      inset: 0;
+      background: repeating-linear-gradient(
+        -45deg,
+        transparent,
+        transparent 40px,
+        rgba(201,169,110,0.03) 40px,
+        rgba(201,169,110,0.03) 41px
+      );
+    }
+    .post-3 .glow {
+      position: absolute;
+      width: 400px;
+      height: 400px;
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(92,45,110,0.4) 0%, transparent 70%);
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+    }
+    .post-3 .content {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      padding: 48px;
+    }
+    .post-3 .eyebrow {
+      font-family: 'Lato', sans-serif;
+      font-size: 9px;
+      font-weight: 700;
+      letter-spacing: 3px;
+      text-transform: uppercase;
+      color: #C9A96E;
+      margin-bottom: 20px;
+    }
+    .post-3 .seats-counter {
+      display: flex;
+      align-items: baseline;
+      gap: 8px;
+      margin-bottom: 12px;
+    }
+    .post-3 .seats-number {
+      font-family: 'Playfair Display', serif;
+      font-size: 96px;
+      font-weight: 700;
+      color: #FAF7F4;
+      line-height: 1;
+    }
+    .post-3 .seats-label {
+      font-family: 'Playfair Display', serif;
+      font-size: 28px;
+      font-style: italic;
+      color: #C9778A;
+    }
+    .post-3 h2 {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 22px;
+      font-style: italic;
+      color: rgba(245,237,232,0.75);
+      line-height: 1.4;
+      margin-bottom: 28px;
+    }
+    .post-3 .divider {
+      width: 40px;
+      height: 1px;
+      background: linear-gradient(90deg, transparent, #C9A96E, transparent);
+      margin: 0 auto 28px;
+    }
+    .post-3 .cta {
+      background: linear-gradient(135deg, #C9A96E 0%, #E8D5B5 100%);
+      color: #2D2B2E;
+      font-family: 'Lato', sans-serif;
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      padding: 14px 32px;
+      border-radius: 2px;
+      margin-bottom: 24px;
+    }
+    .post-3 .url {
+      font-family: 'Lato', sans-serif;
+      font-size: 10px;
+      color: rgba(201,169,110,0.6);
+      letter-spacing: 1px;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- POST 1: Announcement -->
+  <div class="post-wrapper">
+    <div class="post-label">Post 1 — Announcement / Hero</div>
+    <div class="post post-1">
+      <div class="bg-circle-1"></div>
+      <div class="bg-circle-2"></div>
+      <div class="content">
+        <div class="eyebrow">Melbourne · Pullman on the Park</div>
+        <h1>Thriving<br /><em>Through</em><br />Menopause</h1>
+        <div class="divider"></div>
+        <p class="subtitle">Australia's most respected boutique symposium for aesthetic practitioners working with midlife women.</p>
+        <div class="meta">
+          <div class="meta-item">Date <span>— 19 October 2026</span></div>
+          <div class="meta-item">Tickets <span>— General Admission &amp; VIP</span></div>
+          <div class="meta-item">Venue <span>— Pullman Melbourne on the Park</span></div>
+        </div>
+      </div>
+      <div class="badge">
+        <div class="num">200</div>
+        <div class="unit">Seats Only</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- POST 2: Speaker Spotlight -->
+  <div class="post-wrapper">
+    <div class="post-label">Post 2 — Speaker Spotlight</div>
+    <div class="post post-2">
+      <div class="top-bar"></div>
+      <div class="content">
+        <div class="eyebrow">Meet Our Speakers</div>
+        <h2>World-Class Experts.<br />One Extraordinary Day.</h2>
+        <div class="speakers-grid">
+          <div class="speaker-card">
+            <div class="speaker-name">Prof. Rod Baber AM</div>
+            <div class="speaker-title">Past President, International Menopause Society</div>
+          </div>
+          <div class="speaker-card gold">
+            <div class="speaker-name">Dr. David Kosenko</div>
+            <div class="speaker-title">President, Cosmetic Physicians College of Australasia</div>
+          </div>
+          <div class="speaker-card mauve">
+            <div class="speaker-name">Dr. Shauna Watts</div>
+            <div class="speaker-title">Cosmetic Physician & Women's Health Specialist</div>
+          </div>
+          <div class="speaker-card plum">
+            <div class="speaker-name">Dr. Nneka Nwokolo</div>
+            <div class="speaker-title">Menopause Clinic Specialist, London</div>
+          </div>
+        </div>
+        <div class="footer">
+          <div class="website">thrivingthroughmenopause.com.au</div>
+          <div class="cta-pill">Get Tickets</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- POST 3: Urgency / Seats -->
+  <div class="post-wrapper">
+    <div class="post-label">Post 3 — Urgency (Limited Seats)</div>
+    <div class="post post-3">
+      <div class="bg-lines"></div>
+      <div class="glow"></div>
+      <div class="content">
+        <div class="eyebrow">Boutique Symposium · Melbourne · 19 Oct 2026</div>
+        <div class="seats-counter">
+          <div class="seats-number">200</div>
+          <div class="seats-label">seats.</div>
+        </div>
+        <h2>"This is the event you've been<br />waiting for your whole life."</h2>
+        <div class="divider"></div>
+        <div class="cta">Secure Your Seat Today</div>
+        <div class="url">thrivingthroughmenopause.com.au</div>
+      </div>
+    </div>
+  </div>
+
+</body>
+</html>

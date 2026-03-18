@@ -1,0 +1,394 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Thriving Through Menopause — Facebook Ad Mockups</title>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400;1,600&family=Lato:wght@300;400;700&family=Cormorant+Garamond:ital,wght@0,300;1,300;1,400&display=swap" rel="stylesheet" />
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      background: #F0EBF4;
+      padding: 40px;
+      font-family: 'Lato', sans-serif;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 48px;
+      justify-content: center;
+    }
+
+    .section-title {
+      width: 100%;
+      text-align: center;
+      font-family: 'Playfair Display', serif;
+      font-size: 32px;
+      color: #5C2D6E;
+      margin-bottom: 8px;
+    }
+    .section-sub {
+      width: 100%;
+      text-align: center;
+      font-family: 'Lato', sans-serif;
+      font-size: 12px;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      color: #A67D9B;
+      margin-bottom: 40px;
+    }
+
+    .ad-wrapper {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 12px;
+    }
+    .ad-label {
+      font-family: 'Lato', sans-serif;
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      color: #A67D9B;
+    }
+
+    /* Facebook phone frame */
+    .fb-frame {
+      width: 360px;
+      background: #fff;
+      border-radius: 12px;
+      overflow: hidden;
+      box-shadow: 0 8px 40px rgba(92,45,110,0.2);
+    }
+    .fb-header {
+      padding: 12px 14px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      border-bottom: 1px solid #f0f0f0;
+    }
+    .fb-avatar {
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, #5C2D6E, #C9778A);
+      flex-shrink: 0;
+    }
+    .fb-page-name {
+      font-family: -apple-system, sans-serif;
+      font-size: 13px;
+      font-weight: 700;
+      color: #1c1e21;
+    }
+    .fb-sponsored {
+      font-family: -apple-system, sans-serif;
+      font-size: 11px;
+      color: #606770;
+    }
+    .fb-body-text {
+      padding: 12px 14px;
+      font-family: -apple-system, sans-serif;
+      font-size: 13px;
+      color: #1c1e21;
+      line-height: 1.5;
+    }
+    .fb-see-more {
+      color: #606770;
+      font-size: 12px;
+    }
+
+    /* Ad image areas */
+    .ad-image {
+      width: 100%;
+      height: 189px; /* 1.91:1 ratio for 360px width */
+      position: relative;
+      overflow: hidden;
+    }
+
+    /* Ad 1 image */
+    .ad1-img {
+      background: linear-gradient(150deg, #3D1A4B 0%, #5C2D6E 40%, #8B4A7A 70%, #C9778A 100%);
+    }
+    .ad1-img .circle1 {
+      position: absolute;
+      width: 200px; height: 200px;
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(201,169,110,0.15) 0%, transparent 70%);
+      top: -60px; right: -60px;
+    }
+    .ad1-img .circle2 {
+      position: absolute;
+      width: 140px; height: 140px;
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(245,237,232,0.06) 0%, transparent 70%);
+      bottom: -30px; left: -20px;
+    }
+    .ad1-img .text {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      padding: 28px;
+    }
+    .ad1-img .eyebrow {
+      font-family: 'Lato', sans-serif;
+      font-size: 8px;
+      font-weight: 700;
+      letter-spacing: 2.5px;
+      text-transform: uppercase;
+      color: #C9A96E;
+      margin-bottom: 10px;
+    }
+    .ad1-img h2 {
+      font-family: 'Playfair Display', serif;
+      font-size: 28px;
+      font-weight: 700;
+      color: #FAF7F4;
+      line-height: 1.15;
+      margin-bottom: 12px;
+    }
+    .ad1-img h2 em { font-style: italic; color: #E8B4C0; }
+    .ad1-img p {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 12px;
+      font-style: italic;
+      color: rgba(245,237,232,0.75);
+      line-height: 1.5;
+    }
+    .ad1-img .badge {
+      position: absolute;
+      bottom: 14px; right: 14px;
+      width: 60px; height: 60px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, #C9A96E, #E8D5B5);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+    }
+    .ad1-img .badge .n { font-family: 'Playfair Display', serif; font-size: 18px; font-weight: 700; color: #3D1A4B; line-height: 1; }
+    .ad1-img .badge .u { font-family: 'Lato', sans-serif; font-size: 7px; font-weight: 700; letter-spacing: 1px; text-transform: uppercase; color: #5C2D6E; }
+
+    /* Ad 2 image */
+    .ad2-img {
+      background: #F5EDE8;
+    }
+    .ad2-img .top {
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      height: 70px;
+      background: linear-gradient(135deg, #5C2D6E, #A67D9B);
+    }
+    .ad2-img .card {
+      position: absolute;
+      top: 30px; left: 16px; right: 16px;
+      background: white;
+      border-radius: 8px;
+      padding: 14px;
+      box-shadow: 0 4px 16px rgba(92,45,110,0.15);
+    }
+    .ad2-img .card .eyebrow { font-family: 'Lato', sans-serif; font-size: 7px; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; color: #C9778A; margin-bottom: 4px; }
+    .ad2-img .card h3 { font-family: 'Playfair Display', serif; font-size: 16px; color: #5C2D6E; margin-bottom: 10px; }
+    .ad2-img .card .speakers { display: flex; flex-direction: column; gap: 4px; }
+    .ad2-img .card .s-item { display: flex; align-items: center; gap: 6px; font-family: 'Lato', sans-serif; font-size: 10px; color: #2D2B2E; }
+    .ad2-img .card .s-dot { width: 5px; height: 5px; border-radius: 50%; background: #C9778A; flex-shrink: 0; }
+    .ad2-img .card .s-dot.g { background: #C9A96E; }
+    .ad2-img .card .s-dot.m { background: #A67D9B; }
+    .ad2-img .card .s-dot.p { background: #5C2D6E; }
+
+    /* Ad 3 image */
+    .ad3-img {
+      background: #2D2B2E;
+    }
+    .ad3-img .glow {
+      position: absolute;
+      width: 250px; height: 250px;
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(92,45,110,0.45) 0%, transparent 70%);
+      top: 50%; left: 50%;
+      transform: translate(-50%, -50%);
+    }
+    .ad3-img .text {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      padding: 24px;
+    }
+    .ad3-img .eyebrow { font-family: 'Lato', sans-serif; font-size: 7px; font-weight: 700; letter-spacing: 2.5px; text-transform: uppercase; color: #C9A96E; margin-bottom: 10px; }
+    .ad3-img .big { font-family: 'Playfair Display', serif; font-size: 52px; font-weight: 700; color: #FAF7F4; line-height: 1; }
+    .ad3-img .seats { font-family: 'Playfair Display', serif; font-size: 18px; font-style: italic; color: #C9778A; margin-bottom: 8px; }
+    .ad3-img .sub { font-family: 'Cormorant Garamond', serif; font-size: 11px; font-style: italic; color: rgba(245,237,232,0.6); line-height: 1.4; }
+
+    /* Facebook CTA bar */
+    .fb-cta-bar {
+      padding: 12px 14px;
+      background: #f5f5f5;
+      border-top: 1px solid #e4e4e4;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .fb-link-info { display: flex; flex-direction: column; }
+    .fb-link-domain { font-family: -apple-system, sans-serif; font-size: 10px; color: #606770; text-transform: uppercase; letter-spacing: 0.5px; }
+    .fb-link-headline { font-family: -apple-system, sans-serif; font-size: 13px; font-weight: 700; color: #1c1e21; }
+    .fb-link-desc { font-family: -apple-system, sans-serif; font-size: 11px; color: #606770; }
+    .fb-btn {
+      background: #e4e6eb;
+      border-radius: 4px;
+      padding: 8px 14px;
+      font-family: -apple-system, sans-serif;
+      font-size: 13px;
+      font-weight: 700;
+      color: #1c1e21;
+      white-space: nowrap;
+      flex-shrink: 0;
+      margin-left: 12px;
+    }
+    .fb-reactions {
+      padding: 8px 14px;
+      display: flex;
+      justify-content: space-between;
+      border-top: 1px solid #f0f0f0;
+    }
+    .fb-react-item { font-family: -apple-system, sans-serif; font-size: 12px; color: #606770; }
+  </style>
+</head>
+<body>
+
+  <div class="section-title">Facebook Ad Mockups</div>
+  <div class="section-sub">3 creative variations · Thriving Through Menopause Symposium</div>
+
+  <!-- AD 1: Awareness/Hero -->
+  <div class="ad-wrapper">
+    <div class="ad-label">Ad 1 — Awareness / Top of Funnel</div>
+    <div class="fb-frame">
+      <div class="fb-header">
+        <div class="fb-avatar"></div>
+        <div>
+          <div class="fb-page-name">Thriving Through Menopause</div>
+          <div class="fb-sponsored">Sponsored · 🌐</div>
+        </div>
+      </div>
+      <div class="fb-body-text">
+        You've done the research. You've spoken to your GP. But you still have questions no one seems to answer. 💜<br /><br />
+        That's exactly why Chiza Westcarr created the Thriving Through Menopause Symposium — Australia's most respected boutique conference for aesthetics and allied health practitioners.<br /><br />
+        <span class="fb-see-more">📍 Pullman Melbourne on the Park · 19 October 2026</span>
+      </div>
+      <div class="ad-image ad1-img">
+        <div class="circle1"></div>
+        <div class="circle2"></div>
+        <div class="text">
+          <div class="eyebrow">Melbourne · Pullman on the Park · 19 Oct 2026</div>
+          <h2>Where Practitioners<br /><em>Come to Lead.</em></h2>
+          <p>Australia's premier symposium for aesthetic practitioners.<br />Expert speakers. Boutique setting. Clinical answers.</p>
+        </div>
+        <div class="badge">
+          <div class="n">200</div>
+          <div class="u">Seats</div>
+        </div>
+      </div>
+      <div class="fb-cta-bar">
+        <div class="fb-link-info">
+          <div class="fb-link-domain">THRIVINGTHROUGHMENOPAUSE.COM.AU</div>
+          <div class="fb-link-headline">Where Women Come to Thrive.</div>
+          <div class="fb-link-desc">Book your seat at Australia's premier menopause symposium</div>
+        </div>
+        <div class="fb-btn">Learn More</div>
+      </div>
+      <div class="fb-reactions">
+        <div class="fb-react-item">👍 ❤️ 😮 &nbsp; 847</div>
+        <div class="fb-react-item">128 comments · 94 shares</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- AD 2: Speaker Spotlight -->
+  <div class="ad-wrapper">
+    <div class="ad-label">Ad 2 — Speaker Spotlight / Consideration</div>
+    <div class="fb-frame">
+      <div class="fb-header">
+        <div class="fb-avatar"></div>
+        <div>
+          <div class="fb-page-name">Thriving Through Menopause</div>
+          <div class="fb-sponsored">Sponsored · 🌐</div>
+        </div>
+      </div>
+      <div class="fb-body-text">
+        🔬 Prof. Rod Baber AM. 💊 Dr. David Kosenko. 🩺 Dr. Shauna Watts. 🌍 Dr. Nneka Nwokolo.<br /><br />
+        World-class specialists. One extraordinary day. Limited First Release seats available.<br /><br />
+        The Thriving Through Menopause Symposium 2026 — 19 October · Pullman Melbourne on the Park.
+      </div>
+      <div class="ad-image ad2-img">
+        <div class="top"></div>
+        <div class="card">
+          <div class="eyebrow">Featured Speakers</div>
+          <h3>World-Class Experts.<br />One Day.</h3>
+          <div class="speakers">
+            <div class="s-item"><div class="s-dot"></div> Prof. Rod Baber AM — International Menopause Society</div>
+            <div class="s-item"><div class="s-dot g"></div> Dr. David Kosenko — CPCA President</div>
+            <div class="s-item"><div class="s-dot m"></div> Dr. Shauna Watts — Women's Health Specialist</div>
+            <div class="s-item"><div class="s-dot p"></div> Dr. Nneka Nwokolo — London Menopause Clinic</div>
+          </div>
+        </div>
+      </div>
+      <div class="fb-cta-bar">
+        <div class="fb-link-info">
+          <div class="fb-link-domain">THRIVINGTHROUGHMENOPAUSE.COM.AU</div>
+          <div class="fb-link-headline">Meet our speakers — 200 seats only</div>
+          <div class="fb-link-desc">Australia's most intimate menopause symposium</div>
+        </div>
+        <div class="fb-btn">Get Tickets</div>
+      </div>
+      <div class="fb-reactions">
+        <div class="fb-react-item">❤️ 😮 👍 &nbsp; 1.2K</div>
+        <div class="fb-react-item">241 comments · 187 shares</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- AD 3: Urgency -->
+  <div class="ad-wrapper">
+    <div class="ad-label">Ad 3 — Urgency / Conversion</div>
+    <div class="fb-frame">
+      <div class="fb-header">
+        <div class="fb-avatar"></div>
+        <div>
+          <div class="fb-page-name">Thriving Through Menopause</div>
+          <div class="fb-sponsored">Sponsored · 🌐</div>
+        </div>
+      </div>
+      <div class="fb-body-text">
+        This event is intentionally intimate. 200 seats. That's it.<br /><br />
+        100% of 2025 delegates rated the symposium Good or Excellent. Don't miss your First Release seat at Australia's most respected practitioner menopause symposium. 🎟️
+      </div>
+      <div class="ad-image ad3-img">
+        <div class="glow"></div>
+        <div class="text">
+          <div class="eyebrow">Boutique Symposium · Sydney</div>
+          <div class="big">200</div>
+          <div class="seats">seats available.</div>
+          <div class="sub">Pullman Melbourne on the Park<br />19 October 2026 — First Release tickets now open.</div>
+        </div>
+      </div>
+      <div class="fb-cta-bar">
+        <div class="fb-link-info">
+          <div class="fb-link-domain">THRIVINGTHROUGHMENOPAUSE.COM.AU</div>
+          <div class="fb-link-headline">Only 200 seats — secure yours today</div>
+          <div class="fb-link-desc">Thriving Through Menopause Symposium 2026, Melbourne</div>
+        </div>
+        <div class="fb-btn">Book Now</div>
+      </div>
+      <div class="fb-reactions">
+        <div class="fb-react-item">❤️ 👍 🙌 &nbsp; 563</div>
+        <div class="fb-react-item">89 comments · 72 shares</div>
+      </div>
+    </div>
+  </div>
+
+</body>
+</html>

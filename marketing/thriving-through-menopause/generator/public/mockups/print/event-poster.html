@@ -1,0 +1,407 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Thriving Through Menopause — Event Poster (A2 / Digital)</title>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400;1,600;1,700&family=Lato:wght@300;400;700;900&family=Cormorant+Garamond:ital,wght@0,300;0,400;1,300;1,400&display=swap" rel="stylesheet" />
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      background: #1A1A2E;
+      display: flex;
+      flex-wrap: wrap;
+      align-items: flex-start;
+      justify-content: center;
+      gap: 48px;
+      padding: 48px;
+      font-family: 'Lato', sans-serif;
+    }
+
+    .poster-label {
+      text-align: center;
+      font-family: 'Lato', sans-serif;
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 2.5px;
+      text-transform: uppercase;
+      color: rgba(201,169,110,0.6);
+      margin-bottom: 12px;
+    }
+
+    /* A2 proportions scaled down: 420×594mm → ~540×764px (portrait) */
+    .poster {
+      width: 480px;
+      height: 680px;
+      position: relative;
+      overflow: hidden;
+      box-shadow: 0 24px 80px rgba(0,0,0,0.7);
+    }
+
+    /* ─── POSTER DARK ─── */
+    .poster-dark {
+      background: linear-gradient(160deg, #1A0A26 0%, #3D1A4B 30%, #5C2D6E 60%, #8B4A7A 80%, #C9778A 100%);
+    }
+    .pd-circle1 {
+      position: absolute;
+      width: 500px; height: 500px;
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(201,169,110,0.12) 0%, transparent 70%);
+      top: -150px; right: -150px;
+    }
+    .pd-circle2 {
+      position: absolute;
+      width: 300px; height: 300px;
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(245,237,232,0.06) 0%, transparent 70%);
+      bottom: -80px; left: -80px;
+    }
+    .pd-lines {
+      position: absolute;
+      inset: 0;
+      background: repeating-linear-gradient(
+        -30deg,
+        transparent, transparent 60px,
+        rgba(255,255,255,0.015) 60px, rgba(255,255,255,0.015) 61px
+      );
+    }
+    .pd-content {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      flex-direction: column;
+      padding: 48px 44px;
+    }
+    .pd-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      margin-bottom: 40px;
+    }
+    .pd-event-type {
+      font-size: 8px;
+      font-weight: 700;
+      letter-spacing: 3px;
+      text-transform: uppercase;
+      color: rgba(201,169,110,0.7);
+    }
+    .pd-seats {
+      text-align: right;
+    }
+    .pd-seats .num {
+      font-family: 'Playfair Display', serif;
+      font-size: 28px;
+      font-weight: 700;
+      color: #C9A96E;
+      line-height: 1;
+    }
+    .pd-seats .label {
+      font-size: 7px;
+      font-weight: 700;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      color: rgba(201,169,110,0.5);
+    }
+
+    .pd-main { flex: 1; display: flex; flex-direction: column; justify-content: center; }
+    .pd-sub {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 12px;
+      font-style: italic;
+      color: rgba(201,169,110,0.8);
+      letter-spacing: 0.5px;
+      margin-bottom: 16px;
+    }
+    .pd-title {
+      font-family: 'Playfair Display', serif;
+      font-size: 56px;
+      font-weight: 700;
+      color: #FAF7F4;
+      line-height: 1.0;
+      margin-bottom: 4px;
+    }
+    .pd-title em { font-style: italic; color: #E8B4C0; display: block; }
+    .pd-divider {
+      width: 56px; height: 2px;
+      background: linear-gradient(90deg, #C9A96E, transparent);
+      margin: 20px 0;
+    }
+    .pd-tagline {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 17px;
+      font-style: italic;
+      color: rgba(245,237,232,0.75);
+      line-height: 1.55;
+      max-width: 320px;
+      margin-bottom: 32px;
+    }
+    .pd-speakers {
+      display: flex;
+      flex-direction: column;
+      gap: 5px;
+      margin-bottom: 32px;
+    }
+    .pd-speaker {
+      font-size: 10px;
+      color: rgba(245,237,232,0.65);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .pd-speaker-dot {
+      width: 4px; height: 4px;
+      border-radius: 50%;
+      background: #C9A96E;
+      flex-shrink: 0;
+    }
+
+    .pd-bottom {
+      border-top: 1px solid rgba(201,169,110,0.2);
+      padding-top: 20px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .pd-venue {
+      display: flex;
+      flex-direction: column;
+      gap: 3px;
+    }
+    .pd-venue .v1 {
+      font-size: 7px;
+      font-weight: 700;
+      letter-spacing: 2.5px;
+      text-transform: uppercase;
+      color: rgba(201,169,110,0.6);
+    }
+    .pd-venue .v2 {
+      font-family: 'Playfair Display', serif;
+      font-size: 13px;
+      color: #FAF7F4;
+    }
+    .pd-website {
+      font-size: 9px;
+      color: rgba(201,169,110,0.5);
+      letter-spacing: 0.5px;
+      text-align: right;
+    }
+
+    /* ─── POSTER LIGHT ─── */
+    .poster-light {
+      background: #F5EDE8;
+    }
+    .pl-top-bar {
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      height: 10px;
+      background: linear-gradient(90deg, #5C2D6E, #C9778A, #C9A96E);
+    }
+    .pl-content {
+      position: absolute;
+      inset: 0;
+      padding: 52px 44px 44px;
+      display: flex;
+      flex-direction: column;
+    }
+    .pl-eyebrow {
+      font-size: 8px;
+      font-weight: 700;
+      letter-spacing: 3px;
+      text-transform: uppercase;
+      color: #C9778A;
+      margin-bottom: 20px;
+    }
+    .pl-title {
+      font-family: 'Playfair Display', serif;
+      font-size: 48px;
+      font-weight: 700;
+      color: #5C2D6E;
+      line-height: 1.05;
+      margin-bottom: 4px;
+    }
+    .pl-title .italic { font-style: italic; color: #C9778A; display: block; }
+    .pl-divider {
+      width: 48px; height: 2px;
+      background: linear-gradient(90deg, #C9A96E, transparent);
+      margin: 18px 0;
+    }
+    .pl-tagline {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 17px;
+      font-style: italic;
+      color: #7B6B78;
+      line-height: 1.6;
+      margin-bottom: 28px;
+      max-width: 320px;
+    }
+    .pl-speaker-section { flex: 1; }
+    .pl-speaker-label {
+      font-size: 8px;
+      font-weight: 700;
+      letter-spacing: 2.5px;
+      text-transform: uppercase;
+      color: #C9778A;
+      margin-bottom: 12px;
+    }
+    .pl-speaker-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+      margin-bottom: 28px;
+    }
+    .pl-speaker-card {
+      background: white;
+      border-radius: 6px;
+      padding: 10px 12px;
+      border-left: 3px solid #C9778A;
+      box-shadow: 0 2px 8px rgba(92,45,110,0.06);
+    }
+    .pl-speaker-card:nth-child(2) { border-left-color: #C9A96E; }
+    .pl-speaker-card:nth-child(3) { border-left-color: #A67D9B; }
+    .pl-speaker-card:nth-child(4) { border-left-color: #5C2D6E; }
+    .pl-speaker-card:nth-child(5) { border-left-color: #C9778A; }
+    .pl-speaker-card:nth-child(6) { border-left-color: #C9A96E; }
+    .pl-s-name {
+      font-family: 'Playfair Display', serif;
+      font-size: 11px;
+      font-weight: 600;
+      color: #5C2D6E;
+      margin-bottom: 2px;
+    }
+    .pl-s-title {
+      font-size: 8px;
+      color: #7B6B78;
+      line-height: 1.3;
+    }
+
+    .pl-bottom {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-end;
+      border-top: 1px solid rgba(92,45,110,0.15);
+      padding-top: 16px;
+    }
+    .pl-venue-info { display: flex; flex-direction: column; gap: 3px; }
+    .pl-venue-label { font-size: 7px; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; color: #A67D9B; }
+    .pl-venue-name { font-family: 'Playfair Display', serif; font-size: 12px; color: #5C2D6E; }
+    .pl-badge {
+      width: 64px; height: 64px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, #5C2D6E, #A67D9B);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+    }
+    .pl-badge .n { font-family: 'Playfair Display', serif; font-size: 20px; font-weight: 700; color: white; line-height: 1; }
+    .pl-badge .u { font-size: 7px; font-weight: 700; letter-spacing: 1.5px; text-transform: uppercase; color: rgba(255,255,255,0.65); }
+  </style>
+</head>
+<body>
+
+  <!-- DARK POSTER -->
+  <div>
+    <div class="poster-label">Version A — Dark / Premium</div>
+    <div class="poster poster-dark">
+      <div class="pd-circle1"></div>
+      <div class="pd-circle2"></div>
+      <div class="pd-lines"></div>
+      <div class="pd-content">
+        <div class="pd-top">
+          <div class="pd-event-type">Boutique Symposium · Melbourne, Australia · 19 October 2026</div>
+          <div class="pd-seats">
+            <div class="num">200</div>
+            <div class="label">Seats Only</div>
+          </div>
+        </div>
+        <div class="pd-main">
+          <div class="pd-sub">Expert knowledge. Real answers. One extraordinary day.</div>
+          <div class="pd-title">
+            Thriving
+            <em>Through<br />Menopause</em>
+          </div>
+          <div class="pd-divider"></div>
+          <p class="pd-tagline">Australia's most intimate gathering of world-class menopause experts — designed for women ready to stop guessing and start thriving.</p>
+          <div class="pd-speakers">
+            <div class="pd-speaker"><div class="pd-speaker-dot"></div> Prof. Rod Baber AM — International Menopause Society</div>
+            <div class="pd-speaker"><div class="pd-speaker-dot"></div> Dr. David Kosenko — CPCA President</div>
+            <div class="pd-speaker"><div class="pd-speaker-dot"></div> Dr. Shauna Watts — Women's Health Specialist</div>
+            <div class="pd-speaker"><div class="pd-speaker-dot"></div> Dr. Nneka Nwokolo — London Menopause Clinic</div>
+            <div class="pd-speaker"><div class="pd-speaker-dot"></div> Dr. Anoop Rastogi — ACCSM President</div>
+            <div class="pd-speaker"><div class="pd-speaker-dot"></div> 2026 Speakers to be announced</div>
+          </div>
+        </div>
+        <div class="pd-bottom">
+          <div class="pd-venue">
+            <div class="v1">Venue</div>
+            <div class="v2">Pullman Melbourne on the Park, Melbourne</div>
+          </div>
+          <div class="pd-website">
+            thrivingthroughmenopause.com.au<br />
+            <span style="font-size:7px;opacity:0.4;">#ThrivingThroughMenopause</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- LIGHT POSTER -->
+  <div>
+    <div class="poster-label">Version B — Light / Editorial</div>
+    <div class="poster poster-light">
+      <div class="pl-top-bar"></div>
+      <div class="pl-content">
+        <div class="pl-eyebrow">Symposium · Pullman Melbourne on the Park · 19 October 2026</div>
+        <div class="pl-title">
+          Thriving
+          <span class="italic">Through<br />Menopause</span>
+        </div>
+        <div class="pl-divider"></div>
+        <p class="pl-tagline">Where women come to thrive. World-class experts. Intimate setting. Life-changing conversations.</p>
+        <div class="pl-speaker-section">
+          <div class="pl-speaker-label">Featured Speakers</div>
+          <div class="pl-speaker-grid">
+            <div class="pl-speaker-card">
+              <div class="pl-s-name">Prof. Rod Baber AM</div>
+              <div class="pl-s-title">International Menopause Society</div>
+            </div>
+            <div class="pl-speaker-card">
+              <div class="pl-s-name">Dr. David Kosenko</div>
+              <div class="pl-s-title">CPCA President</div>
+            </div>
+            <div class="pl-speaker-card">
+              <div class="pl-s-name">Dr. Shauna Watts</div>
+              <div class="pl-s-title">Women's Health Specialist</div>
+            </div>
+            <div class="pl-speaker-card">
+              <div class="pl-s-name">Dr. Nneka Nwokolo</div>
+              <div class="pl-s-title">London Menopause Clinic</div>
+            </div>
+            <div class="pl-speaker-card">
+              <div class="pl-s-name">Dr. Anoop Rastogi</div>
+              <div class="pl-s-title">ACCSM President</div>
+            </div>
+            <div class="pl-speaker-card">
+              <div class="pl-s-name">+ More Speakers</div>
+              <div class="pl-s-title">2026 Program TBA</div>
+            </div>
+          </div>
+        </div>
+        <div class="pl-bottom">
+          <div class="pl-venue-info">
+            <div class="pl-venue-label">Venue</div>
+            <div class="pl-venue-name">Pullman Melbourne on the Park</div>
+            <div style="font-size:9px;color:#A67D9B;margin-top:4px;letter-spacing:0.5px;">thrivingthroughmenopause.com.au</div>
+          </div>
+          <div class="pl-badge">
+            <div class="n">200</div>
+            <div class="u">Seats</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</body>
+</html>

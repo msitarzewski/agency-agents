@@ -1,0 +1,493 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Thriving Through Menopause — Instagram Stories</title>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400;1,600&family=Lato:wght@300;400;700&family=Cormorant+Garamond:ital,wght@0,300;1,300;1,400&display=swap" rel="stylesheet" />
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      background: #111118;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 40px;
+      padding: 40px;
+      justify-content: center;
+      font-family: 'Lato', sans-serif;
+    }
+
+    .story-wrapper {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 12px;
+    }
+    .story-label {
+      color: #C9A96E;
+      font-family: 'Lato', sans-serif;
+      font-size: 12px;
+      font-weight: 700;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+    }
+
+    /* 9:16 aspect ratio = 270 × 480 (scaled down from 1080×1920) */
+    .story {
+      width: 270px;
+      height: 480px;
+      position: relative;
+      overflow: hidden;
+      border-radius: 12px;
+      box-shadow: 0 20px 60px rgba(0,0,0,0.7);
+    }
+
+    /* Story progress dots */
+    .progress-bar {
+      position: absolute;
+      top: 14px;
+      left: 14px;
+      right: 14px;
+      display: flex;
+      gap: 4px;
+      z-index: 10;
+    }
+    .progress-bar .seg {
+      height: 2px;
+      flex: 1;
+      background: rgba(255,255,255,0.3);
+      border-radius: 2px;
+    }
+    .progress-bar .seg.active {
+      background: rgba(255,255,255,0.9);
+    }
+
+    /* ─── STORY 1: Save The Date ─── */
+    .story-1 {
+      background: linear-gradient(170deg, #1A0A26 0%, #3D1A4B 35%, #5C2D6E 65%, #8B4A7A 100%);
+    }
+    .story-1 .petal-1 {
+      position: absolute;
+      width: 180px; height: 180px;
+      border-radius: 50% 10% 50% 10%;
+      background: rgba(201,169,110,0.08);
+      top: 60px; right: -50px;
+      transform: rotate(30deg);
+    }
+    .story-1 .petal-2 {
+      position: absolute;
+      width: 120px; height: 120px;
+      border-radius: 50% 10% 50% 10%;
+      background: rgba(201,119,138,0.1);
+      bottom: 80px; left: -30px;
+      transform: rotate(-20deg);
+    }
+    .story-1 .content {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      padding: 48px 24px 80px;
+    }
+    .story-1 .logo-text {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 11px;
+      font-style: italic;
+      color: rgba(201,169,110,0.8);
+      letter-spacing: 1px;
+      margin-bottom: 28px;
+    }
+    .story-1 .save {
+      font-family: 'Lato', sans-serif;
+      font-size: 9px;
+      font-weight: 700;
+      letter-spacing: 3px;
+      text-transform: uppercase;
+      color: #C9A96E;
+      margin-bottom: 12px;
+    }
+    .story-1 h1 {
+      font-family: 'Playfair Display', serif;
+      font-size: 34px;
+      font-weight: 700;
+      font-style: italic;
+      color: #FAF7F4;
+      line-height: 1.1;
+      margin-bottom: 8px;
+    }
+    .story-1 .the-date {
+      font-family: 'Playfair Display', serif;
+      font-size: 13px;
+      font-weight: 400;
+      color: rgba(245,237,232,0.6);
+      letter-spacing: 1px;
+      margin-bottom: 28px;
+    }
+    .story-1 .line {
+      width: 32px;
+      height: 1px;
+      background: linear-gradient(90deg, transparent, #C9A96E, transparent);
+      margin: 0 auto 24px;
+    }
+    .story-1 p {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 14px;
+      font-style: italic;
+      color: rgba(245,237,232,0.75);
+      line-height: 1.6;
+      margin-bottom: 28px;
+    }
+    .story-1 .venue {
+      font-family: 'Lato', sans-serif;
+      font-size: 9px;
+      font-weight: 700;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      color: rgba(201,169,110,0.7);
+    }
+    .story-1 .swipe-up {
+      position: absolute;
+      bottom: 28px;
+      left: 50%;
+      transform: translateX(-50%);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 4px;
+    }
+    .story-1 .swipe-text {
+      font-family: 'Lato', sans-serif;
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      color: rgba(245,237,232,0.6);
+    }
+    .story-1 .swipe-arrow {
+      font-size: 16px;
+      color: rgba(245,237,232,0.5);
+    }
+
+    /* ─── STORY 2: Speaker Carousel ─── */
+    .story-2 {
+      background: #F5EDE8;
+    }
+    .story-2 .accent-block {
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      height: 180px;
+      background: linear-gradient(135deg, #5C2D6E 0%, #A67D9B 100%);
+    }
+    .story-2 .content {
+      position: absolute;
+      inset: 0;
+      padding: 52px 20px 80px;
+      display: flex;
+      flex-direction: column;
+    }
+    .story-2 .eyebrow {
+      font-family: 'Lato', sans-serif;
+      font-size: 8px;
+      font-weight: 700;
+      letter-spacing: 2.5px;
+      text-transform: uppercase;
+      color: rgba(245,237,232,0.7);
+      margin-bottom: 8px;
+    }
+    .story-2 h2 {
+      font-family: 'Playfair Display', serif;
+      font-size: 22px;
+      font-weight: 700;
+      color: #FAF7F4;
+      line-height: 1.15;
+    }
+    .story-2 .speaker-feature {
+      background: white;
+      border-radius: 12px;
+      padding: 20px;
+      margin-top: 60px;
+      box-shadow: 0 4px 20px rgba(92,45,110,0.15);
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+    .story-2 .speaker-tag {
+      font-family: 'Lato', sans-serif;
+      font-size: 8px;
+      font-weight: 700;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      color: #C9778A;
+    }
+    .story-2 .speaker-name {
+      font-family: 'Playfair Display', serif;
+      font-size: 20px;
+      font-weight: 600;
+      color: #5C2D6E;
+    }
+    .story-2 .speaker-role {
+      font-family: 'Lato', sans-serif;
+      font-size: 10px;
+      color: #7B6B78;
+      line-height: 1.4;
+    }
+    .story-2 .speaker-quote {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 13px;
+      font-style: italic;
+      color: #4A3A4A;
+      line-height: 1.5;
+      margin-top: 8px;
+      padding-top: 12px;
+      border-top: 1px solid #E8D5D0;
+    }
+    .story-2 .more-speakers {
+      margin-top: 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+    .story-2 .speaker-mini {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      background: white;
+      border-radius: 8px;
+      padding: 10px 12px;
+      box-shadow: 0 2px 8px rgba(92,45,110,0.06);
+    }
+    .story-2 .dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: #C9778A;
+      flex-shrink: 0;
+    }
+    .story-2 .dot.gold { background: #C9A96E; }
+    .story-2 .dot.mauve { background: #A67D9B; }
+    .story-2 .mini-name {
+      font-family: 'Lato', sans-serif;
+      font-size: 10px;
+      font-weight: 700;
+      color: #2D2B2E;
+    }
+    .story-2 .swipe-up {
+      position: absolute;
+      bottom: 24px;
+      left: 50%;
+      transform: translateX(-50%);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 4px;
+    }
+    .story-2 .swipe-btn {
+      background: linear-gradient(135deg, #5C2D6E, #A67D9B);
+      color: white;
+      font-family: 'Lato', sans-serif;
+      font-size: 9px;
+      font-weight: 700;
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+      padding: 10px 24px;
+      border-radius: 20px;
+    }
+
+    /* ─── STORY 3: FOMO / Last Chance ─── */
+    .story-3 {
+      background: #2D2B2E;
+    }
+    .story-3 .bg-glow {
+      position: absolute;
+      width: 300px;
+      height: 300px;
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(92,45,110,0.5) 0%, transparent 70%);
+      top: 50%; left: 50%;
+      transform: translate(-50%, -50%);
+    }
+    .story-3 .content {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      padding: 60px 24px 80px;
+    }
+    .story-3 .fire {
+      font-size: 32px;
+      margin-bottom: 16px;
+    }
+    .story-3 .eyebrow {
+      font-family: 'Lato', sans-serif;
+      font-size: 8px;
+      font-weight: 700;
+      letter-spacing: 3px;
+      text-transform: uppercase;
+      color: #C9A96E;
+      margin-bottom: 16px;
+    }
+    .story-3 h2 {
+      font-family: 'Playfair Display', serif;
+      font-size: 32px;
+      font-weight: 700;
+      color: #FAF7F4;
+      line-height: 1.15;
+      margin-bottom: 8px;
+    }
+    .story-3 h2 em {
+      color: #C9778A;
+      font-style: italic;
+    }
+    .story-3 .sub {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 13px;
+      font-style: italic;
+      color: rgba(245,237,232,0.65);
+      line-height: 1.5;
+      margin-bottom: 24px;
+    }
+    .story-3 .pills {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      width: 100%;
+      margin-bottom: 24px;
+    }
+    .story-3 .pill {
+      background: rgba(255,255,255,0.05);
+      border: 1px solid rgba(201,169,110,0.2);
+      border-radius: 4px;
+      padding: 10px 14px;
+      font-family: 'Lato', sans-serif;
+      font-size: 10px;
+      color: rgba(245,237,232,0.8);
+      text-align: left;
+    }
+    .story-3 .pill strong {
+      color: #C9A96E;
+    }
+    .story-3 .cta {
+      background: linear-gradient(135deg, #C9A96E, #E8D5B5);
+      color: #2D2B2E;
+      font-family: 'Lato', sans-serif;
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      padding: 12px 28px;
+      border-radius: 2px;
+    }
+    .story-3 .swipe-up {
+      position: absolute;
+      bottom: 24px;
+      left: 50%;
+      transform: translateX(-50%);
+      font-family: 'Lato', sans-serif;
+      font-size: 9px;
+      color: rgba(201,169,110,0.5);
+      letter-spacing: 1px;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- STORY 1: Save The Date -->
+  <div class="story-wrapper">
+    <div class="story-label">Story 1 — Save The Date</div>
+    <div class="story story-1">
+      <div class="progress-bar">
+        <div class="seg active"></div>
+        <div class="seg"></div>
+        <div class="seg"></div>
+      </div>
+      <div class="petal-1"></div>
+      <div class="petal-2"></div>
+      <div class="content">
+        <div class="logo-text">Thriving Through Menopause</div>
+        <div class="save">Save The Date</div>
+        <h1>Thriving<br />Through<br />Menopause</h1>
+        <p class="the-date">Symposium · Melbourne, VIC · 19 October 2026</p>
+        <div class="line"></div>
+        <p>Australia's most respected boutique symposium<br />for aesthetic practitioners and allied health<br />professionals working with midlife women.</p>
+        <div class="venue">Pullman Melbourne on the Park · First Release Tickets Open</div>
+      </div>
+      <div class="swipe-up">
+        <div class="swipe-text">Tap for tickets</div>
+        <div class="swipe-arrow">↑</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- STORY 2: Speaker Spotlight -->
+  <div class="story-wrapper">
+    <div class="story-label">Story 2 — Speaker Spotlight</div>
+    <div class="story story-2">
+      <div class="progress-bar">
+        <div class="seg"></div>
+        <div class="seg active"></div>
+        <div class="seg"></div>
+      </div>
+      <div class="accent-block"></div>
+      <div class="content">
+        <div class="eyebrow">Featured Speaker</div>
+        <h2>Meet the Minds<br />Behind the Magic</h2>
+        <div class="speaker-feature">
+          <div class="speaker-tag">2025 Speaker Highlight</div>
+          <div class="speaker-name">Prof. Rod Baber AM</div>
+          <div class="speaker-role">Professor of Obstetrics &amp; Gynaecology,<br />University of Sydney</div>
+          <div class="speaker-quote">"An ageing female skin is a menopausal skin." — Chiza Westcarr. The 2026 program builds on this insight with clinical application and regenerative strategies.</div>
+        </div>
+        <div class="more-speakers">
+          <div class="speaker-mini">
+            <div class="dot"></div>
+            <div class="mini-name">Dr. David Kosenko — CPCA President</div>
+          </div>
+          <div class="speaker-mini">
+            <div class="dot gold"></div>
+            <div class="mini-name">Dr. Shauna Watts — Women's Health</div>
+          </div>
+          <div class="speaker-mini">
+            <div class="dot mauve"></div>
+            <div class="mini-name">Dr. Nneka Nwokolo — London Menopause Clinic</div>
+          </div>
+        </div>
+      </div>
+      <div class="swipe-up">
+        <div class="swipe-btn">View All Speakers →</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- STORY 3: Limited Seats FOMO -->
+  <div class="story-wrapper">
+    <div class="story-label">Story 3 — Limited Seats</div>
+    <div class="story story-3">
+      <div class="progress-bar">
+        <div class="seg"></div>
+        <div class="seg"></div>
+        <div class="seg active"></div>
+      </div>
+      <div class="bg-glow"></div>
+      <div class="content">
+        <div class="eyebrow">Boutique Symposium · Melbourne · 19 Oct 2026</div>
+        <h2>First <em>Release</em><br />Tickets Open</h2>
+        <p class="sub">Limited First Release allocation available now.<br />Secure your seat before they're gone.</p>
+        <div class="pills">
+          <div class="pill"><strong>✓ General Admission</strong> — full day access + delegate bag</div>
+          <div class="pill"><strong>✓ VIP Access</strong> — premium seating + session recordings</div>
+          <div class="pill"><strong>✓ Pullman Melbourne on the Park</strong> — 19 October 2026</div>
+        </div>
+        <div class="cta">Secure Your Seat</div>
+      </div>
+      <div class="swipe-up">thrivingthroughmenopause.com.au</div>
+    </div>
+  </div>
+
+</body>
+</html>
