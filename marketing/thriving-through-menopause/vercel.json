@@ -1,4 +1,4 @@
 {
-  "cleanUrls": false,
-  "trailingSlash": false
+  "buildCommand": "true",
+  "outputDirectory": "."
 }

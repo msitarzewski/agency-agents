@@ -1,9 +1,4 @@
 {
-  "builds": [
-    { "src": "marketing/thriving-through-menopause/**/*.html", "use": "@vercel/static" },
-    { "src": "marketing/thriving-through-menopause/**/*.md", "use": "@vercel/static" }
-  ],
-  "rewrites": [
-    { "source": "/(.*)", "destination": "/marketing/thriving-through-menopause/$1" }
-  ]
+  "buildCommand": "true",
+  "outputDirectory": "marketing/thriving-through-menopause"
 }
