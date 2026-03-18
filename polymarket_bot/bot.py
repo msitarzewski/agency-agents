@@ -164,8 +164,8 @@ class PolymarketLPBot:
         Returns number of positions settled.
         """
         now = time.time()
-        # Throttle to once per 60 s (same as copytrader.py)
-        if now - self._last_settle_check < 60:
+        # Throttle to once per 5 s — tight enough to catch 5-min market resolutions
+        if now - self._last_settle_check < 5:
             return 0
         self._last_settle_check = now
 

@@ -72,13 +72,20 @@ def _fmt_ts(ts_str: str) -> str:
 
 def build_state(rows: list[dict]) -> dict:
     buys    = [r for r in rows if r.get("side") == "BUY"]
-    settles = [r for r in rows if r.get("side") == "SETTLE"]
+    # Treat both SETTLE and TP (take-profit) rows as closed positions
+    settles = [r for r in rows if r.get("side") in ("SETTLE", "TP")]
 
-    wins   = [s for s in settles if _safe_float(s.get("fill_price")) >= 0.99]
-    losses = [s for s in settles if _safe_float(s.get("fill_price")) < 0.01]
+    def _is_win(r: dict) -> bool:
+        if r.get("side") == "TP":
+            return _safe_float(r.get("pnl_usdc")) > 0
+        return _safe_float(r.get("fill_price")) >= 0.99
 
+    wins   = [s for s in settles if _is_win(s)]
+    losses = [s for s in settles if not _is_win(s)]
+
+    # A position is closed if we have any SETTLE or TP exit for that market+outcome
     settled_keys = {(s["market_id"], s["outcome"]) for s in settles}
-    open_buys = [b for b in buys if (b.get("market_id"), b.get("outcome")) not in settled_keys]
+    open_buys = [b for b in buys if (b.get("market_id",""), b.get("outcome","")) not in settled_keys]
 
     total_pnl      = sum(_safe_float(s.get("pnl_usdc")) for s in settles)
     total_invested = sum(_safe_float(b.get("size_usdc")) for b in buys)
@@ -133,8 +140,11 @@ def build_state(rows: list[dict]) -> dict:
             fp = _safe_float(r.get("fill_price"))
             status = "settled"
             result = "win" if fp >= 0.99 else "loss"
+        elif side == "TP":
+            status = "settled"
+            result = "win" if _safe_float(r.get("pnl_usdc")) > 0 else "loss"
         else:
-            status = "open" if (r.get("market_id"), r.get("outcome")) not in settled_keys else "settled"
+            status = "open" if (r.get("market_id",""), r.get("outcome","")) not in settled_keys else "settled"
             result = ""
 
         trade_history.append({
@@ -258,13 +268,25 @@ async def export_trades():
               "market_end_ts","payout_price","pnl_usdc","settled_at","result"]
     w = csv.DictWriter(buf, fieldnames=fields, extrasaction="ignore")
     w.writeheader()
-    settles = {(r["market_id"], r["outcome"]): r for r in rows if r.get("side") == "SETTLE"}
+    # Include both SETTLE and TP (take-profit) rows as exit events
+    settles = {
+        (r["market_id"], r["outcome"]): r
+        for r in rows if r.get("side") in ("SETTLE", "TP")
+    }
     for r in rows:
         if r.get("side") != "BUY":
             continue
         key = (r.get("market_id",""), r.get("outcome",""))
         s   = settles.get(key)
-        fp  = _safe_float(s["fill_price"]) if s else None
+        if s:
+            if s.get("side") == "TP":
+                is_win = _safe_float(s.get("pnl_usdc")) > 0
+            else:
+                fp = _safe_float(s["fill_price"])
+                is_win = fp >= 0.99
+            result = "WIN" if is_win else "LOSS"
+        else:
+            result = "OPEN"
         w.writerow({
             "timestamp":   r.get("timestamp",""),
             "market":      _short_q(r.get("question","")),
@@ -276,7 +298,7 @@ async def export_trades():
             "payout_price":  s["fill_price"] if s else "",
             "pnl_usdc":      s["pnl_usdc"]   if s else "",
             "settled_at":    s["timestamp"]   if s else "",
-            "result":        ("WIN" if fp and fp >= 0.99 else "LOSS" if fp is not None else "OPEN"),
+            "result":        result,
         })
     fname = f"bot_trades_{datetime.now().strftime('%Y%m%d_%H%M%S')}.csv"
     return Response(
