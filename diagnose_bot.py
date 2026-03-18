@@ -130,40 +130,82 @@ async def main():
     print(f"Markets with vol > $100: {sum(1 for v in vols if v > 100)}")
 
     print("\n" + "=" * 60)
-    print("STEP 3 — BTC/XRP/SOL price-feed markets (any filter level)")
+    print("STEP 3 — BTC/XRP/SOL price-feed markets (deep search)")
     print("=" * 60)
 
     COIN_TERMS = ["bitcoin", "btc", "xrp", "ripple", "solana", "sol"]
-    TF_TERMS   = ["5 min", "5min", "15 min", "15min", "1 hour", "1hr",
-                  "60 min", "hourly", "daily", "will btc", "will xrp", "will sol",
-                  "price", "above", "below", "reach", "hit $", "end above", "end below"]
+
+    # Targeted API keyword search for each coin
+    search_results: list[dict] = []
+    seen_ids: set = set()
+    async with httpx.AsyncClient(timeout=15) as client:
+        for keyword in ["bitcoin", "BTC", "XRP", "solana", "SOL"]:
+            try:
+                r = await client.get(
+                    f"{GAMMA_API}/markets",
+                    params={"active": "true", "closed": "false",
+                            "limit": 50, "search": keyword},
+                )
+                if r.status_code == 200:
+                    for m in r.json():
+                        if m.get("id") not in seen_ids:
+                            seen_ids.add(m.get("id"))
+                            search_results.append(m)
+            except Exception as e:
+                print(f"  search '{keyword}' failed: {e}")
+
+    # Paginate up to 500 markets total
+    scanned = list(all_markets)
+    offset = 100
+    async with httpx.AsyncClient(timeout=15) as client:
+        while offset < 500:
+            try:
+                r = await client.get(
+                    f"{GAMMA_API}/markets",
+                    params={"active": "true", "closed": "false",
+                            "limit": 100, "offset": offset},
+                )
+                r.raise_for_status()
+                batch = r.json()
+                if not batch:
+                    break
+                scanned.extend(batch)
+                offset += 100
+                await asyncio.sleep(0.1)
+            except Exception:
+                break
+
+    print(f"Total markets scanned (paginated): {len(scanned)}")
+
+    # Merge keyword-search results
+    scanned_ids = {x.get("id") for x in scanned}
+    for m in search_results:
+        if m.get("id") not in scanned_ids:
+            scanned.append(m)
+    print(f"Total markets after search merge:  {len(scanned)}")
 
     coin_matches = []
-    for m in all_markets:
+    for m in scanned:
         q = (m.get("question") or "").lower()
         if any(t in q for t in COIN_TERMS):
             coin_matches.append(m)
 
-    print(f"Markets mentioning BTC/XRP/SOL: {len(coin_matches)}")
-
-    tf_matches = [
-        m for m in coin_matches
-        if any(t in (m.get("question") or "").lower() for t in TF_TERMS)
-    ]
-    print(f"  ...also mentioning price/time:  {len(tf_matches)}")
+    print(f"\nMarkets mentioning BTC/XRP/SOL: {len(coin_matches)}")
 
     if coin_matches:
-        print("\nAll crypto-related market questions (no filter):")
-        for m in coin_matches[:30]:
+        print("\nAll crypto-related markets (sorted by volume):")
+        for m in sorted(coin_matches,
+                        key=lambda x: float(x.get("volumeNum") or x.get("volume") or 0),
+                        reverse=True)[:40]:
             vol  = float(m.get("volumeNum") or m.get("volume") or 0)
             sprd = m.get("spread", "?")
             yes  = float((parse_prices(m.get("outcomePrices", [])) or [0])[0])
-            print(f"  [{vol:>12,.0f} vol | sprd={sprd} | yes={yes:.2f}] {m.get('question', '')}")
+            act  = "ACTIVE  " if m.get("active") else "inactive"
+            print(f"  [{act} | {vol:>12,.0f} vol | sprd={sprd} | yes={yes:.2f}] {m.get('question', '')}")
     else:
-        print("\nNO crypto markets found in this batch of 100.")
-        print("This means BTC/XRP/SOL price-feed markets are NOT available on")
-        print("Polymarket right now, or are outside the top-100 active markets.")
-        print("\nTIP: Set MARKET_KEYWORDS= in your .env to trade all 44 qualifying markets.")
+        print("\nNO crypto markets found across 500+ markets + keyword search.")
+        print("BTC/XRP/SOL price-feed markets are not currently on Polymarket.")
+        print("TIP: Clear MARKET_KEYWORDS= in .env to trade the available markets.")
 
     print("\n" + "=" * 60)
     print("STEP 4 — Volume field names actually present")
