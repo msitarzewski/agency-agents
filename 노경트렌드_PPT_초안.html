@@ -1,0 +1,2210 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>2025 노경 환경 트렌드 & 대응 전략</title>
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body {
+  background: #060e17;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+  font-family: 'Malgun Gothic', 'Apple SD Gothic Neo', sans-serif;
+  overflow: hidden;
+}
+.presentation-wrapper {
+  position: relative;
+  width: 960px;
+  height: 540px;
+}
+.slide {
+  display: none;
+  width: 960px;
+  height: 540px;
+  background: #0d1b2a;
+  position: relative;
+  overflow: hidden;
+  flex-direction: column;
+}
+.slide.active { display: flex; }
+
+/* Progress bar */
+#progress-bar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  height: 3px;
+  background: linear-gradient(90deg, #e63946, #4cc9f0);
+  transition: width 0.3s ease;
+  z-index: 100;
+}
+
+/* Section indicator */
+.section-bar {
+  display: flex;
+  gap: 4px;
+  padding: 8px 16px;
+  background: rgba(255,255,255,0.04);
+  border-bottom: 1px solid rgba(255,255,255,0.07);
+  flex-shrink: 0;
+}
+.section-pill {
+  font-size: 10px;
+  padding: 2px 10px;
+  border-radius: 10px;
+  color: rgba(255,255,255,0.4);
+  background: rgba(255,255,255,0.06);
+  letter-spacing: 0.05em;
+}
+.section-pill.active {
+  background: #e63946;
+  color: #fff;
+}
+
+/* Slide number */
+.slide-num {
+  position: absolute;
+  bottom: 14px;
+  right: 20px;
+  font-size: 11px;
+  color: rgba(255,255,255,0.3);
+  letter-spacing: 0.1em;
+  z-index: 10;
+}
+
+/* Nav arrows */
+.nav-btn {
+  position: fixed;
+  top: 50%;
+  transform: translateY(-50%);
+  background: rgba(255,255,255,0.07);
+  border: 1px solid rgba(255,255,255,0.12);
+  color: rgba(255,255,255,0.6);
+  width: 36px;
+  height: 60px;
+  cursor: pointer;
+  font-size: 18px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 4px;
+  transition: all 0.2s;
+  z-index: 200;
+}
+.nav-btn:hover { background: rgba(255,255,255,0.14); color: #fff; }
+#btn-prev { left: calc(50% - 520px); }
+#btn-next { right: calc(50% - 520px); }
+
+/* Slide content area */
+.slide-content {
+  flex: 1;
+  padding: 28px 48px 36px;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+/* Typography */
+.slide-title {
+  font-size: 26px;
+  font-weight: 700;
+  color: #ffffff;
+  margin-bottom: 6px;
+  line-height: 1.2;
+}
+.slide-subtitle {
+  font-size: 13px;
+  color: #4cc9f0;
+  margin-bottom: 20px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+.accent-red { color: #e63946; }
+.accent-cyan { color: #4cc9f0; }
+.accent-yellow { color: #f8c100; }
+
+/* --- SLIDE 00: Cover --- */
+.cover-bg {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(135deg, #0d1b2a 0%, #1a2e45 50%, #0a1520 100%);
+  z-index: 0;
+}
+.cover-lines {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  opacity: 0.15;
+}
+.cover-content {
+  position: relative;
+  z-index: 2;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 40px;
+}
+.cover-tag {
+  font-size: 11px;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: #4cc9f0;
+  background: rgba(76,201,240,0.12);
+  padding: 4px 16px;
+  border-radius: 20px;
+  margin-bottom: 24px;
+  border: 1px solid rgba(76,201,240,0.3);
+}
+.cover-title {
+  font-size: 38px;
+  font-weight: 800;
+  color: #ffffff;
+  line-height: 1.2;
+  margin-bottom: 16px;
+}
+.cover-title span { color: #e63946; }
+.cover-subtitle {
+  font-size: 16px;
+  color: rgba(255,255,255,0.65);
+  margin-bottom: 32px;
+}
+.cover-date {
+  font-size: 12px;
+  color: rgba(255,255,255,0.35);
+  letter-spacing: 0.1em;
+}
+.cover-divider {
+  width: 60px;
+  height: 3px;
+  background: linear-gradient(90deg, #e63946, #4cc9f0);
+  margin: 0 auto 28px;
+  border-radius: 2px;
+}
+
+/* --- SLIDE 01: TOC --- */
+.toc-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 14px;
+  flex: 1;
+}
+.toc-card {
+  background: rgba(255,255,255,0.04);
+  border: 1px solid rgba(255,255,255,0.1);
+  border-radius: 8px;
+  padding: 18px 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  transition: border-color 0.2s;
+}
+.toc-card:hover { border-color: rgba(76,201,240,0.4); }
+.toc-part-label {
+  font-size: 10px;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  color: #4cc9f0;
+  font-weight: 600;
+}
+.toc-card-title {
+  font-size: 15px;
+  font-weight: 700;
+  color: #fff;
+}
+.toc-card-slides {
+  font-size: 11px;
+  color: rgba(255,255,255,0.4);
+}
+.toc-card-items {
+  list-style: none;
+  margin-top: 6px;
+}
+.toc-card-items li {
+  font-size: 11px;
+  color: rgba(255,255,255,0.55);
+  padding: 2px 0;
+  padding-left: 12px;
+  position: relative;
+}
+.toc-card-items li::before {
+  content: '▸';
+  position: absolute;
+  left: 0;
+  color: #e63946;
+  font-size: 9px;
+  top: 3px;
+}
+.toc-num {
+  font-size: 40px;
+  font-weight: 900;
+  color: rgba(255,255,255,0.06);
+  position: absolute;
+  right: 14px;
+  top: 10px;
+}
+
+/* --- KPI Cards --- */
+.kpi-row {
+  display: flex;
+  gap: 16px;
+  margin-bottom: 20px;
+}
+.kpi-card {
+  flex: 1;
+  background: rgba(255,255,255,0.04);
+  border: 1px solid rgba(255,255,255,0.1);
+  border-radius: 8px;
+  padding: 16px 18px;
+  border-top: 3px solid #e63946;
+}
+.kpi-card.cyan { border-top-color: #4cc9f0; }
+.kpi-card.yellow { border-top-color: #f8c100; }
+.kpi-label {
+  font-size: 11px;
+  color: rgba(255,255,255,0.5);
+  margin-bottom: 8px;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+.kpi-value {
+  font-size: 30px;
+  font-weight: 800;
+  color: #fff;
+  line-height: 1;
+  margin-bottom: 6px;
+}
+.kpi-desc {
+  font-size: 11px;
+  color: rgba(255,255,255,0.45);
+  line-height: 1.4;
+}
+
+/* --- Timeline --- */
+.timeline {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  flex: 1;
+}
+.tl-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 16px;
+}
+.tl-year {
+  font-size: 13px;
+  font-weight: 700;
+  color: #4cc9f0;
+  min-width: 50px;
+  padding-top: 2px;
+}
+.tl-dot-line {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0;
+}
+.tl-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: #e63946;
+  border: 2px solid #e63946;
+  flex-shrink: 0;
+  margin-top: 4px;
+}
+.tl-line {
+  width: 2px;
+  flex: 1;
+  background: rgba(255,255,255,0.1);
+  min-height: 20px;
+}
+.tl-body {
+  flex: 1;
+}
+.tl-title {
+  font-size: 13px;
+  font-weight: 600;
+  color: #fff;
+  margin-bottom: 2px;
+}
+.tl-text {
+  font-size: 11px;
+  color: rgba(255,255,255,0.5);
+  line-height: 1.4;
+}
+
+/* --- Bar Chart --- */
+.bar-chart {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  gap: 10px;
+}
+.bar-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.bar-label {
+  font-size: 12px;
+  color: rgba(255,255,255,0.6);
+  min-width: 42px;
+  text-align: right;
+}
+.bar-track {
+  flex: 1;
+  height: 28px;
+  background: rgba(255,255,255,0.05);
+  border-radius: 4px;
+  overflow: hidden;
+  position: relative;
+}
+.bar-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #e63946, #c8202e);
+  border-radius: 4px;
+  display: flex;
+  align-items: center;
+  padding-right: 8px;
+  justify-content: flex-end;
+  transition: width 0.6s ease;
+}
+.bar-fill.cyan {
+  background: linear-gradient(90deg, #4cc9f0, #2da8d0);
+}
+.bar-val {
+  font-size: 12px;
+  font-weight: 700;
+  color: #fff;
+}
+.bar-note {
+  font-size: 10px;
+  color: rgba(255,255,255,0.35);
+  min-width: 80px;
+}
+
+/* --- Info box --- */
+.info-box {
+  background: rgba(230,57,70,0.08);
+  border: 1px solid rgba(230,57,70,0.25);
+  border-left: 4px solid #e63946;
+  border-radius: 6px;
+  padding: 12px 16px;
+  font-size: 12px;
+  color: rgba(255,255,255,0.7);
+  line-height: 1.5;
+  margin-top: auto;
+}
+.info-box.cyan {
+  background: rgba(76,201,240,0.08);
+  border-color: rgba(76,201,240,0.25);
+  border-left-color: #4cc9f0;
+}
+
+/* --- Two-column layout --- */
+.two-col {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+  flex: 1;
+}
+.col-card {
+  background: rgba(255,255,255,0.03);
+  border: 1px solid rgba(255,255,255,0.08);
+  border-radius: 8px;
+  padding: 16px 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.col-card-title {
+  font-size: 14px;
+  font-weight: 700;
+  color: #4cc9f0;
+  margin-bottom: 4px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.tag-badge {
+  font-size: 9px;
+  background: rgba(230,57,70,0.2);
+  color: #e63946;
+  border: 1px solid rgba(230,57,70,0.3);
+  padding: 1px 6px;
+  border-radius: 10px;
+  letter-spacing: 0.05em;
+}
+.bullet-list {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.bullet-list li {
+  font-size: 11px;
+  color: rgba(255,255,255,0.65);
+  padding-left: 14px;
+  position: relative;
+  line-height: 1.4;
+}
+.bullet-list li::before {
+  content: '•';
+  position: absolute;
+  left: 0;
+  color: #e63946;
+}
+.bullet-list li span { color: #fff; font-weight: 600; }
+
+/* --- Case slide --- */
+.case-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 16px;
+}
+.case-logo-box {
+  width: 44px;
+  height: 44px;
+  background: rgba(255,255,255,0.08);
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 18px;
+  font-weight: 900;
+  color: #4cc9f0;
+}
+.case-meta {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+.case-company {
+  font-size: 20px;
+  font-weight: 800;
+  color: #fff;
+}
+.case-tag {
+  font-size: 10px;
+  color: rgba(255,255,255,0.4);
+  letter-spacing: 0.08em;
+}
+.case-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  flex: 1;
+}
+.case-item {
+  background: rgba(255,255,255,0.03);
+  border: 1px solid rgba(255,255,255,0.08);
+  border-radius: 6px;
+  padding: 12px 14px;
+}
+.case-item-label {
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: #4cc9f0;
+  margin-bottom: 6px;
+}
+.case-item-text {
+  font-size: 12px;
+  color: rgba(255,255,255,0.7);
+  line-height: 1.5;
+}
+.case-item-text strong { color: #fff; }
+.case-highlight {
+  background: rgba(230,57,70,0.07);
+  border: 1px solid rgba(230,57,70,0.2);
+  border-radius: 6px;
+  padding: 10px 14px;
+  font-size: 12px;
+  color: rgba(255,255,255,0.75);
+  line-height: 1.5;
+  grid-column: 1 / -1;
+}
+.case-highlight strong { color: #f8c100; }
+
+/* --- UAW Table --- */
+.data-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 12px;
+}
+.data-table th {
+  background: rgba(76,201,240,0.12);
+  color: #4cc9f0;
+  padding: 8px 12px;
+  text-align: left;
+  font-size: 11px;
+  letter-spacing: 0.06em;
+  border-bottom: 1px solid rgba(76,201,240,0.2);
+}
+.data-table td {
+  padding: 9px 12px;
+  border-bottom: 1px solid rgba(255,255,255,0.06);
+  color: rgba(255,255,255,0.75);
+}
+.data-table tr:hover td { background: rgba(255,255,255,0.03); }
+.check { color: #4cc9f0; font-weight: 700; }
+.warn { color: #f8c100; }
+
+/* --- Risk Matrix --- */
+.matrix-wrap {
+  flex: 1;
+  display: flex;
+  gap: 16px;
+  align-items: stretch;
+}
+.matrix-grid {
+  flex: 1;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  grid-template-rows: 1fr 1fr;
+  gap: 8px;
+  position: relative;
+}
+.matrix-cell {
+  border-radius: 8px;
+  padding: 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.m-high-high { background: rgba(230,57,70,0.15); border: 1px solid rgba(230,57,70,0.35); }
+.m-low-high { background: rgba(248,193,0,0.1); border: 1px solid rgba(248,193,0,0.25); }
+.m-high-low { background: rgba(76,201,240,0.08); border: 1px solid rgba(76,201,240,0.2); }
+.m-low-low { background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08); }
+.matrix-cell-label {
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  font-weight: 700;
+  margin-bottom: 4px;
+}
+.m-high-high .matrix-cell-label { color: #e63946; }
+.m-low-high .matrix-cell-label { color: #f8c100; }
+.m-high-low .matrix-cell-label { color: #4cc9f0; }
+.m-low-low .matrix-cell-label { color: rgba(255,255,255,0.4); }
+.matrix-item {
+  font-size: 11px;
+  color: rgba(255,255,255,0.7);
+  padding-left: 12px;
+  position: relative;
+  line-height: 1.4;
+}
+.matrix-item::before {
+  content: '▸';
+  position: absolute;
+  left: 0;
+  font-size: 9px;
+  color: inherit;
+  opacity: 0.7;
+}
+.matrix-axis {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  padding: 4px 0;
+  min-width: 24px;
+}
+.axis-label {
+  font-size: 10px;
+  color: rgba(255,255,255,0.35);
+  writing-mode: vertical-rl;
+  text-orientation: mixed;
+  transform: rotate(180deg);
+  letter-spacing: 0.08em;
+  align-self: center;
+}
+
+/* --- Roadmap --- */
+.roadmap {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 14px;
+  flex: 1;
+}
+.road-phase {
+  background: rgba(255,255,255,0.03);
+  border: 1px solid rgba(255,255,255,0.08);
+  border-radius: 8px;
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.road-phase-label {
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  font-weight: 700;
+  margin-bottom: 4px;
+}
+.phase-short .road-phase-label { color: #e63946; }
+.phase-mid .road-phase-label { color: #f8c100; }
+.phase-long .road-phase-label { color: #4cc9f0; }
+.road-phase-title {
+  font-size: 14px;
+  font-weight: 700;
+  color: #fff;
+  margin-bottom: 8px;
+}
+.road-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  font-size: 11px;
+  color: rgba(255,255,255,0.65);
+  line-height: 1.4;
+}
+.road-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  flex-shrink: 0;
+  margin-top: 4px;
+}
+.phase-short .road-dot { background: #e63946; }
+.phase-mid .road-dot { background: #f8c100; }
+.phase-long .road-dot { background: #4cc9f0; }
+
+/* --- Action Cards --- */
+.action-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  flex: 1;
+}
+.action-card {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  background: rgba(255,255,255,0.03);
+  border: 1px solid rgba(255,255,255,0.08);
+  border-radius: 8px;
+  padding: 12px 16px;
+  transition: border-color 0.2s;
+}
+.action-card:hover { border-color: rgba(76,201,240,0.3); }
+.action-num {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 14px;
+  font-weight: 800;
+  flex-shrink: 0;
+}
+.an-1 { background: rgba(230,57,70,0.2); color: #e63946; border: 1px solid rgba(230,57,70,0.4); }
+.an-2 { background: rgba(230,57,70,0.14); color: #e63946; border: 1px solid rgba(230,57,70,0.3); }
+.an-3 { background: rgba(248,193,0,0.15); color: #f8c100; border: 1px solid rgba(248,193,0,0.3); }
+.an-4 { background: rgba(76,201,240,0.15); color: #4cc9f0; border: 1px solid rgba(76,201,240,0.3); }
+.an-5 { background: rgba(76,201,240,0.1); color: #4cc9f0; border: 1px solid rgba(76,201,240,0.25); }
+.action-body { flex: 1; }
+.action-title {
+  font-size: 14px;
+  font-weight: 700;
+  color: #fff;
+  margin-bottom: 3px;
+}
+.action-desc {
+  font-size: 11px;
+  color: rgba(255,255,255,0.5);
+  line-height: 1.4;
+}
+.action-tag {
+  font-size: 10px;
+  padding: 3px 10px;
+  border-radius: 10px;
+  background: rgba(76,201,240,0.1);
+  color: #4cc9f0;
+  border: 1px solid rgba(76,201,240,0.2);
+  white-space: nowrap;
+}
+
+/* --- Conclusion --- */
+.concl-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  flex: 1;
+}
+.concl-item {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  background: rgba(255,255,255,0.03);
+  border: 1px solid rgba(255,255,255,0.08);
+  border-radius: 8px;
+  padding: 12px 18px;
+}
+.concl-icon {
+  font-size: 22px;
+  width: 38px;
+  text-align: center;
+  flex-shrink: 0;
+}
+.concl-text {
+  flex: 1;
+  font-size: 13px;
+  color: rgba(255,255,255,0.8);
+  line-height: 1.4;
+}
+.concl-text strong { color: #fff; }
+.qa-box {
+  background: linear-gradient(90deg, rgba(230,57,70,0.1), rgba(76,201,240,0.1));
+  border: 1px solid rgba(255,255,255,0.12);
+  border-radius: 8px;
+  padding: 14px 20px;
+  text-align: center;
+  margin-top: 14px;
+}
+.qa-box-title {
+  font-size: 22px;
+  font-weight: 800;
+  color: #fff;
+  letter-spacing: 0.1em;
+}
+.qa-box-sub {
+  font-size: 11px;
+  color: rgba(255,255,255,0.4);
+  margin-top: 4px;
+}
+
+/* --- SVG Donut --- */
+.donut-wrap {
+  display: flex;
+  align-items: center;
+  gap: 24px;
+  flex: 1;
+}
+.donut-legend {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.legend-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 12px;
+  color: rgba(255,255,255,0.7);
+}
+.legend-dot {
+  width: 12px;
+  height: 12px;
+  border-radius: 2px;
+  flex-shrink: 0;
+}
+.legend-pct { font-weight: 700; color: #fff; margin-left: 4px; }
+
+/* Global stat cards */
+.global-kpi {
+  display: flex;
+  gap: 14px;
+  margin-bottom: 18px;
+}
+.g-kpi-card {
+  flex: 1;
+  background: rgba(255,255,255,0.04);
+  border: 1px solid rgba(255,255,255,0.1);
+  border-radius: 8px;
+  padding: 14px 16px;
+  border-left: 3px solid #4cc9f0;
+}
+.g-kpi-val {
+  font-size: 24px;
+  font-weight: 800;
+  color: #4cc9f0;
+  margin-bottom: 4px;
+}
+.g-kpi-label {
+  font-size: 11px;
+  color: rgba(255,255,255,0.5);
+  line-height: 1.4;
+}
+
+/* UAW timeline */
+.uaw-timeline {
+  display: flex;
+  align-items: flex-start;
+  gap: 0;
+  position: relative;
+  margin: 16px 0;
+}
+.uaw-timeline::before {
+  content: '';
+  position: absolute;
+  top: 16px;
+  left: 80px;
+  right: 0;
+  height: 2px;
+  background: rgba(255,255,255,0.1);
+}
+.uaw-ev {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  position: relative;
+  z-index: 1;
+}
+.uaw-ev-dot {
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background: #e63946;
+  border: 2px solid #fff;
+  flex-shrink: 0;
+}
+.uaw-ev-text {
+  font-size: 10px;
+  color: rgba(255,255,255,0.6);
+  text-align: center;
+  line-height: 1.4;
+}
+.uaw-ev-date {
+  font-size: 10px;
+  font-weight: 700;
+  color: #4cc9f0;
+}
+
+/* EV factory map */
+.factory-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  flex: 1;
+}
+.factory-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  background: rgba(255,255,255,0.03);
+  border: 1px solid rgba(255,255,255,0.08);
+  border-radius: 6px;
+  padding: 10px 14px;
+}
+.factory-company {
+  font-size: 13px;
+  font-weight: 700;
+  color: #fff;
+  min-width: 140px;
+}
+.factory-loc {
+  font-size: 11px;
+  color: rgba(255,255,255,0.45);
+  flex: 1;
+}
+.factory-status {
+  font-size: 10px;
+  padding: 3px 10px;
+  border-radius: 10px;
+  font-weight: 600;
+  white-space: nowrap;
+}
+.status-risk { background: rgba(230,57,70,0.2); color: #e63946; border: 1px solid rgba(230,57,70,0.3); }
+.status-safe { background: rgba(76,201,240,0.15); color: #4cc9f0; border: 1px solid rgba(76,201,240,0.25); }
+.status-watch { background: rgba(248,193,0,0.15); color: #f8c100; border: 1px solid rgba(248,193,0,0.25); }
+.status-apply { background: rgba(76,201,240,0.08); color: rgba(76,201,240,0.8); border: 1px solid rgba(76,201,240,0.15); }
+
+/* Implications bubbles */
+.impl-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  flex: 1;
+}
+.impl-card {
+  background: rgba(255,255,255,0.04);
+  border: 1px solid rgba(255,255,255,0.1);
+  border-radius: 8px;
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.impl-num {
+  font-size: 28px;
+  font-weight: 900;
+  color: rgba(230,57,70,0.25);
+  line-height: 1;
+}
+.impl-title {
+  font-size: 13px;
+  font-weight: 700;
+  color: #fff;
+}
+.impl-text {
+  font-size: 11px;
+  color: rgba(255,255,255,0.55);
+  line-height: 1.5;
+}
+
+/* Decorative line pattern for cover */
+.line-pattern line {
+  stroke: rgba(76,201,240,0.4);
+  stroke-width: 1;
+}
+
+</style>
+</head>
+<body>
+
+<div id="progress-bar"></div>
+<button class="nav-btn" id="btn-prev" onclick="navigate(-1)">&#8592;</button>
+<button class="nav-btn" id="btn-next" onclick="navigate(1)">&#8594;</button>
+
+<div class="presentation-wrapper">
+
+<!-- SLIDE 00: Cover -->
+<div class="slide active" data-index="0" data-section="cover">
+  <div class="cover-bg"></div>
+  <svg class="cover-lines" viewBox="0 0 960 540" preserveAspectRatio="none">
+    <line x1="0" y1="100" x2="960" y2="200" stroke="#4cc9f0" stroke-width="0.5" opacity="0.3"/>
+    <line x1="0" y1="300" x2="960" y2="150" stroke="#4cc9f0" stroke-width="0.5" opacity="0.2"/>
+    <line x1="0" y1="450" x2="960" y2="380" stroke="#e63946" stroke-width="0.5" opacity="0.2"/>
+    <line x1="200" y1="0" x2="400" y2="540" stroke="#4cc9f0" stroke-width="0.5" opacity="0.15"/>
+    <line x1="600" y1="0" x2="800" y2="540" stroke="#4cc9f0" stroke-width="0.5" opacity="0.15"/>
+    <circle cx="800" cy="120" r="180" fill="none" stroke="#4cc9f0" stroke-width="0.5" opacity="0.1"/>
+    <circle cx="800" cy="120" r="120" fill="none" stroke="#e63946" stroke-width="0.5" opacity="0.1"/>
+    <circle cx="800" cy="120" r="60" fill="none" stroke="#4cc9f0" stroke-width="0.5" opacity="0.15"/>
+  </svg>
+  <div class="cover-content">
+    <div class="cover-tag">Labour Relations Intelligence Report</div>
+    <div class="cover-title">2025 <span>노경 환경 트렌드</span><br>&amp; 대응 전략</div>
+    <div class="cover-divider"></div>
+    <div class="cover-subtitle">국내외 노사관계 변화와 선제적 리스크 관리</div>
+    <div class="cover-date">2025년 상반기 &nbsp;|&nbsp; 노동관계(노경) 전략팀</div>
+  </div>
+  <div class="slide-num">00 / 19</div>
+</div>
+
+<!-- SLIDE 01: 목차 -->
+<div class="slide" data-index="1" data-section="cover">
+  <div class="section-bar">
+    <span class="section-pill active">목차</span>
+    <span class="section-pill">Part 1</span>
+    <span class="section-pill">Part 2</span>
+    <span class="section-pill">Part 3</span>
+    <span class="section-pill">Part 4</span>
+  </div>
+  <div class="slide-content">
+    <div class="slide-title">목차</div>
+    <div class="slide-subtitle">Contents Overview</div>
+    <div class="toc-grid">
+      <div class="toc-card" style="border-top:3px solid #e63946; position:relative;">
+        <span class="toc-num">1</span>
+        <div class="toc-part-label">Part 1 &nbsp;·&nbsp; Slide 02–05</div>
+        <div class="toc-card-title">국내 노동환경 변화</div>
+        <ul class="toc-card-items">
+          <li>국내 노동환경 총괄 (3대 키워드)</li>
+          <li>주요 노동법 개정 동향</li>
+          <li>노조 조직률 트렌드</li>
+          <li>산업별 쟁의 현황</li>
+        </ul>
+      </div>
+      <div class="toc-card" style="border-top:3px solid #4cc9f0; position:relative;">
+        <span class="toc-num">2</span>
+        <div class="toc-part-label">Part 2 &nbsp;·&nbsp; Slide 06–09</div>
+        <div class="toc-card-title">주요 타사 노경 사례</div>
+        <ul class="toc-card-items">
+          <li>현대자동차 임단협 패턴</li>
+          <li>삼성전자 첫 파업과 재설정</li>
+          <li>LG에너지솔루션 배터리 노조</li>
+          <li>쿠팡·카카오 물류·플랫폼 사례</li>
+        </ul>
+      </div>
+      <div class="toc-card" style="border-top:3px solid #f8c100; position:relative;">
+        <span class="toc-num">3</span>
+        <div class="toc-part-label">Part 3 &nbsp;·&nbsp; Slide 10–14</div>
+        <div class="toc-card-title">해외 노사 동향</div>
+        <ul class="toc-card-items">
+          <li>글로벌 노조 르네상스 총론</li>
+          <li>UAW 파업 심층 분석</li>
+          <li>배터리·EV 공장 노조화 현황</li>
+          <li>유럽 IG Metall·CGT 사례</li>
+        </ul>
+      </div>
+      <div class="toc-card" style="border-top:3px solid rgba(255,255,255,0.3); position:relative;">
+        <span class="toc-num">4</span>
+        <div class="toc-part-label">Part 4 &nbsp;·&nbsp; Slide 15–18</div>
+        <div class="toc-card-title">시사점 &amp; 대응 전략</div>
+        <ul class="toc-card-items">
+          <li>국내외 공통 압력 종합</li>
+          <li>리스크 매트릭스 (2×2)</li>
+          <li>단기·중기·장기 로드맵</li>
+          <li>실행 과제 Top 5</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+  <div class="slide-num">01 / 19</div>
+</div>
+
+<!-- SLIDE 02: 국내 노동환경 총괄 -->
+<div class="slide" data-index="2" data-section="part1">
+  <div class="section-bar">
+    <span class="section-pill">Cover</span>
+    <span class="section-pill active">Part 1</span>
+    <span class="section-pill">Part 2</span>
+    <span class="section-pill">Part 3</span>
+    <span class="section-pill">Part 4</span>
+  </div>
+  <div class="slide-content">
+    <div class="slide-title">국내 노동환경 총괄</div>
+    <div class="slide-subtitle">Part 1 — Domestic Labour Environment Overview</div>
+    <div class="kpi-row">
+      <div class="kpi-card">
+        <div class="kpi-label">법·제도 강화 압력</div>
+        <div class="kpi-value"><span class="accent-red">▲</span> 고조</div>
+        <div class="kpi-desc">중대재해처벌법 적용 확대<br>52시간제 보완 논의 지속<br>노조법 2·3조 개정 추진</div>
+      </div>
+      <div class="kpi-card cyan">
+        <div class="kpi-label">노조 조직률 (2023년)</div>
+        <div class="kpi-value accent-cyan">14.2%</div>
+        <div class="kpi-desc">고용노동부 공식 발표<br>500인↑ 사업장 조직률 47.8%<br>복수노조 사업장 비율 증가세</div>
+      </div>
+      <div class="kpi-card yellow">
+        <div class="kpi-label">연간 쟁의건수 (2023년)</div>
+        <div class="kpi-value accent-yellow">167건</div>
+        <div class="kpi-desc">전년 대비 <strong style="color:#f8c100">+18%</strong> 급증<br>제조·물류 업종 집중<br>파업 장기화 사례 증가</div>
+      </div>
+    </div>
+    <div class="info-box">
+      <strong style="color:#e63946">3대 압력의 동시 작동</strong> &nbsp;—&nbsp; 
+      법제도 강화로 기업 부담 증가 / 노조 세력 확대로 교섭력 상승 / 고용유연화 규제로 경영 탄력성 저하.<br>
+      이 세 가지 구조적 압력이 동시에 작동하며 노경 리스크가 복합화되고 있음. 선제적 전략 수립이 시급.
+    </div>
+  </div>
+  <div class="slide-num">02 / 19</div>
+</div>
+
+<!-- SLIDE 03: 주요 노동법 개정 동향 -->
+<div class="slide" data-index="3" data-section="part1">
+  <div class="section-bar">
+    <span class="section-pill">Cover</span>
+    <span class="section-pill active">Part 1</span>
+    <span class="section-pill">Part 2</span>
+    <span class="section-pill">Part 3</span>
+    <span class="section-pill">Part 4</span>
+  </div>
+  <div class="slide-content">
+    <div class="slide-title">주요 노동법 개정 동향</div>
+    <div class="slide-subtitle">Part 1 — Key Labour Law Amendments Timeline</div>
+    <div class="timeline">
+      <div class="tl-item">
+        <div class="tl-year">2021</div>
+        <div class="tl-dot-line"><div class="tl-dot"></div><div class="tl-line"></div></div>
+        <div class="tl-body">
+          <div class="tl-title">중대재해처벌법 제정</div>
+          <div class="tl-text">50인 이상 사업장 적용. 사망 등 중대산업재해 발생 시 경영책임자 처벌 (1년 이상 징역 또는 10억 이하 벌금). 안전보건체계 구축 의무 신설.</div>
+        </div>
+      </div>
+      <div class="tl-item">
+        <div class="tl-year">2022</div>
+        <div class="tl-dot-line"><div class="tl-dot" style="background:#f8c100;border-color:#f8c100"></div><div class="tl-line"></div></div>
+        <div class="tl-body">
+          <div class="tl-title">중대재해처벌법 시행</div>
+          <div class="tl-text">2022.01.27 시행. 건설업·제조업 중심 첫 기소 사례 발생. 안전관리체계 미비 기업 과태료·고발 처분 잇따름.</div>
+        </div>
+      </div>
+      <div class="tl-item">
+        <div class="tl-year">2024.01</div>
+        <div class="tl-dot-line"><div class="tl-dot" style="background:#e63946;border-color:#e63946"></div><div class="tl-line"></div></div>
+        <div class="tl-body">
+          <div class="tl-title"><span class="accent-red">5인 이상으로 적용 확대</span> — 중대재해처벌법</div>
+          <div class="tl-text">소규모 사업장까지 확대 적용. 중소기업 부담 급증. 안전관리 전담인력 미보유 사업장 대거 법 위반 리스크 노출.</div>
+        </div>
+      </div>
+      <div class="tl-item">
+        <div class="tl-year">2024</div>
+        <div class="tl-dot-line"><div class="tl-dot" style="background:#4cc9f0;border-color:#4cc9f0"></div><div class="tl-line"></div></div>
+        <div class="tl-body">
+          <div class="tl-title">노조법 2·3조 개정 논의</div>
+          <div class="tl-text">하청·플랫폼 노동자도 단체교섭 주체로 인정. 원청사 사용자성 확대 → 원청과 하청 노조 간 직접 교섭 가능성. 기업 노경 부담 범위 확대.</div>
+        </div>
+      </div>
+      <div class="tl-item">
+        <div class="tl-year">2025</div>
+        <div class="tl-dot-line"><div class="tl-dot" style="background:#4cc9f0;border-color:#4cc9f0"></div></div>
+        <div class="tl-body">
+          <div class="tl-title">52시간제 보완 논의</div>
+          <div class="tl-text">탄력근로 단위기간 확대(현 3개월→6개월 논의) vs 특례업종 폐지 갈등. 노·사·정 3자 의견 충돌. IT·반도체 업종 예외 인정 여부 핵심 쟁점.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="slide-num">03 / 19</div>
+</div>
+
+<!-- SLIDE 04: 노조 조직률 트렌드 -->
+<div class="slide" data-index="4" data-section="part1">
+  <div class="section-bar">
+    <span class="section-pill">Cover</span>
+    <span class="section-pill active">Part 1</span>
+    <span class="section-pill">Part 2</span>
+    <span class="section-pill">Part 3</span>
+    <span class="section-pill">Part 4</span>
+  </div>
+  <div class="slide-content">
+    <div class="slide-title">노조 조직률 트렌드</div>
+    <div class="slide-subtitle">Part 1 — Union Density Trend (2019–2023)</div>
+    <div class="bar-chart">
+      <div class="bar-row">
+        <div class="bar-label">2019</div>
+        <div class="bar-track">
+          <div class="bar-fill" style="width:62.5%"><span class="bar-val">12.5%</span></div>
+        </div>
+        <div class="bar-note">조합원 253만명</div>
+      </div>
+      <div class="bar-row">
+        <div class="bar-label">2020</div>
+        <div class="bar-track">
+          <div class="bar-fill" style="width:65.5%"><span class="bar-val">13.1%</span></div>
+        </div>
+        <div class="bar-note">조합원 280만명</div>
+      </div>
+      <div class="bar-row">
+        <div class="bar-label">2021</div>
+        <div class="bar-track">
+          <div class="bar-fill cyan" style="width:71%"><span class="bar-val">14.2%</span></div>
+        </div>
+        <div class="bar-note">조합원 293만명</div>
+      </div>
+      <div class="bar-row">
+        <div class="bar-label">2022</div>
+        <div class="bar-track">
+          <div class="bar-fill cyan" style="width:71%"><span class="bar-val">14.2%</span></div>
+        </div>
+        <div class="bar-note">조합원 295만명</div>
+      </div>
+      <div class="bar-row">
+        <div class="bar-label">2023</div>
+        <div class="bar-track">
+          <div class="bar-fill cyan" style="width:71%"><span class="bar-val">14.2%</span></div>
+        </div>
+        <div class="bar-note">조합원 298만명</div>
+      </div>
+    </div>
+    <div style="display:flex;gap:12px;margin-top:14px;">
+      <div class="info-box cyan" style="flex:1;margin-top:0;">
+        <strong>대기업 집중 심화</strong> — 500인 이상 사업장 조직률 <strong style="color:#4cc9f0">47.8%</strong>. 전체 조합원의 절반 이상이 대기업·공기업 소속. 중소기업 조직화 여지 잠재.
+      </div>
+      <div class="info-box" style="flex:1;margin-top:0;">
+        <strong>복수노조 급증</strong> — 복수노조 허용(2011) 이후 복수노조 사업장 비율 <strong style="color:#e63946">지속 증가</strong>. 교섭 창구 단일화 복잡도 상승. 노경 관리 난이도 증가.
+      </div>
+    </div>
+  </div>
+  <div class="slide-num">04 / 19</div>
+</div>
+
+<!-- SLIDE 05: 산업별 쟁의 현황 -->
+<div class="slide" data-index="5" data-section="part1">
+  <div class="section-bar">
+    <span class="section-pill">Cover</span>
+    <span class="section-pill active">Part 1</span>
+    <span class="section-pill">Part 2</span>
+    <span class="section-pill">Part 3</span>
+    <span class="section-pill">Part 4</span>
+  </div>
+  <div class="slide-content">
+    <div class="slide-title">산업별 쟁의 현황</div>
+    <div class="slide-subtitle">Part 1 — Labour Disputes by Industry (2023)</div>
+    <div style="display:flex;gap:24px;flex:1;align-items:center;">
+      <div class="donut-wrap" style="flex:1;">
+        <svg width="200" height="200" viewBox="0 0 200 200">
+          <!-- Total: 167건 | Manufacturing 42%, Logistics 28%, Construction 15%, Other 15% -->
+          <!-- r=70, circumference=439.8 -->
+          <!-- Manufacturing: 42% = 184.7 offset 0 -->
+          <!-- Logistics: 28% = 123.1 offset -184.7 -->
+          <!-- Construction: 15% = 66.0 offset -307.8 -->
+          <!-- Other: 15% = 66.0 offset -373.8 -->
+          <circle cx="100" cy="100" r="70" fill="none" stroke="#e63946" stroke-width="28"
+            stroke-dasharray="184.7 439.8" stroke-dashoffset="109.95" transform="rotate(-90 100 100)"/>
+          <circle cx="100" cy="100" r="70" fill="none" stroke="#4cc9f0" stroke-width="28"
+            stroke-dasharray="123.1 439.8" stroke-dashoffset="-74.75" transform="rotate(-90 100 100)"/>
+          <circle cx="100" cy="100" r="70" fill="none" stroke="#f8c100" stroke-width="28"
+            stroke-dasharray="66.0 439.8" stroke-dashoffset="-197.85" transform="rotate(-90 100 100)"/>
+          <circle cx="100" cy="100" r="70" fill="none" stroke="rgba(255,255,255,0.2)" stroke-width="28"
+            stroke-dasharray="66.0 439.8" stroke-dashoffset="-263.85" transform="rotate(-90 100 100)"/>
+          <text x="100" y="95" text-anchor="middle" fill="#fff" font-size="22" font-weight="800" font-family="Malgun Gothic">167</text>
+          <text x="100" y="113" text-anchor="middle" fill="rgba(255,255,255,0.5)" font-size="10" font-family="Malgun Gothic">쟁의건수</text>
+        </svg>
+        <div class="donut-legend">
+          <div class="legend-item"><div class="legend-dot" style="background:#e63946"></div>제조업 <span class="legend-pct">42%</span><span style="color:rgba(255,255,255,0.4);font-size:11px;margin-left:4px">(70건)</span></div>
+          <div class="legend-item"><div class="legend-dot" style="background:#4cc9f0"></div>물류·운수 <span class="legend-pct">28%</span><span style="color:rgba(255,255,255,0.4);font-size:11px;margin-left:4px">(47건)</span></div>
+          <div class="legend-item"><div class="legend-dot" style="background:#f8c100"></div>건설 <span class="legend-pct">15%</span><span style="color:rgba(255,255,255,0.4);font-size:11px;margin-left:4px">(25건)</span></div>
+          <div class="legend-item"><div class="legend-dot" style="background:rgba(255,255,255,0.2)"></div>기타 <span class="legend-pct">15%</span><span style="color:rgba(255,255,255,0.4);font-size:11px;margin-left:4px">(25건)</span></div>
+        </div>
+      </div>
+      <div style="flex:1;display:flex;flex-direction:column;gap:10px;">
+        <div style="font-size:12px;font-weight:700;color:#4cc9f0;margin-bottom:4px;text-transform:uppercase;letter-spacing:0.08em;">주요 쟁의 사례</div>
+        <div class="col-card" style="gap:6px;">
+          <div style="display:flex;align-items:center;gap:8px;">
+            <div style="width:8px;height:8px;border-radius:50%;background:#e63946;flex-shrink:0;"></div>
+            <div style="font-size:12px;font-weight:700;color:#fff;">화물연대 파업 (2022)</div>
+          </div>
+          <div style="font-size:11px;color:rgba(255,255,255,0.55);">안전운임제 연장 요구. 8일 파업으로 물류 마비. 정부 업무개시명령 발동. 합의 없이 복귀.</div>
+        </div>
+        <div class="col-card" style="gap:6px;">
+          <div style="display:flex;align-items:center;gap:8px;">
+            <div style="width:8px;height:8px;border-radius:50%;background:#4cc9f0;flex-shrink:0;"></div>
+            <div style="font-size:12px;font-weight:700;color:#fff;">현대차 교섭 (2023)</div>
+          </div>
+          <div style="font-size:11px;color:rgba(255,255,255,0.55);">3년 연속 무분규 타결. 기본급 10만원 인상 + 성과급 300% + EV 전환 고용보장 조항.</div>
+        </div>
+        <div class="col-card" style="gap:6px;">
+          <div style="display:flex;align-items:center;gap:8px;">
+            <div style="width:8px;height:8px;border-radius:50%;background:#f8c100;flex-shrink:0;"></div>
+            <div style="font-size:12px;font-weight:700;color:#fff;">삼성전자 총파업 (2024)</div>
+          </div>
+          <div style="font-size:11px;color:rgba(255,255,255,0.55);">창사 55년 만의 첫 파업. 전삼노 주도. 성과급 불투명성 개선 요구. 반도체 생산 영향 우려.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="slide-num">05 / 19</div>
+</div>
+
+
+<!-- SLIDE 06: 타사 사례 현대차 -->
+<div class="slide" data-index="6" data-section="part2">
+  <div class="section-bar">
+    <span class="section-pill">Cover</span>
+    <span class="section-pill">Part 1</span>
+    <span class="section-pill active">Part 2</span>
+    <span class="section-pill">Part 3</span>
+    <span class="section-pill">Part 4</span>
+  </div>
+  <div class="slide-content">
+    <div class="case-header">
+      <div class="case-logo-box">HD</div>
+      <div class="case-meta">
+        <div class="case-company">현대자동차</div>
+        <div class="case-tag">CASE STUDY ① &nbsp;·&nbsp; 임단협 패턴 분석</div>
+      </div>
+      <div style="margin-left:auto;font-size:12px;color:rgba(255,255,255,0.4);">Part 2 — Domestic Case Study</div>
+    </div>
+    <div class="case-grid">
+      <div class="case-item">
+        <div class="case-item-label">2024 임단협 결과</div>
+        <div class="case-item-text">
+          <strong>기본급 10만원 인상</strong> (정규직 전원 동일 인상)<br>
+          성과급 <strong>500%+α</strong> (역대 최고 수준)<br>
+          품질특별격려금 200만원 별도 지급<br>
+          복지포인트 확대 및 복지시설 투자 확정
+        </div>
+      </div>
+      <div class="case-item">
+        <div class="case-item-label">무분규 타결 기록</div>
+        <div class="case-item-text">
+          <strong>2021~2024, 4년 연속 무분규</strong> 타결<br>
+          2018~2020 분규 후 전략 전환 성과<br>
+          조기 교섭 개시 (4~5월) 관행 정착<br>
+          소위원회 사전 논의로 쟁점 사전 해소
+        </div>
+      </div>
+      <div class="case-item">
+        <div class="case-item-label">전기차 전환 고용 보장</div>
+        <div class="case-item-text">
+          <strong>2023년 EV 전환 고용 보장 조항 신설</strong><br>
+          내연기관→전기차 전환 인력 재교육 의무화<br>
+          EV 생산라인 전환 시 고용승계 보장<br>
+          2030년까지 국내 고용 유지 공동 선언
+        </div>
+      </div>
+      <div class="case-item">
+        <div class="case-item-label">노조 구조 및 특징</div>
+        <div class="case-item-text">
+          조합원 <strong>약 4.5만명</strong> (민주노총 금속노조 산하)<br>
+          복수노조 병존 (현대차 노조 + 현대차 지부)<br>
+          교섭창구단일화로 대표노조 현대차노조<br>
+          노사 공동기금 운영으로 갈등 완충
+        </div>
+      </div>
+      <div class="case-highlight">
+        <strong>시사점</strong> &nbsp;—&nbsp; "임금 인상 + 고용 안정 패키지가 무분규의 열쇠." 
+        조기 교섭 개시, 쟁점 사전 해소, EV 전환 불안 선제 해결이 4년 연속 무분규의 구조적 원인. 
+        성과급 규모보다 교섭 과정의 투명성·속도·참여가 합의 성공의 핵심 변수임.
+      </div>
+    </div>
+  </div>
+  <div class="slide-num">06 / 19</div>
+</div>
+
+<!-- SLIDE 07: 타사 사례 삼성전자 -->
+<div class="slide" data-index="7" data-section="part2">
+  <div class="section-bar">
+    <span class="section-pill">Cover</span>
+    <span class="section-pill">Part 1</span>
+    <span class="section-pill active">Part 2</span>
+    <span class="section-pill">Part 3</span>
+    <span class="section-pill">Part 4</span>
+  </div>
+  <div class="slide-content">
+    <div class="case-header">
+      <div class="case-logo-box" style="color:#e63946;">SE</div>
+      <div class="case-meta">
+        <div class="case-company">삼성전자</div>
+        <div class="case-tag">CASE STUDY ② &nbsp;·&nbsp; 첫 파업 이후 노사관계 재설정</div>
+      </div>
+      <div style="margin-left:auto;font-size:12px;color:rgba(255,255,255,0.4);">Part 2 — Domestic Case Study</div>
+    </div>
+    <div class="case-grid">
+      <div class="case-item">
+        <div class="case-item-label">창사 이래 첫 총파업 (2024.06)</div>
+        <div class="case-item-text">
+          전국삼성전자노동조합(전삼노) 주도<br>
+          조합원 <strong>2.8만명</strong> 참여 (반도체·생활가전 포함)<br>
+          2024.06.07 1차 파업 개시 → 간헐적 파업 지속<br>
+          DS(반도체) 부문 영향 집중, 생산 차질 우려
+        </div>
+      </div>
+      <div class="case-item">
+        <div class="case-item-label">파업의 배경</div>
+        <div class="case-item-text">
+          2023년 영업이익 <strong>급락</strong> (14.9조→6.57조)<br>
+          반도체 적자에도 성과급 삭감 불투명하게 진행<br>
+          OPI(초과이익성과급) 기준 비공개 → 신뢰 붕괴<br>
+          누적된 임금 불만 + 성과급 불공정 인식 폭발
+        </div>
+      </div>
+      <div class="case-item">
+        <div class="case-item-label">합의 결과 (2024.11)</div>
+        <div class="case-item-text">
+          기본급 <strong>3.0% 인상</strong> 합의<br>
+          성과급(OPI) 산정 기준 <strong>투명화</strong> 합의<br>
+          반기별 성과급 기준 공개 제도 도입<br>
+          노사공동위원회 구성 및 정기 협의 의무화
+        </div>
+      </div>
+      <div class="case-item">
+        <div class="case-item-label">구조적 변화</div>
+        <div class="case-item-text">
+          복수노조 체제 본격화 (5개 노조 병존)<br>
+          교섭창구단일화 이후 전삼노 대표권 확보<br>
+          사측 노경 전담 체계 강화 (인사팀→노경팀 분리)<br>
+          노조와의 정기 대화 채널 공식화
+        </div>
+      </div>
+      <div class="case-highlight">
+        <strong>시사점</strong> &nbsp;—&nbsp; "성과급 불투명 = 갈등 뇌관. 기준 공개가 예방책." 
+        영업실적 악화와 성과급 불투명성의 조합이 55년 만의 파업을 촉발. 
+        OPI 기준 공시 제도화, 노사협의회 격상이 핵심 재발 방지책. 
+        성과급 설계 시 투명성과 예측가능성 확보가 최우선 과제임.
+      </div>
+    </div>
+  </div>
+  <div class="slide-num">07 / 19</div>
+</div>
+
+<!-- SLIDE 08: 타사 사례 LG에너지솔루션 -->
+<div class="slide" data-index="8" data-section="part2">
+  <div class="section-bar">
+    <span class="section-pill">Cover</span>
+    <span class="section-pill">Part 1</span>
+    <span class="section-pill active">Part 2</span>
+    <span class="section-pill">Part 3</span>
+    <span class="section-pill">Part 4</span>
+  </div>
+  <div class="slide-content">
+    <div class="case-header">
+      <div class="case-logo-box" style="color:#f8c100;">LG</div>
+      <div class="case-meta">
+        <div class="case-company">LG에너지솔루션</div>
+        <div class="case-tag">CASE STUDY ③ &nbsp;·&nbsp; 배터리 공장 노조 확산 대응</div>
+      </div>
+      <div style="margin-left:auto;font-size:12px;color:rgba(255,255,255,0.4);">Part 2 — Domestic Case Study</div>
+    </div>
+    <div class="case-grid">
+      <div class="case-item">
+        <div class="case-item-label">노조 설립 경위</div>
+        <div class="case-item-text">
+          <strong>2022~2023년</strong> 오창·파주 공장 노조 급속 설립<br>
+          LG화학 배터리 사업부 분리 (2020) 이후 정체성 혼란<br>
+          교대제·3조2교대 강도 불만 누적<br>
+          유해물질(NMP 등) 노출 안전 우려 계기로 조직화
+        </div>
+      </div>
+      <div class="case-item">
+        <div class="case-item-label">산별노조 가입 이슈</div>
+        <div class="case-item-text">
+          금속노조(민주노총) 유입 시도 — 배터리 업계 최초<br>
+          기업별노조 vs 산별노조 가입 내부 갈등<br>
+          <strong>조직력 강화</strong> 시 교섭력 급상승 우려<br>
+          LG 계열사 노조 연대 가능성도 잠재 리스크
+        </div>
+      </div>
+      <div class="case-item">
+        <div class="case-item-label">핵심 요구사항</div>
+        <div class="case-item-text">
+          교대제 개선 (4조2교대→4조3교대 전환 요구)<br>
+          유해물질(NMP·전해질) <strong>안전관리 강화</strong><br>
+          임금체계 단순화 (복잡한 수당 체계 개편)<br>
+          신규 공장(미국·폴란드) 한국 직원 해외 수당 개선
+        </div>
+      </div>
+      <div class="case-item">
+        <div class="case-item-label">회사 측 대응</div>
+        <div class="case-item-text">
+          노사협의회 정례화 (월 1회 → 격주 1회)<br>
+          안전관리 전담 조직 신설 + 외부 감사 도입<br>
+          임금체계 단순화 TFT 구성 및 로드맵 공개<br>
+          <strong>선제적 처우 개선</strong>으로 산별 가입 세력 약화
+        </div>
+      </div>
+      <div class="case-highlight">
+        <strong>시사점</strong> &nbsp;—&nbsp; "배터리 공장 = 높은 노조화 위험. 선제적 소통이 핵심." 
+        3조2교대의 고강도 근무 + 화학물질 노출 = 노조화 온상. 
+        미국·유럽 해외 공장에서도 동일 패턴 반복. 착공 단계부터 안전·교대제·임금 3대 이슈 선제 설계 필수.
+      </div>
+    </div>
+  </div>
+  <div class="slide-num">08 / 19</div>
+</div>
+
+<!-- SLIDE 09: 타사 사례 물류·플랫폼 -->
+<div class="slide" data-index="9" data-section="part2">
+  <div class="section-bar">
+    <span class="section-pill">Cover</span>
+    <span class="section-pill">Part 1</span>
+    <span class="section-pill active">Part 2</span>
+    <span class="section-pill">Part 3</span>
+    <span class="section-pill">Part 4</span>
+  </div>
+  <div class="slide-content">
+    <div class="slide-title">타사 노경 사례 ④ — 물류·플랫폼</div>
+    <div class="slide-subtitle">Part 2 — Logistics & Platform Labour Relations</div>
+    <div class="two-col" style="flex:1;">
+      <div class="col-card">
+        <div class="col-card-title">
+          <span>쿠팡 (Coupang)</span>
+          <span class="tag-badge">물류</span>
+        </div>
+        <ul class="bullet-list">
+          <li><span>2023년:</span> 쿠팡풀필먼트서비스(CFS) 노조 전국 물류센터 확산</li>
+          <li><span>핵심 요구:</span> 인력 부족 해소, 심야 작업 수당 현실화, 상병휴가 제도 도입</li>
+          <li>택배 기사(쿠팡친구) 과로사 논란 → 사회적 압력 가중</li>
+          <li><span>대응:</span> 부분 인력 증원 (센터별 5~10% 추가), 안전관리 투자 확대</li>
+          <li>심야 할증 수당 인상 + 건강검진 무료 제공 확대</li>
+          <li>단체협약 첫 체결 (2023년 말, 일부 센터)</li>
+        </ul>
+        <div style="margin-top:8px;background:rgba(230,57,70,0.07);border-radius:6px;padding:8px 12px;font-size:11px;color:rgba(255,255,255,0.65);border-left:3px solid #e63946;">
+          쿠팡 물류센터 모델은 플랫폼 노동의 실질적 고용관계 인정 논쟁의 핵심 사례. 
+          플랫폼 기업의 직접 고용 의무 확대 압력 지속.
+        </div>
+      </div>
+      <div class="col-card">
+        <div class="col-card-title">
+          <span>카카오 (Kakao)</span>
+          <span class="tag-badge">플랫폼</span>
+        </div>
+        <ul class="bullet-list">
+          <li><span>2022~2023:</span> 카카오 본사 및 계열사 노조 설립 러시 (10개사 이상)</li>
+          <li><span>핵심 이슈:</span> 성과급 산정 불투명, 구조조정 공포, 계열사 통폐합 반발</li>
+          <li>카카오 SM엔터 인수 과정 주가 조작 의혹 → 경영진 신뢰 추락</li>
+          <li><span>대응:</span> 노사협의회 격상 (자문 → 의결 기구 수준), 성과급 기준 공시</li>
+          <li>구조조정 사전 협의 의무화 (인원 5% 이상 감원 시 노사 협의)</li>
+          <li>계열사 전체 성과 연동 보상체계 표준화 추진</li>
+        </ul>
+        <div style="margin-top:8px;background:rgba(76,201,240,0.07);border-radius:6px;padding:8px 12px;font-size:11px;color:rgba(255,255,255,0.65);border-left:3px solid #4cc9f0;">
+          IT·플랫폼 업종 노조화의 선도 사례. "화이트칼라 노조화" 트렌드. 
+          구조조정·성과급·경영 투명성이 3대 촉발 요인으로 공통 확인됨.
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="slide-num">09 / 19</div>
+</div>
+
+
+<!-- SLIDE 10: 해외 노사 총론 -->
+<div class="slide" data-index="10" data-section="part3">
+  <div class="section-bar">
+    <span class="section-pill">Cover</span>
+    <span class="section-pill">Part 1</span>
+    <span class="section-pill">Part 2</span>
+    <span class="section-pill active">Part 3</span>
+    <span class="section-pill">Part 4</span>
+  </div>
+  <div class="slide-content">
+    <div class="slide-title">해외 노사 총론</div>
+    <div class="slide-subtitle">Part 3 — Global Labour Relations Overview: Union Renaissance</div>
+    <div class="global-kpi">
+      <div class="g-kpi-card">
+        <div class="g-kpi-val">33건</div>
+        <div class="g-kpi-label">미국 대규모 파업 (2023년)<br>20년來 최다 기록</div>
+      </div>
+      <div class="g-kpi-card" style="border-left-color:#e63946;">
+        <div class="g-kpi-val" style="color:#e63946;">39만일</div>
+        <div class="g-kpi-label">영국 쟁의손실일 (2023년)<br>30년 만의 최고 수준</div>
+      </div>
+      <div class="g-kpi-card" style="border-left-color:#f8c100;">
+        <div class="g-kpi-val" style="color:#f8c100;">120만명</div>
+        <div class="g-kpi-label">프랑스 연금개혁 총파업<br>참가자 (2023년 최대)</div>
+      </div>
+      <div class="g-kpi-card" style="border-left-color:rgba(255,255,255,0.3);">
+        <div class="g-kpi-val" style="color:rgba(255,255,255,0.7);">ILO</div>
+        <div class="g-kpi-label">"단체교섭 적용률 낮은 국가<br>소득 불평등 심화 상관관계 확인"</div>
+      </div>
+    </div>
+    <div class="two-col">
+      <div class="col-card">
+        <div class="col-card-title">글로벌 공통 동향</div>
+        <ul class="bullet-list">
+          <li>팬데믹 이후 <span>인플레이션 대응</span> 임금 인상 요구 급등</li>
+          <li>디지털·녹색 전환에 따른 <span>고용 불안</span> 노조화 촉진</li>
+          <li>미국 NLRB(노동관계위원회) 친노조 성향 강화</li>
+          <li>아마존·스타벅스 등 <span>비전통적 업종</span> 노조화 성공</li>
+          <li>ESG 공시 확대 → 노사관계 투명성 외부 압력</li>
+        </ul>
+      </div>
+      <div class="col-card">
+        <div class="col-card-title">한국계 기업 직접 영향</div>
+        <ul class="bullet-list">
+          <li>미국 배터리 합작 공장 UAW 조직화 시도 증가</li>
+          <li><span>현대차 조지아 공장</span> UAW 미조직 → 임금 인상 압박</li>
+          <li>LG·SK·삼성 미국 배터리 공장 노조화 리스크 현실화</li>
+          <li>유럽 폴란드·헝가리 공장 현지 노조 교섭 의무 강화</li>
+          <li>글로벌 공급망 리스크로 해외 파업 국내 생산 파급</li>
+        </ul>
+      </div>
+    </div>
+    <div class="info-box cyan" style="margin-top:12px;">
+      <strong>핵심 메시지</strong>: 팬데믹 이후 전 세계 노동자의 '공정 임금' 요구 급등. 
+      글로벌 노조 르네상스는 특정 국가의 현상이 아닌 구조적 전환점. 
+      한국계 해외 진출 기업에 직접적·즉각적 영향.
+    </div>
+  </div>
+  <div class="slide-num">10 / 19</div>
+</div>
+
+<!-- SLIDE 11: UAW 파업 심층 분석 -->
+<div class="slide" data-index="11" data-section="part3">
+  <div class="section-bar">
+    <span class="section-pill">Cover</span>
+    <span class="section-pill">Part 1</span>
+    <span class="section-pill">Part 2</span>
+    <span class="section-pill active">Part 3</span>
+    <span class="section-pill">Part 4</span>
+  </div>
+  <div class="slide-content">
+    <div class="slide-title">UAW 파업 심층 분석</div>
+    <div class="slide-subtitle">Part 3 — 2023 UAW Strike: The Stand-Up Strike</div>
+    <div class="uaw-timeline">
+      <div class="uaw-ev">
+        <div class="uaw-ev-dot"></div>
+        <div class="uaw-ev-date">9월 15일</div>
+        <div class="uaw-ev-text">빅3 동시 파업 개시<br>역사상 최초</div>
+      </div>
+      <div class="uaw-ev">
+        <div class="uaw-ev-dot" style="background:#f8c100;"></div>
+        <div class="uaw-ev-date">9월 22일</div>
+        <div class="uaw-ev-text">Ford 추가 공장<br>파업 확대</div>
+      </div>
+      <div class="uaw-ev">
+        <div class="uaw-ev-dot" style="background:#f8c100;"></div>
+        <div class="uaw-ev-date">9월 29일</div>
+        <div class="uaw-ev-text">GM 물류센터<br>전국 파업</div>
+      </div>
+      <div class="uaw-ev">
+        <div class="uaw-ev-dot" style="background:#4cc9f0;"></div>
+        <div class="uaw-ev-date">10월 25일</div>
+        <div class="uaw-ev-text">Stellantis<br>잠정 합의</div>
+      </div>
+      <div class="uaw-ev">
+        <div class="uaw-ev-dot" style="background:#4cc9f0;"></div>
+        <div class="uaw-ev-date">10월 30일</div>
+        <div class="uaw-ev-text">Ford<br>잠정 합의</div>
+      </div>
+      <div class="uaw-ev">
+        <div class="uaw-ev-dot" style="background:#4cc9f0;border-color:#4cc9f0;"></div>
+        <div class="uaw-ev-date">10월 31일</div>
+        <div class="uaw-ev-text">GM<br>잠정 합의</div>
+      </div>
+    </div>
+    <div class="two-col" style="flex:1;">
+      <div class="col-card">
+        <div class="col-card-title">파업 규모 &amp; 전략</div>
+        <ul class="bullet-list">
+          <li>최대 참가자 <span>46,000명</span> (전체 조합원 14.6만명의 31%)</li>
+          <li>'Stand-Up Strike': 단계적 파업 확대 전략 (전략 공장부터)</li>
+          <li>GM·Ford·Stellantis 3사 <span>동시 파업</span> 역사상 최초</li>
+          <li>파업 기간 <span>46일</span> (2023.09.15~10.31)</li>
+          <li>경제 손실 추산 <span>96억 달러</span> (S&amp;P Global 추정)</li>
+        </ul>
+      </div>
+      <div class="col-card">
+        <div class="col-card-title">핵심 요구사항</div>
+        <ul class="bullet-list">
+          <li><span>임금 40% 인상</span> (4.5년 계약 기간 누적)</li>
+          <li>COLA(생계비조정) 조항 부활 (2009년 금융위기 이후 삭제)</li>
+          <li>근무시간 <span>주 32시간</span>으로 단축 (현행 40시간)</li>
+          <li>임시직 정규직 전환 즉시 시행</li>
+          <li>EV 공장 임금 기존 계약 동일 적용 (임금 이중구조 해소)</li>
+        </ul>
+      </div>
+    </div>
+    <div class="info-box" style="margin-top:12px;">
+      <strong>역사적 맥락</strong>: UAW 션 페인(Shawn Fain) 신임 위원장 주도. 
+      "빅3 CEO 평균 연봉 40% 인상되는 동안 노동자 임금은 제자리" — 임금 격차 공론화가 여론 주도권 확보에 결정적.
+    </div>
+  </div>
+  <div class="slide-num">11 / 19</div>
+</div>
+
+<!-- SLIDE 12: UAW 이후 변화 -->
+<div class="slide" data-index="12" data-section="part3">
+  <div class="section-bar">
+    <span class="section-pill">Cover</span>
+    <span class="section-pill">Part 1</span>
+    <span class="section-pill">Part 2</span>
+    <span class="section-pill active">Part 3</span>
+    <span class="section-pill">Part 4</span>
+  </div>
+  <div class="slide-content">
+    <div class="slide-title">UAW 이후 변화</div>
+    <div class="slide-subtitle">Part 3 — Post-UAW Settlement: Industry-Wide Impact</div>
+    <div style="display:flex;gap:20px;flex:1;">
+      <div style="flex:1.2;">
+        <div style="font-size:12px;font-weight:700;color:#4cc9f0;margin-bottom:10px;text-transform:uppercase;letter-spacing:0.08em;">요구 vs 합의 결과 비교</div>
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th>항목</th>
+              <th>UAW 요구</th>
+              <th>합의 결과</th>
+              <th>평가</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>임금 인상</td>
+              <td class="accent-red">40%</td>
+              <td class="accent-cyan"><strong>25%</strong> (4.5년 누적)</td>
+              <td class="warn">부분 달성</td>
+            </tr>
+            <tr>
+              <td>COLA 조항</td>
+              <td>부활 요구</td>
+              <td class="check">부활 확정 ✓</td>
+              <td class="check">완전 달성</td>
+            </tr>
+            <tr>
+              <td>근무시간</td>
+              <td>32시간</td>
+              <td class="warn">협의 중 (미타결)</td>
+              <td class="warn">미달성</td>
+            </tr>
+            <tr>
+              <td>임시직 전환</td>
+              <td>즉시 전환</td>
+              <td>단계적 전환 합의</td>
+              <td class="warn">부분 달성</td>
+            </tr>
+            <tr>
+              <td>EV 임금 적용</td>
+              <td>동일 계약</td>
+              <td class="check">JV 공장 동일 적용 ✓</td>
+              <td class="check">완전 달성</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <div style="flex:1;display:flex;flex-direction:column;gap:10px;">
+        <div style="font-size:12px;font-weight:700;color:#4cc9f0;margin-bottom:2px;text-transform:uppercase;letter-spacing:0.08em;">산업 전반 파급효과</div>
+        <div class="case-item">
+          <div class="case-item-label">비노조 공장 자발적 인상</div>
+          <div class="case-item-text"><strong>Toyota, Honda, BMW, Mercedes</strong> 미국 비노조 공장 선제적 임금 인상. "UAW 합의 기준이 업계 하한선 됨."</div>
+        </div>
+        <div class="case-item">
+          <div class="case-item-label">한국계 공장 파급</div>
+          <div class="case-item-text">현대차 조지아, SK·LG 배터리 공장 임금 비교 압박 가중. 노조화 시도 → 선제 처우 개선으로 대응 러시.</div>
+        </div>
+        <div class="case-item">
+          <div class="case-item-label">EV 전환 임금 기준 확립</div>
+          <div class="case-item-text">배터리 JV 공장에도 기존 완성차 수준 임금 적용. EV 전환 '임금 삭감' 공식 차단. 한국계 JV 직접 해당.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="slide-num">12 / 19</div>
+</div>
+
+<!-- SLIDE 13: 배터리·EV 공장 노조화 -->
+<div class="slide" data-index="13" data-section="part3">
+  <div class="section-bar">
+    <span class="section-pill">Cover</span>
+    <span class="section-pill">Part 1</span>
+    <span class="section-pill">Part 2</span>
+    <span class="section-pill active">Part 3</span>
+    <span class="section-pill">Part 4</span>
+  </div>
+  <div class="slide-content">
+    <div class="slide-title">배터리·EV 공장 노조화</div>
+    <div class="slide-subtitle">Part 3 — Korean Battery Factories in the US: UAW Organising Risk</div>
+    <div class="factory-list">
+      <div class="factory-row">
+        <div class="factory-company">SK On (BlueOval SK)</div>
+        <div class="factory-loc">켄터키·테네시 주 (Ford JV) &nbsp;|&nbsp; 근로자 약 5,000명</div>
+        <div style="flex:1.2;font-size:11px;color:rgba(255,255,255,0.55);">UAW 조직화 시도 진행 중 (2024). Ford 모회사 계약 연동 압박. 조지아 현장 UAW 캠페인 중.</div>
+        <div class="factory-status status-risk">고위험 — 조직화 진행</div>
+      </div>
+      <div class="factory-row">
+        <div class="factory-company">LG Energy Solution</div>
+        <div class="factory-loc">홀랜드 MI, 클락스빌 TN &nbsp;|&nbsp; 근로자 약 3,000명</div>
+        <div style="flex:1.2;font-size:11px;color:rgba(255,255,255,0.55);">현재 노조 없음. 2023년 UAW 합의 이후 자발적 임금 인상으로 조직화 동력 약화. 선제 대응 성공 사례.</div>
+        <div class="factory-status status-safe">안전 — 선제 임금 인상</div>
+      </div>
+      <div class="factory-row">
+        <div class="factory-company">Samsung SDI</div>
+        <div class="factory-loc">인디애나 주 (Stellantis JV) &nbsp;|&nbsp; 착공·건설 단계</div>
+        <div style="flex:1.2;font-size:11px;color:rgba(255,255,255,0.55);">착공 단계. Stellantis JV → UAW 계약 적용 가능성 높음. 가동 전 노조화 리스크 사전 설계 필요.</div>
+        <div class="factory-status status-watch">요주의 — 가동 전 설계 필요</div>
+      </div>
+      <div class="factory-row">
+        <div class="factory-company">Stellantis-LGES JV</div>
+        <div class="factory-loc">윈저 캐나다 &nbsp;|&nbsp; Unifor 협약 적용 대상</div>
+        <div style="flex:1.2;font-size:11px;color:rgba(255,255,255,0.55);">캐나다 Unifor(자동차노조) 단협 자동 적용. 임금·복지 기준은 기존 협약 수준 준수 의무. 협약 내용 숙지 필요.</div>
+        <div class="factory-status status-apply">협약 자동 적용</div>
+      </div>
+      <div class="factory-row">
+        <div class="factory-company">Hyundai (Metaplant)</div>
+        <div class="factory-loc">조지아 주 &nbsp;|&nbsp; 근로자 약 8,500명 목표</div>
+        <div style="flex:1.2;font-size:11px;color:rgba(255,255,255,0.55);">현재 UAW 비조직. UAW 조직화 캠페인 가시화 (2024~). 인근 공장 임금 기준 대비 격차 공론화 중.</div>
+        <div class="factory-status status-watch">경계 — UAW 캠페인 모니터링</div>
+      </div>
+    </div>
+    <div class="info-box cyan" style="margin-top:10px;">
+      <strong>핵심 전략</strong>: "미국 그린필드 공장 = 노조화 골든타임. 착공부터 노경 전략 수립 必." 
+      가동 후 3년 이내가 조직화 가장 취약한 시기. 임금 경쟁력, 소통 채널, 안전 체계를 착공 단계부터 설계.
+    </div>
+  </div>
+  <div class="slide-num">13 / 19</div>
+</div>
+
+<!-- SLIDE 14: 유럽 노사 동향 -->
+<div class="slide" data-index="14" data-section="part3">
+  <div class="section-bar">
+    <span class="section-pill">Cover</span>
+    <span class="section-pill">Part 1</span>
+    <span class="section-pill">Part 2</span>
+    <span class="section-pill active">Part 3</span>
+    <span class="section-pill">Part 4</span>
+  </div>
+  <div class="slide-content">
+    <div class="slide-title">유럽 노사 동향</div>
+    <div class="slide-subtitle">Part 3 — European Labour Relations: IG Metall &amp; CGT Cases</div>
+    <div class="two-col" style="flex:1;">
+      <div class="col-card">
+        <div class="col-card-title" style="color:#f8c100;">
+          독일 IG Metall (금속노조)
+          <span class="tag-badge" style="background:rgba(248,193,0,0.15);color:#f8c100;border-color:rgba(248,193,0,0.3);">DE</span>
+        </div>
+        <ul class="bullet-list">
+          <li><span>2024 임단협 요구:</span> 주 35시간 유지 + 5.5% 임금 인상 + 전기차 전환 고용 보장</li>
+          <li>폭스바겐 구조조정 저지 대규모 파업 (2024.12, 100개 공장)</li>
+          <li>VW 3개 공장 폐쇄 계획 철회 요구 — 노동자 3.5만명 위기</li>
+          <li><span>합의 결과:</span> 공장 폐쇄 철회 + 임금 동결 대신 고용 보장 5년</li>
+          <li>IG Metall 조합원 230만명 — 세계 최대 산별노조</li>
+          <li>유럽 자동차 전환기 "고용 보장" 우선 교섭 전략 표준화</li>
+        </ul>
+        <div style="margin-top:auto;padding:8px 12px;background:rgba(248,193,0,0.07);border-radius:6px;font-size:11px;color:rgba(255,255,255,0.6);border-left:3px solid #f8c100;">
+          시사점: 한국계 유럽 공장 (폴란드·헝가리)도 동일 교섭 압력 직면. EV 전환 고용 보장이 핵심 요구.
+        </div>
+      </div>
+      <div class="col-card">
+        <div class="col-card-title" style="color:#e63946;">
+          프랑스 CGT (노동총연맹)
+          <span class="tag-badge">FR</span>
+        </div>
+        <ul class="bullet-list">
+          <li><span>연금개혁 총파업 (2023):</span> 최대 참가자 <strong>120만명</strong></li>
+          <li>정년 62세→64세 연장 반대 → 전국 파업 14차례</li>
+          <li>Renault 전기차 전환 인력 재배치 갈등 (2024)</li>
+          <li>Renault 엔진 공장 폐쇄 → 배터리 공장 전환 인력 손실 2,000명</li>
+          <li><span>한국계 영향:</span> 삼성전자·LG전자 프랑스 법인 CGT 조직화 활성화</li>
+          <li>유럽 AI·자동화 확대 → 직무 소멸 우려 파업 증가 예고</li>
+        </ul>
+        <div style="margin-top:auto;padding:8px 12px;background:rgba(230,57,70,0.07);border-radius:6px;font-size:11px;color:rgba(255,255,255,0.6);border-left:3px solid #e63946;">
+          시사점: 유럽 노동법 체계는 공동결정제(독일)·파업권 강보장(프랑스). 한국식 일방 결정 불가. 사전 협의 의무.
+        </div>
+      </div>
+    </div>
+    <div class="info-box" style="margin-top:10px;">
+      <strong>공통 메시지</strong>: 유럽 노조는 "임금 인상 + 고용 보장" 2가지를 동시 요구. 
+      EV 전환기에 한국계 유럽 공장은 공동결정법(Mitbestimmungsgesetz) 준수 의무 + IG Metall 교섭 의무 병존. 
+      노경 전문인력의 현지 법률 숙지가 필수.
+    </div>
+  </div>
+  <div class="slide-num">14 / 19</div>
+</div>
+
+
+<!-- SLIDE 15: 시사점 종합 -->
+<div class="slide" data-index="15" data-section="part4">
+  <div class="section-bar">
+    <span class="section-pill">Cover</span>
+    <span class="section-pill">Part 1</span>
+    <span class="section-pill">Part 2</span>
+    <span class="section-pill">Part 3</span>
+    <span class="section-pill active">Part 4</span>
+  </div>
+  <div class="slide-content">
+    <div class="slide-title">시사점 종합</div>
+    <div class="slide-subtitle">Part 4 — Key Implications: Common &amp; Korea-Specific Pressures</div>
+    <div style="display:flex;gap:16px;flex:1;">
+      <div style="flex:1;display:flex;flex-direction:column;gap:10px;">
+        <div style="font-size:11px;font-weight:700;color:#e63946;text-transform:uppercase;letter-spacing:0.1em;margin-bottom:4px;">국내외 공통 압력</div>
+        <div class="impl-card">
+          <div class="impl-num">①</div>
+          <div class="impl-title">임금 인상 압력 (인플레이션 연동)</div>
+          <div class="impl-text">미국 UAW 25% 합의, 독일 IG Metall 5.5% 요구, 국내 대기업 임단협 기본급 인상 연속. 인플레이션 연동 임금 자동조정 요구 구조화.</div>
+        </div>
+        <div class="impl-card">
+          <div class="impl-num">②</div>
+          <div class="impl-title">고용 안정 요구 (EV 전환 불안)</div>
+          <div class="impl-text">전기차·배터리 전환 과정에서 내연기관 인력 감소 공포. 국내외 공통으로 "전환기 고용 보장" 요구가 교섭 핵심 어젠다로 부상.</div>
+        </div>
+        <div class="impl-card">
+          <div class="impl-num">③</div>
+          <div class="impl-title">노동시간 유연화 갈등</div>
+          <div class="impl-text">국내 52시간제 보완 논의, 해외 32시간 요구. 생산성 vs 노동자 건강권 갈등. 탄력근로·재량근로 확대 시도마다 노조 저항.</div>
+        </div>
+        <div class="impl-card">
+          <div class="impl-num">④</div>
+          <div class="impl-title">성과급 투명성 요구</div>
+          <div class="impl-text">삼성전자 파업의 핵심 원인. 카카오·쿠팡도 동일 패턴. 글로벌로는 CEO 급여 대비 노동자 임금 비율 공개 요구. 불투명 = 갈등 뇌관.</div>
+        </div>
+      </div>
+      <div style="flex:0.8;display:flex;flex-direction:column;gap:10px;">
+        <div style="font-size:11px;font-weight:700;color:#4cc9f0;text-transform:uppercase;letter-spacing:0.1em;margin-bottom:4px;">국내 특수 요인</div>
+        <div class="col-card" style="gap:8px;">
+          <div class="col-card-title">중대재해법 처벌 강화</div>
+          <ul class="bullet-list">
+            <li>5인 이상 확대 → <span>전 사업장 리스크</span></li>
+            <li>사망사고 시 경영책임자 처벌 강화</li>
+            <li>외주·하청 안전사고도 원청 책임</li>
+            <li>안전관리 비용 급증 → 수익성 압박</li>
+          </ul>
+        </div>
+        <div class="col-card" style="gap:8px;">
+          <div class="col-card-title">플랫폼·하청 노동자 조직화</div>
+          <ul class="bullet-list">
+            <li>노조법 2·3조 → <span>원청 교섭 의무</span> 확대</li>
+            <li>배달·물류·IT 플랫폼 노조화 가속</li>
+            <li>하청 노조 → 원청과 직접 교섭 시대</li>
+            <li>공급망 전체 노경 리스크 관리 필요</li>
+          </ul>
+        </div>
+        <div class="info-box" style="margin-top:auto;">
+          국내·외 6대 압력이 <strong style="color:#e63946">동시 작동 중</strong>.<br>개별 대응 아닌 통합 전략 필요.
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="slide-num">15 / 19</div>
+</div>
+
+<!-- SLIDE 16: 리스크 매트릭스 -->
+<div class="slide" data-index="16" data-section="part4">
+  <div class="section-bar">
+    <span class="section-pill">Cover</span>
+    <span class="section-pill">Part 1</span>
+    <span class="section-pill">Part 2</span>
+    <span class="section-pill">Part 3</span>
+    <span class="section-pill active">Part 4</span>
+  </div>
+  <div class="slide-content">
+    <div class="slide-title">리스크 매트릭스</div>
+    <div class="slide-subtitle">Part 4 — Risk Matrix: Probability × Impact (2×2)</div>
+    <div style="display:flex;gap:12px;flex:1;align-items:stretch;">
+      <div style="display:flex;flex-direction:column;justify-content:space-between;padding:4px 0;min-width:60px;align-items:center;">
+        <div style="font-size:10px;color:rgba(255,255,255,0.5);writing-mode:vertical-rl;transform:rotate(180deg);letter-spacing:0.06em;text-align:center;">높음<br>↑<br>영향도<br>↓<br>낮음</div>
+      </div>
+      <div style="flex:1;display:flex;flex-direction:column;gap:8px;">
+        <div style="display:flex;gap:8px;flex:1;">
+          <!-- High impact, High probability -->
+          <div class="matrix-cell m-high-high" style="flex:1;">
+            <div class="matrix-cell-label">고발생 · 고영향 &nbsp;[즉시 대응]</div>
+            <div class="matrix-item">해외 공장(미국) 노조화 성공</div>
+            <div class="matrix-item">대규모 파업 (생산라인 중단)</div>
+            <div class="matrix-item">주요 사업장 임단협 결렬</div>
+            <div class="matrix-item">복수노조 간 교섭 교착</div>
+          </div>
+          <!-- High impact, Low probability -->
+          <div class="matrix-cell m-low-high" style="flex:1;">
+            <div class="matrix-cell-label">저발생 · 고영향 &nbsp;[선제 대비]</div>
+            <div class="matrix-item">산재 사망사고 + 중대재해처벌</div>
+            <div class="matrix-item">집단 소송 (임금 체불·차별)</div>
+            <div class="matrix-item">노조법 개정 → 원청 직접 교섭</div>
+            <div class="matrix-item">해외 공장 UAW 인정 후 소급</div>
+          </div>
+        </div>
+        <div style="display:flex;gap:8px;flex:1;">
+          <!-- Low impact, High probability -->
+          <div class="matrix-cell m-high-low" style="flex:1;">
+            <div class="matrix-cell-label">고발생 · 저영향 &nbsp;[모니터링]</div>
+            <div class="matrix-item">복수노조 설립 (소규모)</div>
+            <div class="matrix-item">개인 고충 급증 및 노동위 신청</div>
+            <div class="matrix-item">근로감독 빈도 증가</div>
+            <div class="matrix-item">외부 임금 벤치마크 비교 이슈</div>
+          </div>
+          <!-- Low impact, Low probability -->
+          <div class="matrix-cell m-low-low" style="flex:1;">
+            <div class="matrix-cell-label">저발생 · 저영향 &nbsp;[참고]</div>
+            <div class="matrix-item">소규모 협력사 연대 파업</div>
+            <div class="matrix-item">노조 간 내부 갈등 (교섭권 다툼)</div>
+            <div class="matrix-item">비정규직 처우 개선 외부 민원</div>
+          </div>
+        </div>
+        <div style="text-align:center;padding:4px;font-size:10px;color:rgba(255,255,255,0.3);letter-spacing:0.06em;">← 낮음 &nbsp;&nbsp;&nbsp; 발생가능성 &nbsp;&nbsp;&nbsp; 높음 →</div>
+      </div>
+    </div>
+  </div>
+  <div class="slide-num">16 / 19</div>
+</div>
+
+<!-- SLIDE 17: 대응 전략 프레임워크 -->
+<div class="slide" data-index="17" data-section="part4">
+  <div class="section-bar">
+    <span class="section-pill">Cover</span>
+    <span class="section-pill">Part 1</span>
+    <span class="section-pill">Part 2</span>
+    <span class="section-pill">Part 3</span>
+    <span class="section-pill active">Part 4</span>
+  </div>
+  <div class="slide-content">
+    <div class="slide-title">대응 전략 프레임워크</div>
+    <div class="slide-subtitle">Part 4 — Strategic Response Framework: Short / Mid / Long-Term Roadmap</div>
+    <div class="roadmap">
+      <div class="road-phase phase-short">
+        <div class="road-phase-label">단기 &nbsp;·&nbsp; 0~6개월</div>
+        <div class="road-phase-title">즉시 실행</div>
+        <div class="road-item"><div class="road-dot"></div>내부 임금 경쟁력 진단 — 업종별·직군별 벤치마크 분석 (75th percentile 기준)</div>
+        <div class="road-item"><div class="road-dot"></div>노사협의회 활성화 — 분기 1회 → 월 1회 정례화, 의제 공개</div>
+        <div class="road-item"><div class="road-dot"></div>중대재해법 컴플라이언스 긴급 점검 — 안전보건체계 적정성 감사</div>
+        <div class="road-item"><div class="road-dot"></div>성과급 기준 내부 검토 — 산정 기준 문서화 및 소통 계획 수립</div>
+        <div class="road-item"><div class="road-dot"></div>해외 공장 노경 현황 실태 파악 — 공장별 노조 리스크 진단표 작성</div>
+      </div>
+      <div class="road-phase phase-mid">
+        <div class="road-phase-label">중기 &nbsp;·&nbsp; 6~18개월</div>
+        <div class="road-phase-title">체계 구축</div>
+        <div class="road-item"><div class="road-dot"></div>성과급 체계 투명화 — 반기별 산정 기준 공시, 노사 공동 검증 절차</div>
+        <div class="road-item"><div class="road-dot"></div>EV/신사업 전환 고용 보장 로드맵 수립 — 직무 전환 교육 체계화</div>
+        <div class="road-item"><div class="road-dot"></div>해외 공장 노경 매뉴얼 수립 — 국가별 노동법·교섭 전략 가이드</div>
+        <div class="road-item"><div class="road-dot"></div>복수노조 대응 프로토콜 — 교섭창구단일화 절차 표준화</div>
+        <div class="road-item"><div class="road-dot"></div>중대재해 예방체계 고도화 — 현장 안전관리 전담 조직 신설</div>
+      </div>
+      <div class="road-phase phase-long">
+        <div class="road-phase-label">장기 &nbsp;·&nbsp; 18개월+</div>
+        <div class="road-phase-title">선도적 노경</div>
+        <div class="road-item"><div class="road-dot"></div>노경 데이터 대시보드 구축 — 임금·쟁의·조직률·교섭 현황 실시간 모니터링</div>
+        <div class="road-item"><div class="road-dot"></div>예방적 노사관계 지수 관리 — 내부 노사신뢰도 측정 및 정기 리포트</div>
+        <div class="road-item"><div class="road-dot"></div>글로벌 노경 네트워크 구성 — 해외 법인 HR과 정보 공유 체계</div>
+        <div class="road-item"><div class="road-dot"></div>노경 전문인력 육성 — 사내 노경 전문가 자격화 프로그램</div>
+        <div class="road-item"><div class="road-dot"></div>ESG 노사관계 지표 공시 — 지속가능경영보고서 연계</div>
+      </div>
+    </div>
+    <div class="info-box cyan" style="margin-top:12px;">
+      단기는 <strong style="color:#e63946">리스크 차단</strong>, 중기는 <strong style="color:#f8c100">체계 구축</strong>, 장기는 <strong style="color:#4cc9f0">선제적 노경 경쟁력</strong>. 
+      3단계 로드맵의 핵심은 '반응적 대응'에서 '예방적 설계'로의 패러다임 전환.
+    </div>
+  </div>
+  <div class="slide-num">17 / 19</div>
+</div>
+
+<!-- SLIDE 18: 실행 과제 Top 5 -->
+<div class="slide" data-index="18" data-section="part4">
+  <div class="section-bar">
+    <span class="section-pill">Cover</span>
+    <span class="section-pill">Part 1</span>
+    <span class="section-pill">Part 2</span>
+    <span class="section-pill">Part 3</span>
+    <span class="section-pill active">Part 4</span>
+  </div>
+  <div class="slide-content">
+    <div class="slide-title">실행 과제 Top 5</div>
+    <div class="slide-subtitle">Part 4 — Priority Action Items</div>
+    <div class="action-list">
+      <div class="action-card">
+        <div class="action-num an-1">1</div>
+        <div class="action-body">
+          <div class="action-title">임금 경쟁력 확보</div>
+          <div class="action-desc">업계 75th percentile 수준 유지 목표 설정. 직군별 외부 벤치마크 연 2회 실시. 임금 갭 분석 기반 인상 우선순위 수립. 총보상(Total Compensation) 관점 커뮤니케이션.</div>
+        </div>
+        <div class="action-tag">즉시 착수</div>
+      </div>
+      <div class="action-card">
+        <div class="action-num an-2">2</div>
+        <div class="action-body">
+          <div class="action-title">성과급 기준 공개 제도화</div>
+          <div class="action-desc">반기별 성과급(OPI·PS) 산정 기준 공시. 노사 공동 검증위원회 구성. 기준 변경 시 사전 협의 의무화. 삼성전자 사례 반면교사 — 불투명성 제거가 갈등 예방의 핵심.</div>
+        </div>
+        <div class="action-tag">6개월 내</div>
+      </div>
+      <div class="action-card">
+        <div class="action-num an-3">3</div>
+        <div class="action-body">
+          <div class="action-title">중대재해 Zero 체계 구축</div>
+          <div class="action-desc">현장 안전관리 전담 조직 강화 (안전보건팀 독립 운영). 경영책임자 안전보건 결재 라인 명확화. 외부 전문기관 정기 안전감사 도입. 협력사 포함 안전관리 수준 동반 향상.</div>
+        </div>
+        <div class="action-tag">즉시 착수</div>
+      </div>
+      <div class="action-card">
+        <div class="action-num an-4">4</div>
+        <div class="action-body">
+          <div class="action-title">해외 공장 노경 전략 수립</div>
+          <div class="action-desc">착공 단계부터 노조화 리스크 맵핑. 국가별 노동법·교섭 의무 사전 학습. 현지 HR 노경 전문인력 채용. UAW·IG Metall 캠페인 조기 감지 모니터링 체계 구축.</div>
+        </div>
+        <div class="action-tag">12개월 내</div>
+      </div>
+      <div class="action-card">
+        <div class="action-num an-5">5</div>
+        <div class="action-body">
+          <div class="action-title">내부 소통 강화</div>
+          <div class="action-desc">분기별 CEO 타운홀 미팅 정례화. 노사공동위원회 격상 (자문 → 의결 기능 부분 이양). 현장 관리자 노경 교육 연 2회 의무화. 익명 고충 신고 채널 실효성 강화.</div>
+        </div>
+        <div class="action-tag">6개월 내</div>
+      </div>
+    </div>
+  </div>
+  <div class="slide-num">18 / 19</div>
+</div>
+
+<!-- SLIDE 19: 결론 & Q&A -->
+<div class="slide" data-index="19" data-section="cover">
+  <div class="section-bar">
+    <span class="section-pill">Cover</span>
+    <span class="section-pill">Part 1</span>
+    <span class="section-pill">Part 2</span>
+    <span class="section-pill">Part 3</span>
+    <span class="section-pill">Part 4</span>
+  </div>
+  <div class="slide-content">
+    <div class="slide-title">결론 &amp; Q&amp;A</div>
+    <div class="slide-subtitle">Conclusion — 5 Key Takeaways</div>
+    <div class="concl-list">
+      <div class="concl-item">
+        <div class="concl-icon">📊</div>
+        <div class="concl-text">
+          <strong>법·제도 강화는 구조적 트렌드</strong> — 반응적 대응이 아닌 선제적 준비.<br>
+          <span style="font-size:11px;color:rgba(255,255,255,0.5);">중대재해법·노조법 개정·52시간 논의는 일시적 규제가 아닌 장기 트렌드. 컴플라이언스 체계화가 기업 존속 조건.</span>
+        </div>
+      </div>
+      <div class="concl-item">
+        <div class="concl-icon">💰</div>
+        <div class="concl-text">
+          <strong>임금·성과급 투명성이 무분규의 핵심</strong> — 삼성·카카오 사례의 공통 교훈.<br>
+          <span style="font-size:11px;color:rgba(255,255,255,0.5);">성과급 기준 불투명성은 임금 수준보다 더 큰 갈등 요인. OPI·PS 기준 공시 제도화 서둘러야.</span>
+        </div>
+      </div>
+      <div class="concl-item">
+        <div class="concl-icon">🏭</div>
+        <div class="concl-text">
+          <strong>EV·배터리 전환기 = 노경 리스크 최고조 구간</strong> — 전환 불안이 조직화 촉진.<br>
+          <span style="font-size:11px;color:rgba(255,255,255,0.5);">고용 보장 조항 선제 신설, 전환 교육 투자, 해외 공장 착공 단계 노경 설계가 패키지로 필요.</span>
+        </div>
+      </div>
+      <div class="concl-item">
+        <div class="concl-icon">🌍</div>
+        <div class="concl-text">
+          <strong>UAW 충격파는 국내 한국계 해외 공장에 직접 영향</strong> — 글로벌 노경이 국내 의제.<br>
+          <span style="font-size:11px;color:rgba(255,255,255,0.5);">UAW 합의 기준이 미국 내 한국계 공장 임금 하한선으로 사실상 작동 중. 글로벌 노경 모니터링 필수.</span>
+        </div>
+      </div>
+      <div class="concl-item">
+        <div class="concl-icon">🤝</div>
+        <div class="concl-text">
+          <strong>선제적 대화가 파업보다 10배 저렴</strong> — 예방적 노사관계 투자 ROI 최고.<br>
+          <span style="font-size:11px;color:rgba(255,255,255,0.5);">파업 1일 손실 vs 연간 노경 예방 투자 비교 시 예방 투자 ROI가 압도적. 노경 전략은 비용이 아닌 투자.</span>
+        </div>
+      </div>
+    </div>
+    <div class="qa-box">
+      <div class="qa-box-title">Q &amp; A</div>
+      <div class="qa-box-sub">노동관계(노경) 전략팀 &nbsp;|&nbsp; 2025년 상반기 노경 환경 트렌드 &amp; 대응 전략 보고서</div>
+    </div>
+  </div>
+  <div class="slide-num">19 / 19</div>
+</div>
+
+</div><!-- /presentation-wrapper -->
+
+<script>
+const TOTAL = 20;
+let current = 0;
+
+function getSlides() {
+  return document.querySelectorAll('.slide');
+}
+
+function navigate(dir) {
+  const slides = getSlides();
+  slides[current].classList.remove('active');
+  current = Math.max(0, Math.min(TOTAL - 1, current + dir));
+  slides[current].classList.add('active');
+  updateUI();
+}
+
+function goTo(n) {
+  const slides = getSlides();
+  slides[current].classList.remove('active');
+  current = Math.max(0, Math.min(TOTAL - 1, n));
+  slides[current].classList.add('active');
+  updateUI();
+}
+
+function updateUI() {
+  // Progress bar
+  const pct = (current / (TOTAL - 1)) * 100;
+  document.getElementById('progress-bar').style.width = pct + '%';
+  // Arrow visibility
+  document.getElementById('btn-prev').style.opacity = current === 0 ? '0.3' : '1';
+  document.getElementById('btn-next').style.opacity = current === TOTAL - 1 ? '0.3' : '1';
+  // Scale
+  scaleSlide();
+}
+
+function scaleSlide() {
+  const wrapper = document.querySelector('.presentation-wrapper');
+  const scaleX = window.innerWidth / 960;
+  const scaleY = window.innerHeight / 540;
+  const scale = Math.min(scaleX, scaleY) * 0.95;
+  wrapper.style.transform = 'scale(' + scale + ')';
+  wrapper.style.transformOrigin = 'center center';
+}
+
+document.addEventListener('keydown', function(e) {
+  if (e.key === 'ArrowRight' || e.key === ' ') { e.preventDefault(); navigate(1); }
+  if (e.key === 'ArrowLeft') { e.preventDefault(); navigate(-1); }
+  if (e.key === 'Home') { e.preventDefault(); goTo(0); }
+  if (e.key === 'End') { e.preventDefault(); goTo(TOTAL - 1); }
+});
+
+window.addEventListener('resize', scaleSlide);
+
+// Init
+document.getElementById('progress-bar').style.width = '0%';
+document.getElementById('btn-prev').style.opacity = '0.3';
+scaleSlide();
+</script>
+
+</body>
+</html>
