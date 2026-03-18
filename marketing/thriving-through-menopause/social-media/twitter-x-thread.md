@@ -13,7 +13,7 @@ The most common thing women say after attending the Thriving Through Menopause S
 
 "Why did no one tell me any of this sooner?"
 
-We're back. Sydney. 200 seats. And they will go fast.
+We're back. Melbourne. 19 October 2026. First Release tickets now open.
 
 🧵 Thread ↓
 
@@ -35,12 +35,12 @@ This symposium exists to close that gap.
 **Tweet 3/8**
 Our 2026 speakers include some of the most respected names in women's health:
 
-🎤 @MichelleBridges — 12WBT & The Menopause Method
-🔬 Prof. Rod Baber AM — University of Sydney, Past President International Menopause Society
+🔬 Prof. Rod Baber AM — Past President, International Menopause Society
+💊 Dr. David Kosenko — President, CPCA
 🩺 Dr. Shauna Watts — Women's Health Specialist
 🌍 Dr. Nneka Nwokolo — London Menopause Clinic
 
-+ more. All in one room.
++ more specialists. 2026 program to be announced.
 
 ---
 
@@ -72,10 +72,10 @@ This is the education system failed to give us.
 ---
 
 **Tweet 6/8**
-Last year's symposium.
-State Library of NSW. Sydney.
+The 2025 Thriving Through Menopause Symposium.
+Sydney. 100% rated it Good or Excellent. 75% rated it Excellent.
 
-Women arrived with questions.
+Practitioners arrived with questions.
 They left with answers.
 
 One attendee said: *"I've spent 3 years confused. This one day gave me more clarity than everything else combined."*
@@ -89,7 +89,7 @@ That's why we do this.
 
 That's not a marketing line. It's the actual capacity.
 
-The State Library of NSW is a boutique, historic venue — and we've specifically chosen it because intimate events create transformative experiences.
+The Pullman Melbourne on the Park is a boutique, historic venue — and we've specifically chosen it because intimate events create transformative experiences.
 
 When it's full, it's full.
 
@@ -102,12 +102,12 @@ This is it.
 
 🔗 Tickets: thrivingthroughmenopause.com.au
 
-📍 State Library of NSW, Sydney
-🎟️ 200 seats only
+📍 Pullman Melbourne on the Park · Melbourne · 19 October 2026
+🎟️ Limited First Release tickets now open
 
 Share this with a woman who deserves to thrive. 💜
 
-#ThrivingThroughMenopause #Menopause #WomensHealth #Sydney
+#ThrivingThroughMenopause #Menopause #WomensHealth #Melbourne
 
 ---
 
@@ -145,7 +145,7 @@ Are you factoring this in?
 
 Cardiovascular health, bone density, cognitive function, oral health, pelvic floor integrity, intimate wellbeing.
 
-As a practitioner, your clients are asking YOU about these. The Thriving Through Menopause Symposium gives you the answers — from 11 of the world's best specialists.
+As a practitioner, your clients are asking YOU about these. The Thriving Through Menopause Symposium gives you the clinical answers — from world-class specialists in regenerative aesthetics, hormonal physiology, and advanced treatment technologies.
 
 ---
 
@@ -167,16 +167,16 @@ Heavy lifting matters more than ever for bone density.
 Cardio patterns need to shift.
 Recovery takes longer.
 
-@MichelleBridges has built an entire method around this. And she's speaking at our symposium.
+The 2026 program addresses exactly this — evidence-based approaches to exercise, metabolism and treatment for the menopausal body.
 
 ---
 
 **Tweet 6/6**
 5. You don't have to figure this out alone.
 
-The Thriving Through Menopause Symposium — Sydney, 2026.
+The Thriving Through Menopause Symposium 2026 — Melbourne, 19 October 2026.
 
-200 seats. World-class experts. One day that changes everything.
+First Release tickets. World-class experts. One day that changes your practice.
 
 🔗 thrivingthroughmenopause.com.au
 
@@ -199,7 +199,7 @@ The Thriving Through Menopause Symposium — Sydney, 2026.
 >
 > If that reframes how you see every client over 40 in your clinic — imagine what a full day with her and 10 world-class specialists does.
 >
-> The Thriving Through Menopause Symposium. Sydney. 200 seats.
+> The Thriving Through Menopause Symposium. Melbourne. 19 October 2026.
 > 🔗 thrivingthroughmenopause.com.au
 >
 > #ThrivingThroughMenopause #EmpoweringSkinSpecialists
@@ -213,22 +213,22 @@ The Thriving Through Menopause Symposium — Sydney, 2026.
 >
 > The Thriving Through Menopause Symposium is changing that.
 >
-> Sydney. 200 seats. Expert speakers.
+> Melbourne. 19 October 2026. Expert speakers. First Release tickets open.
 > 🔗 thrivingthroughmenopause.com.au
 >
 > #ThrivingThroughMenopause
 
 ---
 
-> The State Library of NSW is beautiful.
+> The Pullman Melbourne on the Park is a premium venue.
 >
 > The speakers are extraordinary.
 >
-> The conversations will change you.
+> The clinical insights will change your practice.
 >
-> Only 200 women will experience this day.
+> Limited First Release allocation — 19 October 2026.
 >
-> Will you be one of them?
+> Will you be in that room?
 > 🔗 thrivingthroughmenopause.com.au
 
 ---
@@ -240,7 +240,7 @@ The Thriving Through Menopause Symposium — Sydney, 2026.
 > → You'll meet women at exactly the same life stage as you
 > → Nothing gets lost in a crowd
 >
-> 200 seats. Thriving Through Menopause Symposium. Sydney.
+> Melbourne. 19 October 2026. Thriving Through Menopause Symposium.
 > 🔗 thrivingthroughmenopause.com.au
 
 ---
@@ -253,17 +253,17 @@ The Thriving Through Menopause Symposium — Sydney, 2026.
 >
 > The level of expertise in the room will be extraordinary.
 >
-> 200 seats: thrivingthroughmenopause.com.au
+> First Release tickets: thrivingthroughmenopause.com.au · 19 October 2026 · Melbourne
 
 ---
 
-> @MichelleBridges didn't just create 12WBT.
+> 100% of 2025 delegates rated the Thriving Through Menopause Symposium Good or Excellent.
 >
-> She went through menopause — and built The Menopause Method to help every Australian woman who follows.
+> 75% rated it Excellent.
 >
-> This is what happens when lived experience meets expertise.
+> This is what happens when the right experts meet the right practitioners.
 >
-> She's speaking at our Sydney symposium. 200 seats only.
+> 2026 is in Melbourne. 19 October. First Release tickets open.
 > 🔗 thrivingthroughmenopause.com.au
 
 ---
@@ -274,7 +274,7 @@ The Thriving Through Menopause Symposium — Sydney, 2026.
 >
 > Tickets are moving.
 >
-> We have 200 seats — and that number exists for a reason.
+> The First Release allocation exists for a reason — we keep it boutique.
 >
 > If you've been meaning to book: now is the moment.
 >
@@ -286,18 +286,18 @@ The Thriving Through Menopause Symposium — Sydney, 2026.
 >
 > They said it was worth every minute of travel.
 >
-> The Thriving Through Menopause Symposium.
-> State Library of NSW, Sydney.
-> 200 seats. Tickets: thrivingthroughmenopause.com.au
+> The Thriving Through Menopause Symposium 2026.
+> Pullman Melbourne on the Park · Melbourne · 19 October.
+> First Release tickets: thrivingthroughmenopause.com.au
 
 ---
 
-> You can keep Googling your symptoms at 2am.
+> Your clients are navigating menopause right now — do you have the clinical knowledge to truly support them?
 >
-> Or you can spend one day with the people who actually have the answers.
+> Or you can spend one day with the world-class specialists who actually have the answers.
 >
-> The Thriving Through Menopause Symposium.
-> Sydney · 200 Seats
+> The Thriving Through Menopause Symposium 2026.
+> Melbourne · 19 October · First Release Tickets
 >
 > 🔗 thrivingthroughmenopause.com.au
 
@@ -316,14 +316,14 @@ The Thriving Through Menopause Symposium — Sydney, 2026.
 - #WomenOver40
 - #MenopauseMatters
 - #ThrivingWomen
-- #SydneyEvents
+- #MelbourneEvents
 - #WomensWellness
 - #HormoneHealth
 
 **Target accounts to tag (when relevant):**
 - @MichelleBridges
 - @UniofSydney
-- State Library of NSW
+- Pullman Melbourne on the Park
 - InMode Australia
 
 ---

@@ -8,13 +8,13 @@
 **Website**: https://thrivingthroughmenopause.com.au
 **Instagram**: @thrivingthroughmenopausebycw
 **Founder**: Chiza Westcarr (Clinical Dermal Therapist, Nutritionist, CIDESCO / ITEC Hons / CIBTAC)
-**Venue**: State Library of NSW, 1 Shakespeare Place, Sydney NSW 2000
-**Event time**: 8:00 AM – 6:00 PM (full day)
-**Ticket pricing**: AUD $497 – $897
+**Event date**: 19 October 2026
+**Venue**: Pullman Melbourne on the Park, Melbourne, Victoria
+**Ticket types**: General Admission, VIP
 **Ticket platform**: Humanitix
-**Style**: Boutique-style conference
-**Primary target audience**: Aesthetic Doctors, Aesthetic Nurses, Dermal Clinicians, Wellness Practitioners, Nutritionists
-**Secondary audience**: Women seeking expert-guided understanding of the menopause journey
+**Style**: Boutique-style conference — Limited First Release allocation
+**Primary target audience**: Aesthetic Doctors, Cosmetic Nurses, Dermal Clinicians and Skin Therapists, Clinic Owners and Practice Leaders, Allied Health Professionals supporting women in midlife
+**Secondary audience**: Healthcare professionals working with midlife women
 **Sub-brand**: Menopause Skin Academy (ongoing education platform)
 
 ---
@@ -93,15 +93,52 @@
 - "Significantly enhance the quality of life for menopausal women through your practice."
 - "Transform the approach to menopause."
 
-### Urgency Messaging (Non-Pushy)
-- "Act now — limited seats available. Don't miss out on this unique opportunity."
-- "Be part of Australia's most intimate menopause symposium."
-- "Places are filling fast. Don't miss your seat at the table."
-- "From $497 AUD — investment in knowledge that transforms your practice."
+## Ticket Options (2026)
+**General Admission**
+- Full-day access to Thriving Through Menopause Symposium 2026
+- Morning tea, lunch and afternoon tea
+- Networking throughout the day
+- Generous Delegate Bag
+- Networking drinks
+- Limited allocation per release
+
+**VIP Access** (includes everything in General Admission, plus)
+- Reserved premium seating
+- Priority registration check-in
+- Priority Q&A access during panel sessions
+- Post-event digital access to session recordings (limited access period)
+- Very generous VIP Delegate Bag
+- Limited VIP allocation
 
 ---
 
-## Confirmed Speakers (2025 Symposium)
+### Urgency Messaging (Non-Pushy)
+- "Secure First Release tickets — limited allocation available."
+- "Be part of Australia's most respected boutique menopause symposium for practitioners."
+- "First Release allocation is filling. Don't miss your seat at the table."
+- "General Admission and VIP tickets available — investment in knowledge that transforms your practice."
+
+---
+
+## 2025 Delegate Feedback
+- **75%** rated the symposium Excellent
+- **25%** rated it Good
+- **100%** rated it Good or Excellent
+
+> "This year builds on the foundation of 2025 and moves decisively into clinical application and regenerative strategies."
+
+---
+
+## 2026 — What Delegates Will Gain
+- A clearer understanding of how perimenopause and menopause affect skin structure, healing and treatment response
+- Practical guidance on adapting aesthetic protocols to midlife physiology
+- Greater confidence in consulting with midlife women with complex presentations
+- Insight into how metabolic health, inflammation and medication use influence clinical outcomes
+- Case-based discussions that translate physiology into treatment
+
+---
+
+## Speaker Alumni (2025 Symposium) · 2026 Speakers TBA
 - **Prof. Rod Baber AM** — Professor of Obstetrics & Gynaecology, University of Sydney; heads menopause clinic at Royal North Shore Hospital; Past President, International & Australasian Menopause Societies
 - **Dr. David Kosenko** — President, Cosmetic Physicians College of Australasia; Women's Health Specialist
 - **Dr. Shauna Watts** — Cosmetic Physician & Women's Health Specialist
@@ -116,13 +153,14 @@
 
 ---
 
-## Topics Covered
-- Exercise, personalized nutrition & medical weight management through menopause
-- Hormone health & evidence-based treatment options
-- Mental wellbeing & cognitive health
-- Aesthetics & beauty industry's role in menopause care
-- InMode technology & innovative wellness solutions
-- The future of women's healthcare
+## Topics Covered (2026 Focus: Clinical Application & Regenerative Strategies)
+- Perimenopause and menopause effects on skin structure, healing and treatment response
+- Adapting aesthetic protocols to midlife physiology
+- Metabolic health, inflammation and medication use in clinical outcomes
+- Regenerative treatment planning and technology selection
+- Hormone-aware and medication-aware consultation frameworks
+- Referral pathways and whole-person care
+- Case-based discussions translating physiology into treatment
 
 ---
 

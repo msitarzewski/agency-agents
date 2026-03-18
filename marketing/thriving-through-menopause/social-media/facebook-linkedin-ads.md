@@ -22,13 +22,13 @@ Your clients deserve a practitioner who truly understands what they're going thr
 
 That's exactly why Chiza Westcarr created the **Thriving Through Menopause Symposium** — Australia's most respected boutique conference for aesthetics and wellness practitioners.
 
-Join Prof. Rod Baber AM, Dr. David Kosenko, Dr. Nneka Nwokolo, and 7 more world-class specialists for a full day of cutting-edge knowledge in Sydney.
+Join Prof. Rod Baber AM, Dr. David Kosenko, Dr. Nneka Nwokolo, and more world-class specialists for a full day of cutting-edge clinical knowledge in Melbourne.
 
 Real clinical answers. Evidence-based insights. A room full of practitioners *leading the change*.
 
 Only 200 seats available. From $497 AUD.
 
-📍 State Library of NSW, Sydney
+📍 Pullman Melbourne on the Park, Melbourne
 🎟️ Tickets: thrivingthroughmenopause.com.au
 
 **Description (link):**
@@ -82,7 +82,7 @@ From $497 AUD. Last year sold out.
 
 If you've been thinking about joining us — **now is the time.**
 
-State Library of NSW, Sydney · thrivingthroughmenopause.com.au
+Pullman Melbourne on the Park, Melbourne · thrivingthroughmenopause.com.au
 
 **CTA Button**: `Book Now`
 
@@ -143,7 +143,7 @@ The **Thriving Through Menopause Symposium** is a boutique one-day event at the 
 • Health coaches & naturopaths
 • Wellness industry professionals
 
-Join Michelle Bridges, Prof. Rod Baber AM, Dr. Shauna Watts, and more for a day that will transform how you serve your female clients.
+Join Prof. Rod Baber AM, Dr. David Kosenko, Dr. Shauna Watts, and more for a day that will transform how you serve your midlife female clients.
 
 **200 seats only** — this event is intentionally intimate.
 
@@ -168,16 +168,16 @@ World-class gynaecologists. Leading cosmetic physicians. Fitness pioneers. Menop
 
 All in one room. For one day. For you.
 
-**This year's symposium features:**
-→ Michelle Bridges on exercise & The Menopause Method
-→ Prof. Rod Baber AM on evidence-based treatment
-→ Dr. David Kosenko on the aesthetics of ageing gracefully
+**2026 symposium builds on 2025 and moves into:**
+→ Prof. Rod Baber AM on evidence-based treatment protocols
+→ Dr. David Kosenko on aesthetics and midlife physiology
 → Dr. Nneka Nwokolo flying in from London's leading menopause clinic
 → Dr. Shauna Watts on women's health and hormones
-→ Agnes Dube on wellness and empowerment
+→ Dr. Anoop Rastogi on regenerative medicine and aesthetics
+→ 2026 full program to be announced
 
-📍 State Library of NSW, Sydney
-🎟️ 200 seats — intentionally intimate
+📍 Pullman Melbourne on the Park, Melbourne
+🎟️ Limited First Release allocation — 19 October 2026
 
 If you've been waiting for the right moment to invest in your health, your practice, or your team's knowledge — this is it.
 
