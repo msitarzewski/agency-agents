@@ -130,82 +130,116 @@ async def main():
     print(f"Markets with vol > $100: {sum(1 for v in vols if v > 100)}")
 
     print("\n" + "=" * 60)
-    print("STEP 3 — BTC/XRP/SOL price-feed markets (deep search)")
+    print("STEP 3 — BTC/XRP/SOL deep search (events + slug + all pages)")
     print("=" * 60)
 
-    COIN_TERMS = ["bitcoin", "btc", "xrp", "ripple", "solana", "sol"]
+    COIN_TERMS = ["bitcoin", "btc", "xrp", "ripple", "solana", "sol",
+                  "crypto", "eth", "ethereum"]
 
-    # Targeted API keyword search for each coin
-    search_results: list[dict] = []
-    seen_ids: set = set()
-    async with httpx.AsyncClient(timeout=15) as client:
-        for keyword in ["bitcoin", "BTC", "XRP", "solana", "SOL"]:
-            try:
-                r = await client.get(
-                    f"{GAMMA_API}/markets",
-                    params={"active": "true", "closed": "false",
-                            "limit": 50, "search": keyword},
-                )
-                if r.status_code == 200:
-                    for m in r.json():
-                        if m.get("id") not in seen_ids:
-                            seen_ids.add(m.get("id"))
-                            search_results.append(m)
-            except Exception as e:
-                print(f"  search '{keyword}' failed: {e}")
+    all_found: dict = {}  # id -> market dict
 
-    # Paginate up to 500 markets total
-    scanned = list(all_markets)
-    offset = 100
-    async with httpx.AsyncClient(timeout=15) as client:
-        while offset < 500:
+    def _add(markets_list):
+        for m in markets_list:
+            mid = m.get("id") or m.get("conditionId") or str(m)
+            if mid not in all_found:
+                all_found[mid] = m
+
+    _add(all_markets)
+
+    async with httpx.AsyncClient(timeout=30) as client:
+
+        # 1. Paginate /markets without active filter (include everything)
+        print("  Scanning /markets (no active filter, up to 1000)...")
+        for offset in range(0, 1000, 100):
             try:
-                r = await client.get(
-                    f"{GAMMA_API}/markets",
-                    params={"active": "true", "closed": "false",
-                            "limit": 100, "offset": offset},
-                )
-                r.raise_for_status()
-                batch = r.json()
-                if not batch:
+                r = await client.get(f"{GAMMA_API}/markets",
+                    params={"limit": 100, "offset": offset})
+                if r.status_code != 200 or not r.json():
                     break
-                scanned.extend(batch)
-                offset += 100
+                _add(r.json())
                 await asyncio.sleep(0.1)
+            except Exception as e:
+                print(f"    offset {offset} error: {e}"); break
+
+        # 2. Try /events endpoint — groups of related markets
+        print("  Scanning /events endpoint...")
+        for offset in range(0, 300, 50):
+            try:
+                r = await client.get(f"{GAMMA_API}/events",
+                    params={"active": "true", "closed": "false",
+                            "limit": 50, "offset": offset})
+                if r.status_code != 200:
+                    print(f"    /events status: {r.status_code}"); break
+                events = r.json()
+                if not events:
+                    break
+                for ev in events:
+                    # events contain nested markets[]
+                    for m in (ev.get("markets") or []):
+                        m.setdefault("question", ev.get("title", ""))
+                        _add([m])
+                    # also check event title itself
+                    ev_q = (ev.get("title") or ev.get("question") or "").lower()
+                    if any(t in ev_q for t in COIN_TERMS):
+                        print(f"    EVENT: [{ev.get('id')}] {ev.get('title','')}")
+                await asyncio.sleep(0.1)
+            except Exception as e:
+                print(f"    /events error: {e}"); break
+
+        # 3. Direct slug lookups for known Polymarket crypto price markets
+        print("  Trying known crypto price-feed slugs...")
+        slugs = [
+            "btc-price-5min", "bitcoin-price-5min", "btc-5-minute",
+            "btc-above-", "will-btc-", "will-bitcoin-",
+            "xrp-price", "will-xrp-", "solana-price", "will-sol-",
+            "btc-end-of-day", "btc-eod", "crypto-price",
+            "bitcoin-above", "btc-close", "bitcoin-close",
+        ]
+        for slug in slugs:
+            try:
+                r = await client.get(f"{GAMMA_API}/markets",
+                    params={"slug": slug, "limit": 20})
+                if r.status_code == 200 and r.json():
+                    _add(r.json())
+                    for m in r.json():
+                        print(f"    SLUG HIT [{slug}]: {m.get('question','')}")
             except Exception:
-                break
+                pass
 
-    print(f"Total markets scanned (paginated): {len(scanned)}")
+        # 4. Try /markets with tag/category filter
+        print("  Trying tag/category filters...")
+        for tag in ["crypto", "cryptocurrency", "bitcoin", "price"]:
+            try:
+                r = await client.get(f"{GAMMA_API}/markets",
+                    params={"tag": tag, "limit": 50})
+                if r.status_code == 200 and r.json():
+                    _add(r.json())
+                    print(f"    tag={tag}: {len(r.json())} results")
+            except Exception:
+                pass
 
-    # Merge keyword-search results
-    scanned_ids = {x.get("id") for x in scanned}
-    for m in search_results:
-        if m.get("id") not in scanned_ids:
-            scanned.append(m)
-    print(f"Total markets after search merge:  {len(scanned)}")
+    print(f"\nTotal unique markets scanned: {len(all_found)}")
 
-    coin_matches = []
-    for m in scanned:
-        q = (m.get("question") or "").lower()
-        if any(t in q for t in COIN_TERMS):
-            coin_matches.append(m)
-
-    print(f"\nMarkets mentioning BTC/XRP/SOL: {len(coin_matches)}")
+    coin_matches = [
+        m for m in all_found.values()
+        if any(t in (m.get("question") or "").lower() for t in COIN_TERMS)
+    ]
+    print(f"Markets mentioning BTC/XRP/SOL/ETH/crypto: {len(coin_matches)}")
 
     if coin_matches:
-        print("\nAll crypto-related markets (sorted by volume):")
+        print("\nAll crypto-related markets found (sorted by volume):")
         for m in sorted(coin_matches,
                         key=lambda x: float(x.get("volumeNum") or x.get("volume") or 0),
-                        reverse=True)[:40]:
+                        reverse=True)[:50]:
             vol  = float(m.get("volumeNum") or m.get("volume") or 0)
             sprd = m.get("spread", "?")
             yes  = float((parse_prices(m.get("outcomePrices", [])) or [0])[0])
             act  = "ACTIVE  " if m.get("active") else "inactive"
             print(f"  [{act} | {vol:>12,.0f} vol | sprd={sprd} | yes={yes:.2f}] {m.get('question', '')}")
     else:
-        print("\nNO crypto markets found across 500+ markets + keyword search.")
-        print("BTC/XRP/SOL price-feed markets are not currently on Polymarket.")
-        print("TIP: Clear MARKET_KEYWORDS= in .env to trade the available markets.")
+        print("\nNO crypto markets found. Printing 10 sample market questions to verify API:")
+        for m in list(all_found.values())[:10]:
+            print(f"  {m.get('question', m.get('id', '?'))}")
 
     print("\n" + "=" * 60)
     print("STEP 4 — Volume field names actually present")
