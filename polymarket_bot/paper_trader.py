@@ -68,6 +68,7 @@ class PaperTrader:
         self.risk.record_buy(
             intent.market_id, intent.outcome, intent.size_usdc, fill_price,
             end_time=intent.end_time, question=intent.question,
+            token_id=getattr(intent, "token_id", ""),
         )
 
         result = FillResult(

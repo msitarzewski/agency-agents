@@ -16,6 +16,10 @@ class Config:
     private_key: str = field(
         default_factory=lambda: os.environ.get("POLYMARKET_PRIVATE_KEY", "")
     )
+    # Funder / EOA address — needed for on-chain redemption sweeps
+    funder_address: str = field(
+        default_factory=lambda: os.environ.get("FUNDER_ADDRESS", "")
+    )
     # Polygon RPC endpoint (free: https://polygon-rpc.com)
     polygon_rpc: str = field(
         default_factory=lambda: os.environ.get(

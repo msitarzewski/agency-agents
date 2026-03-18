@@ -13,6 +13,7 @@ import json
 import logging
 import time
 from dataclasses import dataclass
+from datetime import datetime, timezone
 from typing import Optional
 
 import httpx
@@ -83,6 +84,19 @@ def _parse_market(raw: dict) -> Optional[Market]:
         if isinstance(clob_token_ids, str):
             clob_token_ids = json.loads(clob_token_ids)
 
+        # Parse end time — Gamma API uses endDateIso or end_date_iso
+        end_time: Optional[float] = None
+        for end_field in ("endDateIso", "end_date_iso", "endDate", "end_date", "closeTime"):
+            raw_end = raw.get(end_field)
+            if raw_end:
+                try:
+                    end_time = datetime.fromisoformat(
+                        str(raw_end).rstrip("Z")
+                    ).replace(tzinfo=timezone.utc).timestamp()
+                    break
+                except (ValueError, TypeError):
+                    pass
+
         return Market(
             id=raw["id"],
             question=raw.get("question", raw.get("title", "")),
@@ -94,6 +108,7 @@ def _parse_market(raw: dict) -> Optional[Market]:
             liquidity_usdc=liquidity,
             active=bool(raw.get("active", True)),
             clob_token_ids=clob_token_ids,
+            end_time=end_time,
         )
     except (KeyError, TypeError, ValueError) as exc:
         logger.debug("Failed to parse market %s: %s", raw.get("id", "?"), exc)

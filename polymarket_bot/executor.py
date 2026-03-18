@@ -17,6 +17,8 @@ ALWAYS paper trade first.
 
 import asyncio
 import logging
+import time as _time
+import traceback
 from dataclasses import dataclass
 from datetime import datetime, timezone
 from typing import Optional
@@ -96,12 +98,18 @@ class LiveExecutor:
         # Convert USDC size to token count at limit price
         token_amount = int((intent.size_usdc / intent.price) * 1_000_000)  # micro-USDC
 
+        # Resolve the token ID — prefer intent-supplied, fallback to stored or lookup
+        token_id = (
+            getattr(intent, "token_id", "")
+            or self._resolve_token_id(intent.market_id, intent.outcome)
+        )
+
         try:
             order_args = OrderArgs(
                 price=intent.price,
                 size=token_amount,
                 side="BUY",
-                token_id=self._resolve_token_id(intent.market_id, intent.outcome),
+                token_id=token_id,
             )
             resp = await asyncio.get_event_loop().run_in_executor(
                 None,
@@ -113,7 +121,12 @@ class LiveExecutor:
                 intent.outcome, intent.question[:55],
                 intent.price, intent.size_usdc, order_id,
             )
-            self.risk.record_buy(intent.market_id, intent.outcome, intent.size_usdc, intent.price)
+            self.risk.record_buy(
+                intent.market_id, intent.outcome, intent.size_usdc, intent.price,
+                end_time=getattr(intent, "end_time", None),
+                question=intent.question,
+                token_id=token_id,
+            )
             return FillResult(
                 success=True,
                 market_id=intent.market_id,
@@ -185,20 +198,87 @@ class LiveExecutor:
             )
 
     def _resolve_token_id(self, market_id: str, outcome: str) -> str:
-        """
-        Resolve the ERC-1155 token ID for a given market and outcome.
-        On Polymarket, each outcome is a distinct conditional token.
-        You can look up token IDs from the Gamma API market data.
-        """
-        # In a full implementation, cache token IDs from market data:
-        #   market["clobTokenIds"][0]  → YES/Up token
-        #   market["clobTokenIds"][1]  → NO/Down token
-        # For now, return the market_id as a placeholder.
-        # TODO: populate from market scanner data
-        raise NotImplementedError(
-            "Token ID resolution not yet implemented. "
-            "Fetch from Gamma API: market['clobTokenIds'][0 or 1]"
+        """Return cached token_id from risk state, or empty string if unknown."""
+        return (
+            self.risk.market_token_ids
+            .get(market_id, {})
+            .get(outcome, "")
         )
+
+    def redeem_position(self, condition_id: str, token_id: str, side: str) -> bool:
+        """
+        Claim winning tokens on-chain after market resolution.
+        Ported from copytrader.py — 3-step process:
+          1. Transfer winning tokens from EOA wallet → Safe (proxy wallet)
+          2. Call redeem_position on the CTF exchange from the Safe
+          3. Sweep USDC.e proceeds back from Safe → EOA
+
+        Only runs in live mode. Returns True on success.
+        """
+        if not condition_id or not token_id:
+            logger.warning("redeem_position: missing condition_id or token_id — skipping")
+            return False
+        try:
+            from polymarket_apis.clients.web3_client import PolymarketWeb3Client
+            from web3 import Web3
+        except ImportError:
+            logger.warning(
+                "polymarket_apis / web3 not installed — cannot redeem on-chain. "
+                "Run: pip install polymarket-apis web3"
+            )
+            return False
+
+        try:
+            RPC       = "https://polygon.drpc.org"
+            EOA_ADDR  = Web3.to_checksum_address(self.cfg.funder_address)
+            eoa_client  = PolymarketWeb3Client(self.cfg.private_key, signature_type=0, rpc_url=RPC)
+            safe_client = PolymarketWeb3Client(self.cfg.private_key, signature_type=2, rpc_url=RPC)
+            SAFE_ADDR   = safe_client.address
+
+            # ── Step 1: Transfer winning tokens EOA → Safe ─────────────────
+            eoa_bal  = eoa_client.get_token_balance(token_id)
+            safe_bal = eoa_client.get_token_balance(token_id, SAFE_ADDR)
+            if eoa_bal > 0:
+                logger.info("Transferring %.4f tokens EOA → Safe...", eoa_bal)
+                r = eoa_client.transfer_token(token_id, SAFE_ADDR, eoa_bal)
+                if r.status != 1:
+                    logger.warning("Token transfer FAILED | tx: %s", r.tx_hash)
+                    return False
+                logger.info("Transfer confirmed ✓ | tx: %s...", r.tx_hash[:20])
+                _time.sleep(3)
+            elif safe_bal > 0:
+                logger.info("Tokens already in Safe (%.4f) — skipping transfer", safe_bal)
+            else:
+                logger.info("No winning tokens found in EOA or Safe — already redeemed?")
+                return True
+
+            # ── Step 2: Redeem from Safe ────────────────────────────────────
+            logger.info("Redeeming from Safe | condition: %s...", condition_id[:16])
+            r = safe_client.redeem_position(condition_id=condition_id, amounts=[0, 0], neg_risk=False)
+            if r.status != 1:
+                logger.warning("Safe redemption FAILED | tx: %s", r.tx_hash)
+                return False
+            logger.info("Redemption confirmed ✓ | tx: %s...", r.tx_hash[:20])
+            _time.sleep(3)
+
+            # ── Step 3: Sweep USDC.e Safe → EOA ────────────────────────────
+            safe_usdc = safe_client.get_usdc_balance()
+            if safe_usdc > 0:
+                logger.info("Sweeping $%.4f USDC.e Safe → EOA...", safe_usdc)
+                r = safe_client.transfer_usdc(EOA_ADDR, safe_usdc)
+                if r.status == 1:
+                    logger.info(
+                        "Sweep confirmed ✓ | $%.4f USDC.e returned | tx: %s...",
+                        safe_usdc, r.tx_hash[:20],
+                    )
+                else:
+                    logger.warning("Sweep FAILED — funds in Safe, run withdraw_to_wallet.py manually")
+            else:
+                logger.warning("No USDC.e in Safe after redemption — may still be processing")
+            return True
+        except Exception as exc:
+            logger.error("Redemption error: %s\n%s", exc, traceback.format_exc())
+            return False
 
     def _rejected(self, intent: OrderIntent, side: str, reason: str) -> FillResult:
         return FillResult(

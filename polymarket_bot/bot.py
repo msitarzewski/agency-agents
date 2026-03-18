@@ -48,6 +48,9 @@ class PolymarketLPBot:
         self.risk     = risk
         self.monitor  = monitor
         self._running = False
+        # {condition_id: {"retry_at": float, "token_id": str, "side": str}}
+        self._redeem_queue: dict = {}
+        self._last_settle_check = 0.0
 
     async def run_once(self) -> tuple[int, int, int, dict]:
         """
@@ -105,25 +108,36 @@ class PolymarketLPBot:
 
     async def _settle_closed_positions(self) -> int:
         """
-        Check all open positions where the market end_time has passed.
-        Query the Gamma API to determine the winning outcome and settle.
+        Check ALL open positions for settlement.
+        Primary: market end_time elapsed + Gamma API resolved.
+        Fallback: CLOB price ≥ 0.95 (same logic as copytrader.py).
+        After settlement, queue on-chain redemption (live mode only).
         Returns number of positions settled.
         """
         now = time.time()
+        # Throttle to once per 60 s (same as copytrader.py)
+        if now - self._last_settle_check < 60:
+            return 0
+        self._last_settle_check = now
+
         settled_count = 0
         to_remove: list[str] = []
 
-        for market_id, end_time in list(self.risk.market_end_times.items()):
-            # Only check markets that have closed (with a 10s grace period)
-            if end_time > now - 10:
-                continue
-            if market_id not in self.risk.positions:
-                to_remove.append(market_id)
+        # Gather all markets that have open positions
+        candidates: set[str] = set()
+        for market_id, outcomes in self.risk.positions.items():
+            if any(r.tokens_held > 0 for r in outcomes.values()):
+                candidates.add(market_id)
+
+        for market_id in candidates:
+            end_time = self.risk.market_end_times.get(market_id, 0)
+            # Skip markets that haven't reached end_time yet (with 10s grace),
+            # unless we have no end_time (then always check)
+            if end_time and end_time > now - 10:
                 continue
 
             winner = await self._fetch_market_outcome(market_id)
             if winner is None:
-                # Not yet resolved — try again next cycle
                 continue
 
             question = self.risk.market_questions.get(market_id, "")
@@ -136,6 +150,14 @@ class PolymarketLPBot:
                     (outcome == "Down" and winner in ("No",  "Down", "NO",  "DOWN"))
                 )
                 payout_price = 1.0 if won else 0.0
+                pnl_sign     = "+" if won else ""
+                pnl_val      = rec.tokens_held * payout_price - rec.cost_basis_usdc
+
+                logger.info(
+                    "SETTLE %s | %s | %s | pnl: %s$%.2f",
+                    market_id[:16], outcome, "WIN" if won else "LOSS",
+                    pnl_sign, pnl_val,
+                )
 
                 fill = await self.executor.settle_position(
                     market_id=market_id,
@@ -144,24 +166,78 @@ class PolymarketLPBot:
                     tokens=rec.tokens_held,
                     payout_price=payout_price,
                 )
-                fill.market_end_ts = end_time
+                fill.market_end_ts = end_time or now
                 self.monitor.log_fill(fill)
                 settled_count += 1
+
+                # Queue on-chain redemption for winning positions (live only)
+                if won and self.cfg.mode == "live":
+                    token_id = rec.token_id or self.risk.market_token_ids.get(market_id, {}).get(outcome, "")
+                    if token_id:
+                        self._redeem_queue[market_id] = {
+                            "retry_at": now + 180,   # 3-min delay for oracle resolution
+                            "token_id": token_id,
+                            "side":     outcome,
+                        }
+                        logger.info("Queued redemption in 3 min | %s...", market_id[:16])
 
             to_remove.append(market_id)
 
         for mid in to_remove:
             self.risk.market_end_times.pop(mid, None)
 
+        # ── Process redeem queue ─────────────────────────────────────────────
+        if self.cfg.mode == "live" and hasattr(self.executor, "redeem_position"):
+            for cid in list(self._redeem_queue):
+                entry = self._redeem_queue[cid]
+                if now < entry["retry_at"]:
+                    continue
+                ok = await asyncio.get_event_loop().run_in_executor(
+                    None,
+                    lambda c=cid, e=entry: self.executor.redeem_position(
+                        c, e["token_id"], e["side"]
+                    ),
+                )
+                if ok:
+                    del self._redeem_queue[cid]
+                    logger.info("Redemption complete | %s", cid[:16])
+                else:
+                    entry["retry_at"] = now + 300  # retry in 5 min
+                    logger.warning("Redemption retry in 5 min | %s...", cid[:16])
+
         return settled_count
 
     async def _fetch_market_outcome(self, market_id: str) -> Optional[str]:
         """
-        Query Gamma API to check if a market has resolved.
-        Returns the winner string (e.g. "Yes", "No") or None if not yet resolved.
+        Determine the winning outcome for a market.
+        1. Check CLOB live prices — if an outcome token trades ≥ $0.95 it has resolved.
+        2. Query Gamma API for resolved/closed state and winner field.
+        Returns the winner string ("Up", "Down", "Yes", "No") or None if unresolved.
         """
         try:
             async with httpx.AsyncClient(timeout=_SETTLE_TIMEOUT) as client:
+                # ── 1. CLOB price check (fast path, same as copytrader.py) ──
+                token_ids = self.risk.market_token_ids.get(market_id, {})
+                for outcome, token_id in token_ids.items():
+                    if not token_id:
+                        continue
+                    try:
+                        resp = await client.get(
+                            "https://clob.polymarket.com/price",
+                            params={"token_id": token_id, "side": "SELL"},
+                        )
+                        if resp.status_code == 200:
+                            price = float(resp.json().get("price", 0))
+                            if price >= 0.95:
+                                logger.info(
+                                    "CLOB price=%.4f ≥ 0.95 for %s %s → settled",
+                                    price, market_id[:16], outcome,
+                                )
+                                return outcome
+                    except Exception:
+                        pass
+
+                # ── 2. Gamma API resolution check ──────────────────────────
                 resp = await client.get(
                     f"{GAMMA_API}/markets",
                     params={"id": market_id},
@@ -173,26 +249,33 @@ class PolymarketLPBot:
                 if not isinstance(raw, dict):
                     return None
 
-                # Market is settled if active=false or resolved=true
                 is_resolved = raw.get("resolved", False) or not raw.get("active", True)
                 if not is_resolved:
                     return None
 
-                # Try winner field first
+                # resolutionIndex takes priority
+                res_idx = raw.get("resolutionIndex")
+                if res_idx is not None:
+                    outcomes_raw = raw.get("outcomes", ["Up", "Down"])
+                    if isinstance(outcomes_raw, str):
+                        outcomes_raw = json.loads(outcomes_raw)
+                    if int(res_idx) < len(outcomes_raw):
+                        return str(outcomes_raw[int(res_idx)])
+
                 winner = raw.get("winner") or raw.get("outcome")
                 if winner:
                     return str(winner)
 
-                # Fall back to outcome prices: winner has price ≈ 1.0
+                # Fallback to outcome prices
                 outcome_prices = raw.get("outcomePrices", [])
                 if isinstance(outcome_prices, str):
                     outcome_prices = json.loads(outcome_prices)
-                outcomes = raw.get("outcomes", ["Yes", "No"])
-                if isinstance(outcomes, str):
-                    outcomes = json.loads(outcomes)
+                outcomes_raw = raw.get("outcomes", ["Up", "Down"])
+                if isinstance(outcomes_raw, str):
+                    outcomes_raw = json.loads(outcomes_raw)
                 for i, p in enumerate(outcome_prices):
-                    if float(p) >= 0.99 and i < len(outcomes):
-                        return str(outcomes[i])
+                    if float(p) >= 0.99 and i < len(outcomes_raw):
+                        return str(outcomes_raw[i])
 
         except Exception as exc:
             logger.debug("Outcome fetch failed for %s: %s", market_id, exc)

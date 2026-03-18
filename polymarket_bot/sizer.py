@@ -27,6 +27,7 @@ class OrderIntent:
     fragment_of: int          # which fragment (1..N)
     total_frags: int
     end_time:    Optional[float] = None  # Unix timestamp when market closes
+    token_id:    str = ""               # ERC-1155 token ID for on-chain redemption
 
 
 def compute_raw_size(price: float, cfg: Config) -> float:
@@ -72,6 +73,15 @@ def build_order_intents(
     """
     intents: list[OrderIntent] = []
 
+    # clob_token_ids[0] = Up/Yes token, [1] = Down/No token
+    token_id_map = {}
+    tids = market.clob_token_ids or []
+    if len(tids) >= 2:
+        token_id_map["Up"]   = str(tids[0])
+        token_id_map["Down"] = str(tids[1])
+    elif len(tids) == 1:
+        token_id_map["Up"]   = str(tids[0])
+
     sides = [
         ("Up",   market.up_price,   exposure_up_usdc),
         ("Down", market.down_price, exposure_down_usdc),
@@ -94,6 +104,7 @@ def build_order_intents(
 
         # Split into fragments
         frag_size = scaled / cfg.order_fragments
+        tid = token_id_map.get(outcome, "")
         if frag_size < cfg.min_order_usdc:
             # If fragments would be too small, use a single order
             intents.append(
@@ -106,6 +117,7 @@ def build_order_intents(
                     fragment_of=1,
                     total_frags=1,
                     end_time=market.end_time,
+                    token_id=tid,
                 )
             )
         else:
@@ -120,6 +132,7 @@ def build_order_intents(
                         fragment_of=i + 1,
                         total_frags=cfg.order_fragments,
                         end_time=market.end_time,
+                        token_id=tid,
                     )
                 )
 

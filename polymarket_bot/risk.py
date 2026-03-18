@@ -25,6 +25,7 @@ class PositionRecord:
     tokens_held:    float = 0.0
     cost_basis_usdc: float = 0.0  # total USDC spent buying
     realised_pnl:   float = 0.0  # USDC from sells minus cost of those tokens
+    token_id:       str = ""      # ERC-1155 token ID for on-chain redemption
 
 
 @dataclass
@@ -51,6 +52,7 @@ class RiskState:
     # Market metadata for settlement tracking
     market_end_times: dict = field(default_factory=dict)   # market_id → end_time (float)
     market_questions: dict = field(default_factory=dict)   # market_id → question (str)
+    market_token_ids: dict = field(default_factory=dict)   # market_id → {outcome → token_id}
 
     # ── Accessors ────────────────────────────────────────────
 
@@ -143,6 +145,7 @@ class RiskState:
         price: float,
         end_time: Optional[float] = None,
         question: str = "",
+        token_id: str = "",
     ) -> None:
         tokens = size_usdc / price if price > 0 else 0.0
         if market_id not in self.positions:
@@ -157,6 +160,11 @@ class RiskState:
             self.market_end_times[market_id] = end_time
         if question:
             self.market_questions[market_id] = question
+        if token_id:
+            rec.token_id = token_id
+            if market_id not in self.market_token_ids:
+                self.market_token_ids[market_id] = {}
+            self.market_token_ids[market_id][outcome] = token_id
         logger.debug(
             "BUY  %s %s  price=%.4f  size=$%.4f  tokens=%.2f",
             market_id[:16], outcome, price, size_usdc, tokens,
