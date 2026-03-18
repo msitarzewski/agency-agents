@@ -68,6 +68,14 @@ class Config:
             "MARKET_TIMEFRAMES", ""
         )
     )
+    # Assets to include in ephemeral up/down market fetching.
+    # Pipe-separated list. Set empty to disable up/down market trading.
+    # Example: "btc|xrp|sol|eth"
+    updown_assets: str = field(
+        default_factory=lambda: os.environ.get(
+            "UPDOWN_ASSETS", "btc|xrp|sol"
+        )
+    )
 
     # ── Market Filters ────────────────────────────────────────
     # Minimum lifetime volume (volumeNum from Gamma API)
@@ -153,6 +161,7 @@ class Config:
             f"  Market filter:     vol>${self.min_market_volume_usdc:,.0f}, spread<{self.max_spread}\n"
             f"  Coins:             {self.market_keywords}\n"
             f"  Timeframes:        {self.market_timeframes}\n"
+            f"  Up/down assets:    {self.updown_assets}\n"
             f"  Price range:       [{self.min_price}, {self.max_price}]\n"
             f"  Max per market:    {self.max_market_exposure_pct*100:.0f}% of bankroll\n"
             f"  Daily loss limit:  {self.daily_loss_limit_pct*100:.0f}% of bankroll\n"

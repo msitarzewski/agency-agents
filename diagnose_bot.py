@@ -13,6 +13,7 @@ It will show you:
 
 import asyncio
 import json
+import time
 import httpx
 
 def parse_prices(raw_prices):
@@ -21,6 +22,8 @@ def parse_prices(raw_prices):
     return raw_prices or []
 
 GAMMA_API = "https://gamma-api.polymarket.com"
+_UPDOWN_ASSETS  = ["btc", "xrp", "sol", "eth"]
+_UPDOWN_WINDOW  = 300  # 5 minutes
 
 
 async def main():
@@ -242,7 +245,40 @@ async def main():
             print(f"  {m.get('question', m.get('id', '?'))}")
 
     print("\n" + "=" * 60)
-    print("STEP 4 — Volume field names actually present")
+    print("STEP 4 — Ephemeral up/down market slug lookup")
+    print("=" * 60)
+    print("(These markets are NOT in paginated results — must be fetched by slug)")
+
+    now = int(time.time())
+    current_ts  = (now // _UPDOWN_WINDOW) * _UPDOWN_WINDOW
+    window_ts   = [current_ts, current_ts + _UPDOWN_WINDOW, current_ts - _UPDOWN_WINDOW]
+    print(f"Current time: {now}  |  5-min boundaries to try: {window_ts}")
+
+    async with httpx.AsyncClient(timeout=15) as client:
+        for asset in _UPDOWN_ASSETS:
+            for ts in window_ts:
+                slug = f"{asset}-updown-5m-{ts}"
+                try:
+                    r = await client.get(f"{GAMMA_API}/markets", params={"slug": slug})
+                    if r.status_code == 200 and r.json():
+                        for m in r.json():
+                            prices = parse_prices(m.get("outcomePrices", []))
+                            yes = float(prices[0]) if prices else "?"
+                            sprd = m.get("spread", "?")
+                            vol  = float(m.get("volumeNum") or m.get("volume") or 0)
+                            vol24 = float(m.get("volume24hr") or 0)
+                            act  = m.get("active", "?")
+                            print(f"  FOUND [{slug}]")
+                            print(f"    question: {m.get('question','')}")
+                            print(f"    active={act}  yes={yes}  spread={sprd}")
+                            print(f"    vol_lifetime=${vol:,.0f}  vol_24hr=${vol24:,.0f}")
+                    else:
+                        print(f"  [{slug}] — {r.status_code} / no data")
+                except Exception as e:
+                    print(f"  [{slug}] — error: {e}")
+
+    print("\n" + "=" * 60)
+    print("STEP 5 — Volume field names actually present")
     print("=" * 60)
     vol_fields = ["volume", "volumeNum", "volume24hr", "volumeClob", "usdcSize"]
     for field in vol_fields:
