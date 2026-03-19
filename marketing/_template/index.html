@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>[CLIENT NAME] — Marketing Campaign Showcase</title>
+  <!-- REPLACE: Update fonts to match brand guidelines -->
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400;1,700&family=Lato:wght@300;400;700;900&display=swap" rel="stylesheet" />
+  <style>
+    /* ── REPLACE ALL CSS VARIABLES WITH BRAND COLOURS ── */
+    :root {
+      --primary:    #REPLACE_PRIMARY;     /* e.g. Deep Plum */
+      --secondary:  #REPLACE_SECONDARY;   /* e.g. Warm Rose */
+      --background: #REPLACE_BACKGROUND;  /* e.g. Blush Cream */
+      --accent:     #REPLACE_ACCENT;      /* e.g. Gold */
+      --text-dark:  #REPLACE_TEXT_DARK;   /* e.g. Charcoal */
+      --text-light: #REPLACE_TEXT_LIGHT;  /* e.g. Off-White */
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; }
+    body { background: var(--text-light); font-family: 'Lato', sans-serif; color: var(--text-dark); }
+
+    nav {
+      position: sticky; top: 0; z-index: 100;
+      background: rgba(255,255,255,0.95); backdrop-filter: blur(12px);
+      border-bottom: 1px solid rgba(0,0,0,0.1);
+      padding: 0 40px; display: flex; align-items: center;
+      justify-content: space-between; height: 60px;
+    }
+    .nav-logo { font-style: italic; color: var(--primary); font-size: 16px; }
+    .nav-links { display: flex; gap: 24px; list-style: none; }
+    .nav-links a { text-decoration: none; color: var(--text-dark); font-size: 13px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; transition: color 0.2s; }
+    .nav-links a:hover { color: var(--primary); }
+
+    .hero {
+      background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+      color: white; text-align: center; padding: 100px 40px;
+    }
+    /* REPLACE: Update font to match brand display font */
+    .hero h1 { font-family: 'Playfair Display', serif; font-size: clamp(32px, 5vw, 64px); margin-bottom: 16px; }
+    .hero p { font-size: 18px; opacity: 0.9; max-width: 600px; margin: 0 auto 32px; }
+    .hero-badge { display: inline-block; background: rgba(255,255,255,0.2); border: 1px solid rgba(255,255,255,0.4); border-radius: 24px; padding: 8px 20px; font-size: 13px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em; }
+
+    .section { padding: 80px 40px; max-width: 1200px; margin: 0 auto; }
+    .section-title { font-family: 'Playfair Display', serif; font-size: 36px; color: var(--primary); margin-bottom: 8px; }
+    .section-subtitle { color: #666; margin-bottom: 48px; font-size: 16px; }
+
+    .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 24px; }
+    .card {
+      background: white; border-radius: 16px; overflow: hidden;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.08); transition: transform 0.2s, box-shadow 0.2s;
+    }
+    .card:hover { transform: translateY(-4px); box-shadow: 0 8px 32px rgba(0,0,0,0.12); }
+    .card-preview {
+      background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+      height: 200px; display: flex; align-items: center; justify-content: center;
+      font-size: 48px;
+    }
+    .card-body { padding: 24px; }
+    .card-label { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em; color: var(--secondary); margin-bottom: 8px; }
+    .card-title { font-family: 'Playfair Display', serif; font-size: 20px; color: var(--primary); margin-bottom: 8px; }
+    .card-desc { font-size: 14px; color: #666; line-height: 1.6; margin-bottom: 16px; }
+    .btn {
+      display: inline-block; padding: 10px 20px; border-radius: 8px;
+      background: var(--primary); color: white; text-decoration: none;
+      font-size: 13px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em;
+      transition: opacity 0.2s;
+    }
+    .btn:hover { opacity: 0.85; }
+    .btn-outline {
+      background: transparent; border: 2px solid var(--primary); color: var(--primary);
+      margin-left: 8px;
+    }
+
+    .palette-section { background: white; padding: 60px 40px; }
+    .palette-grid { display: flex; flex-wrap: wrap; gap: 16px; max-width: 1200px; margin: 32px auto 0; }
+    .swatch { width: 120px; border-radius: 12px; overflow: hidden; box-shadow: 0 2px 8px rgba(0,0,0,0.1); }
+    .swatch-color { height: 80px; }
+    .swatch-label { padding: 8px; background: white; font-size: 11px; font-weight: 700; text-align: center; }
+    .swatch-hex { font-size: 10px; color: #999; text-align: center; padding-bottom: 8px; }
+
+    footer { background: var(--primary); color: white; text-align: center; padding: 40px; font-size: 14px; opacity: 0.9; }
+  </style>
+</head>
+<body>
+
+  <nav>
+    <div class="nav-logo">[Client Name] — Campaign Assets</div>
+    <ul class="nav-links">
+      <li><a href="#ads">Ads</a></li>
+      <li><a href="#social">Social</a></li>
+      <li><a href="#email">Email</a></li>
+      <li><a href="#print">Print</a></li>
+      <!-- <li><a href="generator/">AI Generator</a></li> -->
+    </ul>
+  </nav>
+
+  <!-- HERO -->
+  <div class="hero">
+    <div class="hero-badge">Marketing Campaign Showcase</div>
+    <h1>[CLIENT NAME]</h1>
+    <!-- REPLACE: Update tagline -->
+    <p>[Tagline or campaign goal — e.g. "Full campaign assets for the 2026 Symposium"]</p>
+  </div>
+
+  <!-- ADS SECTION -->
+  <section class="section" id="ads">
+    <div class="section-title">Paid Advertising</div>
+    <div class="section-subtitle">Facebook & Instagram ad variations — ready for Meta Ads Manager</div>
+    <div class="grid">
+      <div class="card">
+        <div class="card-preview">📢</div>
+        <div class="card-body">
+          <div class="card-label">Paid Social</div>
+          <div class="card-title">Facebook & Instagram Ad Mockups</div>
+          <div class="card-desc">6 ad variations across awareness, consideration and conversion stages.</div>
+          <a href="ads/facebook-ad-mockups.html" class="btn">View Ads</a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- SOCIAL MEDIA SECTION -->
+  <section class="section" id="social" style="background: var(--background); max-width: 100%; padding: 80px 40px;">
+  <div style="max-width: 1200px; margin: 0 auto;">
+    <div class="section-title">Social Media</div>
+    <div class="section-subtitle">Organic content — Instagram posts, stories, and copy decks</div>
+    <div class="grid">
+      <div class="card">
+        <div class="card-preview">📸</div>
+        <div class="card-body">
+          <div class="card-label">Instagram</div>
+          <div class="card-title">Feed Posts</div>
+          <div class="card-desc">Square post mockups with captions, hashtags, and engagement hooks.</div>
+          <a href="social-media/instagram-posts.html" class="btn">View Posts</a>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-preview">📱</div>
+        <div class="card-body">
+          <div class="card-label">Instagram</div>
+          <div class="card-title">Stories</div>
+          <div class="card-desc">Vertical story mockups with interactive CTAs and countdown elements.</div>
+          <a href="social-media/instagram-stories.html" class="btn">View Stories</a>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-preview">✍️</div>
+        <div class="card-body">
+          <div class="card-label">Copy Deck</div>
+          <div class="card-title">Facebook & LinkedIn Ads</div>
+          <div class="card-desc">Paste-ready ad copy for Meta Ads Manager and LinkedIn Campaign Manager.</div>
+          <a href="social-media/facebook-linkedin-ads.md" class="btn">View Copy</a>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-preview">🐦</div>
+        <div class="card-body">
+          <div class="card-label">Copy Deck</div>
+          <div class="card-title">Twitter / X Thread</div>
+          <div class="card-desc">Viral thread structure with hooks, value, and CTA for maximum reach.</div>
+          <a href="social-media/twitter-x-thread.md" class="btn">View Thread</a>
+        </div>
+      </div>
+    </div>
+  </div>
+  </section>
+
+  <!-- EMAIL SECTION -->
+  <section class="section" id="email">
+    <div class="section-title">Email Campaign</div>
+    <div class="section-subtitle">HTML email — ready for Mailchimp, Klaviyo, or any ESP</div>
+    <div class="grid">
+      <div class="card">
+        <div class="card-preview">✉️</div>
+        <div class="card-body">
+          <div class="card-label">Email</div>
+          <div class="card-title">Campaign Email</div>
+          <div class="card-desc">Full HTML email with header, hero, body copy, and CTA. 600px wide, inbox-safe.</div>
+          <a href="email/email-campaign.html" class="btn">View Email</a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- PRINT SECTION -->
+  <section class="section" id="print" style="background: var(--background); max-width: 100%; padding: 80px 40px;">
+  <div style="max-width: 1200px; margin: 0 auto;">
+    <div class="section-title">Print</div>
+    <div class="section-subtitle">Print-ready assets — poster, flyer, or signage</div>
+    <div class="grid">
+      <div class="card">
+        <div class="card-preview">🖨️</div>
+        <div class="card-body">
+          <div class="card-label">Print</div>
+          <div class="card-title">Event Poster / Flyer</div>
+          <div class="card-desc">A3/A4 poster design. Export as PDF from browser print dialog.</div>
+          <a href="print/event-poster.html" class="btn">View Poster</a>
+        </div>
+      </div>
+    </div>
+  </div>
+  </section>
+
+  <!-- BRAND PALETTE -->
+  <div class="palette-section" id="brand">
+    <div style="max-width: 1200px; margin: 0 auto;">
+      <h2 style="font-family: 'Playfair Display', serif; font-size: 36px; color: var(--primary);">Brand Palette</h2>
+      <p style="color: #666; margin-top: 8px;">Reference colour swatches for consistent application across all assets</p>
+      <div class="palette-grid">
+        <!-- REPLACE: Add a swatch for each colour in brand-guidelines.md -->
+        <div class="swatch">
+          <div class="swatch-color" style="background: var(--primary);"></div>
+          <div class="swatch-label">Primary</div>
+          <div class="swatch-hex">#REPLACE</div>
+        </div>
+        <div class="swatch">
+          <div class="swatch-color" style="background: var(--secondary);"></div>
+          <div class="swatch-label">Secondary</div>
+          <div class="swatch-hex">#REPLACE</div>
+        </div>
+        <div class="swatch">
+          <div class="swatch-color" style="background: var(--accent);"></div>
+          <div class="swatch-label">Accent</div>
+          <div class="swatch-hex">#REPLACE</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <footer>
+    <p>Campaign assets for <strong>[CLIENT NAME]</strong> — Generated [MONTH YEAR]</p>
+  </footer>
+
+</body>
+</html>
