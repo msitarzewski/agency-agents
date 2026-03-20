@@ -592,6 +592,11 @@ Agents are copied directly from the repo into `~/.claude/agents/` -- no conversi
 ./scripts/install.sh --tool claude-code
 ```
 
+**Windows:**
+```cmd
+scripts\install.bat -Tool claude-code
+```
+
 Then activate in Claude Code:
 ```
 Use the Frontend Developer agent to review this component.
@@ -609,6 +614,11 @@ Agents are copied directly from the repo into `~/.github/agents/` and `~/.copilo
 ./scripts/install.sh --tool copilot
 ```
 
+**Windows:**
+```cmd
+scripts\install.bat -Tool copilot
+```
+
 Then activate in GitHub Copilot:
 ```
 Use the Frontend Developer agent to review this component.
@@ -624,6 +634,11 @@ Each agent becomes a skill in `~/.gemini/antigravity/skills/agency-<slug>/`.
 
 ```bash
 ./scripts/install.sh --tool antigravity
+```
+
+**Windows:**
+```cmd
+scripts\install.bat -Tool antigravity
 ```
 
 Activate in Gemini with Antigravity:
@@ -645,6 +660,12 @@ On a fresh clone, generate the Gemini extension files before running the install
 ./scripts/install.sh --tool gemini-cli
 ```
 
+**Windows:**
+```cmd
+scripts\convert.bat -Tool gemini-cli
+scripts\install.bat -Tool gemini-cli
+```
+
 See [integrations/gemini-cli/README.md](integrations/gemini-cli/README.md) for details.
 </details>
 
@@ -656,6 +677,12 @@ Agents are placed in `.opencode/agents/` in your project root (project-scoped).
 ```bash
 cd /your/project
 /path/to/agency-agents/scripts/install.sh --tool opencode
+```
+
+**Windows:**
+```cmd
+cd /d C:\your\project
+D:\path\to\agency-agents\scripts\install.bat -Tool opencode
 ```
 
 Or install globally:
@@ -682,6 +709,12 @@ cd /your/project
 /path/to/agency-agents/scripts/install.sh --tool cursor
 ```
 
+**Windows:**
+```cmd
+cd /d C:\your\project
+D:\path\to\agency-agents\scripts\install.bat -Tool cursor
+```
+
 Rules are auto-applied when Cursor detects them in the project. Reference them explicitly:
 ```
 Use the @security-engineer rules to review this code.
@@ -698,6 +731,12 @@ All agents are compiled into a single `CONVENTIONS.md` file that Aider reads aut
 ```bash
 cd /your/project
 /path/to/agency-agents/scripts/install.sh --tool aider
+```
+
+**Windows:**
+```cmd
+cd /d C:\your\project
+D:\path\to\agency-agents\scripts\install.bat -Tool aider
 ```
 
 Then reference agents in your Aider session:
@@ -718,6 +757,12 @@ cd /your/project
 /path/to/agency-agents/scripts/install.sh --tool windsurf
 ```
 
+**Windows:**
+```cmd
+cd /d C:\your\project
+D:\path\to\agency-agents\scripts\install.bat -Tool windsurf
+```
+
 Reference agents in Windsurf's Cascade:
 ```
 Use the Reality Checker agent to verify this is production ready.
@@ -733,6 +778,11 @@ Each agent becomes a workspace with `SOUL.md`, `AGENTS.md`, and `IDENTITY.md` in
 
 ```bash
 ./scripts/install.sh --tool openclaw
+```
+
+**Windows:**
+```cmd
+scripts\install.bat -Tool openclaw
 ```
 
 Agents are registered and available by `agentId` in OpenClaw sessions.
@@ -751,6 +801,13 @@ SubAgents are installed to `.qwen/agents/` in your project root (project-scoped)
 cd /your/project
 ./scripts/convert.sh --tool qwen
 ./scripts/install.sh --tool qwen
+```
+
+**Windows:**
+```cmd
+cd /d C:\your\project
+D:\path\to\agency-agents\scripts\convert.bat -Tool qwen
+D:\path\to\agency-agents\scripts\install.bat -Tool qwen
 ```
 
 **Usage in Qwen Code:**

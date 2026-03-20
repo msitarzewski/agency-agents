@@ -14,6 +14,7 @@ supported agentic coding tools.
 - **[Cursor](#cursor)** — `.mdc` rule files in `cursor/`
 - **[Aider](#aider)** — `CONVENTIONS.md` in `aider/`
 - **[Windsurf](#windsurf)** — `.windsurfrules` in `windsurf/`
+- **[Qwen Code](#qwen-code)** — SubAgent `.md` files in `qwen/`
 
 ## Quick Install
 
@@ -32,7 +33,9 @@ supported agentic coding tools.
 ./scripts/install.sh --tool gemini-cli
 ```
 
-For project-scoped tools such as OpenCode, Cursor, Aider, and Windsurf, run
+Windows examples are in the main README under [Tool-Specific Instructions](../README.md#tool-specific-instructions).
+
+For project-scoped tools such as OpenCode, Cursor, Aider, Windsurf, and Qwen, run
 the installer from your target project root as shown in the tool-specific
 sections below.
 
@@ -172,3 +175,16 @@ cd /your/project && /path/to/agency-agents/scripts/install.sh --tool windsurf
 ```
 
 See [windsurf/README.md](windsurf/README.md) for details.
+
+---
+
+## Qwen Code
+
+SubAgents are generated as `.md` files and installed to `.qwen/agents/` in
+your project root.
+
+```bash
+cd /your/project && /path/to/agency-agents/scripts/convert.sh --tool qwen && /path/to/agency-agents/scripts/install.sh --tool qwen
+```
+
+See [../README.md#tool-specific-instructions](../README.md#tool-specific-instructions) for usage details.
