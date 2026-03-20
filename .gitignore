@@ -57,6 +57,9 @@ dist/
 build/
 *.egg-info/
 
+# Local AI / memory tooling (do not commit)
+claude-mem/
+
 # Personal notes and scratch files
 scratch/
 notes/
