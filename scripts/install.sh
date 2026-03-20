@@ -330,6 +330,9 @@ install_copilot() {
   done
   ok "Copilot: $count agents -> $dest_github"
   ok "Copilot: $count agents -> $dest_copilot"
+  dim "Tip: ensure VS Code settings.json includes these paths in \"chat.agentFilesLocations\":"
+  dim "  - $dest_github"
+  dim "  - $dest_copilot"
 }
 
 install_antigravity() {
