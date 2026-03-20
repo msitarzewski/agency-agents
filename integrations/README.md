@@ -33,10 +33,9 @@ supported agentic coding tools.
 ./scripts/install.sh --tool gemini-cli
 ```
 
-Windows commands are centralized in the main README: [Windows Support](../README.md#windows-support).
+Windows examples are in the main README under [Tool-Specific Instructions](../README.md#tool-specific-instructions).
 
-For project-scoped tools such as OpenCode, Cursor, Aider, Windsurf, and Qwen,
-run
+For project-scoped tools such as OpenCode, Cursor, Aider, Windsurf, and Qwen, run
 the installer from your target project root as shown in the tool-specific
 sections below.
 

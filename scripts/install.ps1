@@ -13,7 +13,7 @@ $ErrorActionPreference = "Stop"
 
 $AllTools = @("claude-code", "copilot", "antigravity", "gemini-cli", "opencode", "openclaw", "cursor", "aider", "windsurf", "qwen")
 $AgentDirs = @(
-  "design", "engineering", "game-development", "marketing", "paid-media", "sales", "product", "project-management",
+  "academic", "design", "engineering", "game-development", "marketing", "paid-media", "sales", "product", "project-management",
   "testing", "support", "spatial-computing", "specialized"
 )
 
@@ -29,7 +29,7 @@ Usage:
 
 Tools:
   claude-code  -- Copy agents to ~/.claude/agents/
-  copilot      -- Copy agents to ~/.github/agents/
+  copilot      -- Copy agents to ~/.github/agents/ and ~/.copilot/agents/
   antigravity  -- Copy skills to ~/.gemini/antigravity/skills/
   gemini-cli   -- Install extension to ~/.gemini/extensions/agency-agents/
   opencode     -- Copy agents to .opencode/agents/ in current directory
@@ -73,7 +73,7 @@ function Get-ToolLabel {
 
   switch ($ToolName) {
     "claude-code" { return "Claude Code    (~/.claude/agents)" }
-    "copilot" { return "Copilot        (~/.github/agents)" }
+    "copilot" { return "Copilot        (~/.github + ~/.copilot)" }
     "antigravity" { return "Antigravity    (~/.gemini/antigravity)" }
     "gemini-cli" { return "Gemini CLI     (~/.gemini/extensions)" }
     "opencode" { return "OpenCode       (.opencode/agents)" }
@@ -91,7 +91,11 @@ function Test-ToolDetected {
 
   switch ($ToolName) {
     "claude-code" { return (Test-Path -Path (Join-Path $HOME ".claude") -PathType Container) }
-    "copilot" { return (Test-CommandAvailable "code") -or (Test-Path -Path (Join-Path $HOME ".github") -PathType Container) }
+    "copilot" {
+      return (Test-CommandAvailable "code") -or
+        (Test-Path -Path (Join-Path $HOME ".github") -PathType Container) -or
+        (Test-Path -Path (Join-Path $HOME ".copilot") -PathType Container)
+    }
     "antigravity" {
       $path = Join-Path (Join-Path (Join-Path $HOME ".gemini") "antigravity") "skills"
       return (Test-Path -Path $path -PathType Container)
@@ -329,9 +333,18 @@ function Install-ClaudeCode {
 function Install-Copilot {
   param([string]$RepoRoot)
 
-  $dest = Join-Path (Join-Path $HOME ".github") "agents"
-  $count = Copy-AgentMarkdown -RepoRoot $RepoRoot -Destination $dest
-  Write-Ok "Copilot: $count agents -> $dest"
+  $destGithub = Join-Path (Join-Path $HOME ".github") "agents"
+  $destCopilot = Join-Path (Join-Path $HOME ".copilot") "agents"
+
+  $count = Copy-AgentMarkdown -RepoRoot $RepoRoot -Destination $destGithub
+  Ensure-Directory -Path $destCopilot
+  $files = Get-AgentFiles -RepoRoot $RepoRoot
+  foreach ($file in $files) {
+    Copy-Item -Path $file -Destination $destCopilot -Force
+  }
+
+  Write-Ok "Copilot: $count agents -> $destGithub"
+  Write-Ok "Copilot: $count agents -> $destCopilot"
 }
 
 function Install-Antigravity {
@@ -450,7 +463,6 @@ function Install-OpenClaw {
         & openclaw agents add $dir.Name --workspace $workspace --non-interactive | Out-Null
       }
       catch {
-        # Keep install behavior non-fatal if registration fails.
       }
     }
 
