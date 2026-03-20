@@ -66,7 +66,7 @@ Individual agents are powerful. But without coordination, they produce:
 | **Testing** | Evidence Collector, Reality Checker, Test Results Analyzer, Performance Benchmarker, API Tester, Tool Evaluator, Workflow Optimizer | Verify quality through evidence-based assessment |
 | **Support** | Support Responder, Analytics Reporter, Finance Tracker, Infrastructure Maintainer, Legal Compliance Checker, Executive Summary Generator | Sustain operations, compliance, and business intelligence |
 | **Spatial Computing** | XR Interface Architect, macOS Spatial/Metal Engineer, XR Immersive Developer, XR Cockpit Interaction Specialist, visionOS Spatial Engineer, Terminal Integration Specialist | Build immersive and spatial computing experiences |
-| **Specialized** | Agents Orchestrator, Data Analytics Reporter, LSP/Index Engineer, Sales Data Extraction Agent, Data Consolidation Agent, Report Distribution Agent | Cross-cutting coordination, deep analytics, and code intelligence |
+| **Specialized** | Agents Orchestrator, Analytics Reporter, LSP/Index Engineer, Sales Data Extraction Agent, Data Consolidation Agent, Report Distribution Agent | Cross-cutting coordination, deep analytics, and code intelligence |
 
 ---
 
@@ -321,7 +321,7 @@ This is the heart of NEXUS. The Agents Orchestrator manages a **task-by-task qua
 | Backend API | Backend Architect | API Tester | Performance Benchmarker |
 | Database | Backend Architect | API Tester | Analytics Reporter |
 | Mobile | Mobile App Builder | Evidence Collector | UX Researcher |
-| AI/ML Feature | AI Engineer | Test Results Analyzer | Data Analytics Reporter |
+| AI/ML Feature | AI Engineer | Test Results Analyzer | Analytics Reporter |
 | Infrastructure | DevOps Automator | Performance Benchmarker | Infrastructure Maintainer |
 | Premium Polish | Senior Developer | Evidence Collector | Visual Storyteller |
 | Rapid Prototype | Rapid Prototyper | Evidence Collector | Experiment Tracker |
@@ -1019,7 +1019,7 @@ Use the NEXUS QA Feedback Loop Protocol format
 | Agent | Superpower | Activation Trigger |
 |-------|-----------|-------------------|
 | Agents Orchestrator | Multi-agent pipeline management | Any multi-agent workflow |
-| Data Analytics Reporter | Business intelligence, deep analytics | Deep data analysis |
+| Analytics Reporter | Business intelligence, deep analytics | Deep data analysis |
 | LSP/Index Engineer | Language Server Protocol, code intelligence | Code intelligence systems |
 | Sales Data Extraction Agent | Excel monitoring, sales metric extraction | Sales data ingestion |
 | Data Consolidation Agent | Sales data aggregation, dashboard reports | Territory and rep reporting |
