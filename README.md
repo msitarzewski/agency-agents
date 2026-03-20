@@ -385,7 +385,7 @@ Scholarly rigor for world-building, storytelling, and narrative design.
 
 ---
 
-### Scenario 5: Paid Media Account Takeover
+### Scenario 4: Paid Media Account Takeover
 
 **Your Team**:
 
@@ -400,7 +400,7 @@ Scholarly rigor for world-building, storytelling, and narrative design.
 
 ---
 
-### Scenario 4: Full Agency Product Discovery
+### Scenario 5: Full Agency Product Discovery
 
 **Your Team**: All 8 divisions working in parallel on a single mission.
 
