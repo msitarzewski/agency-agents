@@ -23,10 +23,13 @@ supported agentic coding tools.
 
 # Install a specific home-scoped tool
 ./scripts/install.sh --tool antigravity
-./scripts/install.sh --tool gemini-cli
 ./scripts/install.sh --tool copilot
 ./scripts/install.sh --tool openclaw
 ./scripts/install.sh --tool claude-code
+
+# Gemini CLI needs generated integration files on a fresh clone
+./scripts/convert.sh --tool gemini-cli
+./scripts/install.sh --tool gemini-cli
 ```
 
 For project-scoped tools such as OpenCode, Cursor, Aider, and Windsurf, run
@@ -61,7 +64,7 @@ See [claude-code/README.md](claude-code/README.md) for details.
 ## GitHub Copilot
 
 The Agency also works natively with GitHub Copilot. Agents can be copied
-directly into `~/.github/agents/` without conversion.
+directly into `~/.github/agents/` and `~/.copilot/agents/` without conversion.
 
 ```bash
 ./scripts/install.sh --tool copilot
@@ -88,8 +91,11 @@ See [antigravity/README.md](antigravity/README.md) for details.
 
 Agents are packaged as a Gemini CLI extension with individual skill files.
 The extension is installed to `~/.gemini/extensions/agency-agents/`.
+Because the Gemini manifest and skill folders are generated artifacts, run
+`./scripts/convert.sh --tool gemini-cli` before installing from a fresh clone.
 
 ```bash
+./scripts/convert.sh --tool gemini-cli
 ./scripts/install.sh --tool gemini-cli
 ```
 

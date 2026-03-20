@@ -87,6 +87,14 @@ Building the future, one commit at a time.
 | 📚 [Technical Writer](engineering/engineering-technical-writer.md) | Developer docs, API reference, tutorials | Clear, accurate technical documentation |
 | 🎯 [Threat Detection Engineer](engineering/engineering-threat-detection-engineer.md) | SIEM rules, threat hunting, ATT&CK mapping | Building detection layers and threat hunting |
 | 💬 [WeChat Mini Program Developer](engineering/engineering-wechat-mini-program-developer.md) | WeChat ecosystem, Mini Programs, payment integration | Building performant apps for the WeChat ecosystem |
+| 👁️ [Code Reviewer](engineering/engineering-code-reviewer.md) | Constructive code review, security, maintainability | PR reviews, code quality gates, mentoring through review |
+| 🗄️ [Database Optimizer](engineering/engineering-database-optimizer.md) | Schema design, query optimization, indexing strategies | PostgreSQL/MySQL tuning, slow query debugging, migration planning |
+| 🌿 [Git Workflow Master](engineering/engineering-git-workflow-master.md) | Branching strategies, conventional commits, advanced Git | Git workflow design, history cleanup, CI-friendly branch management |
+| 🏛️ [Software Architect](engineering/engineering-software-architect.md) | System design, DDD, architectural patterns, trade-off analysis | Architecture decisions, domain modeling, system evolution strategy |
+| 🛡️ [SRE](engineering/engineering-sre.md) | SLOs, error budgets, observability, chaos engineering | Production reliability, toil reduction, capacity planning |
+| 🧬 [AI Data Remediation Engineer](engineering/engineering-ai-data-remediation-engineer.md) | Self-healing pipelines, air-gapped SLMs, semantic clustering | Fixing broken data at scale with zero data loss |
+| 🔧 [Data Engineer](engineering/engineering-data-engineer.md) | Data pipelines, lakehouse architecture, ETL/ELT | Building reliable data infrastructure and warehousing |
+| 🔗 [Feishu Integration Developer](engineering/engineering-feishu-integration-developer.md) | Feishu/Lark Open Platform, bots, workflows | Building integrations for the Feishu ecosystem |
 
 ### 🎨 Design Division
 
@@ -156,6 +164,15 @@ Growing your audience, one authentic interaction at a time.
 | 🛒 [China E-Commerce Operator](marketing/marketing-china-ecommerce-operator.md) | Taobao, Tmall, Pinduoduo, live commerce | Running multi-platform e-commerce in China |
 | 🎥 [Kuaishou Strategist](marketing/marketing-kuaishou-strategist.md) | Kuaishou, 老铁 community, grassroots growth | Building authentic audiences in lower-tier markets |
 | 🔍 [SEO Specialist](marketing/marketing-seo-specialist.md) | Technical SEO, content strategy, link building | Driving sustainable organic search growth |
+| 📘 [Book Co-Author](marketing/marketing-book-co-author.md) | Thought-leadership books, ghostwriting, publishing | Strategic book collaboration for founders and experts |
+| 🌏 [Cross-Border E-Commerce Specialist](marketing/marketing-cross-border-ecommerce.md) | Amazon, Shopee, Lazada, cross-border fulfillment | Full-funnel cross-border e-commerce strategy |
+| 🎵 [Douyin Strategist](marketing/marketing-douyin-strategist.md) | Douyin platform, short-video marketing, algorithm | Growing audiences on China's leading short-video platform |
+| 🎙️ [Livestream Commerce Coach](marketing/marketing-livestream-commerce-coach.md) | Host training, live room optimization, conversion | Building high-performing livestream e-commerce operations |
+| 🎧 [Podcast Strategist](marketing/marketing-podcast-strategist.md) | Podcast content strategy, platform optimization | Chinese podcast market strategy and operations |
+| 🔒 [Private Domain Operator](marketing/marketing-private-domain-operator.md) | WeCom, private traffic, community operations | Building enterprise WeChat private domain ecosystems |
+| 🎬 [Short-Video Editing Coach](marketing/marketing-short-video-editing-coach.md) | Post-production, editing workflows, platform specs | Hands-on short-video editing training and optimization |
+| 🔥 [Weibo Strategist](marketing/marketing-weibo-strategist.md) | Sina Weibo, trending topics, fan engagement | Full-spectrum Weibo operations and growth |
+| 🔮 [AI Citation Strategist](marketing/marketing-ai-citation-strategist.md) | AEO/GEO, AI recommendation visibility, citation auditing | Improving brand visibility across ChatGPT, Claude, Gemini, Perplexity |
 
 ### 📊 Product Division
 
@@ -167,6 +184,8 @@ Building the right thing at the right time.
 | 🔍 [Trend Researcher](product/product-trend-researcher.md) | Market intelligence, competitive analysis | Market research, opportunity assessment, trend identification |
 | 💬 [Feedback Synthesizer](product/product-feedback-synthesizer.md) | User feedback analysis, insights extraction | Feedback analysis, user insights, product priorities |
 | 🧠 [Behavioral Nudge Engine](product/product-behavioral-nudge-engine.md) | Behavioral psychology, nudge design, engagement | Maximizing user motivation through behavioral science |
+
+| 🧭 [Product Manager](product/product-manager.md) | Full lifecycle product ownership | Discovery, PRDs, roadmap planning, GTM, outcome measurement |
 
 ### 🎬 Project Management Division
 
@@ -242,6 +261,19 @@ The unique specialists who don't fit in a box.
 | 🗣️ [Developer Advocate](specialized/specialized-developer-advocate.md) | Community building, DX, developer content | Bridging product and developer community |
 | 🔬 [Model QA Specialist](specialized/specialized-model-qa.md) | ML audits, feature analysis, interpretability | End-to-end QA for machine learning models |
 | 🗃️ [ZK Steward](specialized/zk-steward.md) | Knowledge management, Zettelkasten, notes | Building connected, validated knowledge bases |
+| 🔌 [MCP Builder](specialized/specialized-mcp-builder.md) | Model Context Protocol servers, AI agent tooling | Building MCP servers that extend AI agent capabilities |
+| 📄 [Document Generator](specialized/specialized-document-generator.md) | PDF, PPTX, DOCX, XLSX generation from code | Professional document creation, reports, data visualization |
+| ⚙️ [Automation Governance Architect](specialized/automation-governance-architect.md) | Automation governance, n8n, workflow auditing | Evaluating and governing business automations at scale |
+| 📚 [Corporate Training Designer](specialized/corporate-training-designer.md) | Enterprise training, curriculum development | Designing training systems and learning programs |
+| 🏛️ [Government Digital Presales Consultant](specialized/government-digital-presales-consultant.md) | China ToG presales, digital transformation | Government digital transformation proposals and bids |
+| ⚕️ [Healthcare Marketing Compliance](specialized/healthcare-marketing-compliance.md) | China healthcare advertising compliance | Healthcare marketing regulatory compliance |
+| 🎯 [Recruitment Specialist](specialized/recruitment-specialist.md) | Talent acquisition, recruiting operations | Recruitment strategy, sourcing, and hiring processes |
+| 🎓 [Study Abroad Advisor](specialized/study-abroad-advisor.md) | International education, application planning | Study abroad planning across US, UK, Canada, Australia |
+| 🔗 [Supply Chain Strategist](specialized/supply-chain-strategist.md) | Supply chain management, procurement strategy | Supply chain optimization and procurement planning |
+| 🗺️ [Workflow Architect](specialized/specialized-workflow-architect.md) | Workflow discovery, mapping, and specification | Mapping every path through a system before code is written |
+| ☁️ [Salesforce Architect](specialized/specialized-salesforce-architect.md) | Multi-cloud Salesforce design, governor limits, integrations | Enterprise Salesforce architecture, org strategy, deployment pipelines |
+| 🇫🇷 [French Consulting Market Navigator](specialized/specialized-french-consulting-market.md) | ESN/SI ecosystem, portage salarial, rate positioning | Freelance consulting in the French IT market |
+| 🇰🇷 [Korean Business Navigator](specialized/specialized-korean-business-navigator.md) | Korean business culture, 품의 process, relationship mechanics | Foreign professionals navigating Korean business relationships |
 
 ### 🎮 Game Development Division
 
@@ -283,6 +315,12 @@ Building worlds, systems, and experiences across every major engine.
 | 🌐 [Godot Multiplayer Engineer](game-development/godot/godot-multiplayer-engineer.md) | MultiplayerAPI, ENet/WebRTC, RPCs, authority model | Online Godot games, scene replication, server-authoritative Godot |
 | ✨ [Godot Shader Developer](game-development/godot/godot-shader-developer.md) | Godot shading language, VisualShader, RenderingDevice | Custom Godot materials, 2D/3D effects, post-processing, compute shaders |
 
+#### Blender
+
+| Agent | Specialty | When to Use |
+|-------|-----------|-------------|
+| 🧩 [Blender Addon Engineer](game-development/blender/blender-addon-engineer.md) | Blender Python (`bpy`), custom operators/panels, asset validators, exporters, pipeline automation | Building Blender add-ons, asset prep tools, export workflows, and DCC pipeline automation |
+
 #### Roblox Studio
 
 | Agent | Specialty | When to Use |
@@ -290,6 +328,18 @@ Building worlds, systems, and experiences across every major engine.
 | ⚙️ [Roblox Systems Scripter](game-development/roblox-studio/roblox-systems-scripter.md) | Luau, RemoteEvents/Functions, DataStore, server-authoritative module architecture | Building secure Roblox game systems, client-server communication, data persistence |
 | 🎯 [Roblox Experience Designer](game-development/roblox-studio/roblox-experience-designer.md) | Engagement loops, monetization, D1/D7 retention, onboarding flow | Designing Roblox game loops, Game Passes, daily rewards, player retention |
 | 👗 [Roblox Avatar Creator](game-development/roblox-studio/roblox-avatar-creator.md) | UGC pipeline, accessory rigging, Creator Marketplace submission | Roblox UGC items, HumanoidDescription customization, in-experience avatar shops |
+
+### 📚 Academic Division
+
+Scholarly rigor for world-building, storytelling, and narrative design.
+
+| Agent | Specialty | When to Use |
+|-------|-----------|-------------|
+| 🌍 [Anthropologist](academic/academic-anthropologist.md) | Cultural systems, kinship, rituals, belief systems | Designing culturally coherent societies with internal logic |
+| 🌐 [Geographer](academic/academic-geographer.md) | Physical/human geography, climate, cartography | Building geographically coherent worlds with realistic terrain and settlements |
+| 📚 [Historian](academic/academic-historian.md) | Historical analysis, periodization, material culture | Validating historical coherence, enriching settings with authentic period detail |
+| 📜 [Narratologist](academic/academic-narratologist.md) | Narrative theory, story structure, character arcs | Analyzing and improving story structure with established theoretical frameworks |
+| 🧠 [Psychologist](academic/academic-psychologist.md) | Personality theory, motivation, cognitive patterns | Building psychologically credible characters grounded in research |
 
 ---
 
@@ -441,7 +491,7 @@ Each agent is designed with:
 
 ## 📊 Stats
 
-- 🎭 **120 Specialized Agents** across 12 divisions
+- 🎭 **144 Specialized Agents** across 12 divisions
 - 📝 **10,000+ lines** of personality, process, and code examples
 - ⏱️ **Months of iteration** from real-world usage
 - 🌟 **Battle-tested** in production environments
@@ -456,7 +506,7 @@ The Agency works natively with Claude Code, and ships conversion + install scrip
 ### Supported Tools
 
 - **[Claude Code](https://claude.ai/code)** — native `.md` agents, no conversion needed → `~/.claude/agents/`
-- **[GitHub Copilot](https://github.com/copilot)** — native `.md` agents, no conversion needed → `~/.github/agents/`
+- **[GitHub Copilot](https://github.com/copilot)** — native `.md` agents, no conversion needed → `~/.github/agents/` + `~/.copilot/agents/`
 - **[Antigravity](https://github.com/google-gemini/antigravity)** — `SKILL.md` per agent → `~/.gemini/antigravity/skills/`
 - **[Gemini CLI](https://github.com/google-gemini/gemini-cli)** — extension + `SKILL.md` files → `~/.gemini/extensions/agency-agents/`
 - **[OpenCode](https://opencode.ai)** — `.md` agent files → `.opencode/agents/`
@@ -464,6 +514,7 @@ The Agency works natively with Claude Code, and ships conversion + install scrip
 - **[Aider](https://aider.chat)** — single `CONVENTIONS.md` → `./CONVENTIONS.md`
 - **[Windsurf](https://codeium.com/windsurf)** — single `.windsurfrules` → `./.windsurfrules`
 - **[OpenClaw](https://github.com/openclaw/openclaw)** — `SOUL.md` + `AGENTS.md` + `IDENTITY.md` per agent
+- **[Qwen Code](https://github.com/QwenLM/qwen-code)** — `.md` SubAgent files → `~/.qwen/agents/`
 
 ---
 
@@ -472,11 +523,13 @@ The Agency works natively with Claude Code, and ships conversion + install scrip
 **Step 1 -- Generate integration files:**
 ```bash
 ./scripts/convert.sh
+# Faster (parallel, output order may vary): ./scripts/convert.sh --parallel
 ```
 
 **Step 2 -- Install (interactive, auto-detects your tools):**
 ```bash
 ./scripts/install.sh
+# Faster (parallel, output order may vary): ./scripts/install.sh --no-interactive --parallel
 ```
 
 The installer scans your system for installed tools, shows a checkbox UI, and lets you pick exactly what to install:
@@ -489,7 +542,7 @@ The installer scans your system for installed tools, shows a checkbox UI, and le
   System scan: [*] = detected on this machine
 
   [x]  1)  [*]  Claude Code     (claude.ai/code)
-  [x]  2)  [*]  Copilot         (~/.github/agents)
+  [x]  2)  [*]  Copilot         (~/.github + ~/.copilot)
   [x]  3)  [*]  Antigravity     (~/.gemini/antigravity)
   [ ]  4)  [ ]  Gemini CLI      (gemini extension)
   [ ]  5)  [ ]  OpenCode        (opencode.ai)
@@ -497,8 +550,9 @@ The installer scans your system for installed tools, shows a checkbox UI, and le
   [x]  7)  [*]  Cursor          (.cursor/rules)
   [ ]  8)  [ ]  Aider           (CONVENTIONS.md)
   [ ]  9)  [ ]  Windsurf        (.windsurfrules)
+  [ ] 10)  [ ]  Qwen Code       (~/.qwen/agents)
 
-  [1-9] toggle   [a] all   [n] none   [d] detected
+  [1-10] toggle   [a] all   [n] none   [d] detected
   [Enter] install   [q] quit
 ```
 
@@ -513,6 +567,16 @@ The installer scans your system for installed tools, shows a checkbox UI, and le
 **Non-interactive (CI/scripts):**
 ```bash
 ./scripts/install.sh --no-interactive --tool all
+```
+
+**Faster runs (parallel)** — On multi-core machines, use `--parallel` so each tool is processed in parallel. Output order across tools is non-deterministic. Works with both interactive and non-interactive install: e.g. `./scripts/install.sh --interactive --parallel` (pick tools, then install in parallel) or `./scripts/install.sh --no-interactive --parallel`. Job count defaults to `nproc` (Linux), `sysctl -n hw.ncpu` (macOS), or 4; override with `--jobs N`.
+
+```bash
+./scripts/convert.sh --parallel                    # convert all tools in parallel
+./scripts/convert.sh --parallel --jobs 8           # cap parallel jobs
+./scripts/install.sh --no-interactive --parallel   # install all detected tools in parallel
+./scripts/install.sh --interactive --parallel      # pick tools, then install in parallel
+./scripts/install.sh --no-interactive --parallel --jobs 4
 ```
 
 ---
@@ -539,7 +603,7 @@ See [integrations/claude-code/README.md](integrations/claude-code/README.md) for
 <details>
 <summary><strong>GitHub Copilot</strong></summary>
 
-Agents are copied directly from the repo into `~/.github/agents/` -- no conversion needed.
+Agents are copied directly from the repo into `~/.github/agents/` and `~/.copilot/agents/` -- no conversion needed.
 
 ```bash
 ./scripts/install.sh --tool copilot
@@ -574,8 +638,10 @@ See [integrations/antigravity/README.md](integrations/antigravity/README.md) for
 <summary><strong>Gemini CLI</strong></summary>
 
 Installs as a Gemini CLI extension with one skill per agent plus a manifest.
+On a fresh clone, generate the Gemini extension files before running the installer.
 
 ```bash
+./scripts/convert.sh --tool gemini-cli
 ./scripts/install.sh --tool gemini-cli
 ```
 
@@ -675,6 +741,27 @@ See [integrations/openclaw/README.md](integrations/openclaw/README.md) for detai
 
 </details>
 
+<details>
+<summary><strong>Qwen Code</strong></summary>
+
+SubAgents are installed to `.qwen/agents/` in your project root (project-scoped).
+
+```bash
+# Convert and install (run from your project root)
+cd /your/project
+./scripts/convert.sh --tool qwen
+./scripts/install.sh --tool qwen
+```
+
+**Usage in Qwen Code:**
+- Reference by name: `Use the frontend-developer agent to review this component`
+- Or let Qwen auto-delegate based on task context
+- Manage via `/agents` command in interactive mode
+
+> 📚 [Qwen SubAgents Docs](https://qwenlm.github.io/qwen-code-docs/en/users/features/sub-agents/)
+
+</details>
+
 ---
 
 ### Regenerating After Changes
@@ -682,8 +769,9 @@ See [integrations/openclaw/README.md](integrations/openclaw/README.md) for detai
 When you add new agents or edit existing ones, regenerate all integration files:
 
 ```bash
-./scripts/convert.sh        # regenerate all
-./scripts/convert.sh --tool cursor   # regenerate just one tool
+./scripts/convert.sh                    # regenerate all (serial)
+./scripts/convert.sh --parallel         # regenerate all in parallel (faster)
+./scripts/convert.sh --tool cursor      # regenerate just one tool
 ```
 
 ---
@@ -692,7 +780,7 @@ When you add new agents or edit existing ones, regenerate all integration files:
 
 - [ ] Interactive agent selector web tool
 - [x] Multi-agent workflow examples -- see [examples/](examples/)
-- [x] Multi-tool integration scripts (Claude Code, GitHub Copilot, Antigravity, Gemini CLI, OpenCode, OpenClaw, Cursor, Aider, Windsurf)
+- [x] Multi-tool integration scripts (Claude Code, GitHub Copilot, Antigravity, Gemini CLI, OpenCode, OpenClaw, Cursor, Aider, Windsurf, Qwen Code)
 - [ ] Video tutorials on agent design
 - [ ] Community agent marketplace
 - [ ] Agent "personality quiz" for project matching
@@ -707,6 +795,7 @@ Community-maintained translations and regional adaptations. These are independen
 | Language | Maintainer | Link | Notes |
 |----------|-----------|------|-------|
 | 🇨🇳 简体中文 (zh-CN) | [@jnMetaCode](https://github.com/jnMetaCode) | [agency-agents-zh](https://github.com/jnMetaCode/agency-agents-zh) | 100 translated agents + 9 China-market originals |
+| 🇨🇳 简体中文 (zh-CN) | [@dsclca12](https://github.com/dsclca12) | [agent-teams](https://github.com/dsclca12/agent-teams) | Independent translation with Bilibili, WeChat, Xiaohongshu localization |
 
 Want to add a translation? Open an issue and we'll link it here.
 
@@ -726,9 +815,9 @@ MIT License - Use freely, commercially or personally. Attribution appreciated bu
 
 ## 🙏 Acknowledgments
 
-Born from a Reddit discussion about AI agent specialization. Thanks to the community for the feedback, requests, and inspiration.
+What started as a Reddit thread about AI agent specialization has grown into something remarkable — **147 agents across 12 divisions**, supported by a community of contributors from around the world. Every agent in this repo exists because someone cared enough to write it, test it, and share it.
 
-Special recognition to the 50+ Redditors who requested this within the first 12 hours - you proved there's demand for real, specialized AI agent systems.
+To everyone who has opened a PR, filed an issue, started a Discussion, or simply tried an agent and told us what worked — thank you. You're the reason The Agency keeps getting better.
 
 ---
 

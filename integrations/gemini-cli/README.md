@@ -6,6 +6,10 @@ installs to `~/.gemini/extensions/agency-agents/`.
 ## Install
 
 ```bash
+# Generate the Gemini CLI integration files first
+./scripts/convert.sh --tool gemini-cli
+
+# Then install the extension
 ./scripts/install.sh --tool gemini-cli
 ```
 

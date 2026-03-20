@@ -34,7 +34,9 @@ Have an idea for a specialized agent? Great! Here's how to add one:
 2. **Choose the appropriate category** (or propose a new one):
    - `engineering/` - Software development specialists
    - `design/` - UX/UI and creative specialists
+   - `game-development/` - Game design and development specialists
    - `marketing/` - Growth and marketing specialists
+   - `paid-media/` - Paid acquisition and media specialists
    - `product/` - Product management specialists
    - `project-management/` - PM and coordination specialists
    - `testing/` - QA and testing specialists
@@ -214,6 +216,10 @@ The test: *is this agent for the user, or for the vendor?* An agent that
 solves the user's problem using a service belongs here. A service's
 quickstart guide wearing an agent costume does not.
 
+### Tool-Specific Compatibility
+
+**Qwen Code Compatibility**: Agent bodies support `${variable}` templating for dynamic context (e.g., `${project_name}`, `${task_description}`). Qwen SubAgents use minimal frontmatter: only `name` and `description` are required; `color`, `emoji`, and `version` fields are omitted as Qwen doesn't use them.
+
 ### What Makes a Great Agent?
 
 **Great agents have**:
@@ -234,6 +240,29 @@ quickstart guide wearing an agent costume does not.
 ---
 
 ## 🔄 Pull Request Process
+
+### What Belongs in a PR (and What Doesn't)
+
+The fastest path to a merged PR is **one markdown file** — a new or improved agent. That's the sweet spot.
+
+For anything beyond that, here's how we keep things smooth:
+
+#### Always welcome as a PR
+- Adding a new agent (one `.md` file)
+- Improving an existing agent's content, examples, or personality
+- Fixing typos or clarifying docs
+
+#### Start a Discussion first
+- New tooling, build systems, or CI workflows
+- Architectural changes (new directories, new scripts, site generators)
+- Changes that touch many files across the repo
+- New integration formats or platforms
+
+We love ambitious ideas — a [Discussion](https://github.com/msitarzewski/agency-agents/discussions) just gives the community a chance to align on approach before code gets written. It saves everyone time, especially yours.
+
+#### Things we'll always close
+- **Committed build output**: Generated files (`_site/`, compiled assets, converted agent files) should never be checked in. Users run `convert.sh` locally; all output is gitignored.
+- **PRs that bulk-modify existing agents** without a prior discussion — even well-intentioned reformatting can create merge conflicts for other contributors.
 
 ### Before Submitting
 

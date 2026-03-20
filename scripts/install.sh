@@ -7,11 +7,11 @@
 # is missing or stale.
 #
 # Usage:
-#   ./scripts/install.sh [--tool <name>] [--interactive] [--no-interactive] [--help]
+#   ./scripts/install.sh [--tool <name>] [--interactive] [--no-interactive] [--parallel] [--jobs N] [--help]
 #
 # Tools:
 #   claude-code  -- Copy agents to ~/.claude/agents/
-#   copilot      -- Copy agents to ~/.github/agents/
+#   copilot      -- Copy agents to ~/.github/agents/ and ~/.copilot/agents/
 #   antigravity  -- Copy skills to ~/.gemini/antigravity/skills/
 #   gemini-cli   -- Install extension to ~/.gemini/extensions/agency-agents/
 #   opencode     -- Copy agents to .opencode/agent/ in current directory
@@ -19,12 +19,15 @@
 #   aider        -- Copy CONVENTIONS.md to current directory
 #   windsurf     -- Copy .windsurfrules to current directory
 #   openclaw     -- Copy workspaces to ~/.openclaw/agency-agents/
+#   qwen         -- Copy SubAgents to ~/.qwen/agents/ (user-wide) or .qwen/agents/ (project)
 #   all          -- Install for all detected tools (default)
 #
 # Flags:
 #   --tool <name>     Install only the specified tool
 #   --interactive     Show interactive selector (default when run in a terminal)
 #   --no-interactive  Skip interactive selector, install all detected tools
+#   --parallel        Run install for each selected tool in parallel (output order may vary)
+#   --jobs N          Max parallel jobs when using --parallel (default: nproc or 4)
 #   --help            Show this help
 #
 # Platform support:
@@ -33,9 +36,9 @@
 set -euo pipefail
 
 # ---------------------------------------------------------------------------
-# Colours -- only when stdout is a real terminal
+# Colours -- only when stdout supports color
 # ---------------------------------------------------------------------------
-if [[ -t 1 ]]; then
+if [[ -t 1 && -z "${NO_COLOR:-}" && "${TERM:-}" != "dumb" ]]; then
   C_GREEN=$'\033[0;32m'
   C_YELLOW=$'\033[1;33m'
   C_RED=$'\033[0;31m'
@@ -53,6 +56,20 @@ err()    { printf "${C_RED}[ERR]${C_RESET} %s\n" "$*" >&2; }
 header() { printf "\n${C_BOLD}%s${C_RESET}\n" "$*"; }
 dim()    { printf "${C_DIM}%s${C_RESET}\n" "$*"; }
 
+# Progress bar: [=======>    ] 3/8 (tqdm-style)
+progress_bar() {
+  local current="$1" total="$2" width="${3:-20}" i filled empty
+  (( total > 0 )) || return
+  filled=$(( width * current / total ))
+  empty=$(( width - filled ))
+  printf "\r  ["
+  for (( i=0; i<filled; i++ )); do printf "="; done
+  if (( filled < width )); then printf ">"; (( empty-- )); fi
+  for (( i=0; i<empty; i++ )); do printf " "; done
+  printf "] %s/%s" "$current" "$total"
+  [[ -t 1 ]] || printf "\n"
+}
+
 # ---------------------------------------------------------------------------
 # Box drawing -- pure ASCII, fixed 52-char wide
 #   box_top / box_mid / box_bot  -- structural lines
@@ -63,11 +80,14 @@ BOX_INNER=48   # chars between the two | walls
 box_top() { printf "  +"; printf '%0.s-' $(seq 1 $BOX_INNER); printf "+\n"; }
 box_bot() { box_top; }
 box_sep() { printf "  |"; printf '%0.s-' $(seq 1 $BOX_INNER); printf "|\n"; }
+strip_ansi() {
+  awk '{ gsub(/\033\[[0-9;]*m/, ""); print }' <<< "$1"
+}
 box_row() {
   # Strip ANSI escapes when measuring visible length
   local raw="$1"
   local visible
-  visible="$(printf '%s' "$raw" | sed 's/\x1b\[[0-9;]*m//g')"
+  visible="$(strip_ansi "$raw")"
   local pad=$(( BOX_INNER - 2 - ${#visible} ))
   if (( pad < 0 )); then pad=0; fi
   printf "  | %s%*s |\n" "$raw" "$pad" ''
@@ -81,14 +101,22 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 REPO_ROOT="$(cd "$SCRIPT_DIR/.." && pwd)"
 INTEGRATIONS="$REPO_ROOT/integrations"
 
-ALL_TOOLS=(claude-code copilot antigravity gemini-cli opencode openclaw cursor aider windsurf)
+ALL_TOOLS=(claude-code copilot antigravity gemini-cli opencode openclaw cursor aider windsurf qwen)
 
 # ---------------------------------------------------------------------------
 # Usage
 # ---------------------------------------------------------------------------
 usage() {
-  sed -n '3,28p' "$0" | sed 's/^# \{0,1\}//'
+  sed -n '3,32p' "$0" | sed 's/^# \{0,1\}//'
   exit 0
+}
+
+# Default parallel job count (nproc on Linux; sysctl on macOS when nproc missing)
+parallel_jobs_default() {
+  local n
+  n=$(nproc 2>/dev/null) && [[ -n "$n" ]] && echo "$n" && return
+  n=$(sysctl -n hw.ncpu 2>/dev/null) && [[ -n "$n" ]] && echo "$n" && return
+  echo 4
 }
 
 # ---------------------------------------------------------------------------
@@ -105,7 +133,7 @@ check_integrations() {
 # Tool detection
 # ---------------------------------------------------------------------------
 detect_claude_code() { [[ -d "${HOME}/.claude" ]]; }
-detect_copilot()      { command -v code >/dev/null 2>&1 || [[ -d "${HOME}/.github" ]]; }
+detect_copilot()      { command -v code >/dev/null 2>&1 || [[ -d "${HOME}/.github" || -d "${HOME}/.copilot" ]]; }
 detect_antigravity()  { [[ -d "${HOME}/.gemini/antigravity/skills" ]]; }
 detect_gemini_cli()   { command -v gemini >/dev/null 2>&1 || [[ -d "${HOME}/.gemini" ]]; }
 detect_cursor()       { command -v cursor >/dev/null 2>&1 || [[ -d "${HOME}/.cursor" ]]; }
@@ -113,6 +141,7 @@ detect_opencode()     { command -v opencode >/dev/null 2>&1 || [[ -d "${HOME}/.c
 detect_aider()        { command -v aider >/dev/null 2>&1; }
 detect_openclaw()     { command -v openclaw >/dev/null 2>&1 || [[ -d "${HOME}/.openclaw" ]]; }
 detect_windsurf()     { command -v windsurf >/dev/null 2>&1 || [[ -d "${HOME}/.codeium" ]]; }
+detect_qwen()         { command -v qwen >/dev/null 2>&1 || [[ -d "${HOME}/.qwen" ]]; }
 
 is_detected() {
   case "$1" in
@@ -125,6 +154,7 @@ is_detected() {
     cursor)      detect_cursor      ;;
     aider)       detect_aider       ;;
     windsurf)    detect_windsurf    ;;
+    qwen)        detect_qwen        ;;
     *)           return 1 ;;
   esac
 }
@@ -133,7 +163,7 @@ is_detected() {
 tool_label() {
   case "$1" in
     claude-code) printf "%-14s  %s" "Claude Code"  "(claude.ai/code)"        ;;
-    copilot)     printf "%-14s  %s" "Copilot"      "(~/.github/agents)"      ;;
+    copilot)     printf "%-14s  %s" "Copilot"      "(~/.github + ~/.copilot)" ;;
     antigravity) printf "%-14s  %s" "Antigravity"  "(~/.gemini/antigravity)" ;;
     gemini-cli)  printf "%-14s  %s" "Gemini CLI"   "(gemini extension)"      ;;
     opencode)    printf "%-14s  %s" "OpenCode"     "(opencode.ai)"           ;;
@@ -141,6 +171,7 @@ tool_label() {
     cursor)      printf "%-14s  %s" "Cursor"       "(.cursor/rules)"         ;;
     aider)       printf "%-14s  %s" "Aider"        "(CONVENTIONS.md)"        ;;
     windsurf)    printf "%-14s  %s" "Windsurf"     "(.windsurfrules)"        ;;
+    qwen)        printf "%-14s  %s" "Qwen Code"    "(~/.qwen/agents)"        ;;
   esac
 }
 
@@ -196,7 +227,7 @@ interactive_select() {
     # --- controls ---
     printf "\n"
     printf "  ------------------------------------------------\n"
-    printf "  ${C_CYAN}[1-9]${C_RESET} toggle   ${C_CYAN}[a]${C_RESET} all   ${C_CYAN}[n]${C_RESET} none   ${C_CYAN}[d]${C_RESET} detected\n"
+    printf "  ${C_CYAN}[1-%s]${C_RESET} toggle   ${C_CYAN}[a]${C_RESET} all   ${C_CYAN}[n]${C_RESET} none   ${C_CYAN}[d]${C_RESET} detected\n" "${#ALL_TOOLS[@]}"
     printf "  ${C_GREEN}[Enter]${C_RESET} install   ${C_RED}[q]${C_RESET} quit\n"
     printf "\n"
     printf "  >> "
@@ -267,7 +298,7 @@ install_claude_code() {
   local count=0
   mkdir -p "$dest"
   local dir f first_line
-  for dir in design engineering game-development marketing paid-media sales product project-management \
+  for dir in academic design engineering game-development marketing paid-media sales product project-management \
               testing support spatial-computing specialized; do
     [[ -d "$REPO_ROOT/$dir" ]] || continue
     while IFS= read -r -d '' f; do
@@ -281,21 +312,24 @@ install_claude_code() {
 }
 
 install_copilot() {
-  local dest="${HOME}/.github/agents"
+  local dest_github="${HOME}/.github/agents"
+  local dest_copilot="${HOME}/.copilot/agents"
   local count=0
-  mkdir -p "$dest"
+  mkdir -p "$dest_github" "$dest_copilot"
   local dir f first_line
-  for dir in design engineering game-development marketing paid-media sales product project-management \
+  for dir in academic design engineering game-development marketing paid-media sales product project-management \
               testing support spatial-computing specialized; do
     [[ -d "$REPO_ROOT/$dir" ]] || continue
     while IFS= read -r -d '' f; do
       first_line="$(head -1 "$f")"
       [[ "$first_line" == "---" ]] || continue
-      cp "$f" "$dest/"
+      cp "$f" "$dest_github/"
+      cp "$f" "$dest_copilot/"
       (( count++ )) || true
     done < <(find "$REPO_ROOT/$dir" -name "*.md" -type f -print0)
   done
-  ok "Copilot: $count agents -> $dest"
+  ok "Copilot: $count agents -> $dest_github"
+  ok "Copilot: $count agents -> $dest_copilot"
 }
 
 install_antigravity() {
@@ -318,16 +352,20 @@ install_gemini_cli() {
   local src="$INTEGRATIONS/gemini-cli"
   local dest="${HOME}/.gemini/extensions/agency-agents"
   local count=0
-  [[ -d "$src" ]] || { err "integrations/gemini-cli missing. Run convert.sh first."; return 1; }
+  local manifest="$src/gemini-extension.json"
+  local skills_dir="$src/skills"
+  [[ -d "$src" ]] || { err "integrations/gemini-cli missing. Run ./scripts/convert.sh --tool gemini-cli first."; return 1; }
+  [[ -f "$manifest" ]] || { err "integrations/gemini-cli/gemini-extension.json missing. Run ./scripts/convert.sh --tool gemini-cli first."; return 1; }
+  [[ -d "$skills_dir" ]] || { err "integrations/gemini-cli/skills missing. Run ./scripts/convert.sh --tool gemini-cli first."; return 1; }
   mkdir -p "$dest/skills"
-  cp "$src/gemini-extension.json" "$dest/gemini-extension.json"
+  cp "$manifest" "$dest/gemini-extension.json"
   local d
   while IFS= read -r -d '' d; do
     local name; name="$(basename "$d")"
     mkdir -p "$dest/skills/$name"
     cp "$d/SKILL.md" "$dest/skills/$name/SKILL.md"
     (( count++ )) || true
-  done < <(find "$src/skills" -mindepth 1 -maxdepth 1 -type d -print0)
+  done < <(find "$skills_dir" -mindepth 1 -maxdepth 1 -type d -print0)
   ok "Gemini CLI: $count skills -> $dest"
 }
 
@@ -410,6 +448,26 @@ install_windsurf() {
   warn "Windsurf: project-scoped. Run from your project root to install there."
 }
 
+install_qwen() {
+  local src="$INTEGRATIONS/qwen/agents"
+  local dest="${PWD}/.qwen/agents"
+  local count=0
+
+  [[ -d "$src" ]] || { err "integrations/qwen missing. Run convert.sh first."; return 1; }
+
+  mkdir -p "$dest"
+
+  local f
+  while IFS= read -r -d '' f; do
+    cp "$f" "$dest/"
+    (( count++ )) || true
+  done < <(find "$src" -maxdepth 1 -name "*.md" -print0)
+
+  ok "Qwen Code: installed $count agents to $dest"
+  warn "Qwen Code: project-scoped. Run from your project root to install there."
+  warn "Tip: Run '/agents manage' in Qwen Code to refresh, or restart session"
+}
+
 install_tool() {
   case "$1" in
     claude-code) install_claude_code ;;
@@ -421,6 +479,7 @@ install_tool() {
     cursor)      install_cursor      ;;
     aider)       install_aider       ;;
     windsurf)    install_windsurf    ;;
+    qwen)        install_qwen        ;;
   esac
 }
 
@@ -430,12 +489,17 @@ install_tool() {
 main() {
   local tool="all"
   local interactive_mode="auto"
+  local use_parallel=false
+  local parallel_jobs
+  parallel_jobs="$(parallel_jobs_default)"
 
   while [[ $# -gt 0 ]]; do
     case "$1" in
       --tool)            tool="${2:?'--tool requires a value'}"; shift 2; interactive_mode="no" ;;
       --interactive)     interactive_mode="yes"; shift ;;
       --no-interactive)  interactive_mode="no"; shift ;;
+      --parallel)        use_parallel=true; shift ;;
+      --jobs)            parallel_jobs="${2:?'--jobs requires a value'}"; shift 2 ;;
       --help|-h)         usage ;;
       *)                 err "Unknown option: $1"; usage ;;
     esac
@@ -492,17 +556,48 @@ main() {
     exit 0
   fi
 
+  # When parent runs install.sh --parallel, it spawns workers with AGENCY_INSTALL_WORKER=1
+  # so each worker only runs install_tool(s) and skips header/done box (avoids duplicate output).
+  if [[ -n "${AGENCY_INSTALL_WORKER:-}" ]]; then
+    local t
+    for t in "${SELECTED_TOOLS[@]}"; do
+      install_tool "$t"
+    done
+    return 0
+  fi
+
   printf "\n"
   header "The Agency -- Installing agents"
   printf "  Repo:       %s\n" "$REPO_ROOT"
+  local n_selected=${#SELECTED_TOOLS[@]}
   printf "  Installing: %s\n" "${SELECTED_TOOLS[*]}"
+  if $use_parallel; then
+    ok "Installing $n_selected tools in parallel (output buffered per tool)."
+  fi
   printf "\n"
 
-  local installed=0 t
-  for t in "${SELECTED_TOOLS[@]}"; do
-    install_tool "$t"
-    (( installed++ )) || true
-  done
+  local installed=0 t i=0
+  if $use_parallel; then
+    local install_out_dir
+    install_out_dir="$(mktemp -d)"
+    export AGENCY_INSTALL_OUT_DIR="$install_out_dir"
+    export AGENCY_INSTALL_SCRIPT="$SCRIPT_DIR/install.sh"
+    printf '%s\n' "${SELECTED_TOOLS[@]}" | xargs -P "$parallel_jobs" -I {} sh -c 'AGENCY_INSTALL_WORKER=1 "$AGENCY_INSTALL_SCRIPT" --tool "{}" --no-interactive > "$AGENCY_INSTALL_OUT_DIR/{}" 2>&1'
+    for t in "${SELECTED_TOOLS[@]}"; do
+      [[ -f "$install_out_dir/$t" ]] && cat "$install_out_dir/$t"
+    done
+    rm -rf "$install_out_dir"
+    installed=$n_selected
+  else
+    for t in "${SELECTED_TOOLS[@]}"; do
+      (( i++ )) || true
+      progress_bar "$i" "$n_selected"
+      printf "\n"
+      printf "  ${C_DIM}[%s/%s]${C_RESET} %s\n" "$i" "$n_selected" "$t"
+      install_tool "$t"
+      (( installed++ )) || true
+    done
+  fi
 
   # Done box
   local msg="  Done!  Installed $installed tool(s)."
