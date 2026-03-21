@@ -6,6 +6,7 @@ optimizer = true
 optimizer_runs = 200
 evm_version = "cancun"
 solc_version = "0.8.24"
+via_ir = true
 
 [profile.default.fuzz]
 runs = 256
