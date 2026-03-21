@@ -27,12 +27,14 @@ Born from a Reddit thread and months of iteration, **The Agency** is a growing c
 ### Option 1: Use with Claude Code (Recommended)
 
 ```bash
-# Copy agents to your Claude Code directory
-cp -r agency-agents/* ~/.claude/agents/
+# Install agents directly into your Claude Code agents directory
+./scripts/install.sh --tool claude-code --no-interactive
 
 # Now activate any agent in your Claude Code sessions:
 # "Hey Claude, activate Frontend Developer mode and help me build a React component"
 ```
+
+> **Note**: The install script flattens all agent `.md` files into `~/.claude/agents/` so Claude Code can discover and activate them. Running `cp -r` directly copies subdirectories instead, which may prevent agent discovery.
 
 ### Option 2: Use as Reference
 
