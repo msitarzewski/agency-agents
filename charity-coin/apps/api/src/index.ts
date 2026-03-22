@@ -8,6 +8,7 @@ import causesRoutes from "./routes/causes.js";
 import analyticsRoutes from "./routes/analytics.js";
 import userRoutes from "./routes/user.js";
 import adminRoutes from "./routes/admin.js";
+import governanceRoutes from "./routes/governance.js";
 import { startIndexer } from "./services/indexer.js";
 import { db } from "./db/index.js";
 import { sql } from "drizzle-orm";
@@ -75,6 +76,7 @@ app.route("/api/causes", causesRoutes);
 app.route("/api/analytics", analyticsRoutes);
 app.route("/api/user", userRoutes);
 app.route("/api/admin", adminRoutes);
+app.route("/api/governance", governanceRoutes);
 
 // 404 handler
 app.notFound((c) => {

@@ -133,6 +133,30 @@ export const governanceProposals = pgTable(
   ]
 );
 
+export const indexerState = pgTable("indexer_state", {
+  id: serial("id").primaryKey(),
+  key: text("key").notNull(),
+  value: text("value").notNull(),
+  updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
+}, (table) => [
+  uniqueIndex("indexer_state_key_idx").on(table.key),
+]);
+
+export const feeDistributions = pgTable("fee_distributions", {
+  id: serial("id").primaryKey(),
+  causeTokenAddress: text("cause_token_address").notNull(),
+  charityAmount: numeric("charity_amount", { precision: 78, scale: 0 }).notNull(),
+  liquidityAmount: numeric("liquidity_amount", { precision: 78, scale: 0 }).notNull(),
+  opsAmount: numeric("ops_amount", { precision: 78, scale: 0 }).notNull(),
+  txHash: text("tx_hash").notNull(),
+  blockNumber: integer("block_number").notNull(),
+  timestamp: timestamp("timestamp", { withTimezone: true }).notNull().defaultNow(),
+}, (table) => [
+  uniqueIndex("fee_distributions_tx_hash_idx").on(table.txHash),
+  index("fee_distributions_cause_token_idx").on(table.causeTokenAddress),
+  index("fee_distributions_timestamp_idx").on(table.timestamp),
+]);
+
 // Type exports for use in application code
 export type Cause = typeof causes.$inferSelect;
 export type NewCause = typeof causes.$inferInsert;
@@ -142,3 +166,7 @@ export type User = typeof users.$inferSelect;
 export type NewUser = typeof users.$inferInsert;
 export type AnalyticsSnapshot = typeof analyticsSnapshots.$inferSelect;
 export type GovernanceProposal = typeof governanceProposals.$inferSelect;
+export type IndexerState = typeof indexerState.$inferSelect;
+export type NewIndexerState = typeof indexerState.$inferInsert;
+export type FeeDistribution = typeof feeDistributions.$inferSelect;
+export type NewFeeDistribution = typeof feeDistributions.$inferInsert;

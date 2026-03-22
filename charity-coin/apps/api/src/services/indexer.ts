@@ -8,7 +8,7 @@ import {
 } from "viem";
 import { base } from "viem/chains";
 import { db } from "../db/index.js";
-import { causes, conversions, users } from "../db/schema.js";
+import { causes, conversions, users, indexerState, feeDistributions } from "../db/schema.js";
 import { eq, sql } from "drizzle-orm";
 
 // ABI event signatures
@@ -25,6 +25,45 @@ const CAUSE_CREATED_EVENT = parseAbiItem(
 );
 
 let lastIndexedBlock = 0;
+
+/**
+ * Read the last indexed block from the indexer_state table.
+ * Returns null if no entry exists yet.
+ */
+async function getLastIndexedBlock(): Promise<number | null> {
+  const rows = await db
+    .select()
+    .from(indexerState)
+    .where(eq(indexerState.key, "last_indexed_block"))
+    .limit(1);
+
+  if (rows.length === 0) {
+    return null;
+  }
+
+  const parsed = parseInt(rows[0].value, 10);
+  return isNaN(parsed) ? null : parsed;
+}
+
+/**
+ * Upsert the last indexed block into the indexer_state table.
+ */
+async function setLastIndexedBlock(block: number): Promise<void> {
+  await db
+    .insert(indexerState)
+    .values({
+      key: "last_indexed_block",
+      value: block.toString(),
+      updatedAt: new Date(),
+    })
+    .onConflictDoUpdate({
+      target: indexerState.key,
+      set: {
+        value: block.toString(),
+        updatedAt: new Date(),
+      },
+    });
+}
 
 function getContracts(): {
   conversionEngine: Address;
@@ -154,7 +193,7 @@ async function handleCauseCreatedEvent(log: Log<bigint, number, false, typeof CA
 }
 
 /**
- * Handle FeesDistributed event (logging only for now).
+ * Handle FeesDistributed event by inserting into the fee_distributions table.
  */
 async function handleFeesDistributedEvent(log: Log<bigint, number, false, typeof FEES_DISTRIBUTED_EVENT>): Promise<void> {
   const { causeToken, charityAmount, treasuryAmount, burnAmount } =
@@ -165,9 +204,29 @@ async function handleFeesDistributedEvent(log: Log<bigint, number, false, typeof
       burnAmount: bigint;
     };
 
-  console.log(
-    `Indexed FeesDistributed: causeToken=${causeToken}, charity=${charityAmount}, treasury=${treasuryAmount}, burn=${burnAmount}`
-  );
+  const txHash = log.transactionHash!;
+  const blockNumber = Number(log.blockNumber);
+
+  try {
+    await db
+      .insert(feeDistributions)
+      .values({
+        causeTokenAddress: causeToken.toLowerCase(),
+        charityAmount: charityAmount.toString(),
+        liquidityAmount: treasuryAmount.toString(),
+        opsAmount: burnAmount.toString(),
+        txHash,
+        blockNumber,
+        timestamp: new Date(),
+      })
+      .onConflictDoNothing({ target: feeDistributions.txHash });
+
+    console.log(
+      `Indexed FeesDistributed: causeToken=${causeToken}, charity=${charityAmount}, treasury=${treasuryAmount}, burn=${burnAmount}, tx=${txHash}`
+    );
+  } catch (err) {
+    console.error("Error handling FeesDistributed event:", err);
+  }
 }
 
 /**
@@ -229,6 +288,8 @@ async function processHistoricalLogs(
         await handleFeesDistributedEvent(log);
       }
 
+      // Persist progress after each chunk
+      await setLastIndexedBlock(Number(end));
       console.log(`Processed blocks ${start} to ${end}`);
     } catch (err) {
       console.error(`Error processing blocks ${start}-${end}:`, err);
@@ -263,9 +324,18 @@ export async function startIndexer(): Promise<void> {
     transport: http(contracts.rpcUrl),
   });
 
-  const startBlock = BigInt(process.env.INDEXER_START_BLOCK || "0");
+  // Read last indexed block from DB, falling back to env var
+  const dbBlock = await getLastIndexedBlock();
+  const envBlock = process.env.INDEXER_START_BLOCK
+    ? Number(process.env.INDEXER_START_BLOCK)
+    : 0;
+  const startBlock = BigInt(dbBlock !== null ? dbBlock + 1 : envBlock);
 
-  console.log(`Starting indexer from block ${startBlock}...`);
+  console.log(
+    `Starting indexer from block ${startBlock}` +
+      (dbBlock !== null ? ` (resumed from DB, last indexed: ${dbBlock})` : ` (from env/default)`) +
+      `...`
+  );
 
   // Process historical logs
   try {

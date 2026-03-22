@@ -17,12 +17,8 @@ install: ## Install all dependencies (Node + Foundry)
 	npm ci
 	cd contracts && forge install
 
-setup: install ## Full project setup (install + infra + migrate)
-	$(MAKE) dev-infra
-	@echo "Waiting for database to be ready..."
-	@sleep 5
-	$(MAKE) db-push
-	@echo "Setup complete! Run 'make dev' to start developing."
+setup: ## Full project setup (install + infra + migrate + seed)
+	./scripts/setup.sh
 
 # =============================================================================
 # Build
