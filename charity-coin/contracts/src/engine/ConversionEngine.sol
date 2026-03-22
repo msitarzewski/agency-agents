@@ -139,12 +139,8 @@ contract ConversionEngine is IConversionEngine, ReentrancyGuard, Pausable, Acces
         causeTokensOut = burnAmount;
 
         // Break fee down according to FeeRouter shares.
-        uint256 charityShareBps = feeRouter.charityShareBps();
-        uint256 liquidityShareBps = feeRouter.liquidityShareBps();
-        uint256 opsShareBps = feeRouter.opsShareBps();
-
-        charityFee = (totalFee * charityShareBps) / BPS_DENOMINATOR;
-        liquidityFee = (totalFee * liquidityShareBps) / BPS_DENOMINATOR;
+        charityFee = (totalFee * feeRouter.charityShareBps()) / BPS_DENOMINATOR;
+        liquidityFee = (totalFee * feeRouter.liquidityShareBps()) / BPS_DENOMINATOR;
         opsFee = totalFee - charityFee - liquidityFee; // Remainder to ops to avoid rounding dust.
     }
 

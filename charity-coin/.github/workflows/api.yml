@@ -1,0 +1,75 @@
+name: API CI
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "apps/api/**"
+      - "packages/**"
+      - "package.json"
+      - ".github/workflows/api.yml"
+  pull_request:
+    branches: [main]
+    paths:
+      - "apps/api/**"
+      - "packages/**"
+      - "package.json"
+      - ".github/workflows/api.yml"
+
+jobs:
+  build:
+    name: Build & Lint
+    runs-on: ubuntu-latest
+
+    services:
+      postgres:
+        image: postgres:16-alpine
+        env:
+          POSTGRES_USER: charity
+          POSTGRES_PASSWORD: charity
+          POSTGRES_DB: charity_coin
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U charity"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
+      redis:
+        image: redis:7-alpine
+        ports:
+          - 6379:6379
+        options: >-
+          --health-cmd "redis-cli ping"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
+    env:
+      DATABASE_URL: postgresql://charity:charity@localhost:5432/charity_coin
+      REDIS_URL: redis://localhost:6379
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: TypeScript type check
+        run: npx tsc --noEmit
+        working-directory: apps/api
+
+      - name: Build API
+        run: npx turbo run build --filter=charity-coin-api
+
+      - name: Lint
+        run: npx tsc --noEmit
+        working-directory: apps/api

@@ -1,0 +1,112 @@
+name: Smart Contracts CI
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "contracts/**"
+      - ".github/workflows/contracts.yml"
+  pull_request:
+    branches: [main]
+    paths:
+      - "contracts/**"
+      - ".github/workflows/contracts.yml"
+
+env:
+  FOUNDRY_PROFILE: default
+
+jobs:
+  build:
+    name: Build & Test
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: contracts
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          submodules: recursive
+
+      - name: Install Foundry
+        uses: foundry-rs/foundry-toolchain@v1
+        with:
+          version: nightly
+
+      - name: Show Foundry version
+        run: |
+          forge --version
+          cast --version
+
+      - name: Install dependencies
+        run: forge install
+
+      - name: Build contracts
+        run: forge build --sizes
+
+      - name: Run tests
+        run: forge test -vvv
+
+      - name: Run snapshot
+        run: forge snapshot
+
+      - name: Check formatting
+        run: forge fmt --check
+
+  coverage:
+    name: Coverage
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: contracts
+    continue-on-error: true
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          submodules: recursive
+
+      - name: Install Foundry
+        uses: foundry-rs/foundry-toolchain@v1
+        with:
+          version: nightly
+
+      - name: Install dependencies
+        run: forge install
+
+      - name: Run coverage
+        run: forge coverage --report summary
+
+  slither:
+    name: Slither Analysis
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: contracts
+    continue-on-error: true
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          submodules: recursive
+
+      - name: Install Foundry
+        uses: foundry-rs/foundry-toolchain@v1
+        with:
+          version: nightly
+
+      - name: Install dependencies
+        run: forge install
+
+      - name: Build contracts
+        run: forge build
+
+      - name: Run Slither
+        uses: crytic/slither-action@v0.4.0
+        with:
+          target: contracts/
+          slither-args: --filter-paths "lib/" --exclude naming-convention,solc-version
+          fail-on: none
