@@ -1,0 +1,67 @@
+# Dependencies
+node_modules/
+.pnp
+.pnp.js
+
+# Build outputs
+dist/
+build/
+out/
+*.tsbuildinfo
+
+# Next.js
+.next/
+.vercel
+
+# Foundry
+contracts/cache/
+contracts/out/
+contracts/lib/forge-std/
+contracts/lib/openzeppelin-contracts/
+broadcast/
+
+# Environment files
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+.env.*.local
+
+# Logs
+logs/
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Testing / Coverage
+coverage/
+lcov.info
+.nyc_output/
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+
+# Turbo
+.turbo/
+
+# Debug
+*.pid
+*.seed
+*.pid.lock
+
+# OS
+.DS_Store
+ehthumbs.db
+Desktop.ini
+Thumbs.db
+
+# Keys and secrets
+*.pem
+*.key
+*.p12

@@ -1,0 +1,26 @@
+[profile.default]
+src = "src"
+out = "out"
+libs = ["lib"]
+optimizer = true
+optimizer_runs = 200
+evm_version = "cancun"
+solc_version = "0.8.24"
+via_ir = true
+
+[profile.default.fuzz]
+runs = 256
+max_test_rejects = 65536
+
+[profile.default.invariant]
+runs = 256
+depth = 15
+
+[fmt]
+line_length = 120
+tab_width = 4
+bracket_spacing = false
+
+[rpc_endpoints]
+base = "${BASE_RPC_URL}"
+base_sepolia = "${BASE_SEPOLIA_RPC_URL}"

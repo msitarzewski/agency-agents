@@ -1,0 +1,227 @@
+{
+  "$schema": "https://design-tokens.github.io/community-group/format/",
+  "meta": {
+    "name": "Charity Coin Design Tokens",
+    "version": "1.0.0",
+    "description": "Machine-readable design tokens for the Charity Coin (CHA) brand and UI system."
+  },
+  "color": {
+    "primary": {
+      "50": { "value": "#ecfdf5", "description": "Lightest emerald, tinted backgrounds" },
+      "100": { "value": "#d1fae5", "description": "Light emerald fills" },
+      "200": { "value": "#a7f3d0", "description": "Light accent" },
+      "300": { "value": "#6ee7b7", "description": "Emerald mid-light" },
+      "400": { "value": "#34d399", "description": "Emerald medium" },
+      "500": { "value": "#10b981", "description": "Primary light, success indicators" },
+      "600": { "value": "#059669", "description": "Gradient start, hover states" },
+      "700": { "value": "#047857", "description": "Primary brand color, buttons" },
+      "800": { "value": "#065f46", "description": "Hero gradient, deep background" },
+      "900": { "value": "#064e3b", "description": "Darkest emerald" }
+    },
+    "secondary": {
+      "50": { "value": "#fffbeb", "description": "Lightest amber" },
+      "100": { "value": "#fef3c7", "description": "Light amber backgrounds" },
+      "200": { "value": "#fde68a", "description": "Amber mid-light" },
+      "300": { "value": "#fcd34d", "description": "Amber medium" },
+      "400": { "value": "#fbbf24", "description": "Secondary light, glow effects" },
+      "500": { "value": "#f59e0b", "description": "Secondary brand color, burn indicators" },
+      "600": { "value": "#d97706", "description": "Dark amber for contrast" },
+      "700": { "value": "#b45309", "description": "Darkest amber" }
+    },
+    "accent": {
+      "500": { "value": "#0ea5e9", "description": "Accent light" },
+      "600": { "value": "#0284c7", "description": "Accent primary, links" },
+      "700": { "value": "#0369a1", "description": "Accent dark" }
+    },
+    "cause": {
+      "health": {
+        "base": { "value": "#ef4444", "description": "Global Health cause color" },
+        "light": { "value": "#fee2e2", "description": "Health light background" },
+        "dark": { "value": "#dc2626", "description": "Health dark accent" }
+      },
+      "education": {
+        "base": { "value": "#3b82f6", "description": "Education cause color" },
+        "light": { "value": "#dbeafe", "description": "Education light background" },
+        "dark": { "value": "#2563eb", "description": "Education dark accent" }
+      },
+      "environment": {
+        "base": { "value": "#22c55e", "description": "Environment cause color" },
+        "light": { "value": "#dcfce7", "description": "Environment light background" },
+        "dark": { "value": "#16a34a", "description": "Environment dark accent" }
+      },
+      "water": {
+        "base": { "value": "#06b6d4", "description": "Clean Water cause color" },
+        "light": { "value": "#cffafe", "description": "Water light background" },
+        "dark": { "value": "#0891b2", "description": "Water dark accent" }
+      },
+      "hunger": {
+        "base": { "value": "#f97316", "description": "Zero Hunger cause color" },
+        "light": { "value": "#ffedd5", "description": "Hunger light background" },
+        "dark": { "value": "#ea580c", "description": "Hunger dark accent" }
+      }
+    },
+    "semantic": {
+      "success": { "value": "#10b981", "description": "Success states" },
+      "warning": { "value": "#f59e0b", "description": "Warning states" },
+      "error": { "value": "#ef4444", "description": "Error states" },
+      "info": { "value": "#0284c7", "description": "Informational states" }
+    },
+    "neutral": {
+      "50": { "value": "#f9fafb" },
+      "100": { "value": "#f3f4f6" },
+      "200": { "value": "#e5e7eb" },
+      "300": { "value": "#d1d5db" },
+      "400": { "value": "#9ca3af" },
+      "500": { "value": "#6b7280" },
+      "600": { "value": "#4b5563" },
+      "700": { "value": "#374151" },
+      "800": { "value": "#1f2937" },
+      "900": { "value": "#111827" }
+    },
+    "background": {
+      "light": {
+        "primary": { "value": "#ffffff" },
+        "secondary": { "value": "#f9fafb" }
+      },
+      "dark": {
+        "primary": { "value": "#0f172a" },
+        "secondary": { "value": "#1e293b" }
+      }
+    },
+    "text": {
+      "light": {
+        "primary": { "value": "#111827" },
+        "secondary": { "value": "#6b7280" },
+        "muted": { "value": "#9ca3af" }
+      },
+      "dark": {
+        "primary": { "value": "#f1f5f9" },
+        "secondary": { "value": "#94a3b8" },
+        "muted": { "value": "#64748b" }
+      }
+    },
+    "border": {
+      "light": { "value": "#e5e7eb" },
+      "dark": { "value": "#334155" }
+    }
+  },
+  "typography": {
+    "fontFamily": {
+      "body": { "value": "'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif" },
+      "display": { "value": "'Cal Sans', 'Plus Jakarta Sans', 'Inter', sans-serif" },
+      "mono": { "value": "'JetBrains Mono', 'Fira Code', 'Consolas', monospace" }
+    },
+    "fontSize": {
+      "display": { "value": "3rem", "px": 48 },
+      "h1": { "value": "2.25rem", "px": 36 },
+      "h2": { "value": "1.875rem", "px": 30 },
+      "h3": { "value": "1.5rem", "px": 24 },
+      "h4": { "value": "1.25rem", "px": 20 },
+      "bodyLg": { "value": "1.125rem", "px": 18 },
+      "body": { "value": "1rem", "px": 16 },
+      "bodySm": { "value": "0.875rem", "px": 14 },
+      "caption": { "value": "0.75rem", "px": 12 }
+    },
+    "fontWeight": {
+      "regular": { "value": 400 },
+      "medium": { "value": 500 },
+      "semibold": { "value": 600 },
+      "bold": { "value": 700 }
+    },
+    "lineHeight": {
+      "display": { "value": 1.1 },
+      "heading": { "value": 1.2 },
+      "subheading": { "value": 1.3 },
+      "body": { "value": 1.6 },
+      "caption": { "value": 1.4 }
+    },
+    "letterSpacing": {
+      "tight": { "value": "-0.02em" },
+      "snug": { "value": "-0.015em" },
+      "normal": { "value": "0em" },
+      "wide": { "value": "0.01em" }
+    }
+  },
+  "spacing": {
+    "0": { "value": "0px" },
+    "1": { "value": "4px" },
+    "2": { "value": "8px" },
+    "3": { "value": "12px" },
+    "4": { "value": "16px" },
+    "5": { "value": "20px" },
+    "6": { "value": "24px" },
+    "8": { "value": "32px" },
+    "10": { "value": "40px" },
+    "12": { "value": "48px" },
+    "16": { "value": "64px" },
+    "20": { "value": "80px" },
+    "24": { "value": "96px" },
+    "32": { "value": "128px" }
+  },
+  "borderRadius": {
+    "none": { "value": "0px" },
+    "sm": { "value": "4px", "description": "Small elements, tags" },
+    "md": { "value": "6px", "description": "Badges, small components" },
+    "lg": { "value": "8px", "description": "Buttons, inputs" },
+    "xl": { "value": "12px", "description": "Small cards" },
+    "2xl": { "value": "16px", "description": "Large cards, modals" },
+    "3xl": { "value": "24px", "description": "Hero containers" },
+    "full": { "value": "9999px", "description": "Avatars, pills" }
+  },
+  "shadow": {
+    "sm": {
+      "value": "0 1px 2px 0 rgba(0, 0, 0, 0.05)",
+      "description": "Subtle elevation for buttons"
+    },
+    "md": {
+      "value": "0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -2px rgba(0, 0, 0, 0.1)",
+      "description": "Cards, dropdowns"
+    },
+    "lg": {
+      "value": "0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -4px rgba(0, 0, 0, 0.1)",
+      "description": "Modals, elevated panels"
+    },
+    "xl": {
+      "value": "0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1)",
+      "description": "Popovers, floating elements"
+    },
+    "burnGlow": {
+      "value": "0 0 20px rgba(245, 158, 11, 0.3), 0 0 60px rgba(245, 158, 11, 0.1)",
+      "description": "Amber glow for burn-related elements"
+    },
+    "causeGlow": {
+      "health": { "value": "0 0 20px rgba(239, 68, 68, 0.25)" },
+      "education": { "value": "0 0 20px rgba(59, 130, 246, 0.25)" },
+      "environment": { "value": "0 0 20px rgba(34, 197, 94, 0.25)" },
+      "water": { "value": "0 0 20px rgba(6, 182, 212, 0.25)" },
+      "hunger": { "value": "0 0 20px rgba(249, 115, 22, 0.25)" }
+    }
+  },
+  "breakpoints": {
+    "sm": { "value": "640px", "description": "Mobile landscape" },
+    "md": { "value": "768px", "description": "Tablet portrait" },
+    "lg": { "value": "1024px", "description": "Tablet landscape / small desktop" },
+    "xl": { "value": "1280px", "description": "Desktop" },
+    "2xl": { "value": "1536px", "description": "Large desktop" }
+  },
+  "animation": {
+    "duration": {
+      "fast": { "value": "150ms" },
+      "normal": { "value": "200ms" },
+      "slow": { "value": "300ms" },
+      "burnPulse": { "value": "2000ms" }
+    },
+    "easing": {
+      "default": { "value": "cubic-bezier(0.4, 0, 0.2, 1)" },
+      "in": { "value": "cubic-bezier(0.4, 0, 1, 1)" },
+      "out": { "value": "cubic-bezier(0, 0, 0.2, 1)" },
+      "bounce": { "value": "cubic-bezier(0.34, 1.56, 0.64, 1)" }
+    }
+  },
+  "opacity": {
+    "disabled": { "value": 0.5 },
+    "glassCard": { "value": 0.8 },
+    "overlay": { "value": 0.6 },
+    "hover": { "value": 0.9 }
+  }
+}

@@ -1,0 +1,69 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --color-primary: #047857;
+  --color-primary-light: #10b981;
+  --color-primary-dark: #065f46;
+  --color-secondary: #f59e0b;
+  --color-secondary-light: #fbbf24;
+  --color-secondary-dark: #d97706;
+  --color-accent: #0284c7;
+  --color-accent-light: #0ea5e9;
+  --color-accent-dark: #0369a1;
+
+  --color-health: #ef4444;
+  --color-edu: #3b82f6;
+  --color-env: #22c55e;
+  --color-water: #06b6d4;
+  --color-hunger: #f97316;
+
+  --color-bg: #ffffff;
+  --color-bg-secondary: #f9fafb;
+  --color-text: #111827;
+  --color-text-secondary: #6b7280;
+  --color-border: #e5e7eb;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --color-bg: #0f172a;
+    --color-bg-secondary: #1e293b;
+    --color-text: #f1f5f9;
+    --color-text-secondary: #94a3b8;
+    --color-border: #334155;
+  }
+}
+
+@layer base {
+  body {
+    @apply bg-white text-gray-900 antialiased;
+    font-feature-settings: "rlig" 1, "calt" 1;
+  }
+}
+
+@layer components {
+  .gradient-primary {
+    @apply bg-gradient-to-r from-primary-600 to-primary-700;
+  }
+
+  .gradient-hero {
+    @apply bg-gradient-to-br from-primary-900 via-primary-800 to-primary-700;
+  }
+
+  .glass-card {
+    @apply bg-white/80 backdrop-blur-sm border border-gray-200 rounded-2xl shadow-sm;
+  }
+
+  .burn-glow {
+    box-shadow: 0 0 20px rgba(245, 158, 11, 0.3),
+      0 0 60px rgba(245, 158, 11, 0.1);
+  }
+}
+
+@layer utilities {
+  .text-balance {
+    text-wrap: balance;
+  }
+}
