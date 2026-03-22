@@ -12,10 +12,17 @@ on:
       - "contracts/**"
       - ".github/workflows/contracts.yml"
 
+concurrency:
+  group: contracts-${{ github.ref }}
+  cancel-in-progress: true
+
 env:
   FOUNDRY_PROFILE: default
 
 jobs:
+  # ---------------------------------------------------------------------------
+  # Build & Test
+  # ---------------------------------------------------------------------------
   build:
     name: Build & Test
     runs-on: ubuntu-latest
@@ -48,12 +55,15 @@ jobs:
       - name: Run tests
         run: forge test -vvv
 
-      - name: Run snapshot
+      - name: Run snapshot (gas benchmarks)
         run: forge snapshot
 
       - name: Check formatting
         run: forge fmt --check
 
+  # ---------------------------------------------------------------------------
+  # Coverage
+  # ---------------------------------------------------------------------------
   coverage:
     name: Coverage
     runs-on: ubuntu-latest
@@ -79,6 +89,19 @@ jobs:
       - name: Run coverage
         run: forge coverage --report summary
 
+      - name: Generate LCOV report
+        run: forge coverage --report lcov
+        continue-on-error: true
+
+      - name: Upload coverage to job summary
+        if: always()
+        run: |
+          echo "## Contract Coverage Report" >> $GITHUB_STEP_SUMMARY
+          forge coverage --report summary >> $GITHUB_STEP_SUMMARY 2>/dev/null || true
+
+  # ---------------------------------------------------------------------------
+  # Slither Static Analysis
+  # ---------------------------------------------------------------------------
   slither:
     name: Slither Analysis
     runs-on: ubuntu-latest
@@ -110,3 +133,72 @@ jobs:
           target: contracts/
           slither-args: --filter-paths "lib/" --exclude naming-convention,solc-version
           fail-on: none
+
+  # ---------------------------------------------------------------------------
+  # Aderyn Static Analysis (Rust-based Solidity analyzer)
+  # ---------------------------------------------------------------------------
+  aderyn:
+    name: Aderyn Analysis
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: contracts
+    continue-on-error: true
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          submodules: recursive
+
+      - name: Install Foundry
+        uses: foundry-rs/foundry-toolchain@v1
+        with:
+          version: nightly
+
+      - name: Install dependencies
+        run: forge install
+
+      - name: Build contracts
+        run: forge build
+
+      - name: Install Aderyn
+        run: cargo install aderyn
+        continue-on-error: true
+
+      - name: Run Aderyn
+        run: aderyn . --exclude lib/
+        continue-on-error: true
+
+  # ---------------------------------------------------------------------------
+  # Gas Snapshot Comparison (PRs only)
+  # ---------------------------------------------------------------------------
+  gas-comparison:
+    name: Gas Comparison
+    runs-on: ubuntu-latest
+    if: github.event_name == 'pull_request'
+    defaults:
+      run:
+        working-directory: contracts
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          submodules: recursive
+
+      - name: Install Foundry
+        uses: foundry-rs/foundry-toolchain@v1
+        with:
+          version: nightly
+
+      - name: Install dependencies
+        run: forge install
+
+      - name: Run gas snapshot
+        run: forge snapshot
+
+      - name: Compare gas snapshot
+        run: |
+          echo "## Gas Snapshot" >> $GITHUB_STEP_SUMMARY
+          forge snapshot --diff .gas-snapshot >> $GITHUB_STEP_SUMMARY 2>/dev/null || echo "No previous snapshot to compare" >> $GITHUB_STEP_SUMMARY
