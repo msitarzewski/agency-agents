@@ -8,6 +8,8 @@ import {
   useReadContract,
 } from "wagmi";
 import { parseUnits } from "viem";
+import { waitForTransactionReceipt } from "wagmi/actions";
+import { config } from "@/lib/wagmi";
 import {
   CONTRACT_ADDRESSES,
   CHARITY_COIN_ABI,
@@ -19,7 +21,9 @@ export function useConversion(
   amount: number
 ) {
   const { address } = useAccount();
-  const [step, setStep] = useState<"idle" | "approving" | "converting">("idle");
+  const [step, setStep] = useState<
+    "idle" | "approving" | "waiting_approval" | "converting"
+  >("idle");
   const [error, setError] = useState<string | null>(null);
   const [txHash, setTxHash] = useState<`0x${string}` | undefined>(undefined);
   const [isSuccess, setIsSuccess] = useState(false);
@@ -39,6 +43,17 @@ export function useConversion(
     },
   });
 
+  // Read user's CHA balance
+  const { data: balance } = useReadContract({
+    address: CONTRACT_ADDRESSES.CharityCoin,
+    abi: CHARITY_COIN_ABI,
+    functionName: "balanceOf",
+    args: address ? [address] : undefined,
+    query: {
+      enabled: !!address,
+    },
+  });
+
   const { writeContractAsync } = useWriteContract();
 
   const { isLoading: isWaitingForTx } = useWaitForTransactionReceipt({
@@ -51,6 +66,13 @@ export function useConversion(
   const convert = useCallback(async () => {
     if (!address || !causeTokenAddress || parsedAmount <= 0n) {
       setError("Invalid conversion parameters");
+      return;
+    }
+
+    // Check balance before attempting conversion
+    const userBalance = (balance as bigint) ?? 0n;
+    if (userBalance < parsedAmount) {
+      setError("Insufficient CHA balance");
       return;
     }
 
@@ -71,7 +93,10 @@ export function useConversion(
         });
 
         setTxHash(approveTx);
-        // In production, wait for approval confirmation before proceeding
+        setStep("waiting_approval");
+
+        // Wait for approval confirmation before proceeding
+        await waitForTransactionReceipt(config, { hash: approveTx });
       }
 
       // Step 2: Execute conversion
@@ -90,14 +115,18 @@ export function useConversion(
     } catch (err: unknown) {
       const message =
         err instanceof Error ? err.message : "Transaction failed";
-      if (message.includes("User rejected")) {
+      if (message.includes("User rejected") || message.includes("user rejected")) {
         setError("Transaction was cancelled");
+      } else if (message.includes("insufficient") || message.includes("exceeds balance")) {
+        setError("Insufficient balance for this transaction");
+      } else if (message.includes("AmountTooSmall")) {
+        setError("Minimum conversion amount is 1 CHA");
       } else {
         setError(message);
       }
       setStep("idle");
     }
-  }, [address, causeTokenAddress, parsedAmount, allowance, writeContractAsync]);
+  }, [address, causeTokenAddress, parsedAmount, allowance, balance, writeContractAsync]);
 
   const reset = useCallback(() => {
     setStep("idle");
@@ -108,7 +137,8 @@ export function useConversion(
 
   return {
     convert,
-    isApproving: step === "approving" || (step === "approving" && isWaitingForTx),
+    balance: balance as bigint | undefined,
+    isApproving: step === "approving" || step === "waiting_approval",
     isConverting: step === "converting" || (step === "converting" && isWaitingForTx),
     isSuccess,
     error,

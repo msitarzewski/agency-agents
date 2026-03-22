@@ -16,6 +16,7 @@ import {TimelockController} from "@openzeppelin/contracts/governance/TimelockCon
 /// @title Deploy
 /// @notice Foundry deployment script for the Charity Coin ecosystem.
 /// @dev Deploys all core contracts, sets up roles, and creates the 5 launch causes.
+///      Transfers all admin roles to the governance timelock and renounces deployer access.
 ///
 /// Usage:
 ///   forge script script/Deploy.s.sol:Deploy --rpc-url $BASE_RPC_URL --broadcast --verify
@@ -71,37 +72,42 @@ contract Deploy is Script {
         );
         console2.log("FeeRouter:", address(feeRouter));
 
-        // ── 4. Deploy ConversionEngine ──────────────────────────────────
+        // ── 4. Deploy CauseTokenFactory first (with deployer as temp minter) ──
+        // Deploy factory with deployer as temporary minter; updated to engine below.
+        CauseTokenFactory factory = new CauseTokenFactory(
+            address(causeTokenImpl),
+            deployer,
+            deployer // Temporary minter — updated to ConversionEngine below.
+        );
+        console2.log("CauseTokenFactory:", address(factory));
+
+        // ── 5. Deploy ConversionEngine with real factory address ─────────
         ConversionEngine engine = new ConversionEngine(
             address(chaToken),
-            address(0), // Factory placeholder — updated below.
+            address(factory),
             address(feeRouter),
             deployer
         );
         console2.log("ConversionEngine:", address(engine));
 
-        // ── 5. Deploy CauseTokenFactory ─────────────────────────────────
-        // The ConversionEngine address is the minter for all cause tokens.
-        CauseTokenFactory factory = new CauseTokenFactory(
-            address(causeTokenImpl),
-            deployer,
-            address(engine)
-        );
-        console2.log("CauseTokenFactory:", address(factory));
+        // Update factory minter to ConversionEngine.
+        factory.setMinter(address(engine));
 
-        // Point the ConversionEngine at the factory.
-        engine.setFactory(address(factory));
+        // Grant DISTRIBUTOR_ROLE on FeeRouter to ConversionEngine.
+        feeRouter.grantRole(feeRouter.DISTRIBUTOR_ROLE(), address(engine));
+
+        // Set factory on FeeRouter for cause validation.
+        feeRouter.setFactory(address(factory));
 
         // ── 6. Deploy Governance (Timelock + Governor) ──────────────────
-        // Timelock: 2-day delay, governor is proposer, anyone can execute.
-        address[] memory proposers = new address[](1);
+        // Timelock: 2-day delay. Use empty arrays — roles granted explicitly below.
+        address[] memory proposers = new address[](0);
         address[] memory executors = new address[](1);
-        proposers[0] = address(0); // Placeholder — updated after governor deployment.
         executors[0] = address(0); // Anyone can execute after delay.
 
         CharityCoinTimelock timelock = new CharityCoinTimelock(
             2 days,     // minDelay
-            proposers,  // Updated below to include governor.
+            proposers,
             executors,
             deployer    // Admin (to configure roles, then renounce).
         );
@@ -113,17 +119,11 @@ contract Deploy is Script {
         );
         console2.log("CharityCoinGovernor:", address(governor));
 
-        // Grant the governor the PROPOSER_ROLE on the timelock.
+        // Grant the governor the PROPOSER_ROLE and CANCELLER_ROLE on the timelock.
         timelock.grantRole(timelock.PROPOSER_ROLE(), address(governor));
-        // Grant the governor the CANCELLER_ROLE on the timelock.
         timelock.grantRole(timelock.CANCELLER_ROLE(), address(governor));
 
-        // ── 7. Set up roles ─────────────────────────────────────────────
-        // Grant MINTER_ROLE on CHA to the ConversionEngine (for future use if needed).
-        // Note: The engine burns CHA, it doesn't mint it. But the factory's minter
-        // (the engine) has MINTER_ROLE on each CauseToken via factory.createCause().
-
-        // ── 8. Create the 5 launch causes ───────────────────────────────
+        // ── 7. Create the 5 launch causes ───────────────────────────────
         factory.createCause(
             "CharityCoin Health",
             "chHEALTH",
@@ -169,10 +169,33 @@ contract Deploy is Script {
         );
         console2.log("Created cause: HUNGER");
 
+        // ── 8. Transfer admin roles to timelock ─────────────────────────
+        // CharityCoin: transfer admin to timelock, renounce deployer
+        chaToken.grantRole(chaToken.DEFAULT_ADMIN_ROLE(), address(timelock));
+        chaToken.renounceRole(chaToken.DEFAULT_ADMIN_ROLE(), deployer);
+
+        // ConversionEngine: transfer admin to timelock, renounce deployer
+        engine.grantRole(engine.DEFAULT_ADMIN_ROLE(), address(timelock));
+        engine.renounceRole(engine.DEFAULT_ADMIN_ROLE(), deployer);
+
+        // FeeRouter: transfer admin to timelock, renounce deployer
+        feeRouter.grantRole(feeRouter.DEFAULT_ADMIN_ROLE(), address(timelock));
+        feeRouter.renounceRole(feeRouter.DEFAULT_ADMIN_ROLE(), deployer);
+
+        // CauseTokenFactory: transfer admin to timelock, renounce deployer
+        factory.grantRole(factory.DEFAULT_ADMIN_ROLE(), address(timelock));
+        factory.grantRole(factory.CAUSE_CREATOR_ROLE(), address(timelock));
+        factory.renounceRole(factory.CAUSE_CREATOR_ROLE(), deployer);
+        factory.renounceRole(factory.DEFAULT_ADMIN_ROLE(), deployer);
+
+        // Timelock: renounce deployer admin
+        timelock.renounceRole(timelock.DEFAULT_ADMIN_ROLE(), deployer);
+
         // ── 9. Log summary ──────────────────────────────────────────────
         console2.log("=== Deployment Complete ===");
         console2.log("Total causes created:", factory.causeCount());
         console2.log("Deployer:", deployer);
+        console2.log("All admin roles transferred to timelock");
 
         vm.stopBroadcast();
     }

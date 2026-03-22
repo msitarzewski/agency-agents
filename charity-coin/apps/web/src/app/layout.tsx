@@ -11,9 +11,13 @@ const inter = Inter({
 });
 
 export const metadata: Metadata = {
-  title: "Charity Coin - Convert Value. Create Impact.",
+  metadataBase: new URL("https://charitycoin.org"),
+  title: {
+    default: "Charity Coin - Convert Value. Create Impact.",
+    template: "%s | Charity Coin",
+  },
   description:
-    "A deflationary token on Base (Coinbase L2) that lets you buy CHA tokens and convert them into Cause Tokens, directing funds to verified charities while permanently burning CHA supply.",
+    "A deflationary token on Base that lets you convert CHA into Cause Tokens, directing funds to verified charities while permanently burning CHA supply.",
   keywords: [
     "charity",
     "crypto",
@@ -23,6 +27,24 @@ export const metadata: Metadata = {
     "deflationary",
     "cause tokens",
   ],
+  openGraph: {
+    type: "website",
+    siteName: "Charity Coin",
+    title: "Charity Coin - Convert Value. Create Impact.",
+    description:
+      "A deflationary token on Base that lets you convert CHA into Cause Tokens, directing funds to verified charities while permanently burning CHA supply.",
+    url: "https://charitycoin.org",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Charity Coin - Convert Value. Create Impact.",
+    description:
+      "A deflationary token on Base that lets you convert CHA into Cause Tokens, directing funds to verified charities while permanently burning CHA supply.",
+  },
+  robots: {
+    index: true,
+    follow: true,
+  },
 };
 
 export default function RootLayout({
@@ -33,9 +55,17 @@ export default function RootLayout({
   return (
     <html lang="en" className={inter.variable}>
       <body className="min-h-screen flex flex-col font-sans">
+        <a
+          href="#main-content"
+          className="sr-only focus:not-sr-only focus:absolute focus:z-50 focus:p-4 focus:bg-white focus:text-primary-700 focus:underline"
+        >
+          Skip to content
+        </a>
         <Providers>
           <Header />
-          <main className="flex-1">{children}</main>
+          <main id="main-content" className="flex-1">
+            {children}
+          </main>
           <Footer />
         </Providers>
       </body>

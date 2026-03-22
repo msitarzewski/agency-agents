@@ -128,10 +128,37 @@ contract CauseTokenFactory is ICauseTokenFactory, AccessControl {
         return causeIds.length;
     }
 
+    /// @notice Returns a paginated subset of cause token addresses.
+    /// @param offset Starting index.
+    /// @param limit Maximum number of results.
+    /// @return result Array of cause token addresses.
+    /// @return total Total number of causes.
+    function getCausesPaginated(uint256 offset, uint256 limit)
+        external
+        view
+        returns (address[] memory result, uint256 total)
+    {
+        total = causeIds.length;
+        if (offset >= total) return (new address[](0), total);
+
+        uint256 end = offset + limit;
+        if (end > total) end = total;
+
+        result = new address[](end - offset);
+        for (uint256 i = offset; i < end; ++i) {
+            result[i - offset] = causes[causeIds[i]];
+        }
+    }
+
+    /// @notice Emitted when the minter address is updated.
+    event MinterUpdated(address oldMinter, address newMinter);
+
     /// @notice Updates the minter address used for future cause token deployments.
     /// @param newMinter The new minter address (typically the ConversionEngine).
     function setMinter(address newMinter) external onlyRole(DEFAULT_ADMIN_ROLE) {
         if (newMinter == address(0)) revert ZeroAddress();
+        address oldMinter = minter;
         minter = newMinter;
+        emit MinterUpdated(oldMinter, newMinter);
     }
 }

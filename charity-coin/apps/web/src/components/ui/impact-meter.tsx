@@ -30,7 +30,14 @@ export function ImpactMeter({
         </div>
       )}
 
-      <div className="relative h-3 w-full overflow-hidden rounded-full bg-gray-100">
+      <div
+        className="relative h-3 w-full overflow-hidden rounded-full bg-gray-100"
+        role="progressbar"
+        aria-valuenow={Math.round(percentage)}
+        aria-valuemin={0}
+        aria-valuemax={100}
+        aria-label={label || "Impact progress"}
+      >
         <div
           className={cn(
             "h-full rounded-full transition-all duration-1000 ease-out",
@@ -41,10 +48,10 @@ export function ImpactMeter({
       </div>
 
       <div className="mt-1 flex items-center justify-between">
-        <span className="text-xs text-gray-400">
+        <span className="text-xs text-gray-500">
           {current.toLocaleString()} CHA
         </span>
-        <span className="text-xs text-gray-400">
+        <span className="text-xs text-gray-500">
           {goal.toLocaleString()} CHA
         </span>
       </div>

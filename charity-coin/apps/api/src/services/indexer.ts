@@ -103,7 +103,7 @@ async function handleConvertedEvent(log: Log<bigint, number, false, typeof CONVE
         count: sql<number>`COUNT(DISTINCT ${conversions.causeTokenAddress})::int`,
       })
       .from(conversions)
-      .where(sql`LOWER(${conversions.userAddress}) = ${user.toLowerCase()}`);
+      .where(eq(conversions.userAddress, user.toLowerCase()));
 
     if (causesCount[0]) {
       await db

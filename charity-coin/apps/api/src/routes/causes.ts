@@ -2,8 +2,10 @@ import { Hono } from "hono";
 import { db } from "../db/index.js";
 import { causes, conversions } from "../db/schema.js";
 import { eq, sql, desc } from "drizzle-orm";
-import { getCauseStats, getLeaderboard } from "../services/analytics.js";
+import { getLeaderboard } from "../services/analytics.js";
 import { cacheMiddleware } from "../middleware/cache.js";
+
+const ETH_ADDRESS_REGEX = /^0x[0-9a-fA-F]{40}$/;
 
 const app = new Hono();
 
@@ -12,6 +14,7 @@ app.use("*", cacheMiddleware(30));
 
 /**
  * GET / - List all active causes with metadata and analytics.
+ * Uses a single aggregation query instead of N+1 per-cause queries.
  */
 app.get("/", async (c) => {
   try {
@@ -21,21 +24,34 @@ app.get("/", async (c) => {
       .where(eq(causes.isActive, true))
       .orderBy(desc(causes.createdAt));
 
-    // Enrich each cause with analytics
-    const enriched = await Promise.all(
-      activeCauses.map(async (cause) => {
-        const stats = await getCauseStats(cause.tokenAddress);
-        return {
-          ...cause,
-          analytics: {
-            totalRaised: stats.totalRaised,
-            totalBurned: stats.totalBurned,
-            supporterCount: stats.uniqueSupporters,
-            totalConversions: stats.totalConversions,
-          },
-        };
+    // Fetch all cause stats in a single query instead of N+1
+    const allCauseStats = await db
+      .select({
+        causeTokenAddress: conversions.causeTokenAddress,
+        totalBurned: sql<string>`COALESCE(SUM(${conversions.chaAmount}), '0')`,
+        totalRaised: sql<string>`COALESCE(SUM(${conversions.feeAmount}), '0')`,
+        totalConversions: sql<number>`COUNT(*)::int`,
+        uniqueSupporters: sql<number>`COUNT(DISTINCT ${conversions.userAddress})::int`,
       })
+      .from(conversions)
+      .groupBy(conversions.causeTokenAddress);
+
+    const statsMap = new Map(
+      allCauseStats.map((s) => [s.causeTokenAddress, s])
     );
+
+    const enriched = activeCauses.map((cause) => {
+      const stats = statsMap.get(cause.tokenAddress.toLowerCase());
+      return {
+        ...cause,
+        analytics: {
+          totalRaised: stats?.totalRaised ?? "0",
+          totalBurned: stats?.totalBurned ?? "0",
+          supporterCount: stats?.uniqueSupporters ?? 0,
+          totalConversions: stats?.totalConversions ?? 0,
+        },
+      };
+    });
 
     return c.json({ causes: enriched });
   } catch (err) {
@@ -61,16 +77,26 @@ app.get("/:id", async (c) => {
       return c.json({ error: "Cause not found" }, 404);
     }
 
-    const stats = await getCauseStats(cause.tokenAddress);
+    const lowerAddress = cause.tokenAddress.toLowerCase();
+
+    const [totals] = await db
+      .select({
+        totalBurned: sql<string>`COALESCE(SUM(${conversions.chaAmount}), '0')`,
+        totalRaised: sql<string>`COALESCE(SUM(${conversions.feeAmount}), '0')`,
+        totalConversions: sql<number>`COUNT(*)::int`,
+        uniqueSupporters: sql<number>`COUNT(DISTINCT ${conversions.userAddress})::int`,
+      })
+      .from(conversions)
+      .where(eq(conversions.causeTokenAddress, lowerAddress));
 
     return c.json({
       cause: {
         ...cause,
         analytics: {
-          totalRaised: stats.totalRaised,
-          totalBurned: stats.totalBurned,
-          uniqueSupporters: stats.uniqueSupporters,
-          totalConversions: stats.totalConversions,
+          totalRaised: totals?.totalRaised ?? "0",
+          totalBurned: totals?.totalBurned ?? "0",
+          uniqueSupporters: totals?.uniqueSupporters ?? 0,
+          totalConversions: totals?.totalConversions ?? 0,
         },
       },
     });
@@ -115,8 +141,11 @@ app.get("/:id/leaderboard", async (c) => {
 app.get("/:id/conversions", async (c) => {
   try {
     const causeId = c.req.param("id");
-    const page = parseInt(c.req.query("page") || "1", 10);
-    const limit = Math.min(parseInt(c.req.query("limit") || "20", 10), 100);
+    const page = Math.max(parseInt(c.req.query("page") || "1", 10), 1);
+    const limit = Math.min(
+      Math.max(parseInt(c.req.query("limit") || "20", 10), 1),
+      100
+    );
     const offset = (page - 1) * limit;
 
     const [cause] = await db
@@ -135,18 +164,14 @@ app.get("/:id/conversions", async (c) => {
       db
         .select()
         .from(conversions)
-        .where(
-          sql`LOWER(${conversions.causeTokenAddress}) = ${lowerAddress}`
-        )
+        .where(eq(conversions.causeTokenAddress, lowerAddress))
         .orderBy(desc(conversions.timestamp))
         .limit(limit)
         .offset(offset),
       db
         .select({ count: sql<number>`COUNT(*)::int` })
         .from(conversions)
-        .where(
-          sql`LOWER(${conversions.causeTokenAddress}) = ${lowerAddress}`
-        ),
+        .where(eq(conversions.causeTokenAddress, lowerAddress)),
     ]);
 
     return c.json({

@@ -67,10 +67,21 @@ export function cacheMiddleware(ttlSeconds: number = 60) {
     if (method !== "GET") {
       try {
         const pattern = `api:cache:${path}*`;
-        const keys = await client.keys(pattern);
-        if (keys.length > 0) {
-          await client.del(...keys);
-        }
+        // Use SCAN instead of KEYS to avoid blocking Redis
+        let cursor = "0";
+        do {
+          const [nextCursor, keys] = await client.scan(
+            cursor,
+            "MATCH",
+            pattern,
+            "COUNT",
+            100
+          );
+          cursor = nextCursor;
+          if (keys.length > 0) {
+            await client.del(...keys);
+          }
+        } while (cursor !== "0");
       } catch (err) {
         console.error("Cache invalidation error:", err);
       }

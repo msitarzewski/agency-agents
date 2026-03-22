@@ -4,8 +4,10 @@ pragma solidity ^0.8.24;
 import {ERC20} from "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 import {ERC20Burnable} from "@openzeppelin/contracts/token/ERC20/extensions/ERC20Burnable.sol";
 import {ERC20Permit} from "@openzeppelin/contracts/token/ERC20/extensions/ERC20Permit.sol";
+import {ERC20Votes} from "@openzeppelin/contracts/token/ERC20/extensions/ERC20Votes.sol";
 import {AccessControl} from "@openzeppelin/contracts/access/AccessControl.sol";
 import {Pausable} from "@openzeppelin/contracts/utils/Pausable.sol";
+import {Nonces} from "@openzeppelin/contracts/utils/Nonces.sol";
 
 /// @title CharityCoin (CHA)
 /// @notice The primary ERC-20 token of the Charity Coin ecosystem.
@@ -13,10 +15,11 @@ import {Pausable} from "@openzeppelin/contracts/utils/Pausable.sol";
 ///   - Hard-capped supply of 1 billion tokens.
 ///   - Role-based minting (MINTER_ROLE) and pausing (PAUSER_ROLE).
 ///   - EIP-2612 permit for gasless approvals.
+///   - ERC20Votes for on-chain governance (delegation + vote checkpointing).
 ///   - Burnable to enable the CHA -> CauseToken conversion flow.
 ///
 /// Built with OpenZeppelin v5 contracts. Uses the `_update` hook for pausable behavior.
-contract CharityCoin is ERC20, ERC20Burnable, ERC20Permit, AccessControl, Pausable {
+contract CharityCoin is ERC20, ERC20Burnable, ERC20Permit, ERC20Votes, AccessControl, Pausable {
     // ──────────────────────────────────────────────────────────────────────
     // Constants & Roles
     // ──────────────────────────────────────────────────────────────────────
@@ -82,13 +85,18 @@ contract CharityCoin is ERC20, ERC20Burnable, ERC20Permit, AccessControl, Pausab
     // Internal Overrides (OZ v5 pattern)
     // ──────────────────────────────────────────────────────────────────────
 
-    /// @dev Hook that enforces the Pausable check on every token movement.
-    ///      OpenZeppelin v5 uses `_update` instead of the legacy `_beforeTokenTransfer`.
+    /// @dev Hook that enforces the Pausable check on every token movement and
+    ///      updates ERC20Votes checkpoints.
     function _update(
         address from,
         address to,
         uint256 value
-    ) internal override(ERC20) whenNotPaused {
+    ) internal override(ERC20, ERC20Votes) whenNotPaused {
         super._update(from, to, value);
+    }
+
+    /// @dev Resolve nonces conflict between ERC20Permit and Nonces (used by ERC20Votes).
+    function nonces(address owner) public view override(ERC20Permit, Nonces) returns (uint256) {
+        return super.nonces(owner);
     }
 }

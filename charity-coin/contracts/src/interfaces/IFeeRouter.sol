@@ -37,6 +37,12 @@ interface IFeeRouter {
     /// @param newSlippageBps New max slippage in basis points.
     event MaxSlippageUpdated(uint256 oldSlippageBps, uint256 newSlippageBps);
 
+    /// @notice Emitted when the liquidity manager address is updated.
+    event LiquidityManagerUpdated(address oldManager, address newManager);
+
+    /// @notice Emitted when the Uniswap V3 pool fee tier is updated.
+    event PoolFeeUpdated(uint24 oldFee, uint24 newFee);
+
     // ──────────────────────────────────────────────────────────────────────
     // Errors
     // ──────────────────────────────────────────────────────────────────────
@@ -49,6 +55,9 @@ interface IFeeRouter {
 
     /// @notice Thrown when the slippage setting exceeds the allowed maximum.
     error SlippageTooHigh();
+
+    /// @notice Thrown when an invalid Uniswap V3 pool fee tier is provided.
+    error InvalidPoolFee();
 
     // ──────────────────────────────────────────────────────────────────────
     // Functions

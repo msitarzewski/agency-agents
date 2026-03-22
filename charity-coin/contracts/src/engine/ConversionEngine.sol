@@ -38,6 +38,28 @@ contract ConversionEngine is IConversionEngine, ReentrancyGuard, Pausable, Acces
     /// @notice Basis-point denominator for percentage calculations.
     uint256 public constant BPS_DENOMINATOR = 10_000;
 
+    /// @notice Minimum conversion amount: 1 CHA (prevents fee bypass on dust amounts).
+    uint256 public constant MIN_CONVERSION = 1e18;
+
+    // ──────────────────────────────────────────────────────────────────────
+    // Errors
+    // ──────────────────────────────────────────────────────────────────────
+
+    /// @notice Thrown when a zero address is provided.
+    error ZeroAddress();
+
+    /// @notice Thrown when the conversion amount is below the minimum.
+    error AmountTooSmall();
+
+    /// @notice Thrown when the FeeRouter address is updated.
+    event FeeRouterUpdated(address oldRouter, address newRouter);
+
+    /// @notice Thrown when the Factory address is updated.
+    event FactoryUpdated(address oldFactory, address newFactory);
+
+    /// @notice Emitted when the total fees collected counter increases.
+    event TotalFeesCollectedUpdated(uint256 newTotal);
+
     // ──────────────────────────────────────────────────────────────────────
     // Storage
     // ──────────────────────────────────────────────────────────────────────
@@ -60,13 +82,16 @@ contract ConversionEngine is IConversionEngine, ReentrancyGuard, Pausable, Acces
     /// @notice Cumulative CHA burned through all conversions.
     uint256 public totalChaBurned;
 
+    /// @notice Cumulative fees collected through all conversions.
+    uint256 public totalFeesCollected;
+
     // ──────────────────────────────────────────────────────────────────────
     // Constructor
     // ──────────────────────────────────────────────────────────────────────
 
     /// @notice Deploys the ConversionEngine.
     /// @param chaToken_    Address of the CharityCoin (CHA) token.
-    /// @param factory_     Address of the CauseTokenFactory.
+    /// @param factory_     Address of the CauseTokenFactory (can be address(0) if set later via setFactory).
     /// @param feeRouter_   Address of the FeeRouter.
     /// @param defaultAdmin Address granted DEFAULT_ADMIN_ROLE.
     constructor(
@@ -75,10 +100,9 @@ contract ConversionEngine is IConversionEngine, ReentrancyGuard, Pausable, Acces
         address feeRouter_,
         address defaultAdmin
     ) {
-        require(chaToken_ != address(0), "Zero address: chaToken");
-        require(factory_ != address(0), "Zero address: factory");
-        require(feeRouter_ != address(0), "Zero address: feeRouter");
-        require(defaultAdmin != address(0), "Zero address: admin");
+        if (chaToken_ == address(0)) revert ZeroAddress();
+        if (feeRouter_ == address(0)) revert ZeroAddress();
+        if (defaultAdmin == address(0)) revert ZeroAddress();
 
         chaToken = CharityCoin(chaToken_);
         factory = ICauseTokenFactory(factory_);
@@ -93,11 +117,12 @@ contract ConversionEngine is IConversionEngine, ReentrancyGuard, Pausable, Acces
 
     /// @inheritdoc IConversionEngine
     function convert(address causeToken, uint256 chaAmount) external nonReentrant whenNotPaused {
-        if (chaAmount == 0) revert ZeroAmount();
+        if (chaAmount < MIN_CONVERSION) revert AmountTooSmall();
         if (!factory.isCause(causeToken)) revert InvalidCause();
 
-        // Calculate fee and burn amounts.
-        uint256 fee = (chaAmount * totalFeeBps) / BPS_DENOMINATOR;
+        // Calculate fee and burn amounts (cache totalFeeBps to save an SLOAD).
+        uint256 _totalFeeBps = totalFeeBps;
+        uint256 fee = (chaAmount * _totalFeeBps) / BPS_DENOMINATOR;
         uint256 burnAmount = chaAmount - fee;
 
         // Transfer CHA from the user to this contract.
@@ -118,6 +143,7 @@ contract ConversionEngine is IConversionEngine, ReentrancyGuard, Pausable, Acces
         // Update accounting.
         userConversions[msg.sender][causeToken] += burnAmount;
         totalChaBurned += burnAmount;
+        totalFeesCollected += fee;
 
         emit Converted(msg.sender, causeToken, chaAmount, burnAmount, fee, burnAmount);
     }
@@ -167,14 +193,18 @@ contract ConversionEngine is IConversionEngine, ReentrancyGuard, Pausable, Acces
     /// @notice Updates the FeeRouter address. Only callable by admin.
     /// @param newFeeRouter Address of the new FeeRouter.
     function setFeeRouter(address newFeeRouter) external onlyRole(DEFAULT_ADMIN_ROLE) {
-        require(newFeeRouter != address(0), "Zero address");
+        if (newFeeRouter == address(0)) revert ZeroAddress();
+        address oldRouter = address(feeRouter);
         feeRouter = IFeeRouter(newFeeRouter);
+        emit FeeRouterUpdated(oldRouter, newFeeRouter);
     }
 
     /// @notice Updates the CauseTokenFactory address. Only callable by admin.
     /// @param newFactory Address of the new factory.
     function setFactory(address newFactory) external onlyRole(DEFAULT_ADMIN_ROLE) {
-        require(newFactory != address(0), "Zero address");
+        if (newFactory == address(0)) revert ZeroAddress();
+        address oldFactory = address(factory);
         factory = ICauseTokenFactory(newFactory);
+        emit FactoryUpdated(oldFactory, newFactory);
     }
 }

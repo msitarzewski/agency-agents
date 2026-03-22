@@ -82,7 +82,7 @@ export async function getCauseStats(causeTokenAddress: string): Promise<{
         uniqueSupporters: sql<number>`COUNT(DISTINCT ${conversions.userAddress})::int`,
       })
       .from(conversions)
-      .where(sql`LOWER(${conversions.causeTokenAddress}) = ${lowerAddress}`);
+      .where(eq(conversions.causeTokenAddress, lowerAddress));
 
     return {
       totalRaised: totals?.totalRaised ?? "0",
@@ -120,7 +120,7 @@ export async function getLeaderboard(
         conversionCount: sql<number>`COUNT(*)::int`,
       })
       .from(conversions)
-      .where(sql`LOWER(${conversions.causeTokenAddress}) = ${lowerAddress}`)
+      .where(eq(conversions.causeTokenAddress, lowerAddress))
       .groupBy(conversions.userAddress)
       .orderBy(sql`SUM(${conversions.chaAmount}) DESC`)
       .limit(limit);
@@ -218,7 +218,7 @@ export async function getCauseDailyVolume(
       .from(conversions)
       .where(
         and(
-          sql`LOWER(${conversions.causeTokenAddress}) = ${lowerAddress}`,
+          eq(conversions.causeTokenAddress, lowerAddress),
           gte(conversions.timestamp, startDate)
         )
       )

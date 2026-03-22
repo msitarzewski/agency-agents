@@ -28,6 +28,7 @@ export const causes = pgTable(
   (table) => [
     uniqueIndex("causes_cause_id_idx").on(table.causeId),
     uniqueIndex("causes_token_address_idx").on(table.tokenAddress),
+    index("causes_active_created_idx").on(table.isActive, table.createdAt),
   ]
 );
 
@@ -56,6 +57,9 @@ export const conversions = pgTable(
     index("conversions_cause_token_address_idx").on(table.causeTokenAddress),
     index("conversions_timestamp_idx").on(table.timestamp),
     uniqueIndex("conversions_tx_hash_idx").on(table.txHash),
+    index("conversions_cause_token_ts_idx").on(table.causeTokenAddress, table.timestamp),
+    index("conversions_user_ts_idx").on(table.userAddress, table.timestamp),
+    index("conversions_block_number_idx").on(table.blockNumber),
   ]
 );
 
@@ -124,6 +128,8 @@ export const governanceProposals = pgTable(
   },
   (table) => [
     uniqueIndex("governance_proposals_proposal_id_idx").on(table.proposalId),
+    index("governance_proposals_status_idx").on(table.status),
+    index("governance_proposals_proposer_idx").on(table.proposer),
   ]
 );
 

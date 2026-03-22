@@ -9,19 +9,65 @@ import analyticsRoutes from "./routes/analytics.js";
 import userRoutes from "./routes/user.js";
 import adminRoutes from "./routes/admin.js";
 import { startIndexer } from "./services/indexer.js";
+import { db } from "./db/index.js";
+import { sql } from "drizzle-orm";
+import { getRedisClient } from "./middleware/cache.js";
 
 const app = new Hono();
 
 // Global middleware
-app.use("*", cors());
+const allowedOrigins = process.env.ALLOWED_ORIGINS
+  ? process.env.ALLOWED_ORIGINS.split(",")
+  : ["http://localhost:3000"];
+
+app.use(
+  "*",
+  cors({
+    origin: allowedOrigins,
+    allowMethods: ["GET", "POST", "PATCH", "DELETE"],
+    allowHeaders: ["Content-Type", "x-api-key"],
+    credentials: true,
+  })
+);
 app.use("*", logger());
 
-// Health check
-app.get("/api/health", (c) => {
-  return c.json({
-    status: "ok",
-    timestamp: new Date().toISOString(),
-  });
+// Health check with dependency verification
+app.get("/api/health", async (c) => {
+  const checks: Record<string, string> = {};
+
+  // DB check
+  try {
+    await db.execute(sql`SELECT 1`);
+    checks.database = "ok";
+  } catch {
+    checks.database = "error";
+  }
+
+  // Redis check
+  const redis = getRedisClient();
+  if (redis) {
+    try {
+      await redis.ping();
+      checks.redis = "ok";
+    } catch {
+      checks.redis = "error";
+    }
+  } else {
+    checks.redis = "not_configured";
+  }
+
+  const healthy = Object.values(checks).every(
+    (v) => v === "ok" || v === "not_configured"
+  );
+
+  return c.json(
+    {
+      status: healthy ? "ok" : "degraded",
+      checks,
+      timestamp: new Date().toISOString(),
+    },
+    healthy ? 200 : 503
+  );
 });
 
 // Mount routes
@@ -40,6 +86,19 @@ app.onError((err, c) => {
   console.error("Unhandled error:", err);
   return c.json({ error: "Internal server error" }, 500);
 });
+
+// Graceful shutdown
+function gracefulShutdown(signal: string) {
+  console.log(`Received ${signal}, shutting down gracefully...`);
+  const redis = getRedisClient();
+  if (redis) {
+    redis.quit().catch(() => {});
+  }
+  process.exit(0);
+}
+
+process.on("SIGTERM", () => gracefulShutdown("SIGTERM"));
+process.on("SIGINT", () => gracefulShutdown("SIGINT"));
 
 // Start server
 const port = parseInt(process.env.PORT || "3001", 10);

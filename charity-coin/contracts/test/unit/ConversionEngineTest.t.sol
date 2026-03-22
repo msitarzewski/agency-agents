@@ -53,6 +53,15 @@ contract ConversionEngineTest is Test {
         vm.prank(admin);
         factory.setMinter(address(engine));
 
+        // Grant engine DISTRIBUTOR_ROLE on FeeRouter so it can call distributeFees
+        bytes32 distRole = feeRouter.DISTRIBUTOR_ROLE();
+        vm.prank(admin);
+        feeRouter.grantRole(distRole, address(engine));
+
+        // Set factory on FeeRouter for cause validation
+        vm.prank(admin);
+        feeRouter.setFactory(address(factory));
+
         // Create a cause
         vm.prank(admin);
         causeToken = factory.createCause(
@@ -126,8 +135,17 @@ contract ConversionEngineTest is Test {
         vm.startPrank(alice);
         cha.approve(address(engine), 1000e18);
 
-        vm.expectRevert(IConversionEngine.ZeroAmount.selector);
+        vm.expectRevert(ConversionEngine.AmountTooSmall.selector);
         engine.convert(causeToken, 0);
+        vm.stopPrank();
+    }
+
+    function test_convertBelowMinReverts() public {
+        vm.startPrank(alice);
+        cha.approve(address(engine), 1000e18);
+
+        vm.expectRevert(ConversionEngine.AmountTooSmall.selector);
+        engine.convert(causeToken, 0.5e18); // Below MIN_CONVERSION of 1e18
         vm.stopPrank();
     }
 

@@ -1,8 +1,10 @@
 import { Hono } from "hono";
 import { db } from "../db/index.js";
 import { users, conversions, causes } from "../db/schema.js";
-import { eq, sql, desc } from "drizzle-orm";
+import { eq, sql, desc, inArray } from "drizzle-orm";
 import { cacheMiddleware } from "../middleware/cache.js";
+
+const ETH_ADDRESS_REGEX = /^0x[0-9a-fA-F]{40}$/;
 
 const app = new Hono();
 
@@ -13,7 +15,11 @@ app.use("*", cacheMiddleware(15));
  */
 app.get("/:address/portfolio", async (c) => {
   try {
-    const address = c.req.param("address").toLowerCase();
+    const rawAddress = c.req.param("address");
+    if (!ETH_ADDRESS_REGEX.test(rawAddress)) {
+      return c.json({ error: "Invalid Ethereum address" }, 400);
+    }
+    const address = rawAddress.toLowerCase();
 
     // Get user record
     const [user] = await db
@@ -47,25 +53,38 @@ app.get("/:address/portfolio", async (c) => {
       .groupBy(conversions.causeTokenAddress)
       .orderBy(sql`SUM(${conversions.chaAmount}) DESC`);
 
-    // Enrich with cause metadata
-    const enrichedBreakdown = await Promise.all(
-      causeBreakdown.map(async (entry) => {
-        const [cause] = await db
-          .select({ name: causes.name, symbol: causes.symbol, causeId: causes.causeId })
-          .from(causes)
-          .where(
-            sql`LOWER(${causes.tokenAddress}) = ${entry.causeTokenAddress.toLowerCase()}`
-          )
-          .limit(1);
+    // Batch fetch cause metadata instead of N+1 queries
+    const uniqueAddresses = causeBreakdown.map((e) => e.causeTokenAddress);
+    let causeMap = new Map<
+      string,
+      { name: string; symbol: string; causeId: string }
+    >();
 
-        return {
-          ...entry,
-          causeName: cause?.name ?? "Unknown",
-          causeSymbol: cause?.symbol ?? "???",
-          causeId: cause?.causeId ?? null,
-        };
-      })
-    );
+    if (uniqueAddresses.length > 0) {
+      const causeList = await db
+        .select({
+          tokenAddress: causes.tokenAddress,
+          name: causes.name,
+          symbol: causes.symbol,
+          causeId: causes.causeId,
+        })
+        .from(causes)
+        .where(inArray(causes.tokenAddress, uniqueAddresses));
+
+      causeMap = new Map(
+        causeList.map((c) => [c.tokenAddress.toLowerCase(), c])
+      );
+    }
+
+    const enrichedBreakdown = causeBreakdown.map((entry) => {
+      const cause = causeMap.get(entry.causeTokenAddress.toLowerCase());
+      return {
+        ...entry,
+        causeName: cause?.name ?? "Unknown",
+        causeSymbol: cause?.symbol ?? "???",
+        causeId: cause?.causeId ?? null,
+      };
+    });
 
     return c.json({
       address,
@@ -86,9 +105,16 @@ app.get("/:address/portfolio", async (c) => {
  */
 app.get("/:address/history", async (c) => {
   try {
-    const address = c.req.param("address").toLowerCase();
-    const page = parseInt(c.req.query("page") || "1", 10);
-    const limit = Math.min(parseInt(c.req.query("limit") || "20", 10), 100);
+    const rawAddress = c.req.param("address");
+    if (!ETH_ADDRESS_REGEX.test(rawAddress)) {
+      return c.json({ error: "Invalid Ethereum address" }, 400);
+    }
+    const address = rawAddress.toLowerCase();
+    const page = Math.max(parseInt(c.req.query("page") || "1", 10), 1);
+    const limit = Math.min(
+      Math.max(parseInt(c.req.query("limit") || "20", 10), 1),
+      100
+    );
     const offset = (page - 1) * limit;
 
     const [history, totalCount] = await Promise.all([
@@ -114,25 +140,40 @@ app.get("/:address/history", async (c) => {
         .where(eq(conversions.userAddress, address)),
     ]);
 
-    // Enrich with cause metadata
-    const enriched = await Promise.all(
-      history.map(async (tx) => {
-        const [cause] = await db
-          .select({ name: causes.name, symbol: causes.symbol, causeId: causes.causeId })
-          .from(causes)
-          .where(
-            sql`LOWER(${causes.tokenAddress}) = ${tx.causeTokenAddress.toLowerCase()}`
-          )
-          .limit(1);
+    // Batch fetch cause metadata instead of N+1 queries
+    const uniqueAddresses = [
+      ...new Set(history.map((tx) => tx.causeTokenAddress)),
+    ];
+    let causeMap = new Map<
+      string,
+      { name: string; symbol: string; causeId: string }
+    >();
 
-        return {
-          ...tx,
-          causeName: cause?.name ?? "Unknown",
-          causeSymbol: cause?.symbol ?? "???",
-          causeId: cause?.causeId ?? null,
-        };
-      })
-    );
+    if (uniqueAddresses.length > 0) {
+      const causeList = await db
+        .select({
+          tokenAddress: causes.tokenAddress,
+          name: causes.name,
+          symbol: causes.symbol,
+          causeId: causes.causeId,
+        })
+        .from(causes)
+        .where(inArray(causes.tokenAddress, uniqueAddresses));
+
+      causeMap = new Map(
+        causeList.map((c) => [c.tokenAddress.toLowerCase(), c])
+      );
+    }
+
+    const enriched = history.map((tx) => {
+      const cause = causeMap.get(tx.causeTokenAddress.toLowerCase());
+      return {
+        ...tx,
+        causeName: cause?.name ?? "Unknown",
+        causeSymbol: cause?.symbol ?? "???",
+        causeId: cause?.causeId ?? null,
+      };
+    });
 
     return c.json({
       address,

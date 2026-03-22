@@ -4,6 +4,7 @@ pragma solidity ^0.8.24;
 import {Test} from "forge-std/Test.sol";
 import {CharityCoin} from "../../src/token/CharityCoin.sol";
 import {CauseToken} from "../../src/token/CauseToken.sol";
+import {CauseTokenFactory} from "../../src/factory/CauseTokenFactory.sol";
 import {FeeRouter} from "../../src/fees/FeeRouter.sol";
 import {IFeeRouter} from "../../src/interfaces/IFeeRouter.sol";
 import {MockSwapRouter} from "../mocks/MockSwapRouter.sol";
@@ -16,13 +17,14 @@ contract FeeRouterTest is Test {
     MockSwapRouter public swapRouter;
     MockERC20 public usdc;
     CauseToken public causeToken;
+    CauseTokenFactory public factory;
 
     address admin = makeAddr("admin");
     address minter = makeAddr("minter");
     address charity = makeAddr("charity");
     address opsWallet = makeAddr("opsWallet");
     address liquidityMgr = makeAddr("liquidityMgr");
-    address caller = makeAddr("caller");
+    address distributor = makeAddr("distributor");
 
     function setUp() public {
         cha = new CharityCoin(admin, minter);
@@ -34,14 +36,24 @@ contract FeeRouterTest is Test {
             opsWallet, liquidityMgr, admin
         );
 
-        // Create a cause token clone
+        // Grant DISTRIBUTOR_ROLE to the distributor address
+        bytes32 distRole = router.DISTRIBUTOR_ROLE();
+        vm.prank(admin);
+        router.grantRole(distRole, distributor);
+
+        // Create a cause token clone and factory for validation
         CauseToken impl = new CauseToken();
-        address clone = Clones.clone(address(impl));
-        causeToken = CauseToken(clone);
-        causeToken.initialize(
-            "Health Token", "HEALTH", "Global Health", "Fund research",
-            charity, keccak256("health"), address(this)
+        factory = new CauseTokenFactory(address(impl), admin, admin);
+
+        vm.prank(admin);
+        address causeAddr = factory.createCause(
+            "Health Token", "HEALTH", "Global Health", "Fund research", charity
         );
+        causeToken = CauseToken(causeAddr);
+
+        // Set factory on router for cause validation
+        vm.prank(admin);
+        router.setFactory(address(factory));
 
         // Mint CHA to the router for distribution
         vm.prank(minter);
@@ -49,6 +61,7 @@ contract FeeRouterTest is Test {
     }
 
     function test_distributeFees() public {
+        vm.prank(distributor);
         router.distributeFees(address(causeToken), 100e18);
 
         // 50% to charity = 50
@@ -60,17 +73,26 @@ contract FeeRouterTest is Test {
         assertEq(cha.balanceOf(address(swapRouter)), 20e18);
     }
 
+    function test_distributeFeesRequiresRole() public {
+        vm.prank(makeAddr("attacker"));
+        vm.expectRevert();
+        router.distributeFees(address(causeToken), 100e18);
+    }
+
     function test_charityReceivesFees() public {
+        vm.prank(distributor);
         router.distributeFees(address(causeToken), 200e18);
         assertEq(cha.balanceOf(charity), 100e18); // 50% of 200
     }
 
     function test_liquidityReceivesFees() public {
+        vm.prank(distributor);
         router.distributeFees(address(causeToken), 200e18);
         assertEq(cha.balanceOf(liquidityMgr), 60e18); // 30% of 200
     }
 
     function test_opsSwapCalled() public {
+        vm.prank(distributor);
         router.distributeFees(address(causeToken), 200e18);
 
         // Ops amount = 40 CHA (20% of 200), swapped to USDC
@@ -119,8 +141,26 @@ contract FeeRouterTest is Test {
         router.setOperationsWallet(address(0));
     }
 
+    function test_setPoolFeeValidation() public {
+        vm.startPrank(admin);
+        router.setPoolFee(500);
+        assertEq(router.poolFee(), 500);
+
+        vm.expectRevert(IFeeRouter.InvalidPoolFee.selector);
+        router.setPoolFee(200); // Invalid tier
+        vm.stopPrank();
+    }
+
+    function test_setLiquidityManagerEmitsEvent() public {
+        address newMgr = makeAddr("newMgr");
+        vm.prank(admin);
+        router.setLiquidityManager(newMgr);
+        assertEq(router.liquidityManager(), newMgr);
+    }
+
     function test_zeroFeeDoesNothing() public {
         uint256 charityBefore = cha.balanceOf(charity);
+        vm.prank(distributor);
         router.distributeFees(address(causeToken), 0);
         assertEq(cha.balanceOf(charity), charityBefore);
     }

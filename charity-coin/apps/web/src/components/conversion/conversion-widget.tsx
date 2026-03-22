@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { useAccount } from "wagmi";
 import { ConnectButton } from "@rainbow-me/rainbowkit";
+import { formatUnits } from "viem";
 import {
   ArrowDown,
   CheckCircle2,
@@ -36,6 +37,7 @@ export function ConversionWidget({
 
   const {
     convert,
+    balance,
     isApproving,
     isConverting,
     isSuccess,
@@ -47,16 +49,28 @@ export function ConversionWidget({
     amount ? parseFloat(amount) : 0
   );
 
+  const formattedBalance = balance
+    ? parseFloat(formatUnits(balance, 18)).toLocaleString(undefined, {
+        maximumFractionDigits: 2,
+      })
+    : "0";
+
   const numAmount = parseFloat(amount) || 0;
   const burnAmount = numAmount * (FEE_BREAKDOWN.burnPercent / 100);
   const charityFee = numAmount * (FEE_BREAKDOWN.charityBps / 10000);
   const liquidityFee = numAmount * (FEE_BREAKDOWN.liquidityBps / 10000);
   const opsFee = numAmount * (FEE_BREAKDOWN.opsBps / 10000);
-  const causeTokensOut = numAmount > 0 ? numAmount : 0;
+  const causeTokensOut = burnAmount;
 
   const handleConvert = () => {
     if (!selectedCause || numAmount <= 0) return;
     convert();
+  };
+
+  const handleMax = () => {
+    if (balance) {
+      setAmount(formatUnits(balance, 18));
+    }
   };
 
   const handleReset = () => {
@@ -68,7 +82,7 @@ export function ConversionWidget({
     return (
       <Card className={cn("max-w-md mx-auto", className)}>
         <CardContent className="p-8 text-center">
-          <CheckCircle2 className="h-16 w-16 text-primary-600 mx-auto mb-4" />
+          <CheckCircle2 className="h-16 w-16 text-primary-600 mx-auto mb-4" aria-hidden="true" />
           <h3 className="text-xl font-semibold text-gray-900 mb-2">
             Conversion Successful!
           </h3>
@@ -83,7 +97,7 @@ export function ConversionWidget({
               rel="noopener noreferrer"
               className="inline-flex items-center gap-1 text-sm text-primary-700 hover:underline mb-4"
             >
-              View on BaseScan <ExternalLink className="h-3 w-3" />
+              View on BaseScan <ExternalLink className="h-3 w-3" aria-hidden="true" />
             </a>
           )}
           <div className="mt-4">
@@ -104,11 +118,22 @@ export function ConversionWidget({
       <CardContent className="space-y-4">
         {/* Amount Input */}
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">
-            CHA Amount
-          </label>
+          <div className="flex justify-between items-center mb-1">
+            <label
+              htmlFor="cha-amount"
+              className="block text-sm font-medium text-gray-700"
+            >
+              CHA Amount
+            </label>
+            {isConnected && (
+              <span className="text-xs text-gray-500">
+                Balance: {formattedBalance} CHA
+              </span>
+            )}
+          </div>
           <div className="relative">
             <input
+              id="cha-amount"
               type="number"
               value={amount}
               onChange={(e) => setAmount(e.target.value)}
@@ -119,24 +144,34 @@ export function ConversionWidget({
             />
             <button
               type="button"
-              onClick={() => setAmount("1000")}
+              onClick={handleMax}
+              aria-label="Set maximum CHA amount"
               className="absolute right-3 top-1/2 -translate-y-1/2 rounded bg-gray-100 px-2 py-1 text-xs font-medium text-gray-600 hover:bg-gray-200"
             >
               MAX
             </button>
           </div>
+          {numAmount > 0 && numAmount < 1 && (
+            <p className="text-xs text-amber-600 mt-1">
+              Minimum conversion: 1 CHA
+            </p>
+          )}
         </div>
 
         <div className="flex justify-center">
-          <ArrowDown className="h-5 w-5 text-gray-400" />
+          <ArrowDown className="h-5 w-5 text-gray-400" aria-hidden="true" />
         </div>
 
         {/* Cause Selector */}
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">
+          <label
+            htmlFor="cause-select"
+            className="block text-sm font-medium text-gray-700 mb-1"
+          >
             Select Cause
           </label>
           <select
+            id="cause-select"
             value={selectedCause?.symbol || ""}
             onChange={(e) => {
               const cause = CAUSES.find((c) => c.symbol === e.target.value);
@@ -147,7 +182,7 @@ export function ConversionWidget({
             <option value="">Choose a cause...</option>
             {CAUSES.map((cause) => (
               <option key={cause.symbol} value={cause.symbol}>
-                {cause.name} (${cause.symbol})
+                {cause.name} ({cause.symbol})
               </option>
             ))}
           </select>
@@ -162,27 +197,27 @@ export function ConversionWidget({
             <div className="flex justify-between text-sm">
               <span className="text-gray-500">CHA to Burn (95%)</span>
               <span className="font-medium text-secondary-600">
-                {burnAmount.toFixed(4)} CHA
+                {burnAmount.toFixed(2)} CHA
               </span>
             </div>
             <div className="flex justify-between text-sm">
               <span className="text-gray-500">Charity Fee (2.5%)</span>
-              <span className="text-gray-700">{charityFee.toFixed(4)} CHA</span>
+              <span className="text-gray-700">{charityFee.toFixed(2)} CHA</span>
             </div>
             <div className="flex justify-between text-sm">
               <span className="text-gray-500">Liquidity Fee (1.5%)</span>
               <span className="text-gray-700">
-                {liquidityFee.toFixed(4)} CHA
+                {liquidityFee.toFixed(2)} CHA
               </span>
             </div>
             <div className="flex justify-between text-sm">
               <span className="text-gray-500">Ops Fee (1.0%)</span>
-              <span className="text-gray-700">{opsFee.toFixed(4)} CHA</span>
+              <span className="text-gray-700">{opsFee.toFixed(2)} CHA</span>
             </div>
             <div className="border-t border-gray-200 pt-2 flex justify-between text-sm font-semibold">
               <span className="text-gray-700">Cause Tokens Received</span>
               <span className="text-primary-700">
-                {causeTokensOut.toFixed(4)} ${selectedCause.symbol}
+                {causeTokensOut.toFixed(2)} {selectedCause.symbol}
               </span>
             </div>
           </div>
@@ -190,8 +225,11 @@ export function ConversionWidget({
 
         {/* Error Display */}
         {error && (
-          <div className="flex items-start gap-2 rounded-lg bg-red-50 border border-red-200 p-3">
-            <AlertCircle className="h-4 w-4 text-red-500 mt-0.5 shrink-0" />
+          <div
+            className="flex items-start gap-2 rounded-lg bg-red-50 border border-red-200 p-3"
+            role="alert"
+          >
+            <AlertCircle className="h-4 w-4 text-red-500 mt-0.5 shrink-0" aria-hidden="true" />
             <p className="text-sm text-red-700">{error}</p>
           </div>
         )}
@@ -204,7 +242,7 @@ export function ConversionWidget({
         ) : (
           <Button
             onClick={handleConvert}
-            disabled={!selectedCause || numAmount <= 0}
+            disabled={!selectedCause || numAmount < 1}
             isLoading={isApproving || isConverting}
             className="w-full"
             size="lg"

@@ -52,6 +52,15 @@ contract ConversionFlowTest is Test {
         vm.prank(admin);
         factory.setMinter(address(engine));
 
+        // 5b. Grant engine DISTRIBUTOR_ROLE on FeeRouter
+        bytes32 distRole = feeRouter.DISTRIBUTOR_ROLE();
+        vm.prank(admin);
+        feeRouter.grantRole(distRole, address(engine));
+
+        // 5c. Set factory on FeeRouter for cause validation
+        vm.prank(admin);
+        feeRouter.setFactory(address(factory));
+
         // 6. Create causes
         vm.startPrank(admin);
         healthToken = factory.createCause(

@@ -8,6 +8,7 @@ import {SafeERC20} from "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol
 
 import {IFeeRouter} from "../interfaces/IFeeRouter.sol";
 import {ISwapRouter} from "../interfaces/ISwapRouter.sol";
+import {ICauseTokenFactory} from "../interfaces/ICauseTokenFactory.sol";
 import {CauseToken} from "../token/CauseToken.sol";
 
 /// @title FeeRouter
@@ -18,9 +19,7 @@ import {CauseToken} from "../token/CauseToken.sol";
 ///
 /// @dev The FeeRouter receives CHA from the ConversionEngine and immediately splits it.
 ///      The operations portion is auto-swapped to USDC for cost-basis stability.
-///
-///      In production, `amountOutMinimum` should use a TWAP oracle. For the MVP, a configurable
-///      `maxSlippageBps` is used instead.
+///      Only addresses with DISTRIBUTOR_ROLE (typically the ConversionEngine) can call distributeFees.
 contract FeeRouter is IFeeRouter, ReentrancyGuard, AccessControl {
     using SafeERC20 for IERC20;
 
@@ -33,6 +32,9 @@ contract FeeRouter is IFeeRouter, ReentrancyGuard, AccessControl {
 
     /// @dev Maximum allowed slippage: 5% (500 bps).
     uint256 private constant MAX_SLIPPAGE_CAP = 500;
+
+    /// @notice Role for addresses permitted to call distributeFees (typically ConversionEngine).
+    bytes32 public constant DISTRIBUTOR_ROLE = keccak256("DISTRIBUTOR_ROLE");
 
     // ──────────────────────────────────────────────────────────────────────
     // Storage — Fee Shares
@@ -66,6 +68,9 @@ contract FeeRouter is IFeeRouter, ReentrancyGuard, AccessControl {
     /// @notice Address of the CHA token.
     IERC20 public chaToken;
 
+    /// @notice CauseTokenFactory for validating cause token addresses.
+    ICauseTokenFactory public factory;
+
     // ──────────────────────────────────────────────────────────────────────
     // Storage — Swap Configuration
     // ──────────────────────────────────────────────────────────────────────
@@ -75,6 +80,10 @@ contract FeeRouter is IFeeRouter, ReentrancyGuard, AccessControl {
 
     /// @notice Uniswap V3 pool fee tier for the CHA/USDC pair (default: 3000 = 0.3%).
     uint24 public poolFee = 3000;
+
+    /// @notice Reference price for CHA in USDC terms (scaled by 1e18). Used for slippage protection.
+    /// @dev Set by admin. E.g., 1e6 means 1 CHA = 1 USDC. In production, replace with TWAP oracle.
+    uint256 public chaUsdcReferencePrice;
 
     // ──────────────────────────────────────────────────────────────────────
     // Constructor
@@ -116,8 +125,17 @@ contract FeeRouter is IFeeRouter, ReentrancyGuard, AccessControl {
     // ──────────────────────────────────────────────────────────────────────
 
     /// @inheritdoc IFeeRouter
-    function distributeFees(address causeToken, uint256 feeAmount) external nonReentrant {
+    function distributeFees(address causeToken, uint256 feeAmount)
+        external
+        nonReentrant
+        onlyRole(DISTRIBUTOR_ROLE)
+    {
         if (feeAmount == 0) return;
+
+        // Validate causeToken is registered (if factory is set)
+        if (address(factory) != address(0)) {
+            if (!factory.isCause(causeToken)) revert InvalidCause();
+        }
 
         // Calculate each portion.
         uint256 charityAmount = (feeAmount * charityShareBps) / BPS_DENOMINATOR;
@@ -178,14 +196,41 @@ contract FeeRouter is IFeeRouter, ReentrancyGuard, AccessControl {
     /// @param newManager New liquidity manager address.
     function setLiquidityManager(address newManager) external onlyRole(DEFAULT_ADMIN_ROLE) {
         if (newManager == address(0)) revert ZeroAddress();
+        address oldManager = liquidityManager;
         liquidityManager = newManager;
+        emit LiquidityManagerUpdated(oldManager, newManager);
     }
 
     /// @notice Updates the Uniswap V3 pool fee tier for swaps.
-    /// @param newPoolFee New pool fee (e.g., 500, 3000, 10000).
+    /// @param newPoolFee New pool fee (must be 100, 500, 3000, or 10000).
     function setPoolFee(uint24 newPoolFee) external onlyRole(DEFAULT_ADMIN_ROLE) {
+        if (newPoolFee != 100 && newPoolFee != 500 && newPoolFee != 3000 && newPoolFee != 10000) {
+            revert InvalidPoolFee();
+        }
+        uint24 oldFee = poolFee;
         poolFee = newPoolFee;
+        emit PoolFeeUpdated(oldFee, newPoolFee);
     }
+
+    /// @notice Sets the CauseTokenFactory for cause validation.
+    /// @param factory_ Address of the CauseTokenFactory.
+    function setFactory(address factory_) external onlyRole(DEFAULT_ADMIN_ROLE) {
+        if (factory_ == address(0)) revert ZeroAddress();
+        factory = ICauseTokenFactory(factory_);
+    }
+
+    /// @notice Sets the reference price for CHA/USDC slippage calculation.
+    /// @param price Price of 1 CHA in USDC terms, scaled by 1e18. E.g., 1e6 = $1.00.
+    function setReferencePrice(uint256 price) external onlyRole(DEFAULT_ADMIN_ROLE) {
+        chaUsdcReferencePrice = price;
+    }
+
+    // ──────────────────────────────────────────────────────────────────────
+    // Errors
+    // ──────────────────────────────────────────────────────────────────────
+
+    /// @notice Thrown when the provided cause token is not registered in the factory.
+    error InvalidCause();
 
     // ──────────────────────────────────────────────────────────────────────
     // Internal Functions
@@ -194,26 +239,32 @@ contract FeeRouter is IFeeRouter, ReentrancyGuard, AccessControl {
     /// @dev Swaps CHA to USDC via Uniswap V3 SwapRouter and sends USDC to the operations wallet.
     /// @param chaAmount Amount of CHA to swap.
     function _swapToStablecoin(uint256 chaAmount) internal {
-        // Approve the SwapRouter to spend CHA.
-        chaToken.safeIncreaseAllowance(address(swapRouter), chaAmount);
+        // Approve the SwapRouter to spend CHA using forceApprove to avoid stale allowance.
+        chaToken.forceApprove(address(swapRouter), chaAmount);
 
         // Calculate minimum output with slippage protection.
-        // NOTE: In production, amountOutMinimum should be derived from a TWAP oracle.
-        // For MVP, we use a simple slippage tolerance. Setting amountOutMinimum to 0
-        // with maxSlippageBps as a safety net via the pool's price bounds.
-        // A real implementation would fetch a price quote first.
-        uint256 amountOutMinimum = 0; // MVP: rely on pool price; upgrade to oracle in v2.
+        uint256 amountOutMinimum = _getMinimumOutput(chaAmount);
 
         ISwapRouter.ExactInputSingleParams memory params = ISwapRouter.ExactInputSingleParams({
             tokenIn: address(chaToken),
             tokenOut: usdc,
             fee: poolFee,
             recipient: operationsWallet,
+            deadline: block.timestamp,
             amountIn: chaAmount,
             amountOutMinimum: amountOutMinimum,
             sqrtPriceLimitX96: 0
         });
 
         swapRouter.exactInputSingle(params);
+    }
+
+    /// @dev Calculate minimum acceptable USDC output using reference price and slippage tolerance.
+    /// @param chaAmount Amount of CHA being swapped.
+    /// @return Minimum USDC output. Returns 0 if no reference price is set (not recommended for production).
+    function _getMinimumOutput(uint256 chaAmount) internal view returns (uint256) {
+        if (chaUsdcReferencePrice == 0) return 0;
+        uint256 expectedOutput = (chaAmount * chaUsdcReferencePrice) / 1e18;
+        return expectedOutput - (expectedOutput * maxSlippageBps / BPS_DENOMINATOR);
     }
 }
