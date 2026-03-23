@@ -1,9 +1,9 @@
 # OpenCode Integration
 
-OpenCode uses the same agent format as Claude Code — `.md` files with YAML
-frontmatter stored in `.opencode/agent/`. No conversion is technically
-needed, but this integration packages the agents into the correct directory
-structure for drop-in use.
+OpenCode agents are `.md` files with YAML frontmatter stored in
+`.opencode/agents/`. The converter maps named colors to hex codes and adds
+`mode: subagent` so agents are invoked on-demand via `@agent-name` rather
+than cluttering the primary agent picker.
 
 ## Install
 
@@ -13,42 +13,46 @@ cd /your/project
 /path/to/agency-agents/scripts/install.sh --tool opencode
 ```
 
-This creates `.opencode/agent/<slug>.md` files in your project directory.
+This creates `.opencode/agents/<slug>.md` files in your project directory.
 
 ## Activate an Agent
 
-In OpenCode, reference an agent by its name or description:
+In OpenCode, invoke a subagent with the `@` prefix:
 
 ```
-Use the Frontend Developer agent to help build this component.
+@frontend-developer help build this component.
 ```
 
 ```
-Activate the Reality Checker agent and review this PR.
+@reality-checker review this PR.
 ```
 
 You can also select agents from the OpenCode UI's agent picker.
 
 ## Agent Format
 
-OpenCode agents use the same frontmatter as Claude Code:
+Each generated agent file contains:
 
 ```yaml
 ---
 name: Frontend Developer
 description: Expert frontend developer specializing in modern web technologies...
-color: cyan
+mode: subagent
+color: "#00FFFF"
 ---
 ```
 
+- **mode: subagent** — agent is available on-demand, not shown in the primary Tab-cycle list
+- **color** — hex code (named colors from source files are converted automatically)
+
 ## Project vs Global
 
-Agents in `.opencode/agent/` are **project-scoped**. To make them available
+Agents in `.opencode/agents/` are **project-scoped**. To make them available
 globally across all projects, copy them to your OpenCode config directory:
 
 ```bash
-mkdir -p ~/.config/opencode/agent
-cp integrations/opencode/agent/*.md ~/.config/opencode/agent/
+mkdir -p ~/.config/opencode/agents
+cp integrations/opencode/agents/*.md ~/.config/opencode/agents/
 ```
 
 ## Regenerate

@@ -13,14 +13,15 @@ set -euo pipefail
 AGENT_DIRS=(
   design
   engineering
+  game-development
   marketing
+  paid-media
   product
   project-management
   testing
   support
   spatial-computing
   specialized
-  strategy
 )
 
 REQUIRED_FRONTMATTER=("name" "description" "color")
@@ -86,7 +87,7 @@ else
     if [[ -d "$dir" ]]; then
       while IFS= read -r f; do
         files+=("$f")
-      done < <(find "$dir" -maxdepth 1 -name "*.md" -type f | sort)
+      done < <(find "$dir" -name "*.md" -type f | sort)
     fi
   done
 fi
