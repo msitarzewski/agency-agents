@@ -23,7 +23,7 @@ export async function POST(request: NextRequest) {
   }
 
   const client = new OpenAI({
-    apiKey: process.env.OPENAI_API_KEY,
+    apiKey: process.env.jillycontent,
   });
 
   const size = (channel && sizeForChannel[channel]) ?? "1024x1024";
