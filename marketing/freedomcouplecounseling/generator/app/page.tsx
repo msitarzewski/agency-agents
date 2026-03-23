@@ -29,13 +29,23 @@ export default function Home() {
   const [output, setOutput] = useState("");
   const [loading, setLoading] = useState(false);
   const [copied, setCopied] = useState(false);
+  const [copySection, setCopySection] = useState<"copy" | "image" | null>(null);
+  const [generatedImage, setGeneratedImage] = useState<string | null>(null);
+  const [imageLoading, setImageLoading] = useState(false);
+  const [imageError, setImageError] = useState<string | null>(null);
   const abortRef = useRef<AbortController | null>(null);
+
+  const hasSections = output.includes("--- IMAGE PROMPT ---");
+  const copyPart = hasSections ? output.split("--- IMAGE PROMPT ---")[0]?.trim() : output;
+  const imagePart = hasSections ? output.split("--- IMAGE PROMPT ---")[1]?.trim() : "";
 
   async function generate() {
     if (loading) return;
     setOutput("");
     setLoading(true);
     setCopied(false);
+    setGeneratedImage(null);
+    setImageError(null);
 
     abortRef.current = new AbortController();
 
@@ -85,20 +95,44 @@ export default function Home() {
     setTimeout(() => setCopied(false), 2000);
   }
 
-  const [copySection, setCopySection] = useState<"copy" | "image" | null>(null);
-
   async function copySectionText(section: "copy" | "image") {
-    const parts = output.split("--- IMAGE PROMPT ---");
-    const text = section === "copy" ? parts[0]?.trim() : parts[1]?.trim();
+    const text = section === "copy" ? copyPart : imagePart;
     if (!text) return;
     await navigator.clipboard.writeText(text);
     setCopySection(section);
     setTimeout(() => setCopySection(null), 2000);
   }
 
-  const hasSections = output.includes("--- IMAGE PROMPT ---");
-  const copyPart = hasSections ? output.split("--- IMAGE PROMPT ---")[0]?.trim() : output;
-  const imagePart = hasSections ? output.split("--- IMAGE PROMPT ---")[1]?.trim() : "";
+  async function generateImage() {
+    if (!imagePart || imageLoading) return;
+    setImageLoading(true);
+    setImageError(null);
+    setGeneratedImage(null);
+
+    try {
+      const res = await fetch("/api/generate-image", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ prompt: imagePart, channel }),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error ?? "Image generation failed");
+      setGeneratedImage(data.url);
+    } catch (err) {
+      setImageError((err as Error).message ?? "Failed to generate image");
+    } finally {
+      setImageLoading(false);
+    }
+  }
+
+  async function downloadImage() {
+    if (!generatedImage) return;
+    const a = document.createElement("a");
+    a.href = generatedImage;
+    a.download = `fcc-image-${Date.now()}.png`;
+    a.target = "_blank";
+    a.click();
+  }
 
   return (
     <main className={styles.main}>
@@ -197,7 +231,7 @@ export default function Home() {
               <h3>Ready to create</h3>
               <p>Select a channel and content type, then click Generate Content.</p>
               <p className={styles.emptyNote}>
-                Each generation includes platform-optimised copy and an AI image prompt.
+                Each generation includes platform-optimised copy and an AI image prompt — then generate the actual image with one click.
               </p>
             </div>
           )}
@@ -223,14 +257,59 @@ export default function Home() {
                     <div className={`${styles.outputBlock} ${styles.outputBlockImage}`}>
                       <div className={styles.outputBlockHeader}>
                         <span className={styles.outputBlockLabel}>Image Prompt</span>
-                        <button
-                          className={styles.copyBtn}
-                          onClick={() => copySectionText("image")}
-                        >
-                          {copySection === "image" ? "Copied!" : "Copy"}
-                        </button>
+                        <div className={styles.headerBtns}>
+                          <button
+                            className={styles.copyBtn}
+                            onClick={() => copySectionText("image")}
+                          >
+                            {copySection === "image" ? "Copied!" : "Copy Prompt"}
+                          </button>
+                          {!imageLoading ? (
+                            <button
+                              className={styles.btnGenerateImage}
+                              onClick={generateImage}
+                            >
+                              {generatedImage ? "Regenerate Image" : "Generate Image"}
+                            </button>
+                          ) : (
+                            <button className={styles.btnGenerateImage} disabled>
+                              Generating…
+                            </button>
+                          )}
+                        </div>
                       </div>
                       <pre className={styles.outputText}>{imagePart}</pre>
+
+                      {imageLoading && (
+                        <div className={styles.imageLoadingState}>
+                          <div className={styles.imageSpinner} />
+                          <p>Generating your image with DALL·E 3… this takes ~15 seconds</p>
+                        </div>
+                      )}
+
+                      {imageError && (
+                        <div className={styles.imageError}>
+                          {imageError}
+                        </div>
+                      )}
+
+                      {generatedImage && !imageLoading && (
+                        <div className={styles.imageResult}>
+                          <img
+                            src={generatedImage}
+                            alt="AI-generated marketing image"
+                            className={styles.generatedImg}
+                          />
+                          <div className={styles.imageActions}>
+                            <button className={styles.btnDownload} onClick={downloadImage}>
+                              Download Image
+                            </button>
+                            <button className={styles.btnSecondary} onClick={generateImage}>
+                              Regenerate
+                            </button>
+                          </div>
+                        </div>
+                      )}
                     </div>
                   )}
                 </>

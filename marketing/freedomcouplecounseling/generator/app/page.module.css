@@ -406,6 +406,116 @@
   padding-top: 4px;
 }
 
+/* Header buttons row */
+.headerBtns {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+/* Generate Image button */
+.btnGenerateImage {
+  background: var(--gradient-primary);
+  color: var(--offwhite);
+  border: none;
+  border-radius: 6px;
+  padding: 5px 14px;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: opacity 0.15s;
+  font-family: 'Lato', sans-serif;
+}
+
+.btnGenerateImage:hover {
+  opacity: 0.85;
+}
+
+.btnGenerateImage:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+/* Image loading state */
+.imageLoadingState {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 14px;
+  padding: 36px 20px;
+  color: #8a5a8a;
+  font-size: 13px;
+}
+
+.imageSpinner {
+  width: 36px;
+  height: 36px;
+  border: 3px solid var(--mauve-lt);
+  border-top-color: var(--mauve);
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+/* Image error */
+.imageError {
+  padding: 14px 18px;
+  background: #fff0f0;
+  border-top: 1px solid #f5c5c5;
+  color: #b00020;
+  font-size: 12.5px;
+  line-height: 1.5;
+}
+
+/* Generated image result */
+.imageResult {
+  padding: 16px 18px;
+  border-top: 1px solid rgba(204, 174, 208, 0.4);
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  align-items: flex-start;
+}
+
+.generatedImg {
+  width: 100%;
+  max-width: 520px;
+  border-radius: 10px;
+  box-shadow: 0 4px 24px rgba(179, 125, 0, 0.15);
+  display: block;
+}
+
+.imageActions {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+}
+
+/* Download button */
+.btnDownload {
+  background: var(--gradient-primary);
+  color: var(--offwhite);
+  border: none;
+  border-radius: 8px;
+  padding: 9px 18px;
+  font-family: 'Lato', sans-serif;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: opacity 0.15s;
+}
+
+.btnDownload:hover {
+  opacity: 0.88;
+}
+
 /* Responsive */
 @media (max-width: 768px) {
   .layout {
