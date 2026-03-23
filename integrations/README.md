@@ -9,6 +9,7 @@ supported agentic coding tools.
 - **[GitHub Copilot](#github-copilot)** — `.md` agents, use the repo directly
 - **[Antigravity](#antigravity)** — `SKILL.md` per agent in `antigravity/`
 - **[Gemini CLI](#gemini-cli)** — extension + `SKILL.md` files in `gemini-cli/`
+- **[Codex](#codex)** — `SKILL.md` + `agents/openai.yaml` skills in `codex/`
 - **[OpenCode](#opencode)** — `.md` agent files in `opencode/`
 - **[OpenClaw](#openclaw)** — `SOUL.md` + `AGENTS.md` + `IDENTITY.md` workspaces
 - **[Cursor](#cursor)** — `.mdc` rule files in `cursor/`
@@ -30,11 +31,15 @@ supported agentic coding tools.
 # Gemini CLI needs generated integration files on a fresh clone
 ./scripts/convert.sh --tool gemini-cli
 ./scripts/install.sh --tool gemini-cli
+
+# Codex is project-scoped
+./scripts/convert.sh --tool codex
+./scripts/install.sh --tool codex
 ```
 
-For project-scoped tools such as OpenCode, Cursor, Aider, and Windsurf, run
-the installer from your target project root as shown in the tool-specific
-sections below.
+For project-scoped tools such as Codex, OpenCode, Cursor, Aider, Windsurf,
+and Qwen, run the installer from your target project root as shown in the
+tool-specific sections below.
 
 ## Regenerating Integration Files
 
@@ -100,6 +105,42 @@ Because the Gemini manifest and skill folders are generated artifacts, run
 ```
 
 See [gemini-cli/README.md](gemini-cli/README.md) for details.
+
+---
+
+## Codex
+
+Each agent becomes a Codex skill with:
+
+- `SKILL.md`
+- `agents/openai.yaml`
+
+Generate Codex integration files first:
+
+```bash
+./scripts/convert.sh --tool codex
+```
+
+Then install it from your project root:
+
+```bash
+# project-scoped -> ./.codex/skills/
+./scripts/install.sh --tool codex
+```
+
+Chinese explanation content is supported in Codex description fields and body.
+Keep `name` English/slug-friendly to preserve stable directory naming.
+Codex converter fails fast when `name` is non-ASCII or produces an invalid slug.
+
+Recommended pattern:
+
+```yaml
+name: Frontend Developer
+description: Frontend specialist focused on modern web apps
+vibe: Detail-oriented and maintainability-focused
+```
+
+See [codex/README.md](codex/README.md) for details.
 
 ---
 

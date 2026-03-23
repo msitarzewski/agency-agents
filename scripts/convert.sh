@@ -12,6 +12,7 @@
 # Tools:
 #   antigravity  — Antigravity skill files (~/.gemini/antigravity/skills/)
 #   gemini-cli   — Gemini CLI extension (skills/ + gemini-extension.json)
+#   codex        — Codex skills (skills/<name>/SKILL.md + agents/openai.yaml)
 #   opencode     — OpenCode agent files (.opencode/agent/*.md)
 #   cursor       — Cursor rule files (.cursor/rules/*.mdc)
 #   aider        — Single CONVENTIONS.md for Aider
@@ -67,7 +68,7 @@ AGENT_DIRS=(
 
 # --- Usage ---
 usage() {
-  sed -n '3,26p' "$0" | sed 's/^# \{0,1\}//'
+  sed -n '3,28p' "$0" | sed 's/^# \{0,1\}//'
   exit 0
 }
 
@@ -101,6 +102,31 @@ get_body() {
 # "Frontend Developer" → "frontend-developer"
 slugify() {
   echo "$1" | tr '[:upper:]' '[:lower:]' | sed 's/[^a-z0-9]/-/g' | sed 's/--*/-/g' | sed 's/^-//;s/-$//'
+}
+
+# Codex requires a stable ASCII/slug-friendly name because install paths and
+# skill directory names are derived from slug(name).
+validate_codex_name_and_slug() {
+  local name="$1" slug="$2" file="$3"
+
+  if printf '%s' "$name" | LC_ALL=C grep -q '[^ -~]'; then
+    error "Codex: invalid name '$name' in $file"
+    error "Codex: keep name English/ASCII for slug stability; put Chinese in description/vibe/body."
+    return 1
+  fi
+
+  if [[ -z "$slug" || ! "$slug" =~ ^[a-z0-9]+(-[a-z0-9]+)*$ ]]; then
+    error "Codex: invalid slug '$slug' derived from name '$name' in $file"
+    error "Codex: keep name English/slug-friendly; put Chinese in description/vibe/body."
+    return 1
+  fi
+}
+
+# YAML-safe single-quoted scalar.
+# YAML single quote escaping rule: ' -> ''
+yaml_squote() {
+  local value="$1"
+  printf "'%s'" "$(printf '%s' "$value" | sed "s/'/''/g")"
 }
 
 # --- Per-tool converters ---
@@ -152,6 +178,58 @@ description: ${description}
 ---
 ${body}
 HEREDOC
+}
+
+convert_codex() {
+  local file="$1"
+  local name description vibe color slug outdir skillfile agentfile body
+  local q_name q_description q_prompt q_skill_name q_skill_description q_vibe
+
+  name="$(get_field "name" "$file")"
+  description="$(get_field "description" "$file")"
+  vibe="$(get_field "vibe" "$file")"
+  color="$(get_field "color" "$file")"
+  slug="$(slugify "$name")"
+  validate_codex_name_and_slug "$name" "$slug" "$file" || return 1
+  body="$(get_body "$file")"
+
+  outdir="$OUT_DIR/codex/skills/$slug"
+  skillfile="$outdir/SKILL.md"
+  agentfile="$outdir/agents/openai.yaml"
+  mkdir -p "$outdir/agents"
+
+  q_name="$(yaml_squote "$name")"
+  q_description="$(yaml_squote "$description")"
+  q_prompt="$(yaml_squote "Use the \$$slug skill to help with this task.")"
+  q_skill_name="$(yaml_squote "$slug")"
+  q_skill_description="$(yaml_squote "$description")"
+  if [[ -n "$vibe" ]]; then
+    q_vibe="$(yaml_squote "$vibe")"
+  fi
+
+  cat > "$agentfile" <<HEREDOC
+# Generated from agency frontmatter (source color: ${color:-n/a})
+interface:
+  display_name: ${q_name}
+  short_description: ${q_description}
+  default_prompt: ${q_prompt}
+
+policy:
+  allow_implicit_invocation: true
+HEREDOC
+
+  # Use YAML-safe quoted scalars in frontmatter to avoid parser breaks
+  # for descriptions containing special characters such as ':'.
+  cat > "$skillfile" <<HEREDOC
+---
+name: ${q_skill_name}
+description: ${q_skill_description}
+$(if [[ -n "$q_vibe" ]]; then printf 'vibe: %s\n' "$q_vibe"; fi)
+---
+${body}
+HEREDOC
+
+  printf '%s\t%s\t%s\t%s\n' "$slug" "$name" "$description" "${color:-n/a}" >> "$CODEX_INDEX_TMP"
 }
 
 # Map known color names and normalize to OpenCode-safe #RRGGBB values.
@@ -373,11 +451,13 @@ HEREDOC
   fi
 }
 
-# Aider and Windsurf are single-file formats — accumulate into temp files
-# then write at the end.
+# Aider, Windsurf, and Codex index are single-file formats — accumulate into
+# temp files then write at the end.
 AIDER_TMP="$(mktemp)"
 WINDSURF_TMP="$(mktemp)"
-trap 'rm -f "$AIDER_TMP" "$WINDSURF_TMP"' EXIT
+CODEX_TMP="$(mktemp)"
+CODEX_INDEX_TMP="$(mktemp)"
+trap 'rm -f "$AIDER_TMP" "$WINDSURF_TMP" "$CODEX_TMP" "$CODEX_INDEX_TMP"' EXIT
 
 # Write Aider/Windsurf headers once
 cat > "$AIDER_TMP" <<'HEREDOC'
@@ -443,6 +523,39 @@ ${body}
 HEREDOC
 }
 
+write_codex_agents_md() {
+  cat > "$CODEX_TMP" <<'HEREDOC'
+# The Agency Codex Skills Index
+
+This file documents the generated Codex skills in `integrations/codex/skills/`.
+
+Use these skills from Codex by name, for example:
+
+```text
+Use the $frontend-developer skill to review this component.
+```
+
+> Note: this file is informational only and is not installed by default to avoid
+> overwriting a project's existing `AGENTS.md`.
+
+## Available Skills
+HEREDOC
+
+  if [[ -s "$CODEX_INDEX_TMP" ]]; then
+    while IFS=$'\t' read -r slug name description color; do
+      cat >> "$CODEX_TMP" <<HEREDOC
+- \`${slug}\` — ${name}
+  - Description: ${description}
+  - Source color: \`${color}\`
+HEREDOC
+    done < <(sort "$CODEX_INDEX_TMP")
+  else
+    cat >> "$CODEX_TMP" <<'HEREDOC'
+- No skills were generated in this run.
+HEREDOC
+  fi
+}
+
 # --- Main loop ---
 
 run_conversions() {
@@ -464,14 +577,15 @@ run_conversions() {
       [[ -n "$name" ]] || continue
 
       case "$tool" in
-        antigravity) convert_antigravity "$file" ;;
-        gemini-cli)  convert_gemini_cli  "$file" ;;
-        opencode)    convert_opencode    "$file" ;;
-        cursor)      convert_cursor      "$file" ;;
-        openclaw)    convert_openclaw    "$file" ;;
-        qwen)        convert_qwen        "$file" ;;
-        aider)       accumulate_aider    "$file" ;;
-        windsurf)    accumulate_windsurf "$file" ;;
+        antigravity) convert_antigravity "$file" || return 1 ;;
+        gemini-cli)  convert_gemini_cli  "$file" || return 1 ;;
+        codex)       convert_codex       "$file" || return 1 ;;
+        opencode)    convert_opencode    "$file" || return 1 ;;
+        cursor)      convert_cursor      "$file" || return 1 ;;
+        openclaw)    convert_openclaw    "$file" || return 1 ;;
+        qwen)        convert_qwen        "$file" || return 1 ;;
+        aider)       accumulate_aider    "$file" || return 1 ;;
+        windsurf)    accumulate_windsurf "$file" || return 1 ;;
       esac
 
       (( count++ )) || true
@@ -500,7 +614,7 @@ main() {
     esac
   done
 
-  local valid_tools=("antigravity" "gemini-cli" "opencode" "cursor" "aider" "windsurf" "openclaw" "qwen" "all")
+  local valid_tools=("antigravity" "gemini-cli" "codex" "opencode" "cursor" "aider" "windsurf" "openclaw" "qwen" "all")
   local valid=false
   for t in "${valid_tools[@]}"; do [[ "$t" == "$tool" ]] && valid=true && break; done
   if ! $valid; then
@@ -519,7 +633,7 @@ main() {
 
   local tools_to_run=()
   if [[ "$tool" == "all" ]]; then
-    tools_to_run=("antigravity" "gemini-cli" "opencode" "cursor" "aider" "windsurf" "openclaw" "qwen")
+    tools_to_run=("antigravity" "gemini-cli" "codex" "opencode" "cursor" "aider" "windsurf" "openclaw" "qwen")
   else
     tools_to_run=("$tool")
   fi
@@ -543,12 +657,15 @@ main() {
     done
     rm -rf "$parallel_out_dir"
     local idx=7
-    for t in aider windsurf; do
+    for t in codex aider windsurf; do
       progress_bar "$idx" "$n_tools"
       printf "\n"
       header "Converting: $t ($idx/$n_tools)"
       local count
-      count="$(run_conversions "$t")"
+      if ! count="$(run_conversions "$t")"; then
+        error "Conversion failed for $t"
+        exit 1
+      fi
       total=$(( total + count ))
       info "Converted $count agents for $t"
       (( idx++ )) || true
@@ -561,7 +678,10 @@ main() {
       printf "\n"
       header "Converting: $t ($i/$n_tools)"
       local count
-      count="$(run_conversions "$t")"
+      if ! count="$(run_conversions "$t")"; then
+        error "Conversion failed for $t"
+        exit 1
+      fi
       total=$(( total + count ))
 
       # Gemini CLI also needs the extension manifest (written by this process when --tool gemini-cli)
@@ -590,6 +710,12 @@ HEREDOC
     mkdir -p "$OUT_DIR/windsurf"
     cp "$WINDSURF_TMP" "$OUT_DIR/windsurf/.windsurfrules"
     info "Wrote integrations/windsurf/.windsurfrules"
+  fi
+  if [[ "$tool" == "all" || "$tool" == "codex" ]]; then
+    mkdir -p "$OUT_DIR/codex"
+    write_codex_agents_md
+    cp "$CODEX_TMP" "$OUT_DIR/codex/AGENTS.md"
+    info "Wrote integrations/codex/AGENTS.md"
   fi
 
   echo ""

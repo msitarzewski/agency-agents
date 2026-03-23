@@ -75,4 +75,6 @@ integrations/aider/CONVENTIONS.md
 integrations/windsurf/.windsurfrules
 integrations/openclaw/*
 integrations/qwen/agents/
+integrations/codex/*
 !integrations/openclaw/README.md
+!integrations/codex/README.md

@@ -14,12 +14,13 @@
 #   copilot      -- Copy agents to ~/.github/agents/ and ~/.copilot/agents/
 #   antigravity  -- Copy skills to ~/.gemini/antigravity/skills/
 #   gemini-cli   -- Install extension to ~/.gemini/extensions/agency-agents/
+#   codex        -- Copy skills to ./.codex/skills/ in current directory
 #   opencode     -- Copy agents to .opencode/agent/ in current directory
 #   cursor       -- Copy rules to .cursor/rules/ in current directory
 #   aider        -- Copy CONVENTIONS.md to current directory
 #   windsurf     -- Copy .windsurfrules to current directory
 #   openclaw     -- Copy workspaces to ~/.openclaw/agency-agents/
-#   qwen         -- Copy SubAgents to ~/.qwen/agents/ (user-wide) or .qwen/agents/ (project)
+#   qwen         -- Copy SubAgents to .qwen/agents/ in current directory
 #   all          -- Install for all detected tools (default)
 #
 # Flags:
@@ -101,13 +102,15 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 REPO_ROOT="$(cd "$SCRIPT_DIR/.." && pwd)"
 INTEGRATIONS="$REPO_ROOT/integrations"
 
-ALL_TOOLS=(claude-code copilot antigravity gemini-cli opencode openclaw cursor aider windsurf qwen)
+ALL_TOOLS=(claude-code copilot antigravity gemini-cli codex opencode openclaw cursor aider windsurf qwen)
+CODEX_SRC_SKILLS_DIR="$INTEGRATIONS/codex/skills"
+CODEX_SKILLS_DIR="${PWD}/.codex/skills"
 
 # ---------------------------------------------------------------------------
 # Usage
 # ---------------------------------------------------------------------------
 usage() {
-  sed -n '3,32p' "$0" | sed 's/^# \{0,1\}//'
+  sed -n '3,34p' "$0" | sed 's/^# \{0,1\}//'
   exit 0
 }
 
@@ -141,7 +144,8 @@ detect_opencode()     { command -v opencode >/dev/null 2>&1 || [[ -d "${HOME}/.c
 detect_aider()        { command -v aider >/dev/null 2>&1; }
 detect_openclaw()     { command -v openclaw >/dev/null 2>&1 || [[ -d "${HOME}/.openclaw" ]]; }
 detect_windsurf()     { command -v windsurf >/dev/null 2>&1 || [[ -d "${HOME}/.codeium" ]]; }
-detect_qwen()         { command -v qwen >/dev/null 2>&1 || [[ -d "${HOME}/.qwen" ]]; }
+detect_qwen()         { command -v qwen >/dev/null 2>&1 || [[ -d "${PWD}/.qwen" ]]; }
+detect_codex()        { command -v codex >/dev/null 2>&1 || [[ -d "${PWD}/.codex" ]]; }
 
 is_detected() {
   case "$1" in
@@ -155,6 +159,7 @@ is_detected() {
     aider)       detect_aider       ;;
     windsurf)    detect_windsurf    ;;
     qwen)        detect_qwen        ;;
+    codex)       detect_codex       ;;
     *)           return 1 ;;
   esac
 }
@@ -171,7 +176,8 @@ tool_label() {
     cursor)      printf "%-14s  %s" "Cursor"       "(.cursor/rules)"         ;;
     aider)       printf "%-14s  %s" "Aider"        "(CONVENTIONS.md)"        ;;
     windsurf)    printf "%-14s  %s" "Windsurf"     "(.windsurfrules)"        ;;
-    qwen)        printf "%-14s  %s" "Qwen Code"    "(~/.qwen/agents)"        ;;
+    qwen)        printf "%-14s  %s" "Qwen Code"    "(.qwen/agents)"          ;;
+    codex)       printf "%-14s  %s" "Codex"        "(.codex/skills)"         ;;
   esac
 }
 
@@ -468,6 +474,47 @@ install_qwen() {
   warn "Tip: Run '/agents manage' in Qwen Code to refresh, or restart session"
 }
 
+install_codex() {
+  local src="$CODEX_SRC_SKILLS_DIR"
+  local dest="$CODEX_SKILLS_DIR"
+  local count=0
+
+  [[ -d "$src" ]] || { err "integrations/codex missing. Run ./scripts/convert.sh --tool codex first."; return 1; }
+  if [[ -f "$src/SKILL.md" || -f "$src/agents/openai.yaml" ]]; then
+    err "Codex: invalid root-level artifacts detected in $src"
+    err "Codex: keep name English/slug-friendly and rerun ./scripts/convert.sh --tool codex."
+    return 1
+  fi
+
+  mkdir -p "$dest"
+
+  local d src_name src_skill src_agent
+  while IFS= read -r -d '' d; do
+    src_name="$(basename "$d")"
+
+    src_skill="$d/SKILL.md"
+    src_agent="$d/agents/openai.yaml"
+    if [[ ! -f "$src_skill" ]]; then
+      warn "Codex: missing SKILL.md for '$src_name', skipped."
+      continue
+    fi
+    if [[ ! -f "$src_agent" ]]; then
+      warn "Codex: missing agents/openai.yaml for '$src_name', skipped."
+      continue
+    fi
+
+    mkdir -p "$dest/$src_name/agents"
+    cp "$src_skill" "$dest/$src_name/SKILL.md"
+    cp "$src_agent" "$dest/$src_name/agents/openai.yaml"
+
+    (( count++ )) || true
+  done < <(find "$src" -mindepth 1 -maxdepth 1 -type d -print0)
+
+  ok "Codex: $count skills -> $dest"
+  warn "Codex: project-scoped. Run from your project root to install there."
+  warn "Codex: integrations/codex/AGENTS.md is informational and is not installed by default."
+}
+
 install_tool() {
   case "$1" in
     claude-code) install_claude_code ;;
@@ -480,6 +527,7 @@ install_tool() {
     aider)       install_aider       ;;
     windsurf)    install_windsurf    ;;
     qwen)        install_qwen        ;;
+    codex)       install_codex       ;;
   esac
 }
 
