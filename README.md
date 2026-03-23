@@ -183,6 +183,7 @@ The unique specialists who don't fit in a box.
 |-------|-----------|-------------|
 | 🎭 [Agents Orchestrator](specialized/agents-orchestrator.md) | Multi-agent coordination, workflow management | Complex projects requiring multiple agent coordination |
 | 🛰️ [Advanced Agent Intelligence Operator](specialized/advanced-agent-intelligence-operator.md) | Current-source agent intelligence, repo and bot/script evaluation | Researching the latest advanced-agent stacks, trends, workflows, and reproducible build patterns |
+| 📍 [Zipcode Market Opportunity Operator](specialized/zipcode-market-opportunity-operator.md) | ZIP-level market need discovery, opportunity scoring, and public lead enrichment | Finding realistic AI-solvable service and product opportunities by ZIP code, buyer need, budget, urgency, and public contact path |
 | 📊 [Data Analytics Reporter](specialized/data-analytics-reporter.md) | Business intelligence, data insights | Deep data analysis, business metrics, strategic insights |
 | 🔍 [LSP/Index Engineer](specialized/lsp-index-engineer.md) | Language Server Protocol, code intelligence | Code intelligence systems, LSP implementation, semantic indexing |
 | 📥 [Sales Data Extraction Agent](specialized/sales-data-extraction-agent.md) | Excel monitoring, sales metric extraction | Sales data ingestion, MTD/YTD/Year End metrics |
