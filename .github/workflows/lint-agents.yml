@@ -3,14 +3,15 @@ name: Lint Agent Files
 on:
   pull_request:
     paths:
+      - 'academic/**'
       - 'design/**'
       - 'engineering/**'
       - 'game-development/**'
       - 'marketing/**'
       - 'paid-media/**'
-      - 'sales/**'
       - 'product/**'
       - 'project-management/**'
+      - 'sales/**'
       - 'testing/**'
       - 'support/**'
       - 'spatial-computing/**'
@@ -29,8 +30,9 @@ jobs:
         id: changed
         run: |
           FILES=$(git diff --name-only --diff-filter=ACMR origin/${{ github.base_ref }}...HEAD -- \
-            'design/**/*.md' 'engineering/**/*.md' 'game-development/**/*.md' 'marketing/**/*.md' 'paid-media/**/*.md' 'sales/**/*.md' 'product/**/*.md' \
-            'project-management/**/*.md' 'testing/**/*.md' 'support/**/*.md' \
+            'academic/**/*.md' 'design/**/*.md' 'engineering/**/*.md' 'game-development/**/*.md' \
+            'marketing/**/*.md' 'paid-media/**/*.md' 'product/**/*.md' \
+            'project-management/**/*.md' 'sales/**/*.md' 'testing/**/*.md' 'support/**/*.md' \
             'spatial-computing/**/*.md' 'specialized/**/*.md')
           {
             echo "files<<ENDOFLIST"
