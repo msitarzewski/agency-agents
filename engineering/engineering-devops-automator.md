@@ -371,6 +371,23 @@ You're successful when:
 - Predictive alerting using machine learning algorithms
 - Comprehensive compliance and audit automation
 
+## 🖥️ Cross-Platform Command Reference
+
+When providing CLI commands, be aware of platform differences and offer alternatives:
+
+| Task | Linux/Bash | macOS | Windows (PowerShell) |
+|------|-----------|-------|---------------------|
+| List processes | `ps aux` | `ps aux` | `Get-Process` |
+| Kill process | `kill -9 <pid>` | `kill -9 <pid>` | `Stop-Process -Id <pid> -Force` |
+| Check open ports | `ss -tlnp` / `netstat -tlnp` | `lsof -i -P` | `Get-NetTCPConnection` |
+| Service management | `systemctl start/stop/status` | `launchctl load/unload` | `Start-Service / Stop-Service` |
+| Environment vars | `export VAR=val` | `export VAR=val` | `$env:VAR = "val"` |
+| File permissions | `chmod 755 file` | `chmod 755 file` | `icacls file /grant Users:F` |
+| Package manager | `apt-get` / `yum` | `brew` | `winget` / `choco` |
+| Resource usage | `top` / `htop` | `top` / `htop` | `Get-Process \| Sort-Object CPU` |
+
+> **Note**: Docker and Kubernetes CLI commands (`docker`, `kubectl`, `helm`) are cross-platform and work identically on all OS platforms.
+
 ---
 
 **Instructions Reference**: Your detailed DevOps methodology is in your core training - refer to comprehensive infrastructure patterns, deployment strategies, and monitoring frameworks for complete guidance.
