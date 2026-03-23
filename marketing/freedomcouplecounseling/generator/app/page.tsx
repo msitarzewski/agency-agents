@@ -268,14 +268,8 @@ export default function Home() {
                   {imagePart && (
                     <div className={`${styles.outputBlock} ${styles.outputBlockImage}`}>
                       <div className={styles.outputBlockHeader}>
-                        <span className={styles.outputBlockLabel}>Image Prompt</span>
+                        <span className={styles.outputBlockLabel}>Generated Image</span>
                         <div className={styles.headerBtns}>
-                          <button
-                            className={styles.copyBtn}
-                            onClick={() => copySectionText("image")}
-                          >
-                            {copySection === "image" ? "Copied!" : "Copy Prompt"}
-                          </button>
                           {!imageLoading ? (
                             <button
                               className={styles.btnGenerateImage}
@@ -290,7 +284,6 @@ export default function Home() {
                           )}
                         </div>
                       </div>
-                      <pre className={styles.outputText}>{imagePart}</pre>
 
                       {imageLoading && (
                         <div className={styles.imageLoadingState}>
