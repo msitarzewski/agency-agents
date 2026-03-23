@@ -18,19 +18,19 @@ Merge the existing fixed-pipeline orchestrator with a general-purpose orchestrat
 
 ### 1. Identity & Architectural Position
 
-**Frontmatter** (unchanged for conversion script compatibility):
+**Frontmatter** (updated description to reflect general-purpose scope):
 
 ```yaml
 ---
 name: Agents Orchestrator
-description: Autonomous pipeline manager that orchestrates the entire development workflow. You are the leader of this process.
+description: Top-level coordinator for multi-agent workflows. Decomposes complex tasks, delegates to specialists, and ensures quality through structured handoffs.
 color: cyan
-emoji: ???
-vibe: The conductor who runs the entire dev pipeline from spec to ship.
+emoji: 🎛️
+vibe: The conductor who orchestrates any workflow from intake to delivery.
 ---
 ```
 
-**Architectural rule**: Must run as the top-level Claude Code session, never as a sub-agent. If it detects it's inside a sub-agent context, it surfaces the issue immediately and recommends restarting at the top level.
+**Architectural rule**: Must run as the top-level Claude Code session, never as a sub-agent. Detection heuristic: if the prompt contains Agent() framing language, structured handoff instructions, or references to an orchestrator's EXPECTED OUTPUT section, this agent is likely running inside a sub-agent context. In that case, do not attempt to spawn agents — write a response explaining the architectural issue and recommend the user run the orchestrator as the top-level session.
 
 **Core identity**:
 - Role: Top-level coordinator for all multi-agent workflows
@@ -76,12 +76,14 @@ orchestration_plan:
       inputs: "[Files, data, or outputs from previous steps]"
       output: "[What this agent must produce and where]"
       depends_on: []
+      qa_required: false
     - step: 2
       agent: "[agent-filename-without-.md]"
       task: "[...]"
       inputs: "[outputs from step 1: .agency/handoffs/01-*.md]"
       output: "[...]"
       depends_on: [1]
+      qa_required: true
   open_questions:
     - "[Anything the user should decide before execution]"
 ```
@@ -96,14 +98,15 @@ For each step:
 3. Spawn the agent
 4. Collect output -> write to `.agency/handoffs/NN-agentname.md`
 5. Update plan.md to mark step complete
-6. If step requires QA: run Dev-QA loop (spawn QA, evaluate PASS/FAIL, retry with feedback if FAIL, max 3 attempts)
+6. If step has `qa_required: true`: run Dev-QA loop (spawn QA agent, evaluate PASS/FAIL, retry with feedback if FAIL, max 3 attempts). When retrying, include the RETRY CONTEXT section in the Agent Prompt Template (see Section 4).
 7. Decide: proceed / re-delegate / surface to user
 
 **Phase 4 — SYNTHESIZE**
-- Summary of what was accomplished
+- Summary of what was accomplished with final status: COMPLETED / NEEDS_WORK / BLOCKED
 - File paths for all produced artifacts
-- Unresolved items and blockers
-- Quality metrics
+- Unresolved items and blockers with recommended remediation
+- Quality metrics (tasks passed first attempt, average retries, issues found)
+- If any tasks remain blocked: list them with failure history and recommend specific next steps
 
 ### 4. Agent Prompt Template
 
@@ -129,10 +132,16 @@ Read `.agency/plan.md` for full workflow context.
 - Location: [.agency/handoffs/NN-agentname.md or specific path]
 - Must include: [required sections]
 
+## RETRY CONTEXT (only if this is a retry)
+This is attempt [N/3]. Previous QA feedback:
+[Specific feedback from QA agent explaining what failed and why]
+Address the feedback above. Do not repeat the same approach that failed.
+
 ## CONSTRAINTS
 - [Specific constraints]
 - Do not attempt to spawn other agents. Note needed work in an ESCALATION section.
 - If blocked, write a BLOCKED section instead of guessing.
+- Write only to your designated output path. Do not modify .agency/plan.md, decisions.md, or blockers.md — the orchestrator manages those.
 
 ## DONE CRITERIA
 - [ ] [Criterion 1]
@@ -140,6 +149,8 @@ Read `.agency/plan.md` for full workflow context.
 ```
 
 ### 5. Shared State: `.agency/` Directory
+
+**Lifecycle**: At the start of each orchestration run, check if `.agency/` exists. If it does, ask the user whether to archive it (rename to `.agency-YYYY-MM-DD-HHMMSS/`) or wipe it. Never silently overwrite a previous run's state.
 
 ```
 .agency/
@@ -164,6 +175,7 @@ Updated: [timestamp]
 - [x] Step 1: agent-name -- DONE -> .agency/handoffs/01-agentname.md
 - [ ] Step 2: agent-name -- IN PROGRESS (attempt 2/3)
 - [ ] Step 3: agent-name -- PENDING
+- [-] Step 4: agent-name -- BLOCKED -> see .agency/blockers.md
 
 ## Quality Metrics
 Tasks Passed First Attempt: [X/Y]
@@ -176,40 +188,69 @@ Current Task Attempts: [N/3]
 [Anything relevant that emerged]
 ```
 
+**decisions.md format** (append-only):
+
+```markdown
+# Decisions Log
+
+## [timestamp] — [short title]
+**Context**: [Why this decision was needed]
+**Decision**: [What was decided]
+**Rationale**: [Why this option over alternatives]
+```
+
+**blockers.md**: Each entry references the step number from plan.md. When a step is marked BLOCKED in plan.md, a corresponding entry is added here with failure history and what human input is needed.
+
 ### 6. Development Pipeline Recipe
 
-A pre-built plan pattern for full development projects:
+A pre-built plan template for full development projects. The orchestrator expands this template into a concrete YAML plan by reading the PM's task list output and generating one dev+QA step pair per task.
+
+**Template** (steps 3+ are generated dynamically based on the PM's task list):
 
 ```yaml
 orchestration_plan:
   goal: "Deliver production-ready implementation from specification"
   recipe: "development-pipeline"
   agents:
+    # Fixed steps:
     - step: 1
       agent: "project-manager-senior"
-      task: "Read specification and create comprehensive task list"
+      task: "Read specification and create comprehensive task list. Quote EXACT requirements from spec, don't add luxury features."
       inputs: "[spec file path]"
       output: ".agency/handoffs/01-project-manager-senior.md"
       depends_on: []
+      qa_required: false
     - step: 2
-      agent: "ArchitectUX"
-      task: "Create technical architecture and UX foundation"
-      inputs: ".agency/handoffs/01-project-manager-senior.md"
-      output: ".agency/handoffs/02-architectux.md"
+      agent: "design-ux-architect"
+      task: "Create technical architecture and UX foundation from specification and task list."
+      inputs: ".agency/handoffs/01-project-manager-senior.md, [spec file path]"
+      output: ".agency/handoffs/02-design-ux-architect.md"
       depends_on: [1]
-    - step: 3..N
-      agent: "[Developer] + EvidenceQA"
-      task: "Implement task X, then validate with QA (loop until PASS)"
-      inputs: "Architecture + task list"
-      output: ".agency/handoffs/NN-taskname.md"
+      qa_required: false
+    # Dynamic steps (one per task from PM's task list):
+    # The orchestrator reads .agency/handoffs/01-project-manager-senior.md,
+    # extracts each task, and generates a step using the appropriate dev agent
+    # (engineering-frontend-developer, engineering-backend-architect, etc.)
+    # with qa_required: true. QA uses testing-evidence-collector.
+    - step: 3
+      agent: "engineering-frontend-developer"
+      task: "Implement Task 1: [task description from PM's list]"
+      inputs: ".agency/handoffs/02-design-ux-architect.md"
+      output: ".agency/handoffs/03-engineering-frontend-developer.md"
       depends_on: [2]
-    - step: final
+      qa_required: true
+    # ... one step per task ...
+    # Final step (always last):
+    - step: N
       agent: "testing-reality-checker"
-      task: "Final integration validation"
-      inputs: "All completed handoffs"
-      output: ".agency/handoffs/final-integration.md"
-      depends_on: [3..N]
+      task: "Final integration validation. Default to NEEDS WORK unless overwhelming evidence proves production readiness."
+      inputs: "All completed handoffs in .agency/handoffs/"
+      output: ".agency/handoffs/NN-testing-reality-checker.md"
+      depends_on: [all previous steps]
+      qa_required: false
 ```
+
+When `qa_required: true`, the orchestrator spawns `testing-evidence-collector` after the dev agent completes, evaluates PASS/FAIL, and loops back to the dev agent with feedback if FAIL (max 3 attempts).
 
 ### 7. Escalation & Recovery
 
@@ -241,20 +282,27 @@ orchestration_plan:
 
 ### 10. Specialist Agent Registry
 
-Full categorized listing kept from existing agent:
-- Design & UX (7 agents)
-- Engineering (10 agents)
-- Marketing (8 agents)
-- Product & Project Management (8 agents)
-- Support & Operations (6 agents)
-- Testing & Quality (6 agents)
-- Specialized (2 agents)
+The full categorized listing from the existing agent (lines 296-358 of `specialized/agents-orchestrator.md`) is kept verbatim. This includes all named agents with descriptions across 7 categories: Design & UX, Engineering, Marketing, Product & Project Management, Support & Operations, Testing & Quality, and Specialized.
+
+Note: Agent names in the registry use display names for readability. When referencing agents in YAML plans and Agent Prompt Templates, use the filename format (e.g., `engineering-frontend-developer` not `Frontend Developer`).
 
 ### 11. Status Reporting Templates
 
-Pipeline Progress Template and Completion Summary Template kept from current agent, adapted to use `.agency/` paths.
+The Pipeline Progress Template (lines 173-207) and Completion Summary Template (lines 209-245) from the current agent are kept, with these adaptations:
+- All `project-specs/`, `project-tasks/`, `project-docs/` paths replaced with `.agency/` paths
+- Completion Summary adds a final status field: COMPLETED / NEEDS_WORK / BLOCKED
+- Pipeline Progress Template references `.agency/plan.md` for step tracking
 
-### 12. Success Metrics
+### 12. Learning & Memory
+
+The Learning & Memory section (lines 254-268 of the existing agent) is kept verbatim. This includes:
+- Pipeline bottleneck and failure pattern recognition
+- Optimal retry strategies for different issue types
+- Agent coordination patterns
+- Quality gate timing and validation effectiveness
+- Project completion predictors
+
+### 13. Success Metrics
 
 - Completed `.agency/plan.md` with all steps marked done
 - Handoff files for each agent with their outputs
@@ -271,7 +319,7 @@ Pipeline Progress Template and Completion Summary Template kept from current age
 | Operating model | Fixed 4-phase dev pipeline | General-purpose Intake->Plan->Execute->Synthesize |
 | Task planning | Implicit in phase order | Explicit YAML delegation plans |
 | Agent prompts | Ad-hoc natural language | Structured Agent Prompt Template |
-| Shared state | project-specs/, project-tasks/ | .agency/ directory |
+| Shared state | project-specs/, project-tasks/, project-docs/, css/ | .agency/ directory |
 | Dev pipeline | The only mode | A named recipe within the general model |
 | Architectural awareness | None | Top-level only enforcement |
 | Escalation | Basic retry logic | Structured recovery + blocker surfacing |
