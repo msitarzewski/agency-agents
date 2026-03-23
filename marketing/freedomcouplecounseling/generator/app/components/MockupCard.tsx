@@ -93,12 +93,16 @@ export default function MockupCard({ channel, contentType, output }: Props) {
 
   async function handleDownload() {
     if (!mockupRef.current) return;
-    const { toPng } = await import("html-to-image");
-    const dataUrl = await toPng(mockupRef.current, { cacheBust: true });
-    const a = document.createElement("a");
-    a.href = dataUrl;
-    a.download = `fcc-${channel}-${Date.now()}.png`;
-    a.click();
+    // Use browser's built-in canvas API via a hidden iframe print
+    const html = mockupRef.current.outerHTML;
+    const win = window.open("", "_blank");
+    if (!win) return;
+    win.document.write(`<!DOCTYPE html><html><head>
+      <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;1,400;1,700&family=Lato:wght@400;700;900&display=swap" rel="stylesheet"/>
+      <style>body{margin:0;padding:20px;background:#F4EBD7;display:inline-block;}@media print{body{padding:0;}}</style>
+    </head><body>${html}</body></html>`);
+    win.document.close();
+    setTimeout(() => { win.print(); }, 800);
   }
 
   return (

@@ -10,7 +10,6 @@
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.37.0",
-    "html-to-image": "^1.11.13",
     "next": "15.3.9",
     "openai": "^6.32.0",
     "react": "^19.0.0",
