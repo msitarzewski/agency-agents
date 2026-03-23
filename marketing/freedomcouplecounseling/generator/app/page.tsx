@@ -29,15 +29,10 @@ export default function Home() {
   const [output, setOutput] = useState("");
   const [loading, setLoading] = useState(false);
   const [copied, setCopied] = useState(false);
-  const [copySection, setCopySection] = useState<"copy" | "image" | null>(null);
   const [generatedImage, setGeneratedImage] = useState<string | null>(null);
   const [imageLoading, setImageLoading] = useState(false);
   const [imageError, setImageError] = useState<string | null>(null);
   const abortRef = useRef<AbortController | null>(null);
-
-  const hasSections = output.includes("--- IMAGE PROMPT ---");
-  const copyPart = hasSections ? output.split("--- IMAGE PROMPT ---")[0]?.trim() : output;
-  const imagePart = hasSections ? output.split("--- IMAGE PROMPT ---")[1]?.trim() : "";
 
   async function generateImageFromPrompt(prompt: string, chan: string) {
     setImageLoading(true);
@@ -66,6 +61,7 @@ export default function Home() {
     setLoading(true);
     setCopied(false);
     setGeneratedImage(null);
+
     setImageError(null);
 
     abortRef.current = new AbortController();
@@ -96,13 +92,6 @@ export default function Home() {
         setOutput(result);
       }
 
-      // Auto-generate image once content is complete
-      if (result.includes("--- IMAGE PROMPT ---")) {
-        const extractedPrompt = result.split("--- IMAGE PROMPT ---")[1]?.trim();
-        if (extractedPrompt) {
-          await generateImageFromPrompt(extractedPrompt, channel);
-        }
-      }
     } catch (err) {
       if ((err as Error).name !== "AbortError") {
         setOutput("[Error: Request failed]");
@@ -124,19 +113,9 @@ export default function Home() {
     setTimeout(() => setCopied(false), 2000);
   }
 
-  async function copySectionText(section: "copy" | "image") {
-    const text = section === "copy" ? copyPart : imagePart;
-    if (!text) return;
-    await navigator.clipboard.writeText(text);
-    setCopySection(section);
-    setTimeout(() => setCopySection(null), 2000);
-  }
-
   async function generateImage() {
-    if (imageLoading) return;
-    const prompt = imagePart || output;
-    if (!prompt) return;
-    await generateImageFromPrompt(prompt, channel);
+    if (imageLoading || !output) return;
+    await generateImageFromPrompt(output, channel);
   }
 
   async function downloadImage() {
@@ -256,18 +235,15 @@ export default function Home() {
               <div className={styles.outputBlock}>
                 <div className={styles.outputBlockHeader}>
                   <span className={styles.outputBlockLabel}>
-                    {loading && !copyPart ? "Generating…" : "Marketing Copy"}
+                    {loading && !output ? "Generating…" : "Marketing Copy"}
                   </span>
-                  {copyPart && (
-                    <button
-                      className={styles.copyBtn}
-                      onClick={() => copySectionText("copy")}
-                    >
-                      {copySection === "copy" ? "Copied!" : "Copy"}
+                  {output && !loading && (
+                    <button className={styles.copyBtn} onClick={copyOutput}>
+                      {copied ? "Copied!" : "Copy"}
                     </button>
                   )}
                 </div>
-                <pre className={styles.outputText}>{copyPart}</pre>
+                <pre className={styles.outputText}>{output}</pre>
                 {loading && <span className={styles.cursor} />}
               </div>
 

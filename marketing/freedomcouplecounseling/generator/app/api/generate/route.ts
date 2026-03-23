@@ -135,7 +135,7 @@ Content type focus: ${contentTypeInstructions[contentType] ?? "Create compelling
 
 ${customContext ? `Additional context from user: ${customContext}` : ""}
 
-After the marketing copy, add a section titled "--- IMAGE PROMPT ---" with a detailed image generation prompt (for Midjourney / DALL-E / Stable Diffusion) that fits this content. The image should reflect the FCC brand: warm cream and peach tones (#F4EBD7, #E8B788), soft mauve accents (#CCAED0), warm natural light, authentic diverse couples, intimate and hopeful mood. Specify: subject, lighting, mood, colour palette, style references, aspect ratio.`;
+Output only the marketing copy. Do not include any image prompts or extra sections.`;
 
   const encoder = new TextEncoder();
 
