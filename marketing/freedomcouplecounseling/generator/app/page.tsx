@@ -2,6 +2,7 @@
 
 import { useState, useRef } from "react";
 import styles from "./page.module.css";
+import MockupCard from "./components/MockupCard";
 
 const CHANNELS = [
   { value: "instagram_post", label: "Instagram Post" },
@@ -29,40 +30,13 @@ export default function Home() {
   const [output, setOutput] = useState("");
   const [loading, setLoading] = useState(false);
   const [copied, setCopied] = useState(false);
-  const [generatedImage, setGeneratedImage] = useState<string | null>(null);
-  const [imageLoading, setImageLoading] = useState(false);
-  const [imageError, setImageError] = useState<string | null>(null);
   const abortRef = useRef<AbortController | null>(null);
-
-  async function generateImageFromPrompt(prompt: string, chan: string) {
-    setImageLoading(true);
-    setImageError(null);
-    setGeneratedImage(null);
-
-    try {
-      const res = await fetch("/api/generate-image", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ prompt, channel: chan }),
-      });
-      const data = await res.json();
-      if (!res.ok) throw new Error(data.error ?? "Image generation failed");
-      setGeneratedImage(data.url);
-    } catch (err) {
-      setImageError((err as Error).message ?? "Failed to generate image");
-    } finally {
-      setImageLoading(false);
-    }
-  }
 
   async function generate() {
     if (loading) return;
     setOutput("");
     setLoading(true);
     setCopied(false);
-    setGeneratedImage(null);
-
-    setImageError(null);
 
     abortRef.current = new AbortController();
 
@@ -87,11 +61,9 @@ export default function Home() {
       while (true) {
         const { done, value } = await reader.read();
         if (done) break;
-        const chunk = decoder.decode(value, { stream: true });
-        result += chunk;
+        result += decoder.decode(value, { stream: true });
         setOutput(result);
       }
-
     } catch (err) {
       if ((err as Error).name !== "AbortError") {
         setOutput("[Error: Request failed]");
@@ -111,20 +83,6 @@ export default function Home() {
     await navigator.clipboard.writeText(output);
     setCopied(true);
     setTimeout(() => setCopied(false), 2000);
-  }
-
-  async function generateImage() {
-    if (imageLoading || !output) return;
-    await generateImageFromPrompt(output, channel);
-  }
-
-  async function downloadImage() {
-    if (!generatedImage) return;
-    const proxyUrl = `/api/proxy-image?url=${encodeURIComponent(generatedImage)}`;
-    const a = document.createElement("a");
-    a.href = proxyUrl;
-    a.download = `fcc-image-${Date.now()}.png`;
-    a.click();
   }
 
   return (
@@ -224,7 +182,7 @@ export default function Home() {
               <h3>Ready to create</h3>
               <p>Select a channel and content type, then click Generate Content.</p>
               <p className={styles.emptyNote}>
-                Each generation includes platform-optimised copy and an AI image prompt — then generate the actual image with one click.
+                Each generation produces platform-optimised copy and a branded asset mockup ready to download.
               </p>
             </div>
           )}
@@ -247,55 +205,15 @@ export default function Home() {
                 {loading && <span className={styles.cursor} />}
               </div>
 
-              {/* Generated image block — always shown once generation is done */}
+              {/* Brand mockup — auto-shown once generation is done */}
               {!loading && output && (
                 <div className={`${styles.outputBlock} ${styles.outputBlockImage}`}>
                   <div className={styles.outputBlockHeader}>
-                    <span className={styles.outputBlockLabel}>Generated Image</span>
-                    <div className={styles.headerBtns}>
-                      {!imageLoading ? (
-                        <button
-                          className={styles.btnGenerateImage}
-                          onClick={generateImage}
-                        >
-                          {generatedImage ? "Regenerate Image" : "Generate Image"}
-                        </button>
-                      ) : (
-                        <button className={styles.btnGenerateImage} disabled>
-                          Generating…
-                        </button>
-                      )}
-                    </div>
+                    <span className={styles.outputBlockLabel}>Asset Mockup</span>
                   </div>
-
-                  {imageLoading && (
-                    <div className={styles.imageLoadingState}>
-                      <div className={styles.imageSpinner} />
-                      <p>Generating your image with DALL·E 3… this takes ~15 seconds</p>
-                    </div>
-                  )}
-
-                  {imageError && (
-                    <div className={styles.imageError}>{imageError}</div>
-                  )}
-
-                  {generatedImage && !imageLoading && (
-                    <div className={styles.imageResult}>
-                      <img
-                        src={generatedImage}
-                        alt="AI-generated marketing image"
-                        className={styles.generatedImg}
-                      />
-                      <div className={styles.imageActions}>
-                        <button className={styles.btnDownload} onClick={downloadImage}>
-                          Download Image
-                        </button>
-                        <button className={styles.btnSecondary} onClick={generateImage}>
-                          Regenerate
-                        </button>
-                      </div>
-                    </div>
-                  )}
+                  <div style={{ padding: "20px 18px" }}>
+                    <MockupCard channel={channel} contentType={contentType} output={output} />
+                  </div>
                 </div>
               )}
 
