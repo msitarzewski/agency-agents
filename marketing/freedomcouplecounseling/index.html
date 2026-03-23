@@ -4,39 +4,35 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Freedom Couple Counselling — Marketing Campaign Showcase</title>
-  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400;1,700;1,600&family=Lato:wght@300;400;700;900&family=Cormorant+Garamond:ital,wght@0,300;0,400;1,300;1,400&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;1,400;1,600&family=Lato:wght@300;400;700&family=Cormorant+Garamond:ital,wght@0,400;0,600;1,400;1,600&display=swap" rel="stylesheet" />
   <style>
+    /* ── EXACT FCC BRAND COLOURS (from logo + live site) ── */
     :root {
-      --gold:       #7B5C00;
-      --gold-mid:   #A07820;
-      --gold-light: #C9A84C;
-      --cream:      #F5EFE3;
-      --cream-deep: #E8DCC8;
-      --mauve:      #CFA8CF;
-      --mauve-deep: #B88AB8;
-      --terra:      #C4714A;
-      --amber:      #B05A00;
-      --charcoal:   #2D2D2D;
-      --offwhite:   #FAFAF7;
+      --cream-nav:   #F0E8D6;   /* nav / page background */
+      --cream-body:  #E8DCC8;   /* about-section warm beige */
+      --gold:        #B08010;   /* logo gold — warm bright amber */
+      --gold-dark:   #7B5C00;   /* buttons, footer background */
+      --gold-hover:  #5A4200;   /* button hover */
+      --mauve:       #D4AACC;   /* social section + logo swoosh */
+      --mauve-heart: #E8A8B8;   /* logo heart colour */
+      --terra:       #C4714A;   /* terracotta accent */
+      --charcoal:    #2D2D2D;
+      --white:       #FFFFFF;
     }
+
     * { box-sizing: border-box; margin: 0; padding: 0; }
     html { scroll-behavior: smooth; }
-    body { background: var(--offwhite); font-family: 'Lato', sans-serif; color: var(--charcoal); }
+    body { background: var(--cream-nav); font-family: 'Lato', sans-serif; color: var(--charcoal); }
 
-    /* NAV */
+    /* ── NAV ── */
     nav {
       position: sticky; top: 0; z-index: 100;
-      background: var(--cream);
-      border-bottom: 1px solid rgba(123,92,0,0.15);
-      padding: 0 40px; display: flex; align-items: center;
-      justify-content: space-between; height: 64px;
+      background: var(--cream-nav);
+      border-bottom: 1px solid rgba(155,122,20,0.18);
+      padding: 0 48px; display: flex; align-items: center;
+      justify-content: space-between; height: 72px;
     }
-    .nav-logo {
-      font-family: 'Cormorant Garamond', serif;
-      font-size: 18px; font-style: italic;
-      color: var(--gold); font-weight: 600;
-      letter-spacing: 0.02em;
-    }
+    .nav-logo { display: flex; align-items: center; gap: 12px; text-decoration: none; }
     .nav-links { display: flex; gap: 28px; list-style: none; align-items: center; }
     .nav-links a {
       text-decoration: none; color: var(--charcoal);
@@ -45,68 +41,85 @@
       transition: color 0.2s;
     }
     .nav-links a:hover { color: var(--gold); }
-    .nav-btn {
-      background: var(--gold); color: white !important;
-      padding: 9px 20px; border-radius: 50px;
+    .nav-cta {
+      background: var(--gold-dark) !important;
+      color: white !important;
+      padding: 10px 22px; border-radius: 50px;
       font-size: 11px !important; font-weight: 700 !important;
-      text-transform: uppercase; letter-spacing: 0.1em;
+      text-transform: uppercase !important; letter-spacing: 0.1em !important;
       transition: background 0.2s !important;
     }
-    .nav-btn:hover { background: var(--amber) !important; }
+    .nav-cta:hover { background: var(--gold-hover) !important; }
 
-    /* HERO */
+    /* ── HERO — warm amber room feel ── */
     .hero {
-      background: linear-gradient(160deg, #3A1A00 0%, #7B3A00 45%, #B5651D 80%, #C4714A 100%);
-      color: white; text-align: center; padding: 110px 40px 90px;
-      position: relative; overflow: hidden;
+      background:
+        linear-gradient(
+          180deg,
+          rgba(50, 22, 0, 0.72) 0%,
+          rgba(100, 48, 0, 0.60) 50%,
+          rgba(140, 70, 10, 0.55) 100%
+        ),
+        linear-gradient(135deg, #4A1E00 0%, #8B4A00 50%, #C47020 100%);
+      color: white; text-align: center;
+      padding: 120px 40px 100px;
     }
-    .hero::before {
-      content: ''; position: absolute; inset: 0;
-      background: radial-gradient(ellipse at 60% 40%, rgba(196,113,74,0.3) 0%, transparent 70%);
-    }
-    .hero-inner { position: relative; z-index: 1; }
     .hero-badge {
       display: inline-block;
       background: rgba(255,255,255,0.12);
       border: 1px solid rgba(255,255,255,0.3);
-      border-radius: 24px; padding: 7px 22px;
+      border-radius: 24px; padding: 8px 24px;
       font-size: 11px; font-weight: 700;
-      text-transform: uppercase; letter-spacing: 0.12em;
-      margin-bottom: 32px;
+      text-transform: uppercase; letter-spacing: 0.14em;
+      margin-bottom: 36px;
     }
     .hero h1 {
       font-family: 'Playfair Display', serif;
-      font-size: clamp(34px, 5vw, 64px);
+      font-size: clamp(36px, 5.5vw, 68px);
       font-style: italic; margin-bottom: 20px;
-      line-height: 1.15;
+      line-height: 1.12; font-weight: 400;
     }
     .hero p {
-      font-size: 13px; letter-spacing: 0.12em;
-      text-transform: uppercase; opacity: 0.85;
-      max-width: 560px; margin: 0 auto 10px;
+      font-size: 12px; letter-spacing: 0.16em;
+      text-transform: uppercase; opacity: 0.82;
+      margin-bottom: 10px;
     }
     .hero-sub {
-      font-style: italic;
       font-family: 'Cormorant Garamond', serif;
-      font-size: 18px; opacity: 0.78; margin-top: 14px;
+      font-style: italic; font-size: 18px;
+      opacity: 0.78; margin-top: 16px;
     }
+    .hero-btn {
+      display: inline-block; margin-top: 36px;
+      padding: 14px 32px; border-radius: 50px;
+      background: var(--gold); color: white;
+      text-decoration: none; font-size: 11px;
+      font-weight: 700; text-transform: uppercase;
+      letter-spacing: 0.12em; transition: background 0.2s;
+    }
+    .hero-btn:hover { background: var(--gold-dark); }
 
-    /* SECTIONS */
-    .section { padding: 80px 40px; max-width: 1200px; margin: 0 auto; }
-    .section-cream { background: var(--cream); padding: 80px 40px; }
-    .section-mauve { background: var(--mauve); padding: 80px 40px; }
+    /* ── SECTION WRAPPERS ── */
+    .section      { padding: 80px 40px; max-width: 1200px; margin: 0 auto; }
+    .bg-cream     { background: var(--cream-body); }
+    .bg-cream-nav { background: var(--cream-nav); }
+    .bg-mauve     { background: var(--mauve); }
+    .padded       { padding: 80px 40px; }
+
     .section-title {
       font-family: 'Playfair Display', serif;
-      font-size: 36px; color: var(--gold); margin-bottom: 8px;
+      font-size: 38px; font-style: italic;
+      color: var(--gold); margin-bottom: 8px; font-weight: 400;
     }
     .section-title-white {
       font-family: 'Playfair Display', serif;
-      font-size: 36px; color: white; margin-bottom: 8px;
+      font-size: 38px; font-style: italic;
+      color: white; margin-bottom: 8px; font-weight: 400;
     }
-    .section-subtitle { color: #777; margin-bottom: 44px; font-size: 15px; }
+    .section-subtitle       { color: #777; margin-bottom: 44px; font-size: 15px; }
     .section-subtitle-white { color: rgba(255,255,255,0.85); margin-bottom: 44px; font-size: 15px; }
 
-    /* CARDS */
+    /* ── CARDS ── */
     .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 24px; }
     .card {
       background: white; border-radius: 16px; overflow: hidden;
@@ -114,129 +127,166 @@
       transition: transform 0.25s, box-shadow 0.25s;
       display: flex; flex-direction: column;
     }
-    .card:hover { transform: translateY(-5px); box-shadow: 0 12px 36px rgba(0,0,0,0.14); }
-    .card-preview {
-      height: 190px; display: flex; align-items: center;
-      justify-content: center; font-size: 48px;
+    .card:hover { transform: translateY(-5px); box-shadow: 0 14px 40px rgba(0,0,0,0.13); }
+
+    .card-thumb {
+      height: 190px; display: flex;
+      align-items: center; justify-content: center; font-size: 48px;
     }
-    .bg-gold   { background: linear-gradient(135deg, #7B3A00 0%, #A07820 100%); }
-    .bg-terra  { background: linear-gradient(135deg, #C4714A 0%, #D4956E 100%); }
-    .bg-mauve  { background: linear-gradient(135deg, #9B78A0 0%, #CFA8CF 100%); }
-    .bg-cream  { background: linear-gradient(135deg, #E8DCC8 0%, #F5EFE3 100%); }
+    .thumb-gold  { background: linear-gradient(135deg, #4A1E00, #9B7A14); }
+    .thumb-terra { background: linear-gradient(135deg, #8B3A00, #C4714A); }
+    .thumb-mauve { background: linear-gradient(135deg, #8B5A8B, #D4AACC); }
+    .thumb-cream { background: linear-gradient(135deg, #C8B890, #E8DCC8); }
+
     .card-body { padding: 26px; flex: 1; display: flex; flex-direction: column; }
     .card-label {
       font-size: 10px; font-weight: 700;
-      text-transform: uppercase; letter-spacing: 0.12em;
+      text-transform: uppercase; letter-spacing: 0.14em;
       color: var(--terra); margin-bottom: 8px;
     }
     .card-title {
       font-family: 'Playfair Display', serif;
-      font-size: 20px; color: var(--gold); margin-bottom: 10px;
+      font-size: 20px; color: var(--gold-dark);
+      margin-bottom: 10px; font-weight: 400;
     }
     .card-desc {
-      font-size: 13px; color: #666;
-      line-height: 1.7; margin-bottom: 20px; flex: 1;
+      font-size: 13.5px; color: #666;
+      line-height: 1.7; margin-bottom: 22px; flex: 1;
     }
     .btn {
-      display: inline-block; padding: 11px 24px;
-      border-radius: 50px; background: var(--gold);
+      display: inline-block; padding: 11px 26px;
+      border-radius: 50px; background: var(--gold-dark);
       color: white; text-decoration: none;
       font-size: 11px; font-weight: 700;
       text-transform: uppercase; letter-spacing: 0.1em;
       transition: background 0.2s; align-self: flex-start;
     }
-    .btn:hover { background: var(--amber); }
+    .btn:hover { background: var(--gold-hover); }
 
-    /* BRAND PALETTE */
-    .palette-row { display: flex; flex-wrap: wrap; gap: 16px; margin-top: 36px; }
-    .swatch { border-radius: 12px; overflow: hidden; box-shadow: 0 2px 10px rgba(0,0,0,0.1); width: 114px; }
-    .swatch-color { height: 72px; }
-    .swatch-name { padding: 7px 10px 2px; background: white; font-size: 11px; font-weight: 700; }
-    .swatch-hex  { padding: 0 10px 7px; background: white; font-size: 10px; color: #999; }
-
+    /* ── QUOTE ── */
     blockquote {
       font-family: 'Cormorant Garamond', serif;
       font-size: 22px; font-style: italic;
       color: var(--gold); border-left: 3px solid var(--terra);
-      padding-left: 22px; margin: 48px 0; line-height: 1.7;
-      max-width: 720px;
+      padding-left: 24px; margin: 52px 0; line-height: 1.7;
+      max-width: 740px;
     }
 
-    /* FOOTER */
+    /* ── BRAND SWATCHES ── */
+    .palette-row { display: flex; flex-wrap: wrap; gap: 16px; margin-top: 36px; }
+    .swatch { border-radius: 12px; overflow: hidden; box-shadow: 0 2px 10px rgba(0,0,0,0.1); width: 116px; }
+    .swatch-color { height: 72px; }
+    .swatch-name { padding: 8px 10px 2px; background: white; font-size: 11px; font-weight: 700; }
+    .swatch-hex  { padding: 0 10px 8px; background: white; font-size: 10px; color: #999; }
+
+    /* ── FOOTER ── */
     footer {
-      background: var(--gold); color: white;
-      padding: 48px 40px;
-      display: grid; grid-template-columns: 1fr auto 1fr;
-      align-items: center; gap: 24px;
+      background: var(--gold-dark); color: white;
+      padding: 52px 48px;
+      display: grid;
+      grid-template-columns: 1fr auto 1fr;
+      align-items: center; gap: 32px;
     }
-    .footer-left p { font-size: 13px; opacity: 0.85; line-height: 1.8; }
-    .footer-left strong { opacity: 1; font-size: 14px; }
-    .footer-btn {
-      display: inline-block; padding: 13px 28px;
+    .footer-contact p { font-size: 13px; opacity: 0.85; line-height: 2; }
+    .footer-contact strong { opacity: 1; font-size: 14px; display: block; margin-bottom: 4px; }
+    .footer-cta {
+      display: inline-block; padding: 14px 30px;
       border: 2px solid white; border-radius: 50px;
       color: white; text-decoration: none;
       font-size: 11px; font-weight: 700;
       text-transform: uppercase; letter-spacing: 0.12em;
-      transition: background 0.2s, color 0.2s; white-space: nowrap;
+      white-space: nowrap; transition: background 0.2s, color 0.2s;
     }
-    .footer-btn:hover { background: white; color: var(--gold); }
-    .footer-right { text-align: right; }
-    .footer-right p { font-size: 13px; opacity: 0.85; line-height: 1.8; }
-    .fcc-monogram {
+    .footer-cta:hover { background: white; color: var(--gold-dark); }
+    .footer-nav { text-align: right; }
+    .footer-nav p {
+      font-size: 11px; font-weight: 700;
+      text-transform: uppercase; letter-spacing: 0.1em;
+      opacity: 0.8; line-height: 2.4;
+    }
+    .footer-monogram {
       font-family: 'Playfair Display', serif;
-      font-size: 36px; font-style: italic;
-      opacity: 0.4; margin-top: 6px; line-height: 1;
+      font-size: 42px; font-style: italic;
+      opacity: 0.35; margin-top: 8px;
+      line-height: 1; text-align: right;
     }
   </style>
 </head>
 <body>
 
+  <!-- ── NAV ── -->
   <nav>
-    <div class="nav-logo">freedom couple counselling</div>
+    <a class="nav-logo" href="#">
+      <!-- FCC emblem: filled amber circle + mauve swoosh + heart + wheat -->
+      <svg width="56" height="56" viewBox="0 0 56 56" xmlns="http://www.w3.org/2000/svg">
+        <!-- Amber filled circle -->
+        <circle cx="28" cy="28" r="27" fill="#B08010"/>
+        <!-- Mauve arc swoosh (left side, curves top-left to bottom-left) -->
+        <path d="M 14 10 Q 6 28 14 46" fill="none" stroke="#D4AACC" stroke-width="5" stroke-linecap="round"/>
+        <path d="M 19 12 Q 10 28 19 44" fill="none" stroke="#D4AACC" stroke-width="3.5" stroke-linecap="round" opacity="0.7"/>
+        <!-- Small heart top-centre -->
+        <path d="M 27 16 C 27 14, 24 12, 24 15 C 24 17, 27 20, 27 20 C 27 20, 30 17, 30 15 C 30 12, 27 14, 27 16 Z" fill="#E8A8B8"/>
+        <!-- Wheat/leaf branch (right side) -->
+        <line x1="32" y1="20" x2="32" y2="44" stroke="rgba(255,255,255,0.7)" stroke-width="1.2"/>
+        <ellipse cx="36.5" cy="26" rx="4" ry="2.2" fill="rgba(255,255,255,0.6)" transform="rotate(35 36.5 26)"/>
+        <ellipse cx="37" cy="31.5" rx="4" ry="2.2" fill="rgba(255,255,255,0.6)" transform="rotate(30 37 31.5)"/>
+        <ellipse cx="36.5" cy="37" rx="4" ry="2.2" fill="rgba(255,255,255,0.6)" transform="rotate(25 36.5 37)"/>
+        <ellipse cx="28" cy="25" rx="3.5" ry="2" fill="rgba(255,255,255,0.5)" transform="rotate(-35 28 25)"/>
+        <ellipse cx="27.5" cy="31" rx="3.5" ry="2" fill="rgba(255,255,255,0.5)" transform="rotate(-30 27.5 31)"/>
+      </svg>
+      <!-- Wordmark -->
+      <svg width="128" height="56" viewBox="0 0 128 56" xmlns="http://www.w3.org/2000/svg">
+        <text x="2" y="19" font-family="'Cormorant Garamond', Georgia, serif" font-size="17" font-weight="600" fill="#B08010">freedom</text>
+        <text x="2" y="37" font-family="'Cormorant Garamond', Georgia, serif" font-size="17" font-weight="600" fill="#B08010">couple</text>
+        <text x="2" y="55" font-family="'Cormorant Garamond', Georgia, serif" font-size="17" font-weight="600" fill="#B08010">counselling</text>
+      </svg>
+    </a>
     <ul class="nav-links">
       <li><a href="#ads">Ads</a></li>
       <li><a href="#social">Social</a></li>
       <li><a href="#email">Email</a></li>
       <li><a href="#print">Print</a></li>
       <li><a href="#brand">Brand</a></li>
-      <li><a href="https://www.freedomcouplecounselling.com" class="nav-btn" target="_blank">Book a Session</a></li>
+      <li><a href="https://www.freedomcouplecounselling.com" class="nav-cta" target="_blank">Book a Session</a></li>
     </ul>
   </nav>
 
+  <!-- ── HERO ── -->
   <div class="hero">
-    <div class="hero-inner">
-      <div class="hero-badge">Marketing Campaign Showcase</div>
-      <h1>Real Help for When<br>Love Feels Hard</h1>
-      <p>Melbourne Couples Counselling · Essendon North, Carlton & Online</p>
-      <div class="hero-sub">Jill Dzadey · As heard on Triple J &amp; ABC · 12+ years experience</div>
-    </div>
+    <div class="hero-badge">Marketing Campaign Showcase</div>
+    <h1>Real Help for When<br>Love Feels Hard</h1>
+    <p>Melbourne Couples Counselling · Essendon North, Carlton &amp; Online</p>
+    <div class="hero-sub">Jill Dzadey · As heard on Triple J &amp; ABC · 12+ years experience</div>
+    <a href="https://www.freedomcouplecounselling.com" class="hero-btn" target="_blank">Book a Session</a>
   </div>
 
-  <!-- ADS -->
-  <section class="section" id="ads">
-    <div class="section-title">Paid Advertising</div>
-    <div class="section-subtitle">Facebook &amp; Instagram ad variations — ready for Meta Ads Manager</div>
-    <div class="grid">
-      <div class="card">
-        <div class="card-preview bg-gold">📢</div>
-        <div class="card-body">
-          <div class="card-label">Paid Social</div>
-          <div class="card-title">Facebook &amp; Instagram Ad Mockups</div>
-          <div class="card-desc">6 ad variations — awareness, reluctant partner, intercultural, Christian, and conversion — across square and story formats.</div>
-          <a href="ads/facebook-ad-mockups.html" class="btn">View Ads →</a>
+  <!-- ── ADS ── -->
+  <div class="bg-cream-nav">
+    <section class="section" id="ads">
+      <div class="section-title">Paid Advertising</div>
+      <div class="section-subtitle">Facebook &amp; Instagram ad variations — ready for Meta Ads Manager</div>
+      <div class="grid">
+        <div class="card">
+          <div class="card-thumb thumb-gold">📢</div>
+          <div class="card-body">
+            <div class="card-label">Paid Social</div>
+            <div class="card-title">Facebook &amp; Instagram Ad Mockups</div>
+            <div class="card-desc">6 ad variations — awareness, reluctant partner, intercultural, Christian, and conversion — across square and story formats.</div>
+            <a href="ads/facebook-ad-mockups.html" class="btn">View Ads →</a>
+          </div>
         </div>
       </div>
-    </div>
-  </section>
+    </section>
+  </div>
 
-  <!-- SOCIAL -->
-  <div class="section-mauve" id="social">
+  <!-- ── SOCIAL ── -->
+  <div class="bg-mauve padded" id="social">
     <div style="max-width:1200px;margin:0 auto;">
       <div class="section-title-white">Social Media</div>
       <div class="section-subtitle-white">Organic content for Instagram and copy decks for all platforms</div>
       <div class="grid">
         <div class="card">
-          <div class="card-preview bg-terra">📸</div>
+          <div class="card-thumb thumb-terra">📸</div>
           <div class="card-body">
             <div class="card-label">Instagram</div>
             <div class="card-title">Feed Posts</div>
@@ -245,7 +295,7 @@
           </div>
         </div>
         <div class="card">
-          <div class="card-preview bg-mauve">📱</div>
+          <div class="card-thumb thumb-mauve">📱</div>
           <div class="card-body">
             <div class="card-label">Instagram</div>
             <div class="card-title">Stories</div>
@@ -254,7 +304,7 @@
           </div>
         </div>
         <div class="card">
-          <div class="card-preview bg-gold">✍️</div>
+          <div class="card-thumb thumb-gold">✍️</div>
           <div class="card-body">
             <div class="card-label">Copy Deck</div>
             <div class="card-title">Facebook &amp; LinkedIn Ads</div>
@@ -263,7 +313,7 @@
           </div>
         </div>
         <div class="card">
-          <div class="card-preview bg-cream">🧵</div>
+          <div class="card-thumb thumb-cream">🧵</div>
           <div class="card-body">
             <div class="card-label">Copy Deck</div>
             <div class="card-title">Twitter / X Thread</div>
@@ -275,33 +325,34 @@
     </div>
   </div>
 
-  <!-- EMAIL -->
-  <section class="section" id="email">
-    <div class="section-title">Email Campaign</div>
-    <div class="section-subtitle">HTML email — ready for Mailchimp, Klaviyo, or any ESP</div>
-    <div class="grid">
-      <div class="card">
-        <div class="card-preview bg-terra">✉️</div>
-        <div class="card-body">
-          <div class="card-label">Email</div>
-          <div class="card-title">New Client Welcome Campaign</div>
-          <div class="card-desc">600px inbox-safe HTML email introducing Jill, her approach, and how to book a session.</div>
-          <a href="email/email-campaign.html" class="btn">View Email →</a>
+  <!-- ── EMAIL ── -->
+  <div class="bg-cream-nav">
+    <section class="section" id="email">
+      <div class="section-title">Email Campaign</div>
+      <div class="section-subtitle">HTML email — ready for Mailchimp, Klaviyo, or any ESP</div>
+      <div class="grid">
+        <div class="card">
+          <div class="card-thumb thumb-terra">✉️</div>
+          <div class="card-body">
+            <div class="card-label">Email</div>
+            <div class="card-title">New Client Welcome Campaign</div>
+            <div class="card-desc">600px inbox-safe HTML email introducing Jill, her approach, and how to book a session.</div>
+            <a href="email/email-campaign.html" class="btn">View Email →</a>
+          </div>
         </div>
       </div>
-    </div>
+      <blockquote>"Every couple deserves a fulfilling, connected, and thriving relationship." — Jill Dzadey</blockquote>
+    </section>
+  </div>
 
-    <blockquote>"Every couple deserves a fulfilling, connected, and thriving relationship." — Jill Dzadey</blockquote>
-  </section>
-
-  <!-- PRINT -->
-  <div class="section-cream" id="print">
+  <!-- ── PRINT ── -->
+  <div class="bg-cream padded" id="print">
     <div style="max-width:1200px;margin:0 auto;">
       <div class="section-title">Print</div>
       <div class="section-subtitle" style="color:#888;">Print-ready assets for clinics, community boards, and events</div>
       <div class="grid">
         <div class="card">
-          <div class="card-preview bg-gold">🖨️</div>
+          <div class="card-thumb thumb-gold">🖨️</div>
           <div class="card-body">
             <div class="card-label">Print</div>
             <div class="card-title">A4 Practice Flyer</div>
@@ -313,62 +364,65 @@
     </div>
   </div>
 
-  <!-- BRAND -->
-  <section class="section" id="brand">
-    <div class="section-title">Brand Palette</div>
-    <div class="section-subtitle">Reference swatches for consistent application across all assets</div>
-    <div class="palette-row">
-      <div class="swatch">
-        <div class="swatch-color" style="background:#7B5C00;"></div>
-        <div class="swatch-name">Brand Gold</div>
-        <div class="swatch-hex">#7B5C00</div>
+  <!-- ── BRAND ── -->
+  <div class="bg-cream-nav">
+    <section class="section" id="brand">
+      <div class="section-title">Brand Palette</div>
+      <div class="section-subtitle">Reference swatches for consistent application across all assets</div>
+      <div class="palette-row">
+        <div class="swatch">
+          <div class="swatch-color" style="background:#B08010;"></div>
+          <div class="swatch-name">Brand Gold</div>
+          <div class="swatch-hex">#B08010</div>
+        </div>
+        <div class="swatch">
+          <div class="swatch-color" style="background:#7B5C00;"></div>
+          <div class="swatch-name">Dark Gold</div>
+          <div class="swatch-hex">#7B5C00</div>
+        </div>
+        <div class="swatch">
+          <div class="swatch-color" style="background:#F0E8D6;border:1px solid #ddd;"></div>
+          <div class="swatch-name">Cream Nav</div>
+          <div class="swatch-hex">#F0E8D6</div>
+        </div>
+        <div class="swatch">
+          <div class="swatch-color" style="background:#E8DCC8;border:1px solid #ddd;"></div>
+          <div class="swatch-name">Warm Cream</div>
+          <div class="swatch-hex">#E8DCC8</div>
+        </div>
+        <div class="swatch">
+          <div class="swatch-color" style="background:#D4AACC;"></div>
+          <div class="swatch-name">Soft Mauve</div>
+          <div class="swatch-hex">#D4AACC</div>
+        </div>
+        <div class="swatch">
+          <div class="swatch-color" style="background:#C4714A;"></div>
+          <div class="swatch-name">Terracotta</div>
+          <div class="swatch-hex">#C4714A</div>
+        </div>
+        <div class="swatch">
+          <div class="swatch-color" style="background:#2D2D2D;"></div>
+          <div class="swatch-name">Charcoal</div>
+          <div class="swatch-hex">#2D2D2D</div>
+        </div>
       </div>
-      <div class="swatch">
-        <div class="swatch-color" style="background:#A07820;"></div>
-        <div class="swatch-name">Warm Gold</div>
-        <div class="swatch-hex">#A07820</div>
-      </div>
-      <div class="swatch">
-        <div class="swatch-color" style="background:#C9A84C;"></div>
-        <div class="swatch-name">Light Gold</div>
-        <div class="swatch-hex">#C9A84C</div>
-      </div>
-      <div class="swatch">
-        <div class="swatch-color" style="background:#F5EFE3;border:1px solid #ddd;"></div>
-        <div class="swatch-name">Warm Cream</div>
-        <div class="swatch-hex">#F5EFE3</div>
-      </div>
-      <div class="swatch">
-        <div class="swatch-color" style="background:#CFA8CF;"></div>
-        <div class="swatch-name">Soft Mauve</div>
-        <div class="swatch-hex">#CFA8CF</div>
-      </div>
-      <div class="swatch">
-        <div class="swatch-color" style="background:#C4714A;"></div>
-        <div class="swatch-name">Terracotta</div>
-        <div class="swatch-hex">#C4714A</div>
-      </div>
-      <div class="swatch">
-        <div class="swatch-color" style="background:#2D2D2D;"></div>
-        <div class="swatch-name">Charcoal</div>
-        <div class="swatch-hex">#2D2D2D</div>
-      </div>
-    </div>
-  </section>
+    </section>
+  </div>
 
+  <!-- ── FOOTER ── -->
   <footer>
-    <div class="footer-left">
-      <p><strong>Freedom Couple Counselling</strong></p>
+    <div class="footer-contact">
+      <strong>Freedom Couple Counselling</strong>
       <p>Jill Dzadey</p>
       <p>+61 411 035 052</p>
       <p>info@freedomcouplecounselling.com</p>
     </div>
-    <a href="https://www.freedomcouplecounselling.com" class="footer-btn" target="_blank">Book a Session</a>
-    <div class="footer-right">
-      <p>WHAT WE OFFER</p>
-      <p>ABOUT JILL</p>
-      <p>MEDIA</p>
-      <div class="fcc-monogram">fcc</div>
+    <a href="https://www.freedomcouplecounselling.com" class="footer-cta" target="_blank">Book a Session</a>
+    <div class="footer-nav">
+      <p>What We Offer</p>
+      <p>About Jill</p>
+      <p>Media</p>
+      <div class="footer-monogram">fcc</div>
     </div>
   </footer>
 
