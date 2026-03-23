@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Freedom Couple Counselling — Practice Flyer</title>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400;1,700&family=Lato:wght@300;400;700;900&family=Cormorant+Garamond:ital,wght@0,300;0,400;1,300;1,400&display=swap" rel="stylesheet" />
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { background: #e5e2de; display: flex; align-items: flex-start; justify-content: center; padding: 40px 20px; font-family: 'Lato', sans-serif; min-height: 100vh; gap: 40px; flex-wrap: wrap; }
+
+    .print-note { background: #333; color: white; border-radius: 8px; padding: 16px 24px; font-size: 13px; max-width: 900px; margin: 0 auto 32px; text-align: center; width: 100%; }
+
+    .poster {
+      width: 420px; /* A4 proportions at screen scale */
+      background: white;
+      box-shadow: 0 8px 40px rgba(0,0,0,0.2);
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+
+    .poster-header {
+      background: linear-gradient(135deg, #1A3C2A 0%, #4A7C5E 60%, #7A9E85 100%);
+      padding: 44px 36px 40px;
+      text-align: center;
+      position: relative;
+    }
+    .poster-header::after {
+      content: '';
+      position: absolute;
+      bottom: -24px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 48px;
+      height: 48px;
+      background: white;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .logo-icon { font-size: 28px; position: absolute; bottom: -20px; left: 50%; transform: translateX(-50%); z-index: 2; width: 40px; height: 40px; background: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; box-shadow: 0 2px 8px rgba(0,0,0,0.15); }
+    .brand-sub { color: rgba(255,255,255,0.65); font-size: 11px; letter-spacing: 0.18em; text-transform: uppercase; margin-bottom: 18px; font-family: 'Lato', sans-serif; }
+    .brand-name { font-family: 'Playfair Display', serif; font-size: 28px; font-style: italic; color: white; line-height: 1.3; margin-bottom: 10px; }
+    .brand-tagline { color: rgba(255,255,255,0.8); font-size: 13px; letter-spacing: 0.04em; font-family: 'Lato', sans-serif; }
+
+    .poster-body { padding: 52px 36px 32px; flex: 1; }
+
+    .founder-section { display: flex; align-items: flex-start; gap: 16px; margin-bottom: 28px; padding-bottom: 28px; border-bottom: 1px solid #e8e4de; }
+    .founder-avatar { width: 64px; height: 64px; border-radius: 50%; background: linear-gradient(135deg, #1A3C2A, #4A7C5E); flex-shrink: 0; display: flex; align-items: center; justify-content: center; font-size: 28px; }
+    .founder-name { font-family: 'Playfair Display', serif; font-size: 18px; color: #1A3C2A; margin-bottom: 4px; }
+    .founder-creds { font-size: 11px; color: #777; line-height: 1.6; font-family: 'Lato', sans-serif; }
+    .founder-media { margin-top: 6px; font-size: 11px; color: #C4714A; font-weight: 700; font-family: 'Lato', sans-serif; }
+
+    .services-title { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.12em; color: #C4714A; margin-bottom: 14px; font-family: 'Lato', sans-serif; }
+    .service-item { display: flex; gap: 10px; margin-bottom: 12px; align-items: flex-start; }
+    .service-dot { width: 6px; height: 6px; border-radius: 50%; background: #4A7C5E; flex-shrink: 0; margin-top: 6px; }
+    .service-text { font-size: 13px; color: #2D2D2D; line-height: 1.5; font-family: 'Lato', sans-serif; }
+    .service-text strong { color: #1A3C2A; }
+
+    .quote-block { background: #F5F0E8; border-left: 3px solid #C4714A; padding: 16px 18px; margin: 24px 0; border-radius: 0 8px 8px 0; }
+    .quote-text { font-family: 'Cormorant Garamond', serif; font-style: italic; font-size: 15px; color: #1A3C2A; line-height: 1.6; }
+    .quote-attr { font-size: 11px; color: #999; margin-top: 6px; font-family: 'Lato', sans-serif; }
+
+    .inclusive-bar { display: flex; gap: 8px; flex-wrap: wrap; margin: 20px 0; }
+    .inclusive-tag { background: #F5F0E8; border-radius: 20px; padding: 5px 12px; font-size: 11px; color: #4A7C5E; font-weight: 700; font-family: 'Lato', sans-serif; }
+
+    .poster-footer { background: #1A3C2A; padding: 24px 36px; }
+    .contact-row { display: flex; gap: 20px; margin-bottom: 12px; flex-wrap: wrap; }
+    .contact-item { }
+    .contact-label { font-size: 10px; text-transform: uppercase; letter-spacing: 0.1em; color: rgba(255,255,255,0.5); font-family: 'Lato', sans-serif; margin-bottom: 3px; }
+    .contact-value { font-size: 12px; color: white; font-weight: 700; font-family: 'Lato', sans-serif; }
+    .footer-inclusive { font-size: 11px; color: rgba(255,255,255,0.5); font-family: 'Lato', sans-serif; font-style: italic; margin-top: 4px; }
+  </style>
+</head>
+<body>
+
+  <div class="print-note">
+    🖨️ To print: File → Print → Set paper to A4 · Scale to fit · Save as PDF for best quality
+  </div>
+
+  <div class="poster">
+
+    <div class="poster-header">
+      <div class="brand-sub">Professional Counselling Services</div>
+      <div class="brand-name">Freedom Couple<br>Counselling</div>
+      <div class="brand-tagline">Reconnect · Rebuild Trust · Thrive</div>
+      <div class="logo-icon">🌿</div>
+    </div>
+
+    <div class="poster-body">
+
+      <div class="founder-section">
+        <div class="founder-avatar">👩🏾</div>
+        <div>
+          <div class="founder-name">Jill Dzadey</div>
+          <div class="founder-creds">
+            MSocSc (Couple Counselling) · BSocWork · BBiomedSc<br>
+            AASW Member · ACA Member<br>
+            12+ years experience · Trained at Relationships Australia
+          </div>
+          <div class="founder-media">🎙️ As heard on ABC Triple J "The Hook Up"</div>
+        </div>
+      </div>
+
+      <div class="services-title">Services Offered</div>
+      <div class="service-item"><div class="service-dot"></div><div class="service-text"><strong>Emotionally Focused Couples Therapy (EFT)</strong> — rebuild emotional connection and intimacy</div></div>
+      <div class="service-item"><div class="service-dot"></div><div class="service-text"><strong>Gottman Method</strong> — evidence-based tools for communication and conflict</div></div>
+      <div class="service-item"><div class="service-dot"></div><div class="service-text"><strong>Culturally Sensitive Therapy</strong> — specialist support for intercultural couples</div></div>
+      <div class="service-item"><div class="service-dot"></div><div class="service-text"><strong>Faith-Based Christian Counselling</strong> — biblical principles + evidence-based therapy</div></div>
+      <div class="service-item"><div class="service-dot"></div><div class="service-text"><strong>Premarital Counselling</strong> — start your marriage with the tools to thrive</div></div>
+
+      <div class="quote-block">
+        <div class="quote-text">"Every couple deserves a fulfilling, connected, and thriving relationship."</div>
+        <div class="quote-attr">— Jill Dzadey</div>
+      </div>
+
+      <div class="inclusive-bar">
+        <div class="inclusive-tag">All cultures</div>
+        <div class="inclusive-tag">All religions</div>
+        <div class="inclusive-tag">All sexualities</div>
+        <div class="inclusive-tag">Melbourne & Online</div>
+      </div>
+
+    </div>
+
+    <div class="poster-footer">
+      <div class="contact-row">
+        <div class="contact-item">
+          <div class="contact-label">Website</div>
+          <div class="contact-value">freedomcouplecounselling.com</div>
+        </div>
+        <div class="contact-item">
+          <div class="contact-label">Instagram</div>
+          <div class="contact-value">@freedomcouplecounselling</div>
+        </div>
+        <div class="contact-item">
+          <div class="contact-label">Location</div>
+          <div class="contact-value">Carlton, Melbourne · Online nationally</div>
+        </div>
+      </div>
+      <div class="footer-inclusive">A warm, non-judgmental space for every couple — wherever you are in your journey.</div>
+    </div>
+
+  </div>
+
+</body>
+</html>
