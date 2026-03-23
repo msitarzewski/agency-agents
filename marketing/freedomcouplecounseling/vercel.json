@@ -1,4 +1,5 @@
 {
+  "outputDirectory": ".",
   "rewrites": [
     { "source": "/ads/(.*)", "destination": "/ads/$1" },
     { "source": "/social-media/(.*)", "destination": "/social-media/$1" },
