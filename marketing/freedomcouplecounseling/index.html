@@ -7,11 +7,13 @@
   <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400;1,700;1,600&family=Lato:wght@300;400;700;900&family=Cormorant+Garamond:ital,wght@0,300;0,400;1,300;1,400&display=swap" rel="stylesheet" />
   <style>
     :root {
-      --forest:    #1A3C2A;
-      --sage:      #4A7C5E;
-      --cream:     #F5F0E8;
+      --gold:      #8B6914;
+      --gold-dark: #6B5000;
+      --gold-mid:  #A07820;
+      --cream:     #F0E8D4;
+      --cream-deep:#E4D8C0;
+      --mauve:     #C9A8CC;
       --terra:     #C4714A;
-      --moss:      #7A9E85;
       --charcoal:  #2D2D2D;
       --offwhite:  #FAFAF7;
     }
@@ -21,47 +23,47 @@
 
     nav {
       position: sticky; top: 0; z-index: 100;
-      background: rgba(250,250,247,0.96); backdrop-filter: blur(12px);
-      border-bottom: 1px solid rgba(26,60,42,0.1);
+      background: var(--cream); backdrop-filter: blur(12px);
+      border-bottom: 1px solid rgba(139,105,20,0.15);
       padding: 0 40px; display: flex; align-items: center;
       justify-content: space-between; height: 60px;
     }
-    .nav-logo { font-family: 'Cormorant Garamond', serif; font-size: 16px; font-style: italic; color: var(--forest); }
+    .nav-logo { font-family: 'Cormorant Garamond', serif; font-size: 17px; font-style: italic; color: var(--gold); font-weight: 600; }
     .nav-links { display: flex; gap: 24px; list-style: none; }
     .nav-links a { text-decoration: none; color: var(--charcoal); font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; transition: color 0.2s; }
-    .nav-links a:hover { color: var(--forest); }
+    .nav-links a:hover { color: var(--gold-dark); }
 
     .hero {
-      background: linear-gradient(135deg, #1A3C2A 0%, #4A7C5E 60%, #7A9E85 100%);
+      background: linear-gradient(135deg, #6B5000 0%, #8B6914 55%, #A07820 100%);
       color: white; text-align: center; padding: 100px 40px 80px;
     }
     .hero-badge { display: inline-block; background: rgba(255,255,255,0.15); border: 1px solid rgba(255,255,255,0.35); border-radius: 24px; padding: 7px 20px; font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.12em; margin-bottom: 28px; }
     .hero h1 { font-family: 'Playfair Display', serif; font-size: clamp(32px, 5vw, 60px); font-style: italic; margin-bottom: 16px; }
     .hero p { font-size: 18px; opacity: 0.88; max-width: 560px; margin: 0 auto 12px; line-height: 1.6; }
-    .hero-sub { font-size: 13px; opacity: 0.65; font-style: italic; font-family: 'Cormorant Garamond', serif; font-size: 17px; }
+    .hero-sub { font-style: italic; font-family: 'Cormorant Garamond', serif; font-size: 17px; opacity: 0.75; }
 
     .section { padding: 80px 40px; max-width: 1200px; margin: 0 auto; }
-    .section-bg { background: var(--cream); }
-    .section-bg-wrap { background: var(--cream); padding: 80px 40px; }
-    .section-title { font-family: 'Playfair Display', serif; font-size: 34px; color: var(--forest); margin-bottom: 6px; }
+    .section-cream { background: var(--cream); padding: 80px 40px; }
+    .section-mauve { background: var(--mauve); padding: 80px 40px; }
+    .section-title { font-family: 'Playfair Display', serif; font-size: 34px; color: var(--gold); margin-bottom: 6px; }
+    .section-title-white { font-family: 'Playfair Display', serif; font-size: 34px; color: white; margin-bottom: 6px; }
     .section-subtitle { color: #777; margin-bottom: 44px; font-size: 15px; }
+    .section-subtitle-white { color: rgba(255,255,255,0.8); margin-bottom: 44px; font-size: 15px; }
 
     .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(290px, 1fr)); gap: 24px; }
     .card { background: white; border-radius: 16px; overflow: hidden; box-shadow: 0 4px 20px rgba(0,0,0,0.07); transition: transform 0.2s, box-shadow 0.2s; }
     .card:hover { transform: translateY(-4px); box-shadow: 0 10px 32px rgba(0,0,0,0.12); }
     .card-preview { height: 180px; display: flex; align-items: center; justify-content: center; font-size: 44px; }
-    .card-preview-forest { background: linear-gradient(135deg, #1A3C2A 0%, #4A7C5E 100%); }
+    .card-preview-gold { background: linear-gradient(135deg, #6B5000 0%, #8B6914 100%); }
     .card-preview-terra { background: linear-gradient(135deg, #C4714A 0%, #D4956E 100%); }
-    .card-preview-sage { background: linear-gradient(135deg, #4A7C5E 0%, #7A9E85 100%); }
-    .card-preview-cream { background: linear-gradient(135deg, #F5F0E8 0%, #EDE5D8 100%); }
+    .card-preview-mauve { background: linear-gradient(135deg, #9B78A0 0%, #C9A8CC 100%); }
+    .card-preview-cream { background: linear-gradient(135deg, #F0E8D4 0%, #E4D8C0 100%); }
     .card-body { padding: 24px; }
     .card-label { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.12em; color: var(--terra); margin-bottom: 8px; }
-    .card-title { font-family: 'Playfair Display', serif; font-size: 19px; color: var(--forest); margin-bottom: 8px; }
+    .card-title { font-family: 'Playfair Display', serif; font-size: 19px; color: var(--gold-dark); margin-bottom: 8px; }
     .card-desc { font-size: 13px; color: #666; line-height: 1.65; margin-bottom: 18px; }
-    .btn { display: inline-block; padding: 10px 20px; border-radius: 8px; background: var(--forest); color: white; text-decoration: none; font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; transition: background 0.2s; }
-    .btn:hover { background: var(--sage); }
-    .btn-terra { background: var(--terra); }
-    .btn-terra:hover { background: #b5633e; }
+    .btn { display: inline-block; padding: 10px 22px; border-radius: 50px; background: var(--gold-dark); color: white; text-decoration: none; font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; transition: background 0.2s; }
+    .btn:hover { background: var(--gold); }
 
     .palette-row { display: flex; flex-wrap: wrap; gap: 14px; margin-top: 32px; }
     .swatch { border-radius: 10px; overflow: hidden; box-shadow: 0 2px 8px rgba(0,0,0,0.1); width: 110px; }
@@ -69,9 +71,9 @@
     .swatch-name { padding: 6px 8px 2px; background: white; font-size: 11px; font-weight: 700; }
     .swatch-hex { padding: 0 8px 6px; background: white; font-size: 10px; color: #999; }
 
-    blockquote { font-family: 'Cormorant Garamond', serif; font-size: 20px; font-style: italic; color: var(--forest); border-left: 3px solid var(--terra); padding-left: 20px; margin: 40px 0; line-height: 1.7; max-width: 700px; }
+    blockquote { font-family: 'Cormorant Garamond', serif; font-size: 20px; font-style: italic; color: var(--gold); border-left: 3px solid var(--terra); padding-left: 20px; margin: 40px 0; line-height: 1.7; max-width: 700px; }
 
-    footer { background: var(--forest); color: white; text-align: center; padding: 40px; }
+    footer { background: var(--gold-dark); color: white; text-align: center; padding: 40px; }
     footer p { font-size: 13px; opacity: 0.75; }
     footer strong { opacity: 1; }
   </style>
@@ -102,7 +104,7 @@
     <div class="section-subtitle">Facebook & Instagram ad variations — ready for Meta Ads Manager</div>
     <div class="grid">
       <div class="card">
-        <div class="card-preview card-preview-forest">📢</div>
+        <div class="card-preview card-preview-gold">📢</div>
         <div class="card-body">
           <div class="card-label">Paid Social</div>
           <div class="card-title">Facebook & Instagram Ad Mockups</div>
@@ -114,13 +116,13 @@
   </section>
 
   <!-- SOCIAL -->
-  <div class="section-bg-wrap" id="social">
+  <div class="section-mauve" id="social">
   <div style="max-width:1200px;margin:0 auto;">
-    <div class="section-title">Social Media</div>
-    <div class="section-subtitle">Organic content for Instagram and copy decks for all platforms</div>
+    <div class="section-title-white">Social Media</div>
+    <div class="section-subtitle-white">Organic content for Instagram and copy decks for all platforms</div>
     <div class="grid">
       <div class="card">
-        <div class="card-preview card-preview-sage">📸</div>
+        <div class="card-preview card-preview-terra">📸</div>
         <div class="card-body">
           <div class="card-label">Instagram</div>
           <div class="card-title">Feed Posts</div>
@@ -129,7 +131,7 @@
         </div>
       </div>
       <div class="card">
-        <div class="card-preview card-preview-terra">📱</div>
+        <div class="card-preview card-preview-mauve">📱</div>
         <div class="card-body">
           <div class="card-label">Instagram</div>
           <div class="card-title">Stories</div>
@@ -138,12 +140,12 @@
         </div>
       </div>
       <div class="card">
-        <div class="card-preview card-preview-forest">✍️</div>
+        <div class="card-preview card-preview-gold">✍️</div>
         <div class="card-body">
           <div class="card-label">Copy Deck</div>
           <div class="card-title">Facebook & LinkedIn Ads</div>
           <div class="card-desc">Paste-ready ad copy across 3 audience segments and 2 objectives.</div>
-          <a href="social-media/facebook-linkedin-ads.md" class="btn">View Copy</a>
+          <a href="social-media/facebook-linkedin-ads.html" class="btn">View Copy</a>
         </div>
       </div>
       <div class="card">
@@ -152,7 +154,7 @@
           <div class="card-label">Copy Deck</div>
           <div class="card-title">Twitter / X Thread</div>
           <div class="card-desc">Destigmatisation thread — built on the "Why is nobody talking about couples therapy?" angle.</div>
-          <a href="social-media/twitter-x-thread.md" class="btn">View Thread</a>
+          <a href="social-media/twitter-x-thread.html" class="btn">View Thread</a>
         </div>
       </div>
     </div>
@@ -165,7 +167,7 @@
     <div class="section-subtitle">HTML email — ready for Mailchimp, Klaviyo, or any ESP</div>
     <div class="grid">
       <div class="card">
-        <div class="card-preview card-preview-sage">✉️</div>
+        <div class="card-preview card-preview-terra">✉️</div>
         <div class="card-body">
           <div class="card-label">Email</div>
           <div class="card-title">New Client Welcome Campaign</div>
@@ -179,13 +181,13 @@
   </section>
 
   <!-- PRINT -->
-  <div class="section-bg-wrap" id="print">
+  <div class="section-cream" id="print">
   <div style="max-width:1200px;margin:0 auto;">
     <div class="section-title">Print</div>
-    <div class="section-subtitle">Print-ready assets for clinics, community boards, and events</div>
+    <div class="section-subtitle" style="color:#888;">Print-ready assets for clinics, community boards, and events</div>
     <div class="grid">
       <div class="card">
-        <div class="card-preview card-preview-forest">🖨️</div>
+        <div class="card-preview card-preview-gold">🖨️</div>
         <div class="card-body">
           <div class="card-label">Print</div>
           <div class="card-title">A4 Practice Flyer</div>
@@ -203,29 +205,34 @@
     <div class="section-subtitle">Reference swatches for consistent application across all assets</div>
     <div class="palette-row">
       <div class="swatch">
-        <div class="swatch-color" style="background:#1A3C2A;"></div>
-        <div class="swatch-name">Deep Forest</div>
-        <div class="swatch-hex">#1A3C2A</div>
+        <div class="swatch-color" style="background:#6B5000;"></div>
+        <div class="swatch-name">Deep Gold</div>
+        <div class="swatch-hex">#6B5000</div>
       </div>
       <div class="swatch">
-        <div class="swatch-color" style="background:#4A7C5E;"></div>
-        <div class="swatch-name">Sage Green</div>
-        <div class="swatch-hex">#4A7C5E</div>
+        <div class="swatch-color" style="background:#8B6914;"></div>
+        <div class="swatch-name">Brand Gold</div>
+        <div class="swatch-hex">#8B6914</div>
       </div>
       <div class="swatch">
-        <div class="swatch-color" style="background:#7A9E85;"></div>
-        <div class="swatch-name">Soft Moss</div>
-        <div class="swatch-hex">#7A9E85</div>
+        <div class="swatch-color" style="background:#A07820;"></div>
+        <div class="swatch-name">Warm Gold</div>
+        <div class="swatch-hex">#A07820</div>
+      </div>
+      <div class="swatch">
+        <div class="swatch-color" style="background:#F0E8D4;border:1px solid #ddd;"></div>
+        <div class="swatch-name">Warm Cream</div>
+        <div class="swatch-hex">#F0E8D4</div>
+      </div>
+      <div class="swatch">
+        <div class="swatch-color" style="background:#C9A8CC;"></div>
+        <div class="swatch-name">Soft Mauve</div>
+        <div class="swatch-hex">#C9A8CC</div>
       </div>
       <div class="swatch">
         <div class="swatch-color" style="background:#C4714A;"></div>
         <div class="swatch-name">Terracotta</div>
         <div class="swatch-hex">#C4714A</div>
-      </div>
-      <div class="swatch">
-        <div class="swatch-color" style="background:#F5F0E8;border:1px solid #ddd;"></div>
-        <div class="swatch-name">Warm Cream</div>
-        <div class="swatch-hex">#F5F0E8</div>
       </div>
       <div class="swatch">
         <div class="swatch-color" style="background:#2D2D2D;"></div>
