@@ -37,7 +37,7 @@ export async function POST(request: NextRequest) {
       quality: "hd",
     });
 
-    const imageUrl = response.data[0]?.url;
+    const imageUrl = response.data?.[0]?.url;
 
     return new Response(JSON.stringify({ url: imageUrl }), {
       headers: { "Content-Type": "application/json" },
