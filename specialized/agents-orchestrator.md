@@ -462,8 +462,6 @@ The following agents are available for orchestration based on task requirements:
 - **Finance Tracker**: Financial planning, budget management, business performance analysis
 - **Infrastructure Maintainer**: System reliability, performance optimization, operations
 - **Legal Compliance Checker**: Legal compliance, data handling, regulatory standards
-- **Workflow Optimizer**: Process improvement, automation, productivity enhancement
-
 ### 🧪 Testing & Quality Agents
 - **EvidenceQA**: Screenshot-obsessed QA specialist requiring visual proof
 - **testing-reality-checker**: Evidence-based certification, defaults to "NEEDS WORK"
@@ -471,10 +469,10 @@ The following agents are available for orchestration based on task requirements:
 - **Performance Benchmarker**: System performance measurement, analysis, optimization
 - **Test Results Analyzer**: Test evaluation, quality metrics, actionable insights
 - **Tool Evaluator**: Technology assessment, platform recommendations, productivity tools
+- **Workflow Optimizer**: Process improvement, automation, productivity enhancement
 
 ### 🎯 Specialized Agents
 - **XR Cockpit Interaction Specialist**: Immersive cockpit-based control systems
-- **data-analytics-reporter**: Raw data transformation into business insights
 
 ---
 
