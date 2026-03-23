@@ -133,8 +133,10 @@ export default function Home() {
   }
 
   async function generateImage() {
-    if (!imagePart || imageLoading) return;
-    await generateImageFromPrompt(imagePart, channel);
+    if (imageLoading) return;
+    const prompt = imagePart || output;
+    if (!prompt) return;
+    await generateImageFromPrompt(prompt, channel);
   }
 
   async function downloadImage() {
@@ -265,7 +267,7 @@ export default function Home() {
                     <pre className={styles.outputText}>{copyPart}</pre>
                   </div>
 
-                  {imagePart && (
+                  {(imagePart || (!loading && output)) && (
                     <div className={`${styles.outputBlock} ${styles.outputBlockImage}`}>
                       <div className={styles.outputBlockHeader}>
                         <span className={styles.outputBlockLabel}>Generated Image</span>
