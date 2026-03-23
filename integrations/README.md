@@ -14,6 +14,8 @@ supported agentic coding tools.
 - **[Cursor](#cursor)** — `.mdc` rule files in `cursor/`
 - **[Aider](#aider)** — `CONVENTIONS.md` in `aider/`
 - **[Windsurf](#windsurf)** — `.windsurfrules` in `windsurf/`
+- **[Avante.nvim](#avantenvim)** — Neovim custom prompts in `avante/`
+- **[Cognetivy](#cognetivy)** — Persona definitions in `cognetivy/`
 
 ## Quick Install
 
@@ -172,3 +174,23 @@ cd /your/project && /path/to/agency-agents/scripts/install.sh --tool windsurf
 ```
 
 See [windsurf/README.md](windsurf/README.md) for details.
+
+---
+
+## Avante.nvim
+
+Use Agency agents as custom system prompts in Avante.nvim, the Cursor-like
+AI coding assistant for Neovim. Includes trimmed prompt files optimized for
+coding assistance and a Lua snippet to switch agents on the fly.
+
+See [avante/README.md](avante/README.md) for details.
+
+---
+
+## Cognetivy
+
+Import Agency agents as persona definitions in Cognetivy's AI knowledge
+management platform. Agents map to Cognetivy personas and can be paired
+with knowledge bases for domain-specific assistants.
+
+See [cognetivy/README.md](cognetivy/README.md) for details.
