@@ -7,6 +7,8 @@
 [![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg)](https://makeapullrequest.com)
 [![Sponsor](https://img.shields.io/badge/Sponsor-%E2%9D%A4-pink?logo=github)](https://github.com/sponsors/msitarzewski)
 
+**Language / 語言**: English | [繁體中文](README.zh-TW.md)
+
 ---
 
 ## 🚀 What Is This?
@@ -329,6 +331,16 @@ Building worlds, systems, and experiences across every major engine.
 | 🎯 [Roblox Experience Designer](game-development/roblox-studio/roblox-experience-designer.md) | Engagement loops, monetization, D1/D7 retention, onboarding flow | Designing Roblox game loops, Game Passes, daily rewards, player retention |
 | 👗 [Roblox Avatar Creator](game-development/roblox-studio/roblox-avatar-creator.md) | UGC pipeline, accessory rigging, Creator Marketplace submission | Roblox UGC items, HumanoidDescription customization, in-experience avatar shops |
 
+### 🛠️ Solo Builder Division
+
+One-person army — from idea to production, no team required.
+
+| Agent | Specialty | When to Use |
+|-------|-----------|-------------|
+| 🛠️ [Solo Builder Fullstack](solo-builder/solo-builder-fullstack.md) | End-to-end solo development — design, code, test, deploy | Building and operating complete products alone |
+| 🚀 [MVP Launcher](solo-builder/solo-builder-mvp-launcher.md) | Maximum-speed MVP, hypothesis validation | Getting an idea in front of real users within 72 hours |
+| 💰 [Revenue Optimizer](solo-builder/solo-builder-revenue-optimizer.md) | Pricing strategy, conversion optimization, revenue growth | Monetizing indie products and optimizing revenue |
+
 ### 📚 Academic Division
 
 Scholarly rigor for world-building, storytelling, and narrative design.
@@ -515,6 +527,8 @@ The Agency works natively with Claude Code, and ships conversion + install scrip
 - **[Windsurf](https://codeium.com/windsurf)** — single `.windsurfrules` → `./.windsurfrules`
 - **[OpenClaw](https://github.com/openclaw/openclaw)** — `SOUL.md` + `AGENTS.md` + `IDENTITY.md` per agent
 - **[Qwen Code](https://github.com/QwenLM/qwen-code)** — `.md` SubAgent files → `~/.qwen/agents/`
+- **[Avante.nvim](https://github.com/yetone/avante.nvim)** — custom prompts for Neovim → `~/.config/nvim/prompts/agency/`
+- **[Cognetivy](https://cognetivy.com)** — persona definitions → Cognetivy dashboard
 
 ---
 
@@ -796,6 +810,7 @@ Community-maintained translations and regional adaptations. These are independen
 |----------|-----------|------|-------|
 | 🇨🇳 简体中文 (zh-CN) | [@jnMetaCode](https://github.com/jnMetaCode) | [agency-agents-zh](https://github.com/jnMetaCode/agency-agents-zh) | 100 translated agents + 9 China-market originals |
 | 🇨🇳 简体中文 (zh-CN) | [@dsclca12](https://github.com/dsclca12) | [agent-teams](https://github.com/dsclca12/agent-teams) | Independent translation with Bilibili, WeChat, Xiaohongshu localization |
+| 🇹🇼 繁體中文 (zh-TW) | In-repo | [README.zh-TW.md](README.zh-TW.md) | Traditional Chinese translation of the main README |
 
 Want to add a translation? Open an issue and we'll link it here.
 
