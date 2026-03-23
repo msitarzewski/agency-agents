@@ -1,0 +1,431 @@
+/* =============================================
+   FCC Marketing Generator — Page Styles
+   ============================================= */
+
+.main {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  background: var(--cream);
+}
+
+/* Header */
+.header {
+  background: var(--gradient-primary);
+  padding: 20px 32px;
+  box-shadow: 0 2px 16px rgba(179, 125, 0, 0.25);
+}
+
+.headerInner {
+  max-width: 1400px;
+  margin: 0 auto;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.logo {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.logoImg {
+  height: 48px;
+  width: auto;
+  object-fit: contain;
+  filter: brightness(0) invert(1);
+}
+
+.logoText {
+  display: flex;
+  flex-direction: column;
+}
+
+.logoTitle {
+  font-family: 'Playfair Display', serif;
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--offwhite);
+}
+
+.logoSub {
+  font-size: 12px;
+  color: rgba(255,255,248,0.75);
+  font-weight: 300;
+  letter-spacing: 0.03em;
+  margin-top: 2px;
+}
+
+.headerMeta {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.pill {
+  background: rgba(255,255,248,0.18);
+  border: 1px solid rgba(255,255,248,0.3);
+  color: var(--offwhite);
+  padding: 4px 12px;
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: 400;
+  letter-spacing: 0.04em;
+}
+
+/* Layout */
+.layout {
+  flex: 1;
+  display: flex;
+  max-width: 1400px;
+  margin: 0 auto;
+  width: 100%;
+  gap: 0;
+}
+
+/* Sidebar */
+.sidebar {
+  width: 340px;
+  min-width: 300px;
+  background: var(--offwhite);
+  border-right: 1px solid rgba(179, 125, 0, 0.2);
+  padding: 32px 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  overflow-y: auto;
+  max-height: calc(100vh - 88px);
+  position: sticky;
+  top: 0;
+}
+
+.sidebarTitle {
+  font-family: 'Playfair Display', serif;
+  font-size: 20px;
+  font-weight: 600;
+  color: var(--gold);
+  margin-bottom: 0;
+}
+
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.label {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--gold);
+}
+
+.optional {
+  font-weight: 400;
+  text-transform: none;
+  letter-spacing: 0;
+  color: #aaa;
+}
+
+.segmentGrid {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.segment {
+  background: var(--cream);
+  border: 1.5px solid rgba(179, 125, 0, 0.25);
+  border-radius: 8px;
+  padding: 9px 14px;
+  font-size: 13px;
+  font-family: 'Lato', sans-serif;
+  font-weight: 400;
+  color: var(--charcoal);
+  text-align: left;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.segment:hover {
+  border-color: var(--mauve);
+  background: var(--mauve-lt);
+}
+
+.segmentActive {
+  background: var(--gold);
+  border-color: var(--gold);
+  color: var(--offwhite);
+  font-weight: 700;
+}
+
+.segmentActive:hover {
+  background: #9a6c00;
+  border-color: #9a6c00;
+}
+
+.textarea {
+  width: 100%;
+  border: 1.5px solid rgba(179, 125, 0, 0.25);
+  border-radius: 8px;
+  padding: 10px 12px;
+  font-size: 13px;
+  font-family: 'Lato', sans-serif;
+  color: var(--charcoal);
+  background: var(--cream);
+  resize: vertical;
+  line-height: 1.5;
+  transition: border-color 0.15s;
+}
+
+.textarea:focus {
+  outline: none;
+  border-color: var(--mauve);
+  background: var(--offwhite);
+}
+
+.textarea::placeholder {
+  color: #bbb;
+}
+
+.actions {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.btnPrimary {
+  background: var(--gradient-primary);
+  color: var(--offwhite);
+  border: none;
+  border-radius: 10px;
+  padding: 14px 20px;
+  font-family: 'Lato', sans-serif;
+  font-size: 14px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: opacity 0.15s, transform 0.1s;
+  width: 100%;
+}
+
+.btnPrimary:hover {
+  opacity: 0.9;
+  transform: translateY(-1px);
+}
+
+.btnPrimary:active {
+  transform: translateY(0);
+}
+
+.btnStop {
+  background: var(--offwhite);
+  color: var(--gold);
+  border: 2px solid var(--gold);
+  border-radius: 10px;
+  padding: 12px 20px;
+  font-family: 'Lato', sans-serif;
+  font-size: 14px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  cursor: pointer;
+  width: 100%;
+  transition: all 0.15s;
+}
+
+.btnStop:hover {
+  background: var(--cream);
+}
+
+.btnSecondary {
+  background: transparent;
+  color: var(--gold);
+  border: 1.5px solid var(--mauve);
+  border-radius: 8px;
+  padding: 10px 20px;
+  font-family: 'Lato', sans-serif;
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+
+.btnSecondary:hover {
+  background: var(--mauve-lt);
+  border-color: var(--gold);
+}
+
+.hint {
+  font-size: 11px;
+  color: #aaa;
+  line-height: 1.5;
+  text-align: center;
+}
+
+/* Output */
+.outputSection {
+  flex: 1;
+  padding: 32px;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.emptyState {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  gap: 12px;
+  padding: 60px 32px;
+  color: var(--charcoal);
+}
+
+.emptyIcon {
+  font-size: 36px;
+  color: var(--gold-strip);
+  margin-bottom: 8px;
+}
+
+.emptyState h3 {
+  font-family: 'Playfair Display', serif;
+  font-size: 22px;
+  color: var(--gold);
+}
+
+.emptyState p {
+  font-size: 14px;
+  color: #888;
+  max-width: 360px;
+  line-height: 1.6;
+}
+
+.emptyNote {
+  font-size: 12px !important;
+  color: #bbb !important;
+  font-style: italic;
+}
+
+.outputBlock {
+  background: var(--offwhite);
+  border: 1.5px solid rgba(179, 125, 0, 0.2);
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 2px 12px rgba(179, 125, 0, 0.08);
+}
+
+.outputBlockImage {
+  border-color: var(--mauve);
+  background: #faf6ff;
+}
+
+.outputBlockHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 18px;
+  background: var(--cream);
+  border-bottom: 1px solid rgba(179, 125, 0, 0.15);
+}
+
+.outputBlockImage .outputBlockHeader {
+  background: var(--mauve-lt);
+  border-bottom-color: rgba(204, 174, 208, 0.4);
+}
+
+.outputBlockLabel {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--gold);
+}
+
+.outputBlockImage .outputBlockLabel {
+  color: #8a5a8a;
+}
+
+.copyBtn {
+  background: transparent;
+  border: 1px solid var(--mauve);
+  color: var(--gold);
+  border-radius: 6px;
+  padding: 4px 12px;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+
+.copyBtn:hover {
+  background: var(--gold);
+  color: var(--offwhite);
+  border-color: var(--gold);
+}
+
+.outputText {
+  padding: 20px 18px;
+  font-family: 'Lato', sans-serif;
+  font-size: 13.5px;
+  line-height: 1.75;
+  white-space: pre-wrap;
+  word-break: break-word;
+  color: var(--charcoal);
+}
+
+.cursor {
+  display: inline-block;
+  width: 2px;
+  height: 16px;
+  background: var(--gold-strip);
+  border-radius: 1px;
+  animation: blink 1s step-end infinite;
+  vertical-align: middle;
+  margin-left: 2px;
+}
+
+@keyframes blink {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0; }
+}
+
+.regenBar {
+  display: flex;
+  justify-content: flex-end;
+  padding-top: 4px;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .layout {
+    flex-direction: column;
+  }
+
+  .sidebar {
+    width: 100%;
+    min-width: unset;
+    max-height: none;
+    position: static;
+    border-right: none;
+    border-bottom: 1px solid rgba(179, 125, 0, 0.2);
+  }
+
+  .outputSection {
+    padding: 20px 16px;
+  }
+
+  .header {
+    padding: 16px 20px;
+  }
+}
