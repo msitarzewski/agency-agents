@@ -252,88 +252,74 @@ export default function Home() {
 
           {(output || loading) && (
             <>
-              {hasSections ? (
-                <>
-                  <div className={styles.outputBlock}>
-                    <div className={styles.outputBlockHeader}>
-                      <span className={styles.outputBlockLabel}>Marketing Copy</span>
-                      <button
-                        className={styles.copyBtn}
-                        onClick={() => copySectionText("copy")}
-                      >
-                        {copySection === "copy" ? "Copied!" : "Copy"}
-                      </button>
+              {/* Marketing copy block */}
+              <div className={styles.outputBlock}>
+                <div className={styles.outputBlockHeader}>
+                  <span className={styles.outputBlockLabel}>
+                    {loading && !copyPart ? "Generating…" : "Marketing Copy"}
+                  </span>
+                  {copyPart && (
+                    <button
+                      className={styles.copyBtn}
+                      onClick={() => copySectionText("copy")}
+                    >
+                      {copySection === "copy" ? "Copied!" : "Copy"}
+                    </button>
+                  )}
+                </div>
+                <pre className={styles.outputText}>{copyPart}</pre>
+                {loading && <span className={styles.cursor} />}
+              </div>
+
+              {/* Generated image block — always shown once generation is done */}
+              {!loading && output && (
+                <div className={`${styles.outputBlock} ${styles.outputBlockImage}`}>
+                  <div className={styles.outputBlockHeader}>
+                    <span className={styles.outputBlockLabel}>Generated Image</span>
+                    <div className={styles.headerBtns}>
+                      {!imageLoading ? (
+                        <button
+                          className={styles.btnGenerateImage}
+                          onClick={generateImage}
+                        >
+                          {generatedImage ? "Regenerate Image" : "Generate Image"}
+                        </button>
+                      ) : (
+                        <button className={styles.btnGenerateImage} disabled>
+                          Generating…
+                        </button>
+                      )}
                     </div>
-                    <pre className={styles.outputText}>{copyPart}</pre>
                   </div>
 
-                  {(imagePart || (!loading && output)) && (
-                    <div className={`${styles.outputBlock} ${styles.outputBlockImage}`}>
-                      <div className={styles.outputBlockHeader}>
-                        <span className={styles.outputBlockLabel}>Generated Image</span>
-                        <div className={styles.headerBtns}>
-                          {!imageLoading ? (
-                            <button
-                              className={styles.btnGenerateImage}
-                              onClick={generateImage}
-                            >
-                              {generatedImage ? "Regenerate Image" : "Generate Image"}
-                            </button>
-                          ) : (
-                            <button className={styles.btnGenerateImage} disabled>
-                              Generating…
-                            </button>
-                          )}
-                        </div>
-                      </div>
-
-                      {imageLoading && (
-                        <div className={styles.imageLoadingState}>
-                          <div className={styles.imageSpinner} />
-                          <p>Generating your image with DALL·E 3… this takes ~15 seconds</p>
-                        </div>
-                      )}
-
-                      {imageError && (
-                        <div className={styles.imageError}>
-                          {imageError}
-                        </div>
-                      )}
-
-                      {generatedImage && !imageLoading && (
-                        <div className={styles.imageResult}>
-                          <img
-                            src={generatedImage}
-                            alt="AI-generated marketing image"
-                            className={styles.generatedImg}
-                          />
-                          <div className={styles.imageActions}>
-                            <button className={styles.btnDownload} onClick={downloadImage}>
-                              Download Image
-                            </button>
-                            <button className={styles.btnSecondary} onClick={generateImage}>
-                              Regenerate
-                            </button>
-                          </div>
-                        </div>
-                      )}
+                  {imageLoading && (
+                    <div className={styles.imageLoadingState}>
+                      <div className={styles.imageSpinner} />
+                      <p>Generating your image with DALL·E 3… this takes ~15 seconds</p>
                     </div>
                   )}
-                </>
-              ) : (
-                <div className={styles.outputBlock}>
-                  <div className={styles.outputBlockHeader}>
-                    <span className={styles.outputBlockLabel}>
-                      {loading ? "Generating…" : "Output"}
-                    </span>
-                    {output && (
-                      <button className={styles.copyBtn} onClick={copyOutput}>
-                        {copied ? "Copied!" : "Copy All"}
-                      </button>
-                    )}
-                  </div>
-                  <pre className={styles.outputText}>{output}</pre>
-                  {loading && <span className={styles.cursor} />}
+
+                  {imageError && (
+                    <div className={styles.imageError}>{imageError}</div>
+                  )}
+
+                  {generatedImage && !imageLoading && (
+                    <div className={styles.imageResult}>
+                      <img
+                        src={generatedImage}
+                        alt="AI-generated marketing image"
+                        className={styles.generatedImg}
+                      />
+                      <div className={styles.imageActions}>
+                        <button className={styles.btnDownload} onClick={downloadImage}>
+                          Download Image
+                        </button>
+                        <button className={styles.btnSecondary} onClick={generateImage}>
+                          Regenerate
+                        </button>
+                      </div>
+                    </div>
+                  )}
                 </div>
               )}
 
