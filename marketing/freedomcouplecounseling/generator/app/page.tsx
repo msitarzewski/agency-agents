@@ -105,6 +105,7 @@ export default function Home() {
             <span className={styles.pill}>Melbourne</span>
             <span className={styles.pill}>Couples Counselling</span>
             <span className={styles.pill}>Claude AI</span>
+            <span className={styles.pill} style={{background:"#b45309",color:"#fff",fontWeight:700}}>v4 – Mockup</span>
           </div>
         </div>
       </header>
