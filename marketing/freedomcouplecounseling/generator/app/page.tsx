@@ -39,6 +39,27 @@ export default function Home() {
   const copyPart = hasSections ? output.split("--- IMAGE PROMPT ---")[0]?.trim() : output;
   const imagePart = hasSections ? output.split("--- IMAGE PROMPT ---")[1]?.trim() : "";
 
+  async function generateImageFromPrompt(prompt: string, chan: string) {
+    setImageLoading(true);
+    setImageError(null);
+    setGeneratedImage(null);
+
+    try {
+      const res = await fetch("/api/generate-image", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ prompt, channel: chan }),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error ?? "Image generation failed");
+      setGeneratedImage(data.url);
+    } catch (err) {
+      setImageError((err as Error).message ?? "Failed to generate image");
+    } finally {
+      setImageLoading(false);
+    }
+  }
+
   async function generate() {
     if (loading) return;
     setOutput("");
@@ -74,6 +95,14 @@ export default function Home() {
         result += chunk;
         setOutput(result);
       }
+
+      // Auto-generate image once content is complete
+      if (result.includes("--- IMAGE PROMPT ---")) {
+        const extractedPrompt = result.split("--- IMAGE PROMPT ---")[1]?.trim();
+        if (extractedPrompt) {
+          await generateImageFromPrompt(extractedPrompt, channel);
+        }
+      }
     } catch (err) {
       if ((err as Error).name !== "AbortError") {
         setOutput("[Error: Request failed]");
@@ -105,32 +134,15 @@ export default function Home() {
 
   async function generateImage() {
     if (!imagePart || imageLoading) return;
-    setImageLoading(true);
-    setImageError(null);
-    setGeneratedImage(null);
-
-    try {
-      const res = await fetch("/api/generate-image", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ prompt: imagePart, channel }),
-      });
-      const data = await res.json();
-      if (!res.ok) throw new Error(data.error ?? "Image generation failed");
-      setGeneratedImage(data.url);
-    } catch (err) {
-      setImageError((err as Error).message ?? "Failed to generate image");
-    } finally {
-      setImageLoading(false);
-    }
+    await generateImageFromPrompt(imagePart, channel);
   }
 
   async function downloadImage() {
     if (!generatedImage) return;
+    const proxyUrl = `/api/proxy-image?url=${encodeURIComponent(generatedImage)}`;
     const a = document.createElement("a");
-    a.href = generatedImage;
+    a.href = proxyUrl;
     a.download = `fcc-image-${Date.now()}.png`;
-    a.target = "_blank";
     a.click();
   }
 
