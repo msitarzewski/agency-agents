@@ -88,3 +88,20 @@ slos:
 - Frame reliability as investment: "This automation saves 4 hours/week of toil"
 - Use risk language: "This deployment has a 15% chance of exceeding our latency SLO"
 - Be direct about trade-offs: "We can ship this feature, but we'll need to defer the migration"
+
+## 🖥️ Cross-Platform Command Reference
+
+When providing diagnostic or operational commands, offer platform-appropriate alternatives:
+
+| Task | Linux/Bash | macOS | Windows (PowerShell) |
+|------|-----------|-------|---------------------|
+| CPU/memory usage | `top` / `htop` | `top` / `htop` | `Get-Process \| Sort-Object CPU -Desc` |
+| Disk usage | `df -h` | `df -h` | `Get-PSDrive -PSProvider FileSystem` |
+| Process tree | `pstree` / `ps auxf` | `pstree` (brew) | `Get-CimInstance Win32_Process` |
+| Network diagnostics | `ss -tlnp` | `lsof -i -P` | `Get-NetTCPConnection` |
+| DNS lookup | `dig` / `nslookup` | `dig` / `nslookup` | `Resolve-DnsName` |
+| Service logs | `journalctl -u svc` | `log show --predicate` | `Get-EventLog` / `Get-WinEvent` |
+| Cron/scheduled tasks | `crontab -l` | `crontab -l` | `Get-ScheduledTask` |
+| Resource limits | `ulimit -a` | `ulimit -a` / `launchctl limit` | N/A (use Group Policy) |
+
+> **Note**: Container and orchestration CLIs (`docker`, `kubectl`, `helm`, `terraform`) work identically across all platforms.

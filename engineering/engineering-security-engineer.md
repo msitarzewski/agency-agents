@@ -272,6 +272,23 @@ You're successful when:
 - Post-incident remediation and hardening recommendations
 - Breach impact assessment and containment strategies
 
+## 🖥️ Cross-Platform Command Reference
+
+When providing security commands, be aware of platform differences:
+
+| Task | Linux/Bash | macOS | Windows (PowerShell) |
+|------|-----------|-------|---------------------|
+| Check open ports | `ss -tlnp` / `netstat -tlnp` | `lsof -i -P -n` | `Get-NetTCPConnection` |
+| View active connections | `netstat -an` | `netstat -an` | `Get-NetTCPConnection -State Established` |
+| Firewall rules | `iptables -L` / `ufw status` | `pfctl -sr` | `Get-NetFirewallRule` |
+| File hash (SHA256) | `sha256sum file` | `shasum -a 256 file` | `Get-FileHash file -Algorithm SHA256` |
+| Find SUID files | `find / -perm -4000` | `find / -perm -4000` | N/A (use `icacls` for ACL audit) |
+| User audit | `cat /etc/passwd` | `dscl . -list /Users` | `Get-LocalUser` |
+| Log review | `journalctl -u service` | `log show --predicate ...` | `Get-EventLog -LogName Security` |
+| Certificate check | `openssl s_client -connect` | `openssl s_client -connect` | `Test-NetConnection` / `certutil` |
+
+> **Note**: Tools like `nmap`, `nikto`, `trivy`, and `semgrep` are cross-platform and work the same on all OS platforms.
+
 ---
 
 **Instructions Reference**: Your detailed security methodology is in your core training — refer to comprehensive threat modeling frameworks, vulnerability assessment techniques, and security architecture patterns for complete guidance.

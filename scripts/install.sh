@@ -130,18 +130,112 @@ check_integrations() {
 }
 
 # ---------------------------------------------------------------------------
+# Platform detection
+# ---------------------------------------------------------------------------
+detect_platform() {
+  case "$(uname -s 2>/dev/null)" in
+    Linux*)
+      if grep -qiE '(microsoft|wsl)' /proc/version 2>/dev/null; then
+        echo "wsl"
+      else
+        echo "linux"
+      fi
+      ;;
+    Darwin*)  echo "macos" ;;
+    CYGWIN*|MINGW*|MSYS*) echo "windows-gitbash" ;;
+    *)        echo "unknown" ;;
+  esac
+}
+
+PLATFORM="$(detect_platform)"
+
+# ---------------------------------------------------------------------------
+# Dynamic tool path resolution (Issue #205)
+#
+# resolve_tool_path <binary>
+#   Prints the absolute path of a tool binary if found, empty string otherwise.
+#   Uses 'command -v' (POSIX) with 'which' as fallback.
+# ---------------------------------------------------------------------------
+resolve_tool_path() {
+  local bin="$1"
+  local path=""
+  path="$(command -v "$bin" 2>/dev/null)" && [[ -n "$path" ]] && { echo "$path"; return 0; }
+  path="$(which "$bin" 2>/dev/null)"      && [[ -n "$path" ]] && { echo "$path"; return 0; }
+  return 1
+}
+
+# Associative-array-like storage for resolved paths (bash 3 compatible)
+declare -a TOOL_PATHS=()
+declare -a TOOL_NAMES=()
+
+# Store a resolved tool path for later retrieval
+store_tool_path() {
+  local name="$1" path="$2"
+  TOOL_NAMES+=("$name")
+  TOOL_PATHS+=("$path")
+}
+
+# Retrieve a stored tool path by name
+get_tool_path() {
+  local name="$1" i=0
+  for (( i=0; i<${#TOOL_NAMES[@]}; i++ )); do
+    if [[ "${TOOL_NAMES[$i]}" == "$name" ]]; then
+      echo "${TOOL_PATHS[$i]}"
+      return 0
+    fi
+  done
+  return 1
+}
+
+# ---------------------------------------------------------------------------
 # Tool detection
 # ---------------------------------------------------------------------------
-detect_claude_code() { [[ -d "${HOME}/.claude" ]]; }
-detect_copilot()      { command -v code >/dev/null 2>&1 || [[ -d "${HOME}/.github" || -d "${HOME}/.copilot" ]]; }
+detect_claude_code() {
+  local p
+  p="$(resolve_tool_path claude 2>/dev/null)" && { store_tool_path "claude" "$p"; true; } || true
+  [[ -n "$(get_tool_path claude 2>/dev/null)" ]] || [[ -d "${HOME}/.claude" ]]
+}
+detect_copilot() {
+  local p
+  p="$(resolve_tool_path code 2>/dev/null)" && { store_tool_path "code" "$p"; true; } || true
+  [[ -n "$(get_tool_path code 2>/dev/null)" ]] || [[ -d "${HOME}/.github" || -d "${HOME}/.copilot" ]]
+}
 detect_antigravity()  { [[ -d "${HOME}/.gemini/antigravity/skills" ]]; }
-detect_gemini_cli()   { command -v gemini >/dev/null 2>&1 || [[ -d "${HOME}/.gemini" ]]; }
-detect_cursor()       { command -v cursor >/dev/null 2>&1 || [[ -d "${HOME}/.cursor" ]]; }
-detect_opencode()     { command -v opencode >/dev/null 2>&1 || [[ -d "${HOME}/.config/opencode" ]]; }
-detect_aider()        { command -v aider >/dev/null 2>&1; }
-detect_openclaw()     { command -v openclaw >/dev/null 2>&1 || [[ -d "${HOME}/.openclaw" ]]; }
-detect_windsurf()     { command -v windsurf >/dev/null 2>&1 || [[ -d "${HOME}/.codeium" ]]; }
-detect_qwen()         { command -v qwen >/dev/null 2>&1 || [[ -d "${HOME}/.qwen" ]]; }
+detect_gemini_cli() {
+  local p
+  p="$(resolve_tool_path gemini 2>/dev/null)" && { store_tool_path "gemini" "$p"; true; } || true
+  [[ -n "$(get_tool_path gemini 2>/dev/null)" ]] || [[ -d "${HOME}/.gemini" ]]
+}
+detect_cursor() {
+  local p
+  p="$(resolve_tool_path cursor 2>/dev/null)" && { store_tool_path "cursor" "$p"; true; } || true
+  [[ -n "$(get_tool_path cursor 2>/dev/null)" ]] || [[ -d "${HOME}/.cursor" ]]
+}
+detect_opencode() {
+  local p
+  p="$(resolve_tool_path opencode 2>/dev/null)" && { store_tool_path "opencode" "$p"; true; } || true
+  [[ -n "$(get_tool_path opencode 2>/dev/null)" ]] || [[ -d "${HOME}/.config/opencode" ]]
+}
+detect_aider() {
+  local p
+  p="$(resolve_tool_path aider 2>/dev/null)" && { store_tool_path "aider" "$p"; true; } || true
+  [[ -n "$(get_tool_path aider 2>/dev/null)" ]]
+}
+detect_openclaw() {
+  local p
+  p="$(resolve_tool_path openclaw 2>/dev/null)" && { store_tool_path "openclaw" "$p"; true; } || true
+  [[ -n "$(get_tool_path openclaw 2>/dev/null)" ]] || [[ -d "${HOME}/.openclaw" ]]
+}
+detect_windsurf() {
+  local p
+  p="$(resolve_tool_path windsurf 2>/dev/null)" && { store_tool_path "windsurf" "$p"; true; } || true
+  [[ -n "$(get_tool_path windsurf 2>/dev/null)" ]] || [[ -d "${HOME}/.codeium" ]]
+}
+detect_qwen() {
+  local p
+  p="$(resolve_tool_path qwen 2>/dev/null)" && { store_tool_path "qwen" "$p"; true; } || true
+  [[ -n "$(get_tool_path qwen 2>/dev/null)" ]] || [[ -d "${HOME}/.qwen" ]]
+}
 
 is_detected() {
   case "$1" in
@@ -161,17 +255,36 @@ is_detected() {
 
 # Fixed-width labels: name (14) + detail (24) = 38 visible chars
 tool_label() {
+  local resolved=""
   case "$1" in
-    claude-code) printf "%-14s  %s" "Claude Code"  "(claude.ai/code)"        ;;
-    copilot)     printf "%-14s  %s" "Copilot"      "(~/.github + ~/.copilot)" ;;
+    claude-code)
+      resolved="$(get_tool_path claude 2>/dev/null)"
+      printf "%-14s  %s" "Claude Code"  "${resolved:+(${resolved}) }(claude.ai/code)" ;;
+    copilot)
+      resolved="$(get_tool_path code 2>/dev/null)"
+      printf "%-14s  %s" "Copilot"      "${resolved:+(${resolved}) }(~/.github + ~/.copilot)" ;;
     antigravity) printf "%-14s  %s" "Antigravity"  "(~/.gemini/antigravity)" ;;
-    gemini-cli)  printf "%-14s  %s" "Gemini CLI"   "(gemini extension)"      ;;
-    opencode)    printf "%-14s  %s" "OpenCode"     "(opencode.ai)"           ;;
-    openclaw)    printf "%-14s  %s" "OpenClaw"     "(~/.openclaw)"           ;;
-    cursor)      printf "%-14s  %s" "Cursor"       "(.cursor/rules)"         ;;
-    aider)       printf "%-14s  %s" "Aider"        "(CONVENTIONS.md)"        ;;
-    windsurf)    printf "%-14s  %s" "Windsurf"     "(.windsurfrules)"        ;;
-    qwen)        printf "%-14s  %s" "Qwen Code"    "(~/.qwen/agents)"        ;;
+    gemini-cli)
+      resolved="$(get_tool_path gemini 2>/dev/null)"
+      printf "%-14s  %s" "Gemini CLI"   "${resolved:+(${resolved}) }(gemini extension)" ;;
+    opencode)
+      resolved="$(get_tool_path opencode 2>/dev/null)"
+      printf "%-14s  %s" "OpenCode"     "${resolved:+(${resolved}) }(opencode.ai)" ;;
+    openclaw)
+      resolved="$(get_tool_path openclaw 2>/dev/null)"
+      printf "%-14s  %s" "OpenClaw"     "${resolved:+(${resolved}) }(~/.openclaw)" ;;
+    cursor)
+      resolved="$(get_tool_path cursor 2>/dev/null)"
+      printf "%-14s  %s" "Cursor"       "${resolved:+(${resolved}) }(.cursor/rules)" ;;
+    aider)
+      resolved="$(get_tool_path aider 2>/dev/null)"
+      printf "%-14s  %s" "Aider"        "${resolved:+(${resolved}) }(CONVENTIONS.md)" ;;
+    windsurf)
+      resolved="$(get_tool_path windsurf 2>/dev/null)"
+      printf "%-14s  %s" "Windsurf"     "${resolved:+(${resolved}) }(.windsurfrules)" ;;
+    qwen)
+      resolved="$(get_tool_path qwen 2>/dev/null)"
+      printf "%-14s  %s" "Qwen Code"    "${resolved:+(${resolved}) }(~/.qwen/agents)" ;;
   esac
 }
 
@@ -506,6 +619,15 @@ main() {
   done
 
   check_integrations
+
+  # Platform info
+  if [[ "$PLATFORM" == "wsl" ]]; then
+    warn "Running under WSL. Windows-native tools may not be detected."
+    dim "  Tip: For Windows-native installs, use scripts/install.ps1 from PowerShell."
+  elif [[ "$PLATFORM" == "windows-gitbash" ]]; then
+    warn "Running under Git Bash. Some paths may differ from native Windows."
+    dim "  Tip: For full Windows support, use scripts/install.ps1 from PowerShell."
+  fi
 
   # Validate explicit tool
   if [[ "$tool" != "all" ]]; then

@@ -82,3 +82,17 @@ git push origin --delete feat/my-feature
 - Always show the safe version of dangerous commands
 - Warn about destructive operations before suggesting them
 - Provide recovery steps alongside risky operations
+
+## 🖥️ Cross-Platform Notes
+
+Git CLI commands are cross-platform, but shell helpers differ:
+
+| Task | Linux/macOS (Bash/Zsh) | Windows (PowerShell) |
+|------|----------------------|---------------------|
+| Set env var for command | `GIT_AUTHOR_DATE="..." git commit` | `$env:GIT_AUTHOR_DATE="..."; git commit` |
+| Find files in repo | `find . -name "*.js"` | `Get-ChildItem -Recurse -Filter "*.js"` |
+| Pipe grep on log | `git log --oneline \| grep fix` | `git log --oneline \| Select-String fix` |
+| Edit global config | `git config --global -e` (opens `$EDITOR`) | `git config --global -e` (opens default editor) |
+| Line ending config | `git config core.autocrlf input` | `git config core.autocrlf true` |
+
+> **Tip**: Always set `core.autocrlf` appropriately for your OS. Use `.gitattributes` for project-wide line ending rules.
