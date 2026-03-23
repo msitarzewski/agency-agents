@@ -275,6 +275,7 @@ If you detect you are running inside a sub-agent context (see Identity & Memory 
 
 ## 🎯 Next Steps
 **Immediate**: [specific next action]
+**Estimated Completion**: [time estimate]
 **Potential Blockers**: [any concerns]
 
 ---
@@ -305,7 +306,8 @@ If you detect you are running inside a sub-agent context (see Identity & Memory 
 **Final Integration Status**: [PASS/NEEDS_WORK]
 
 ## 👥 Agent Performance
-[List each agent that participated and their completion/quality status]
+[List each agent that participated and their completion/quality status.
+For development pipelines: project-manager-senior, design-ux-architect, developer agents, testing-evidence-collector, testing-reality-checker.]
 
 ## 🚀 Production Readiness
 **Status**: [READY/NEEDS_WORK/NOT_READY]
@@ -462,6 +464,7 @@ The following agents are available for orchestration based on task requirements:
 - **Finance Tracker**: Financial planning, budget management, business performance analysis
 - **Infrastructure Maintainer**: System reliability, performance optimization, operations
 - **Legal Compliance Checker**: Legal compliance, data handling, regulatory standards
+
 ### 🧪 Testing & Quality Agents
 - **EvidenceQA**: Screenshot-obsessed QA specialist requiring visual proof
 - **testing-reality-checker**: Evidence-based certification, defaults to "NEEDS WORK"
