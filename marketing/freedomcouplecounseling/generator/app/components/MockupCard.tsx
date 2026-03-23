@@ -8,6 +8,8 @@ interface Props {
   output: string;
 }
 
+const LOGO = "https://static.showit.co/400/t6v6SWjZ3RL-qNDvah52ng/shared/freedom_couple_counselling_logo_master_rgb_transparent_bg.png";
+
 const F = "#1A3C2A"; // forest
 const S = "#4A7C5E"; // sage
 const T = "#C4714A"; // terra
@@ -163,11 +165,11 @@ function IGPost({ gradient, headline, caption, hashtags }: {
       {/* Header */}
       <div style={{ padding: "10px 14px", display: "flex", alignItems: "center", gap: 10 }}>
         <div style={{
-          width: 32, height: 32, borderRadius: "50%",
-          background: `linear-gradient(135deg, ${F}, ${S})`,
-          display: "flex", alignItems: "center", justifyContent: "center",
-          color: "white", fontSize: 14, flexShrink: 0,
-        }}>🌿</div>
+          width: 32, height: 32, borderRadius: "50%", background: "white",
+          overflow: "hidden", flexShrink: 0,
+        }}>
+          <img src={LOGO} alt="FCC" style={{ width: "100%", height: "100%", objectFit: "contain" }} />
+        </div>
         <div>
           <div style={{ fontSize: 13, fontWeight: 700 }}>freedomcouplecounselling</div>
           <div style={{ fontSize: 11, color: "#999" }}>Melbourne, Victoria</div>
@@ -244,10 +246,9 @@ function IGStory({ gradient, headline, caption }: {
           ))}
         </div>
         <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-          <div style={{
-            width: 28, height: 28, borderRadius: "50%", background: "white",
-            display: "flex", alignItems: "center", justifyContent: "center", fontSize: 14,
-          }}>🌿</div>
+          <div style={{ width: 28, height: 28, borderRadius: "50%", background: "white", overflow: "hidden" }}>
+            <img src={LOGO} alt="FCC" style={{ width: "100%", height: "100%", objectFit: "contain" }} />
+          </div>
           <div>
             <div style={{ color: "white", fontSize: 12, fontWeight: 700 }}>freedomcouplecounselling</div>
             <div style={{ color: "rgba(255,255,255,0.6)", fontSize: 11 }}>Now</div>
@@ -294,11 +295,11 @@ function FBCard({ gradient, headline, caption, isLinkedIn }: {
       {/* Header */}
       <div style={{ padding: "12px 14px", display: "flex", alignItems: "center", gap: 10 }}>
         <div style={{
-          width: 40, height: 40, borderRadius: "50%",
-          background: `linear-gradient(135deg, ${F}, ${S})`,
-          display: "flex", alignItems: "center", justifyContent: "center",
-          color: "white", fontSize: 16, flexShrink: 0,
-        }}>🌿</div>
+          width: 40, height: 40, borderRadius: "50%", background: "white",
+          overflow: "hidden", flexShrink: 0,
+        }}>
+          <img src={LOGO} alt="FCC" style={{ width: "100%", height: "100%", objectFit: "contain" }} />
+        </div>
         <div>
           <div style={{ fontWeight: 700, fontSize: 14 }}>Freedom Couple Counselling</div>
           <div style={{ fontSize: 12, color: "#666" }}>{isLinkedIn ? "Promoted · 🌐" : "Sponsored · 🌐"}</div>
@@ -408,11 +409,11 @@ function TweetCard({ gradient, headline, caption, isTikTok }: {
     }}>
       <div style={{ padding: "16px 16px 12px", display: "flex", gap: 12 }}>
         <div style={{
-          width: 44, height: 44, borderRadius: "50%",
-          background: `linear-gradient(135deg, ${F}, ${S})`,
-          display: "flex", alignItems: "center", justifyContent: "center",
-          color: "white", fontSize: 18, flexShrink: 0,
-        }}>🌿</div>
+          width: 44, height: 44, borderRadius: "50%", background: "white",
+          overflow: "hidden", flexShrink: 0,
+        }}>
+          <img src={LOGO} alt="FCC" style={{ width: "100%", height: "100%", objectFit: "contain" }} />
+        </div>
         <div style={{ flex: 1 }}>
           <div style={{ fontWeight: 700, fontSize: 15 }}>Freedom Couple Counselling</div>
           <div style={{ color: "#666", fontSize: 14 }}>@freedomcouplecounselling</div>
