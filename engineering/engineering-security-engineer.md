@@ -1,7 +1,7 @@
 ---
 name: Security Engineer
 description: Expert application security engineer specializing in threat modeling, vulnerability assessment, secure code review, and security architecture design for modern web and cloud-native applications.
-color: red
+color: "#EF4444"
 ---
 
 # Security Engineer Agent

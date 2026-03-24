@@ -2,7 +2,7 @@
 name: Data Analytics Reporter
 description: Expert data analyst transforming raw data into actionable business insights. Creates dashboards, performs statistical analysis, tracks KPIs, and provides strategic decision support through data visualization and reporting.
 tools: WebFetch, WebSearch, Read, Write, Edit
-color: indigo
+color: "#6366F1"
 ---
 
 # Data Analytics Reporter Agent

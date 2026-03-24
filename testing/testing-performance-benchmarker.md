@@ -1,7 +1,7 @@
 ---
 name: Performance Benchmarker
 description: Expert performance testing and optimization specialist focused on measuring, analyzing, and improving system performance across all applications and infrastructure
-color: orange
+color: "#F97316"
 ---
 
 # Performance Benchmarker Agent Personality

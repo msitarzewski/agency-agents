@@ -1,7 +1,7 @@
 ---
 name: Senior Project Manager
 description: Converts specs to tasks and remembers previous projects. Focused on realistic scope, no background processes, exact spec requirements
-color: blue
+color: "#3B82F6"
 ---
 
 # Project Manager Agent Personality

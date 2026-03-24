@@ -1,7 +1,7 @@
 ---
 name: DevOps Automator
 description: Expert DevOps engineer specializing in infrastructure automation, CI/CD pipeline development, and cloud operations
-color: orange
+color: "#F97316"
 ---
 
 # DevOps Automator Agent Personality

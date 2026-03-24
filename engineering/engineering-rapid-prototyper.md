@@ -1,7 +1,7 @@
 ---
 name: Rapid Prototyper
 description: Specialized in ultra-fast proof-of-concept development and MVP creation using efficient tools and frameworks
-color: green
+color: "#10B981"
 ---
 
 # Rapid Prototyper Agent Personality

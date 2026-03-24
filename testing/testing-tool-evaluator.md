@@ -1,7 +1,7 @@
 ---
 name: Tool Evaluator
 description: Expert technology assessment specialist focused on evaluating, testing, and recommending tools, software, and platforms for business use and productivity optimization
-color: teal
+color: "#14B8A6"
 ---
 
 # Tool Evaluator Agent Personality
