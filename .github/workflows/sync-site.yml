@@ -1,0 +1,50 @@
+name: Sync agencyagents.dev on agent changes
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - '**.md'
+      - 'manifest.json'
+      - '*/**.md'
+
+jobs:
+  generate-manifest:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Install dependencies
+        run: npm install gray-matter
+
+      - name: Generate manifest.json
+        run: node .github/scripts/generate-manifest.js
+
+      - name: Commit manifest if changed
+        run: |
+          git config --local user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git config --local user.name "github-actions[bot]"
+          git add manifest.json
+          git diff --staged --quiet && echo "No changes to manifest" || (git commit -m "chore: auto-update manifest.json [skip ci]" && git push)
+
+  trigger-cloudflare-rebuild:
+    runs-on: ubuntu-latest
+    needs: generate-manifest
+    steps:
+      - name: Trigger Cloudflare Pages deploy
+        run: |
+          RESPONSE=$(curl -s -o /dev/null -w "%{http_code}" -X POST \
+            "${{ secrets.CLOUDFLARE_DEPLOY_HOOK }}")
+          
+          if [ "$RESPONSE" = "200" ] || [ "$RESPONSE" = "201" ]; then
+            echo "✅ Cloudflare Pages deploy triggered successfully"
+          else
+            echo "❌ Failed to trigger deploy. HTTP status: $RESPONSE"
+            exit 1
+          fi
