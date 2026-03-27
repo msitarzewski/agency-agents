@@ -14,7 +14,7 @@
 #   copilot      -- Copy agents to ~/.github/agents/ and ~/.copilot/agents/
 #   antigravity  -- Copy skills to ~/.gemini/antigravity/skills/
 #   gemini-cli   -- Install extension to ~/.gemini/extensions/agency-agents/
-#   opencode     -- Copy agents to .opencode/agent/ in current directory
+#   opencode     -- Copy agents to .opencode/agents/ in current directory
 #   cursor       -- Copy rules to .cursor/rules/ in current directory
 #   aider        -- Copy CONVENTIONS.md to current directory
 #   windsurf     -- Copy .windsurfrules to current directory
@@ -373,16 +373,25 @@ install_gemini_cli() {
 }
 
 install_opencode() {
-  local src="$INTEGRATIONS/opencode/agents"
+  local src="$INTEGRATIONS/opencode"
   local dest="${PWD}/.opencode/agents"
   local count=0
   [[ -d "$src" ]] || { err "integrations/opencode missing. Run convert.sh first."; return 1; }
+  # Support both flat layout (integrations/opencode/*.md) and nested (integrations/opencode/agents/*.md)
+  local search_dir="$src"
+  [[ -d "$src/agents" ]] && search_dir="$src/agents"
   mkdir -p "$dest"
   local f
   while IFS= read -r -d '' f; do
+    local base; base="$(basename "$f")"
+    [[ "$base" == "README.md" ]] && continue
     cp "$f" "$dest/"; (( count++ )) || true
-  done < <(find "$src" -maxdepth 1 -name "*.md" -print0)
-  ok "OpenCode: $count agents -> $dest"
+  done < <(find "$search_dir" -maxdepth 1 -name "*.md" -print0)
+  if (( count == 0 )); then
+    warn "OpenCode: no agent files found in $search_dir. Run convert.sh --tool opencode first."
+  else
+    ok "OpenCode: $count agents -> $dest"
+  fi
   warn "OpenCode: project-scoped. Run from your project root to install there."
 }
 
