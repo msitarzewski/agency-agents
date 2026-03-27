@@ -345,6 +345,36 @@ Scholarly rigor for world-building, storytelling, and narrative design.
 
 ---
 
+## ⚡ Skills — The Lightweight Alternative
+
+**Skills** are the token-efficient complement to Agents. Where agents give Claude a persona to inhabit, skills give Claude a task to execute.
+
+| | Agents | Skills |
+|---|---|---|
+| Tells Claude | Who to be | What to do |
+| Lines per file | 100–400 | 20–50 |
+| Token cost | High | Low |
+| Best for | Long sessions, personality consistency | One-shot tasks, high-frequency use |
+
+20 production-ready skills across Engineering, Product, Content, Sales, Testing, and Design are in the [`skills/`](skills/) directory.
+
+```bash
+# Install all skills for Claude Code
+cp -r skills/engineering skills/product skills/content \
+      skills/sales skills/testing skills/design \
+      ~/.claude/commands/
+
+# Then invoke in any Claude Code session
+/code-review
+/debug
+/prd
+/outreach
+```
+
+→ **[Browse all skills and the skill format](skills/README.md)**
+
+---
+
 ## 🎯 Real-World Use Cases
 
 ### Scenario 1: Building a Startup MVP
