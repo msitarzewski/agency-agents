@@ -416,6 +416,16 @@ See the **[Nexus Spatial Discovery Exercise](examples/nexus-spatial-discovery.md
 
 ---
 
+## 🛠️ Built with Agency Agents
+
+Projects and tools that use Agency Agents as their agent source:
+
+- **[AgentCrow](https://github.com/jee599/agentcrow)** — Auto agent router for Claude Code. Wraps Agency Agents into an npm package with auto-decomposition, fuzzy matching, and one-line setup (`npm i -g agentcrow && agentcrow init`). 144 agents, 118 tests, 12 language READMEs.
+
+> Built something with Agency Agents? Open a PR to add it here!
+
+---
+
 ## 🤝 Contributing
 
 We welcome contributions! Here's how you can help:
