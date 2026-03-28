@@ -1,0 +1,43 @@
+{
+  "name": "agency-agents",
+  "version": "0.1.0",
+  "description": "Official Codex plugin export for The Agency agents catalog.",
+  "author": {
+    "name": "The Agency Contributors",
+    "url": "https://github.com/msitarzewski/agency-agents"
+  },
+  "homepage": "https://github.com/msitarzewski/agency-agents",
+  "repository": "https://github.com/msitarzewski/agency-agents",
+  "license": "MIT",
+  "keywords": [
+    "agents",
+    "agency",
+    "delegation",
+    "codex",
+    "skills"
+  ],
+  "skills": "./skills/",
+  "interface": {
+    "displayName": "Agency Agents",
+    "shortDescription": "Route Codex tasks to imported Agency specialists.",
+    "longDescription": "A Codex plugin export for The Agency. Each specialist agent is exposed as a local Codex skill, with a routing manifest for fast matching.",
+    "developerName": "The Agency Contributors",
+    "category": "Coding",
+    "capabilities": [
+      "Interactive",
+      "Write"
+    ],
+    "websiteURL": "https://github.com/msitarzewski/agency-agents",
+    "privacyPolicyURL": "https://github.com/msitarzewski/agency-agents",
+    "termsOfServiceURL": "https://github.com/msitarzewski/agency-agents",
+    "defaultPrompt": [
+      "Route this task to the right Agency Agent",
+      "Use a specialist agent for this task",
+      "Find the best imported agent for this job"
+    ],
+    "brandColor": "#0F766E",
+    "composerIcon": "./assets/agency-agents.svg",
+    "logo": "./assets/agency-agents.svg",
+    "screenshots": []
+  }
+}

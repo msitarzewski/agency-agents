@@ -44,7 +44,7 @@ Each agent file contains:
 
 Browse the agents below and copy/adapt the ones you need!
 
-### Option 3: Use with Other Tools (Cursor, Aider, Windsurf, Gemini CLI, OpenCode, Kimi Code)
+### Option 3: Use with Other Tools (Codex, Cursor, Aider, Windsurf, Gemini CLI, OpenCode, Kimi Code)
 
 ```bash
 # Step 1 -- generate integration files for all supported tools
@@ -59,6 +59,7 @@ Browse the agents below and copy/adapt the ones you need!
 ./scripts/install.sh --tool aider
 ./scripts/install.sh --tool windsurf
 ./scripts/install.sh --tool kimi
+./scripts/install.sh --tool codex
 ```
 
 See the [Multi-Tool Integrations](#-multi-tool-integrations) section below for full details.
@@ -522,6 +523,7 @@ The Agency works natively with Claude Code, and ships conversion + install scrip
 - **[OpenClaw](https://github.com/openclaw/openclaw)** — `SOUL.md` + `AGENTS.md` + `IDENTITY.md` per agent
 - **[Qwen Code](https://github.com/QwenLM/qwen-code)** — `.md` SubAgent files → `~/.qwen/agents/`
 - **[Kimi Code](https://github.com/MoonshotAI/kimi-cli)** — YAML agent specs → `~/.config/kimi/agents/`
+- **Codex** — local plugin export with `.codex-plugin/` + `skills/` + routing manifest → `~/.codex/plugins/agency-agents/`
 
 ---
 
@@ -554,13 +556,14 @@ The installer scans your system for installed tools, shows a checkbox UI, and le
   [ ]  4)  [ ]  Gemini CLI      (gemini extension)
   [ ]  5)  [ ]  OpenCode        (opencode.ai)
   [ ]  6)  [ ]  OpenClaw        (~/.openclaw)
-  [x]  7)  [*]  Cursor          (.cursor/rules)
-  [ ]  8)  [ ]  Aider           (CONVENTIONS.md)
-  [ ]  9)  [ ]  Windsurf        (.windsurfrules)
-  [ ] 10)  [ ]  Qwen Code       (~/.qwen/agents)
-  [ ] 11)  [ ]  Kimi Code       (~/.config/kimi/agents)
+  [x]  7)  [*]  Codex           (~/.codex/plugins)
+  [x]  8)  [*]  Cursor          (.cursor/rules)
+  [ ]  9)  [ ]  Aider           (CONVENTIONS.md)
+  [ ] 10)  [ ]  Windsurf        (.windsurfrules)
+  [ ] 11)  [ ]  Qwen Code       (~/.qwen/agents)
+  [ ] 12)  [ ]  Kimi Code       (~/.config/kimi/agents)
 
-  [1-11] toggle   [a] all   [n] none   [d] detected
+  [1-12] toggle   [a] all   [n] none   [d] detected
   [Enter] install   [q] quit
 ```
 
@@ -570,6 +573,7 @@ The installer scans your system for installed tools, shows a checkbox UI, and le
 ./scripts/install.sh --tool opencode
 ./scripts/install.sh --tool openclaw
 ./scripts/install.sh --tool antigravity
+./scripts/install.sh --tool codex
 ```
 
 **Non-interactive (CI/scripts):**
@@ -750,6 +754,25 @@ See [integrations/openclaw/README.md](integrations/openclaw/README.md) for detai
 </details>
 
 <details>
+<summary><strong>Codex</strong></summary>
+
+Codex installs as a local plugin with one imported skill per agent plus a routing manifest.
+
+```bash
+# Convert and install
+./scripts/convert.sh --tool codex
+./scripts/install.sh --tool codex
+```
+
+By default the plugin is copied to `~/.codex/plugins/agency-agents/` (or `$CODEX_HOME/plugins/agency-agents/` when `CODEX_HOME` is set).
+
+This integration exports The Agency as Codex skills. It is intentionally separate from the native OpenClaw runtime format.
+
+See [integrations/codex/README.md](integrations/codex/README.md) for details.
+
+</details>
+
+<details>
 <summary><strong>Qwen Code</strong></summary>
 
 SubAgents are installed to `.qwen/agents/` in your project root (project-scoped).
@@ -814,7 +837,7 @@ When you add new agents or edit existing ones, regenerate all integration files:
 
 - [ ] Interactive agent selector web tool
 - [x] Multi-agent workflow examples -- see [examples/](examples/)
-- [x] Multi-tool integration scripts (Claude Code, GitHub Copilot, Antigravity, Gemini CLI, OpenCode, OpenClaw, Cursor, Aider, Windsurf, Qwen Code, Kimi Code)
+- [x] Multi-tool integration scripts (Claude Code, GitHub Copilot, Antigravity, Gemini CLI, OpenCode, OpenClaw, Codex, Cursor, Aider, Windsurf, Qwen Code, Kimi Code)
 - [ ] Video tutorials on agent design
 - [ ] Community agent marketplace
 - [ ] Agent "personality quiz" for project matching

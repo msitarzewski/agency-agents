@@ -19,6 +19,7 @@
 #   openclaw     — OpenClaw SOUL.md files (openclaw_workspace/<agent>/SOUL.md)
 #   qwen         — Qwen Code SubAgent files (~/.qwen/agents/*.md)
 #   kimi         — Kimi Code CLI agent files (~/.config/kimi/agents/)
+#   codex        — Codex plugin with .codex-plugin + skills/ + references/
 #   all          — All tools (default)
 #
 # Output is written to integrations/<tool>/ relative to the repo root.
@@ -407,6 +408,121 @@ ${body}
 HEREDOC
 }
 
+convert_codex() {
+  local file="$1"
+  local name slug outdir
+
+  name="$(get_field "name" "$file")"
+  slug="$(slugify "$name")"
+  outdir="$OUT_DIR/codex/skills/$slug"
+  mkdir -p "$outdir"
+
+  # Codex local plugin format: one skill folder per agent, preserving the
+  # original frontmatter/body so the imported agent stays faithful to source.
+  cp "$file" "$outdir/SKILL.md"
+}
+
+write_codex_plugin_manifest() {
+  mkdir -p "$OUT_DIR/codex/.codex-plugin"
+  cat > "$OUT_DIR/codex/.codex-plugin/plugin.json" <<'HEREDOC'
+{
+  "name": "agency-agents",
+  "version": "0.1.0",
+  "description": "Official Codex plugin export for The Agency agents catalog.",
+  "author": {
+    "name": "The Agency Contributors",
+    "url": "https://github.com/msitarzewski/agency-agents"
+  },
+  "homepage": "https://github.com/msitarzewski/agency-agents",
+  "repository": "https://github.com/msitarzewski/agency-agents",
+  "license": "MIT",
+  "keywords": [
+    "agents",
+    "agency",
+    "delegation",
+    "codex",
+    "skills"
+  ],
+  "skills": "./skills/",
+  "interface": {
+    "displayName": "Agency Agents",
+    "shortDescription": "Route Codex tasks to imported Agency specialists.",
+    "longDescription": "A Codex plugin export for The Agency. Each specialist agent is exposed as a local Codex skill, with a routing manifest for fast matching.",
+    "developerName": "The Agency Contributors",
+    "category": "Coding",
+    "capabilities": [
+      "Interactive",
+      "Write"
+    ],
+    "websiteURL": "https://github.com/msitarzewski/agency-agents",
+    "privacyPolicyURL": "https://github.com/msitarzewski/agency-agents",
+    "termsOfServiceURL": "https://github.com/msitarzewski/agency-agents",
+    "defaultPrompt": [
+      "Route this task to the right Agency Agent",
+      "Use a specialist agent for this task",
+      "Find the best imported agent for this job"
+    ],
+    "brandColor": "#0F766E",
+    "composerIcon": "./assets/agency-agents.svg",
+    "logo": "./assets/agency-agents.svg",
+    "screenshots": []
+  }
+}
+HEREDOC
+}
+
+write_codex_asset() {
+  mkdir -p "$OUT_DIR/codex/assets"
+  cat > "$OUT_DIR/codex/assets/agency-agents.svg" <<'HEREDOC'
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" role="img" aria-label="Agency Agents">
+  <rect width="128" height="128" rx="24" fill="#0F766E"/>
+  <circle cx="40" cy="46" r="14" fill="#CCFBF1"/>
+  <circle cx="88" cy="46" r="14" fill="#99F6E4"/>
+  <path d="M24 96c6-18 18-27 36-27s30 9 36 27" fill="none" stroke="#CCFBF1" stroke-width="10" stroke-linecap="round"/>
+  <path d="M48 88c4-10 10-15 16-15s12 5 16 15" fill="none" stroke="#134E4A" stroke-width="8" stroke-linecap="round"/>
+</svg>
+HEREDOC
+}
+
+write_codex_manifest() {
+  local total="$1"
+  mkdir -p "$OUT_DIR/codex/references"
+  {
+    echo "---"
+    echo "name: Agents Manifest"
+    echo "description: Index of available Agency Agents for Codex routing"
+    echo "---"
+    echo
+    echo "# Agents Manifest — ${total} agents"
+    echo
+    echo "Source: msitarzewski/agency-agents"
+    echo "Generated: ${TODAY}"
+    echo
+    echo "## Routing note"
+    echo
+    echo "Use this manifest to find the best specialist before opening a skill in \`skills/<agent-slug>/SKILL.md\`."
+    echo
+    for dir in "${AGENT_DIRS[@]}"; do
+      local dirpath="$REPO_ROOT/$dir"
+      [[ -d "$dirpath" ]] || continue
+      local pretty
+      pretty="$(echo "$dir" | tr '-' ' ' | sed 's/\b\(.\)/\u\1/g')"
+      echo "## ${pretty}"
+      while IFS= read -r -d '' file; do
+        local first_line name description slug
+        first_line="$(head -1 "$file")"
+        [[ "$first_line" == "---" ]] || continue
+        name="$(get_field "name" "$file")"
+        description="$(get_field "description" "$file")"
+        [[ -n "$name" ]] || continue
+        slug="$(slugify "$name")"
+        echo "- \`${slug}\` — ${name}: ${description}"
+      done < <(find "$dirpath" -name "*.md" -type f -print0 | sort -z)
+      echo
+    done
+  } > "$OUT_DIR/codex/references/AGENTS-MANIFEST.md"
+}
+
 # Aider and Windsurf are single-file formats — accumulate into temp files
 # then write at the end.
 AIDER_TMP="$(mktemp)"
@@ -505,6 +621,7 @@ run_conversions() {
         openclaw)    convert_openclaw    "$file" ;;
         qwen)        convert_qwen        "$file" ;;
         kimi)        convert_kimi        "$file" ;;
+        codex)       convert_codex       "$file" ;;
         aider)       accumulate_aider    "$file" ;;
         windsurf)    accumulate_windsurf "$file" ;;
       esac
@@ -535,7 +652,7 @@ main() {
     esac
   done
 
-  local valid_tools=("antigravity" "gemini-cli" "opencode" "cursor" "aider" "windsurf" "openclaw" "qwen" "kimi" "all")
+  local valid_tools=("antigravity" "gemini-cli" "opencode" "cursor" "aider" "windsurf" "openclaw" "qwen" "kimi" "codex" "all")
   local valid=false
   for t in "${valid_tools[@]}"; do [[ "$t" == "$tool" ]] && valid=true && break; done
   if ! $valid; then
@@ -554,7 +671,7 @@ main() {
 
   local tools_to_run=()
   if [[ "$tool" == "all" ]]; then
-    tools_to_run=("antigravity" "gemini-cli" "opencode" "cursor" "aider" "windsurf" "openclaw" "qwen" "kimi")
+    tools_to_run=("antigravity" "gemini-cli" "opencode" "cursor" "aider" "windsurf" "openclaw" "qwen" "kimi" "codex")
   else
     tools_to_run=("$tool")
   fi
@@ -565,7 +682,7 @@ main() {
 
   if $use_parallel && [[ "$tool" == "all" ]]; then
     # Tools that write to separate dirs can run in parallel; buffer output so each tool's output stays together
-    local parallel_tools=(antigravity gemini-cli opencode cursor openclaw qwen)
+    local parallel_tools=(antigravity gemini-cli opencode cursor openclaw qwen codex)
     local parallel_out_dir
     parallel_out_dir="$(mktemp -d)"
     info "Converting: ${#parallel_tools[@]}/${n_tools} tools in parallel (output buffered per tool)..."
@@ -609,6 +726,13 @@ main() {
 }
 HEREDOC
         info "Wrote gemini-extension.json"
+      fi
+
+      if [[ "$t" == "codex" ]]; then
+        write_codex_plugin_manifest
+        write_codex_asset
+        write_codex_manifest "$count"
+        info "Wrote Codex plugin manifest, asset, and routing manifest"
       fi
 
       info "Converted $count agents for $t"
