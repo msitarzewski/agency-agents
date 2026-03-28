@@ -810,6 +810,216 @@ When you add new agents or edit existing ones, regenerate all integration files:
 
 ---
 
+## 📇 Agent Index
+
+An auto-generated index of every agent in the repository. To regenerate, run `./scripts/generate-readme-agent-index.sh`.
+
+<!-- BEGIN GENERATED AGENT INDEX -->
+
+### Engineering
+
+- [AI Data Remediation Engineer](engineering/engineering-ai-data-remediation-engineer.md)
+- [AI Engineer](engineering/engineering-ai-engineer.md)
+- [Autonomous Optimization Architect](engineering/engineering-autonomous-optimization-architect.md)
+- [Backend Architect](engineering/engineering-backend-architect.md)
+- [CMS Developer](engineering/engineering-cms-developer.md)
+- [Code Reviewer](engineering/engineering-code-reviewer.md)
+- [Data Engineer](engineering/engineering-data-engineer.md)
+- [Database Optimizer](engineering/engineering-database-optimizer.md)
+- [DevOps Automator](engineering/engineering-devops-automator.md)
+- [Email Intelligence Engineer](engineering/engineering-email-intelligence-engineer.md)
+- [Embedded Firmware Engineer](engineering/engineering-embedded-firmware-engineer.md)
+- [Feishu Integration Developer](engineering/engineering-feishu-integration-developer.md)
+- [Filament Optimization Specialist](engineering/engineering-filament-optimization-specialist.md)
+- [Frontend Developer](engineering/engineering-frontend-developer.md)
+- [Git Workflow Master](engineering/engineering-git-workflow-master.md)
+- [Incident Response Commander](engineering/engineering-incident-response-commander.md)
+- [Mobile App Builder](engineering/engineering-mobile-app-builder.md)
+- [Rapid Prototyper](engineering/engineering-rapid-prototyper.md)
+- [Security Engineer](engineering/engineering-security-engineer.md)
+- [Senior Developer](engineering/engineering-senior-developer.md)
+- [Software Architect](engineering/engineering-software-architect.md)
+- [Solidity Smart Contract Engineer](engineering/engineering-solidity-smart-contract-engineer.md)
+- [SRE (Site Reliability Engineer)](engineering/engineering-sre.md)
+- [Technical Writer](engineering/engineering-technical-writer.md)
+- [Threat Detection Engineer](engineering/engineering-threat-detection-engineer.md)
+- [WeChat Mini Program Developer](engineering/engineering-wechat-mini-program-developer.md)
+
+### Design
+
+- [Brand Guardian](design/design-brand-guardian.md)
+- [Image Prompt Engineer](design/design-image-prompt-engineer.md)
+- [Inclusive Visuals Specialist](design/design-inclusive-visuals-specialist.md)
+- [UI Designer](design/design-ui-designer.md)
+- [UX Architect](design/design-ux-architect.md)
+- [UX Researcher](design/design-ux-researcher.md)
+- [Visual Storyteller](design/design-visual-storyteller.md)
+- [Whimsy Injector](design/design-whimsy-injector.md)
+
+### Paid Media
+
+- [Paid Media Auditor](paid-media/paid-media-auditor.md)
+- [Ad Creative Strategist](paid-media/paid-media-creative-strategist.md)
+- [Paid Social Strategist](paid-media/paid-media-paid-social-strategist.md)
+- [PPC Campaign Strategist](paid-media/paid-media-ppc-strategist.md)
+- [Programmatic & Display Buyer](paid-media/paid-media-programmatic-buyer.md)
+- [Search Query Analyst](paid-media/paid-media-search-query-analyst.md)
+- [Tracking & Measurement Specialist](paid-media/paid-media-tracking-specialist.md)
+
+### Sales
+
+- [Account Strategist](sales/sales-account-strategist.md)
+- [Sales Coach](sales/sales-coach.md)
+- [Deal Strategist](sales/sales-deal-strategist.md)
+- [Discovery Coach](sales/sales-discovery-coach.md)
+- [Sales Engineer](sales/sales-engineer.md)
+- [Outbound Strategist](sales/sales-outbound-strategist.md)
+- [Pipeline Analyst](sales/sales-pipeline-analyst.md)
+- [Proposal Strategist](sales/sales-proposal-strategist.md)
+
+### Marketing
+
+- [AI Citation Strategist](marketing/marketing-ai-citation-strategist.md)
+- [App Store Optimizer](marketing/marketing-app-store-optimizer.md)
+- [Baidu SEO Specialist](marketing/marketing-baidu-seo-specialist.md)
+- [Bilibili Content Strategist](marketing/marketing-bilibili-content-strategist.md)
+- [Book Co-Author](marketing/marketing-book-co-author.md)
+- [Carousel Growth Engine](marketing/marketing-carousel-growth-engine.md)
+- [China E-Commerce Operator](marketing/marketing-china-ecommerce-operator.md)
+- [China Market Localization Strategist](marketing/marketing-china-market-localization-strategist.md)
+- [Content Creator](marketing/marketing-content-creator.md)
+- [Cross-Border E-Commerce Specialist](marketing/marketing-cross-border-ecommerce.md)
+- [Douyin Strategist](marketing/marketing-douyin-strategist.md)
+- [Growth Hacker](marketing/marketing-growth-hacker.md)
+- [Instagram Curator](marketing/marketing-instagram-curator.md)
+- [Kuaishou Strategist](marketing/marketing-kuaishou-strategist.md)
+- [LinkedIn Content Creator](marketing/marketing-linkedin-content-creator.md)
+- [Livestream Commerce Coach](marketing/marketing-livestream-commerce-coach.md)
+- [Podcast Strategist](marketing/marketing-podcast-strategist.md)
+- [Private Domain Operator](marketing/marketing-private-domain-operator.md)
+- [Reddit Community Builder](marketing/marketing-reddit-community-builder.md)
+- [SEO Specialist](marketing/marketing-seo-specialist.md)
+- [Short-Video Editing Coach](marketing/marketing-short-video-editing-coach.md)
+- [Social Media Strategist](marketing/marketing-social-media-strategist.md)
+- [TikTok Strategist](marketing/marketing-tiktok-strategist.md)
+- [Twitter Engager](marketing/marketing-twitter-engager.md)
+- [Video Optimization Specialist](marketing/marketing-video-optimization-specialist.md)
+- [WeChat Official Account Manager](marketing/marketing-wechat-official-account.md)
+- [Weibo Strategist](marketing/marketing-weibo-strategist.md)
+- [Xiaohongshu Specialist](marketing/marketing-xiaohongshu-specialist.md)
+- [Zhihu Strategist](marketing/marketing-zhihu-strategist.md)
+
+### Product
+
+- [Behavioral Nudge Engine](product/product-behavioral-nudge-engine.md)
+- [Feedback Synthesizer](product/product-feedback-synthesizer.md)
+- [Product Manager](product/product-manager.md)
+- [Sprint Prioritizer](product/product-sprint-prioritizer.md)
+- [Trend Researcher](product/product-trend-researcher.md)
+
+### Project Management
+
+- [Experiment Tracker](project-management/project-management-experiment-tracker.md)
+- [Jira Workflow Steward](project-management/project-management-jira-workflow-steward.md)
+- [Project Shepherd](project-management/project-management-project-shepherd.md)
+- [Studio Operations](project-management/project-management-studio-operations.md)
+- [Studio Producer](project-management/project-management-studio-producer.md)
+- [Senior Project Manager](project-management/project-manager-senior.md)
+
+### Testing
+
+- [Accessibility Auditor](testing/testing-accessibility-auditor.md)
+- [API Tester](testing/testing-api-tester.md)
+- [Evidence Collector](testing/testing-evidence-collector.md)
+- [Performance Benchmarker](testing/testing-performance-benchmarker.md)
+- [Reality Checker](testing/testing-reality-checker.md)
+- [Test Results Analyzer](testing/testing-test-results-analyzer.md)
+- [Tool Evaluator](testing/testing-tool-evaluator.md)
+- [Workflow Optimizer](testing/testing-workflow-optimizer.md)
+
+### Support
+
+- [Analytics Reporter](support/support-analytics-reporter.md)
+- [Executive Summary Generator](support/support-executive-summary-generator.md)
+- [Finance Tracker](support/support-finance-tracker.md)
+- [Infrastructure Maintainer](support/support-infrastructure-maintainer.md)
+- [Legal Compliance Checker](support/support-legal-compliance-checker.md)
+- [Support Responder](support/support-support-responder.md)
+
+### Spatial Computing
+
+- [macOS Spatial/Metal Engineer](spatial-computing/macos-spatial-metal-engineer.md)
+- [Terminal Integration Specialist](spatial-computing/terminal-integration-specialist.md)
+- [visionOS Spatial Engineer](spatial-computing/visionos-spatial-engineer.md)
+- [XR Cockpit Interaction Specialist](spatial-computing/xr-cockpit-interaction-specialist.md)
+- [XR Immersive Developer](spatial-computing/xr-immersive-developer.md)
+- [XR Interface Architect](spatial-computing/xr-interface-architect.md)
+
+### Specialized
+
+- [Accounts Payable Agent](specialized/accounts-payable-agent.md)
+- [Agentic Identity & Trust Architect](specialized/agentic-identity-trust.md)
+- [Agents Orchestrator](specialized/agents-orchestrator.md)
+- [Automation Governance Architect](specialized/automation-governance-architect.md)
+- [Blockchain Security Auditor](specialized/blockchain-security-auditor.md)
+- [Compliance Auditor](specialized/compliance-auditor.md)
+- [Corporate Training Designer](specialized/corporate-training-designer.md)
+- [Data Consolidation Agent](specialized/data-consolidation-agent.md)
+- [Government Digital Presales Consultant](specialized/government-digital-presales-consultant.md)
+- [Healthcare Marketing Compliance Specialist](specialized/healthcare-marketing-compliance.md)
+- [Identity Graph Operator](specialized/identity-graph-operator.md)
+- [LSP/Index Engineer](specialized/lsp-index-engineer.md)
+- [Recruitment Specialist](specialized/recruitment-specialist.md)
+- [Report Distribution Agent](specialized/report-distribution-agent.md)
+- [Sales Data Extraction Agent](specialized/sales-data-extraction-agent.md)
+- [Civil Engineer](specialized/specialized-civil-engineer.md)
+- [Cultural Intelligence Strategist](specialized/specialized-cultural-intelligence-strategist.md)
+- [Developer Advocate](specialized/specialized-developer-advocate.md)
+- [Document Generator](specialized/specialized-document-generator.md)
+- [French Consulting Market Navigator](specialized/specialized-french-consulting-market.md)
+- [Korean Business Navigator](specialized/specialized-korean-business-navigator.md)
+- [MCP Builder](specialized/specialized-mcp-builder.md)
+- [Model QA Specialist](specialized/specialized-model-qa.md)
+- [Salesforce Architect](specialized/specialized-salesforce-architect.md)
+- [Workflow Architect](specialized/specialized-workflow-architect.md)
+- [Study Abroad Advisor](specialized/study-abroad-advisor.md)
+- [Supply Chain Strategist](specialized/supply-chain-strategist.md)
+- [ZK Steward](specialized/zk-steward.md)
+
+### Game Development
+
+- [Blender Add-on Engineer](game-development/blender/blender-addon-engineer.md)
+- [Game Audio Engineer](game-development/game-audio-engineer.md)
+- [Game Designer](game-development/game-designer.md)
+- [Godot Gameplay Scripter](game-development/godot/godot-gameplay-scripter.md)
+- [Godot Multiplayer Engineer](game-development/godot/godot-multiplayer-engineer.md)
+- [Godot Shader Developer](game-development/godot/godot-shader-developer.md)
+- [Level Designer](game-development/level-designer.md)
+- [Narrative Designer](game-development/narrative-designer.md)
+- [Roblox Avatar Creator](game-development/roblox-studio/roblox-avatar-creator.md)
+- [Roblox Experience Designer](game-development/roblox-studio/roblox-experience-designer.md)
+- [Roblox Systems Scripter](game-development/roblox-studio/roblox-systems-scripter.md)
+- [Technical Artist](game-development/technical-artist.md)
+- [Unity Architect](game-development/unity/unity-architect.md)
+- [Unity Editor Tool Developer](game-development/unity/unity-editor-tool-developer.md)
+- [Unity Multiplayer Engineer](game-development/unity/unity-multiplayer-engineer.md)
+- [Unity Shader Graph Artist](game-development/unity/unity-shader-graph-artist.md)
+- [Unreal Multiplayer Architect](game-development/unreal-engine/unreal-multiplayer-architect.md)
+- [Unreal Systems Engineer](game-development/unreal-engine/unreal-systems-engineer.md)
+- [Unreal Technical Artist](game-development/unreal-engine/unreal-technical-artist.md)
+- [Unreal World Builder](game-development/unreal-engine/unreal-world-builder.md)
+
+### Academic
+
+- [Anthropologist](academic/academic-anthropologist.md)
+- [Geographer](academic/academic-geographer.md)
+- [Historian](academic/academic-historian.md)
+- [Narratologist](academic/academic-narratologist.md)
+- [Psychologist](academic/academic-psychologist.md)
+<!-- END GENERATED AGENT INDEX -->
+
+---
+
 ## 🗺️ Roadmap
 
 - [ ] Interactive agent selector web tool
