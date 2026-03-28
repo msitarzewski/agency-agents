@@ -15,6 +15,7 @@ supported agentic coding tools.
 - **[Aider](#aider)** — `CONVENTIONS.md` in `aider/`
 - **[Windsurf](#windsurf)** — `.windsurfrules` in `windsurf/`
 - **[Kimi Code](#kimi-code)** — YAML agent specs in `kimi/`
+- **[Codex](#codex)** — `.toml` custom agents in `codex/`
 
 ## Quick Install
 
@@ -27,6 +28,7 @@ supported agentic coding tools.
 ./scripts/install.sh --tool copilot
 ./scripts/install.sh --tool openclaw
 ./scripts/install.sh --tool claude-code
+./scripts/install.sh --tool codex
 
 # Gemini CLI needs generated integration files on a fresh clone
 ./scripts/convert.sh --tool gemini-cli
@@ -176,6 +178,18 @@ See [windsurf/README.md](windsurf/README.md) for details.
 
 ---
 
+## Qwen Code
+
+Each agent becomes a project-scoped `.md` SubAgent file in `.qwen/agents/`.
+
+```bash
+cd /your/project && /path/to/agency-agents/scripts/install.sh --tool qwen
+```
+
+See [../README.md#tool-specific-instructions](../README.md#tool-specific-instructions) for usage details.
+
+---
+
 ## Kimi Code
 
 Each agent is converted to a Kimi Code CLI agent specification (YAML format with
@@ -206,3 +220,20 @@ kimi --agent-file ~/.config/kimi/agents/frontend-developer/agent.yaml \
 ```
 
 See [kimi/README.md](kimi/README.md) for details.
+
+---
+
+## Codex
+
+Each agent is converted into a standalone Codex custom agent TOML file and
+installed to `~/.codex/agents/`.
+
+Because Codex uses generated TOML files rather than the source Markdown
+directly, run the converter before installing from a fresh clone:
+
+```bash
+./scripts/convert.sh --tool codex
+./scripts/install.sh --tool codex
+```
+
+See [codex/README.md](codex/README.md) for details.
