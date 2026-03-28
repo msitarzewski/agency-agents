@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" role="img" aria-label="Agency Agents">
+  <rect width="128" height="128" rx="24" fill="#0F766E"/>
+  <circle cx="40" cy="46" r="14" fill="#CCFBF1"/>
+  <circle cx="88" cy="46" r="14" fill="#99F6E4"/>
+  <path d="M24 96c6-18 18-27 36-27s30 9 36 27" fill="none" stroke="#CCFBF1" stroke-width="10" stroke-linecap="round"/>
+  <path d="M48 88c4-10 10-15 16-15s12 5 16 15" fill="none" stroke="#134E4A" stroke-width="8" stroke-linecap="round"/>
+</svg>

@@ -20,6 +20,7 @@
 #   windsurf     -- Copy .windsurfrules to current directory
 #   openclaw     -- Copy workspaces to ~/.openclaw/agency-agents/
 #   qwen         -- Copy SubAgents to ~/.qwen/agents/ (user-wide) or .qwen/agents/ (project)
+#   codex        -- Copy Codex plugin to ~/.codex/plugins/agency-agents/
 #   all          -- Install for all detected tools (default)
 #
 # Flags:
@@ -101,7 +102,7 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 REPO_ROOT="$(cd "$SCRIPT_DIR/.." && pwd)"
 INTEGRATIONS="$REPO_ROOT/integrations"
 
-ALL_TOOLS=(claude-code copilot antigravity gemini-cli opencode openclaw cursor aider windsurf qwen kimi)
+ALL_TOOLS=(claude-code copilot antigravity gemini-cli opencode openclaw codex cursor aider windsurf qwen kimi)
 
 # ---------------------------------------------------------------------------
 # Usage
@@ -140,6 +141,7 @@ detect_cursor()       { command -v cursor >/dev/null 2>&1 || [[ -d "${HOME}/.cur
 detect_opencode()     { command -v opencode >/dev/null 2>&1 || [[ -d "${HOME}/.config/opencode" ]]; }
 detect_aider()        { command -v aider >/dev/null 2>&1; }
 detect_openclaw()     { command -v openclaw >/dev/null 2>&1 || [[ -d "${HOME}/.openclaw" ]]; }
+detect_codex()        { command -v codex >/dev/null 2>&1 || [[ -d "${CODEX_HOME:-${HOME}/.codex}" ]]; }
 detect_windsurf()     { command -v windsurf >/dev/null 2>&1 || [[ -d "${HOME}/.codeium" ]]; }
 detect_qwen()         { command -v qwen >/dev/null 2>&1 || [[ -d "${HOME}/.qwen" ]]; }
 detect_kimi()         { command -v kimi >/dev/null 2>&1; }
@@ -152,6 +154,7 @@ is_detected() {
     gemini-cli)  detect_gemini_cli  ;;
     opencode)    detect_opencode    ;;
     openclaw)    detect_openclaw    ;;
+    codex)       detect_codex       ;;
     cursor)      detect_cursor      ;;
     aider)       detect_aider       ;;
     windsurf)    detect_windsurf    ;;
@@ -170,6 +173,7 @@ tool_label() {
     gemini-cli)  printf "%-14s  %s" "Gemini CLI"   "(gemini extension)"      ;;
     opencode)    printf "%-14s  %s" "OpenCode"     "(opencode.ai)"           ;;
     openclaw)    printf "%-14s  %s" "OpenClaw"     "(~/.openclaw)"           ;;
+    codex)       printf "%-14s  %s" "Codex"        "(~/.codex/plugins)"      ;;
     cursor)      printf "%-14s  %s" "Cursor"       "(.cursor/rules)"         ;;
     aider)       printf "%-14s  %s" "Aider"        "(CONVENTIONS.md)"        ;;
     windsurf)    printf "%-14s  %s" "Windsurf"     "(.windsurfrules)"        ;;
@@ -411,6 +415,26 @@ install_openclaw() {
   fi
 }
 
+install_codex() {
+  local src="$INTEGRATIONS/codex"
+  local codex_home="${CODEX_HOME:-${HOME}/.codex}"
+  local dest="${codex_home}/plugins/agency-agents"
+
+  [[ -d "$src" ]] || { err "integrations/codex missing. Run convert.sh first."; return 1; }
+  [[ -d "$src/.codex-plugin" ]] || { err "integrations/codex/.codex-plugin missing. Run convert.sh first."; return 1; }
+
+  mkdir -p "$dest"
+  rm -rf "$dest/.codex-plugin" "$dest/assets" "$dest/skills" "$dest/references"
+
+  cp -R "$src/.codex-plugin" "$dest/.codex-plugin"
+  cp -R "$src/assets" "$dest/assets"
+  cp -R "$src/skills" "$dest/skills"
+  cp -R "$src/references" "$dest/references"
+
+  ok "Codex: plugin installed -> $dest"
+  warn "Codex: restart Codex or reload plugins if the plugin catalog is already open."
+}
+
 install_cursor() {
   local src="$INTEGRATIONS/cursor/rules"
   local dest="${PWD}/.cursor/rules"
@@ -501,6 +525,7 @@ install_tool() {
     gemini-cli)  install_gemini_cli  ;;
     opencode)    install_opencode    ;;
     openclaw)    install_openclaw    ;;
+    codex)       install_codex       ;;
     cursor)      install_cursor      ;;
     aider)       install_aider       ;;
     windsurf)    install_windsurf    ;;
