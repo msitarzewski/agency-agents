@@ -333,6 +333,8 @@ install_copilot() {
   done
   ok "Copilot: $count agents -> $dest_github"
   ok "Copilot: $count agents -> $dest_copilot"
+  warn "Copilot: Verify VS Code setting 'chat.agentFilesLocations' includes your install path."
+  dim  "         Open Settings (Ctrl/Cmd+,) -> search 'chat.agentFilesLocations'"
 }
 
 install_antigravity() {
