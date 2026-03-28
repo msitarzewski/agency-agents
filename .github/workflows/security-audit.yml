@@ -1,0 +1,144 @@
+name: Security Audit
+
+on:
+  push:
+    branches: [main, develop]
+    paths:
+      - 'scripts/**'
+      - '*.md'
+      - 'package*.json'
+  pull_request:
+    branches: [main]
+  schedule:
+    # Run weekly dependency audit
+    - cron: '0 0 * * 0'
+
+jobs:
+  shellcheck:
+    name: Shell Script Linting
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Install shellcheck
+        run: sudo apt-get install -y shellcheck
+      
+      - name: Lint shell scripts
+        run: |
+          find scripts -name "*.sh" -type f | while read script; do
+            echo "Linting: $script"
+            shellcheck -x "$script" || exit 1
+          done
+
+  npm-audit:
+    name: Dependency Vulnerability Scan
+    runs-on: ubuntu-latest
+    # Don't fail on audit warnings (advisory info only)
+    continue-on-error: true
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+        if: hashFiles('package.json') != ''
+      
+      - name: Check for package.json
+        id: check-pkg
+        run: |
+          if [[ -f package.json ]]; then
+            echo "has_package=true" >> $GITHUB_OUTPUT
+          fi
+      
+      - name: Run npm audit
+        if: steps.check-pkg.outputs.has_package == 'true'
+        run: npm audit --audit-level=moderate
+        continue-on-error: true
+      
+      - name: Generate audit report
+        if: steps.check-pkg.outputs.has_package == 'true'
+        run: npm audit --json > audit-report.json 2>&1 || true
+      
+      - name: Upload audit report
+        if: steps.check-pkg.outputs.has_package == 'true'
+        uses: actions/upload-artifact@v3
+        with:
+          name: npm-audit-report
+          path: audit-report.json
+
+  secret-scan:
+    name: Secret Detection
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      
+      - name: Install git-secrets
+        run: |
+          git clone https://github.com/awslabs/git-secrets.git /tmp/git-secrets
+          cd /tmp/git-secrets && sudo make install
+      
+      - name: Configure git-secrets patterns
+        run: |
+          git secrets --register-aws
+          # Add custom patterns for common secrets
+          git secrets --add-provider -- echo 'API[_-]?KEY|SECRET[_-]?KEY|PASSWORD'
+      
+      - name: Scan for secrets
+        run: git secrets --scan
+
+  security-headers:
+    name: Security Best Practices Check
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Check for dangerous patterns
+        run: |
+          echo "Scanning for dangerous patterns..."
+          
+          # Check for eval, which is extremely dangerous
+          if grep -r "eval " scripts/*.sh 2>/dev/null; then
+            echo "❌ ERROR: eval() found in scripts (security risk)"
+            exit 1
+          fi
+          
+          # Check for hardcoded credentials patterns
+          if grep -rE '(password|token|api[_-]?key|secret)=["\047]' . \
+            --include="*.sh" --include="*.js" --include="*.json" \
+            --exclude-dir=node_modules --exclude-dir=.git; then
+            echo "⚠️  WARNING: Potential hardcoded credentials found"
+            exit 1
+          fi
+          
+          # Check shell scripts for set -euo pipefail
+          for script in scripts/*.sh; do
+            if ! head -20 "$script" | grep -q "set -euo pipefail"; then
+              echo "⚠️  WARNING: $script missing 'set -euo pipefail'"
+            fi
+          done
+
+  compliance-check:
+    name: Security Documentation
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Verify SECURITY.md exists
+        run: |
+          if [[ ! -f SECURITY.md ]]; then
+            echo "ERROR: SECURITY.md not found"
+            exit 1
+          fi
+          echo "✓ SECURITY.md is present"
+      
+      - name: Check SECURITY.md completeness
+        run: |
+          for section in "Prompt Injection" "GitHub Actions" "Credential"; do
+            if ! grep -q "$section" SECURITY.md; then
+              echo "WARNING: Section '$section' missing from SECURITY.md"
+            fi
+          done
