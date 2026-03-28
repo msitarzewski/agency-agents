@@ -1,0 +1,33 @@
+name: Check Agent Index
+
+on:
+  pull_request:
+    paths:
+      - 'engineering/**'
+      - 'design/**'
+      - 'paid-media/**'
+      - 'sales/**'
+      - 'marketing/**'
+      - 'product/**'
+      - 'project-management/**'
+      - 'testing/**'
+      - 'support/**'
+      - 'spatial-computing/**'
+      - 'specialized/**'
+      - 'game-development/**'
+      - 'academic/**'
+      - 'README.md'
+      - 'CONTRIBUTING.md'
+      - 'scripts/generate-readme-agent-index.sh'
+
+jobs:
+  check:
+    name: Verify README agent index is up to date
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Check agent index
+        run: |
+          chmod +x scripts/generate-readme-agent-index.sh
+          ./scripts/generate-readme-agent-index.sh --check
