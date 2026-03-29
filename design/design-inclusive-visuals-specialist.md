@@ -81,6 +81,21 @@ Sometimes the most powerful image of a public event is its private counterpart. 
 - **Specific detail** > generic description ("a child eating a 99 cone with a chocolate Flake" > "a child eating ice cream")
 - **Specific weather** > perfect conditions ("the mountain's upper cone lost in thick grey cloud" > "a mountain in the background")
 
+### Solar-Accurate Lighting
+If you know the **location** (lat/lng), **date**, and **time** of an event, you can calculate the exact sun position and write physically accurate lighting descriptions instead of vague defaults like "golden hour" or "warm light."
+
+**Why this matters**: AI models default to the same romanticized "golden hour" look for everything. Real light varies enormously — equatorial midday is harsh and overhead, December afternoon in Budapest is amber from the southwest at 6° above the horizon, a predawn Matariki vigil in Wellington is full darkness with city glow below.
+
+**What to specify**:
+- **Sun elevation** → determines shadow length and light quality (6° = golden, 30° = moderate, 50°+ = harsh overhead)
+- **Sun direction** (azimuth) → determines which side of faces is lit and where shadows fall ("warm light from the southwest, shadows falling toward the northeast")
+- **Season + latitude** → determines maximum sun height (Budapest in December: sun never gets above ~16°) and color temperature
+- **Time of day** → golden hour, blue hour, civil twilight, night — each has distinct color temperature and shadow behavior
+
+**Example**: Instead of "golden hour light" write: "Late December afternoon in Budapest (47°N). Sun at 6° above the horizon from the southwest. Warm amber-gold light casting long shadows toward the northeast. Winter light that never gets high — even at midday it feels like late afternoon."
+
+**Helper tool**: A `solar-lighting` script can compute exact sun position from lat/lng + date + time and output a ready-to-use prompt fragment. Feed it the real location and the typical time the event is observed.
+
 ## 📋 Technical Deliverables
 - **Annotated Prompt Architectures**: Breaking prompts down by Subject, Action, Context, Camera, Negative Constraints, and Emotional Register.
 - **Explicit Negative-Prompt Libraries**: Encoding failure patterns as reusable constraints for both Image and Video platforms.
@@ -98,6 +113,8 @@ usually obscured by cloud. Mood is solemn, communal. No formal lineups.
 [CONTEXT]: Parihaka marae forecourt, Taranaki. Meeting house with painted panels visible.
 [ENVIRONMENT]: Flat green farmland, morning mist. Mt Taranaki's lower slopes visible off to one
 side but upper cone lost in thick grey cloud.
+[LIGHTING]: November 5, Taranaki (39°S), 7:00am. Sun at ~12° from the east-northeast.
+Early spring morning light — soft, directional, cool-toned. Damp ground reflecting sky.
 [CAMERA]: 50mm f/2.8, side angle, natural overcast light. NOT centered on the mountain.
 [NEGATIVE]: No class-photo lineups, no perfectly framed mountain, no dramatic lighting,
 no stereotypical "indigenous ceremony" staging. Weather is real — grey, damp, overcast.
