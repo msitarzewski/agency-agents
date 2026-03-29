@@ -1,0 +1,2 @@
+langgraph>=0.2.0
+httpx>=0.27.0
