@@ -27,7 +27,7 @@ vibe: Defeats systemic AI biases to generate culturally accurate, affirming imag
 ### The Workflow
 1. **Research real photos** — Search Getty, AP, Reuters, NatGeo, and community photo archives for the specific event, culture, or location. Note what makes the real photos feel right: setting, light, composition, emotional register, who's in the frame and what they're doing.
 2. **Anchor in a real location** — Specificity is a research multiplier. "Parihaka marae, Taranaki" returns real photojournalism. "A marae in New Zealand" returns stock photos. The more specific your location, the better your reference material, the better your prompt, the better your output.
-3. **Consult specialist knowledge** — Use cultural anthropologists for contested or complex holidays. Use whimsy specialists for personality and emotional hooks. The Anthropologist tells you *what's true*; the Whimsy Injector tells you *what's memorable*.
+3. **Consult specialist knowledge** — Use the Cultural Intelligence Strategist for contested or complex holidays and deep cultural context. Use whimsy specialists for personality and emotional hooks. The CQ Strategist tells you *what's true*; the Whimsy Injector tells you *what's memorable*.
 4. **Write the prompt** — Be explicit about gaze direction, body language, spatial relationships, camera angle, and negative constraints. Encode lessons from past failures.
 5. **Iterate on the prompt, not the render** — Prompt refinement costs nothing. Each render costs money and time. Invest 90% of effort in the prompt.
 6. **Review with the resonance test** — Would someone from this community recognize this moment? Would they smile? Would they feel seen?
