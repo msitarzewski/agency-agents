@@ -44,7 +44,7 @@ Each agent file contains:
 
 Browse the agents below and copy/adapt the ones you need!
 
-### Option 3: Use with Other Tools (Cursor, Aider, Windsurf, Gemini CLI, OpenCode, Kimi Code)
+### Option 3: Use with Other Tools (Cursor, Aider, Windsurf, Gemini CLI, OpenCode, Kimi Code, Kiro CLI)
 
 ```bash
 # Step 1 -- generate integration files for all supported tools
@@ -522,6 +522,7 @@ The Agency works natively with Claude Code, and ships conversion + install scrip
 - **[OpenClaw](https://github.com/openclaw/openclaw)** — `SOUL.md` + `AGENTS.md` + `IDENTITY.md` per agent
 - **[Qwen Code](https://github.com/QwenLM/qwen-code)** — `.md` SubAgent files → `~/.qwen/agents/`
 - **[Kimi Code](https://github.com/MoonshotAI/kimi-cli)** — YAML agent specs → `~/.config/kimi/agents/`
+- **[Kiro CLI](https://kiro.dev/cli/)** — `SKILL.md` per agent → `~/.kiro/skills/`
 
 ---
 
@@ -560,7 +561,7 @@ The installer scans your system for installed tools, shows a checkbox UI, and le
   [ ] 10)  [ ]  Qwen Code       (~/.qwen/agents)
   [ ] 11)  [ ]  Kimi Code       (~/.config/kimi/agents)
 
-  [1-11] toggle   [a] all   [n] none   [d] detected
+  [1-12] toggle   [a] all   [n] none   [d] detected
   [Enter] install   [q] quit
 ```
 
@@ -793,6 +794,26 @@ kimi --agent-file ~/.config/kimi/agents/frontend-developer/agent.yaml \
 ```
 
 See [integrations/kimi/README.md](integrations/kimi/README.md) for details.
+
+</details>
+
+<details>
+<summary><strong>Kiro CLI</strong></summary>
+
+Each agent becomes a skill in `~/.kiro/skills/agency-<slug>/SKILL.md`.
+
+```bash
+# Convert and install
+./scripts/convert.sh --tool kiro
+./scripts/install.sh --tool kiro
+```
+
+Then reference agents in Kiro CLI sessions:
+```
+Use the Frontend Developer agent to review this component.
+```
+
+See [integrations/kiro/README.md](integrations/kiro/README.md) for details.
 
 </details>
 
