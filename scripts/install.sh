@@ -7,7 +7,7 @@
 # is missing or stale.
 #
 # Usage:
-#   ./scripts/install.sh [--tool <name>] [--interactive] [--no-interactive] [--parallel] [--jobs N] [--help]
+#   ./scripts/install.sh [--tool <name>] [--division <name>] [--interactive] [--no-interactive] [--parallel] [--jobs N] [--help]
 #
 # Tools:
 #   claude-code  -- Copy agents to ~/.claude/agents/
@@ -24,6 +24,10 @@
 #
 # Flags:
 #   --tool <name>     Install only the specified tool
+#   --division <name> Install only agents from specified division(s) (comma-separated)
+#                     Valid: academic, design, engineering, game-development, marketing,
+#                     paid-media, sales, product, project-management, strategy, testing,
+#                     support, spatial-computing, specialized
 #   --interactive     Show interactive selector (default when run in a terminal)
 #   --no-interactive  Skip interactive selector, install all detected tools
 #   --parallel        Run install for each selected tool in parallel (output order may vary)
@@ -102,6 +106,52 @@ REPO_ROOT="$(cd "$SCRIPT_DIR/.." && pwd)"
 INTEGRATIONS="$REPO_ROOT/integrations"
 
 ALL_TOOLS=(claude-code copilot antigravity gemini-cli opencode openclaw cursor aider windsurf qwen kimi)
+
+ALL_DIVISIONS=(
+  academic design engineering game-development marketing paid-media sales product
+  project-management strategy testing support spatial-computing specialized
+)
+FILTER_DIVISIONS=()   # empty = all divisions
+
+# shellcheck source=lib.sh
+. "$SCRIPT_DIR/lib.sh"
+
+# Return the list of division dirs to install (filtered or all)
+active_divisions() {
+  if [[ ${#FILTER_DIVISIONS[@]} -gt 0 ]]; then
+    printf '%s\n' "${FILTER_DIVISIONS[@]}"
+  else
+    printf '%s\n' "${ALL_DIVISIONS[@]}"
+  fi
+}
+
+# Build a newline-separated list of allowed slugs from active divisions
+_allowed_slugs_cache=""
+allowed_slugs() {
+  if [[ -n "$_allowed_slugs_cache" ]]; then
+    printf '%s' "$_allowed_slugs_cache"
+    return
+  fi
+  local slugs="" div
+  for div in $(active_divisions); do
+    [[ -d "$REPO_ROOT/$div" ]] || continue
+    while IFS= read -r -d '' f; do
+      local name; name="$(get_field name "$f")"
+      [[ -n "$name" ]] && slugs+="$(slugify "$name")"$'\n'
+    done < <(find "$REPO_ROOT/$div" -name "*.md" -type f -print0)
+  done
+  _allowed_slugs_cache="$slugs"
+  printf '%s' "$slugs"
+}
+
+# Check if a slug matches the allowed set (no-op when no filter)
+# Handles both raw slugs ("code-reviewer") and prefixed ("agency-code-reviewer")
+slug_allowed() {
+  [[ ${#FILTER_DIVISIONS[@]} -eq 0 ]] && return 0
+  local slug="$1"
+  local stripped="${slug#agency-}"
+  allowed_slugs | grep -qxF "$stripped"
+}
 
 # ---------------------------------------------------------------------------
 # Usage
@@ -301,8 +351,7 @@ install_claude_code() {
   local count=0
   mkdir -p "$dest"
   local dir f first_line
-  for dir in academic design engineering game-development marketing paid-media sales product project-management \
-              testing support spatial-computing specialized; do
+  for dir in $(active_divisions); do
     [[ -d "$REPO_ROOT/$dir" ]] || continue
     while IFS= read -r -d '' f; do
       first_line="$(head -1 "$f")"
@@ -320,8 +369,7 @@ install_copilot() {
   local count=0
   mkdir -p "$dest_github" "$dest_copilot"
   local dir f first_line
-  for dir in academic design engineering game-development marketing paid-media sales product project-management \
-              testing support spatial-computing specialized; do
+  for dir in $(active_divisions); do
     [[ -d "$REPO_ROOT/$dir" ]] || continue
     while IFS= read -r -d '' f; do
       first_line="$(head -1 "$f")"
@@ -344,6 +392,7 @@ install_antigravity() {
   local d
   while IFS= read -r -d '' d; do
     local name; name="$(basename "$d")"
+    slug_allowed "$name" || continue
     mkdir -p "$dest/$name"
     cp "$d/SKILL.md" "$dest/$name/SKILL.md"
     (( count++ )) || true
@@ -365,6 +414,7 @@ install_gemini_cli() {
   local d
   while IFS= read -r -d '' d; do
     local name; name="$(basename "$d")"
+    slug_allowed "$name" || continue
     mkdir -p "$dest/skills/$name"
     cp "$d/SKILL.md" "$dest/skills/$name/SKILL.md"
     (( count++ )) || true
@@ -378,8 +428,10 @@ install_opencode() {
   local count=0
   [[ -d "$src" ]] || { err "integrations/opencode missing. Run convert.sh first."; return 1; }
   mkdir -p "$dest"
-  local f
+  local f name
   while IFS= read -r -d '' f; do
+    name="$(basename "$f" .md)"
+    slug_allowed "$name" || continue
     cp "$f" "$dest/"; (( count++ )) || true
   done < <(find "$src" -maxdepth 1 -name "*.md" -print0)
   ok "OpenCode: $count agents -> $dest"
@@ -395,6 +447,7 @@ install_openclaw() {
   local d
   while IFS= read -r -d '' d; do
     local name; name="$(basename "$d")"
+    slug_allowed "$name" || continue
     mkdir -p "$dest/$name"
     cp "$d/SOUL.md" "$dest/$name/SOUL.md"
     cp "$d/AGENTS.md" "$dest/$name/AGENTS.md"
@@ -416,9 +469,10 @@ install_cursor() {
   local dest="${PWD}/.cursor/rules"
   local count=0
   [[ -d "$src" ]] || { err "integrations/cursor missing. Run convert.sh first."; return 1; }
-  mkdir -p "$dest"
-  local f
+  local f slug
   while IFS= read -r -d '' f; do
+    slug="$(basename "$f" .mdc)"
+    slug_allowed "$slug" || continue
     cp "$f" "$dest/"; (( count++ )) || true
   done < <(find "$src" -maxdepth 1 -name "*.mdc" -print0)
   ok "Cursor: $count rules -> $dest"
@@ -460,8 +514,10 @@ install_qwen() {
 
   mkdir -p "$dest"
 
-  local f
+  local f name
   while IFS= read -r -d '' f; do
+    name="$(basename "$f" .md)"
+    slug_allowed "$name" || continue
     cp "$f" "$dest/"
     (( count++ )) || true
   done < <(find "$src" -maxdepth 1 -name "*.md" -print0)
@@ -483,6 +539,7 @@ install_kimi() {
   local d
   while IFS= read -r -d '' d; do
     local name; name="$(basename "$d")"
+    slug_allowed "$name" || continue
     mkdir -p "$dest/$name"
     cp "$d/agent.yaml" "$dest/$name/agent.yaml"
     cp "$d/system.md" "$dest/$name/system.md"
@@ -522,6 +579,19 @@ main() {
   while [[ $# -gt 0 ]]; do
     case "$1" in
       --tool)            tool="${2:?'--tool requires a value'}"; shift 2; interactive_mode="no" ;;
+      --division)
+        IFS=',' read -ra _divs <<< "${2:?'--division requires a value'}"
+        for _d in "${_divs[@]}"; do
+          _d="$(echo "$_d" | xargs)"  # trim whitespace
+          local valid_div=false _ad
+          for _ad in "${ALL_DIVISIONS[@]}"; do [[ "$_ad" == "$_d" ]] && valid_div=true && break; done
+          if ! $valid_div; then
+            err "Unknown division '$_d'. Valid: ${ALL_DIVISIONS[*]}"
+            exit 1
+          fi
+          FILTER_DIVISIONS+=("$_d")
+        done
+        shift 2 ;;
       --interactive)     interactive_mode="yes"; shift ;;
       --no-interactive)  interactive_mode="no"; shift ;;
       --parallel)        use_parallel=true; shift ;;
@@ -599,6 +669,9 @@ main() {
   printf "  Installing: %s\n" "${SELECTED_TOOLS[*]}"
   if $use_parallel; then
     ok "Installing $n_selected tools in parallel (output buffered per tool)."
+  fi
+  if [[ ${#FILTER_DIVISIONS[@]} -gt 0 ]]; then
+    printf "  Divisions:  %s\n" "${FILTER_DIVISIONS[*]}"
   fi
   printf "\n"
 

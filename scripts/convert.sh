@@ -63,7 +63,7 @@ TODAY="$(date +%Y-%m-%d)"
 
 AGENT_DIRS=(
   academic design engineering game-development marketing paid-media sales product project-management
-  testing support spatial-computing specialized
+  strategy testing support spatial-computing specialized
 )
 
 # --- Usage ---
@@ -83,26 +83,9 @@ parallel_jobs_default() {
 # --- Frontmatter helpers ---
 
 # Extract a single field value from YAML frontmatter block.
-# Usage: get_field <field> <file>
-get_field() {
-  local field="$1" file="$2"
-  awk -v f="$field" '
-    /^---$/ { fm++; next }
-    fm == 1 && $0 ~ "^" f ": " { sub("^" f ": ", ""); print; exit }
-  ' "$file"
-}
-
-# Strip the leading frontmatter block and return only the body.
-# Usage: get_body <file>
-get_body() {
-  awk 'BEGIN{fm=0} /^---$/{fm++; next} fm>=2{print}' "$1"
-}
-
-# Convert a human-readable agent name to a lowercase kebab-case slug.
-# "Frontend Developer" → "frontend-developer"
-slugify() {
-  echo "$1" | tr '[:upper:]' '[:lower:]' | sed 's/[^a-z0-9]/-/g' | sed 's/--*/-/g' | sed 's/^-//;s/-$//'
-}
+# --- Frontmatter helpers (shared) ---
+# shellcheck source=lib.sh
+. "$SCRIPT_DIR/lib.sh"
 
 # --- Per-tool converters ---
 
