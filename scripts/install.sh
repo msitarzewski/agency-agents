@@ -101,7 +101,7 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 REPO_ROOT="$(cd "$SCRIPT_DIR/.." && pwd)"
 INTEGRATIONS="$REPO_ROOT/integrations"
 
-ALL_TOOLS=(claude-code copilot antigravity gemini-cli opencode openclaw cursor aider windsurf qwen kimi)
+ALL_TOOLS=(claude-code copilot antigravity gemini-cli opencode openclaw cursor aider windsurf qwen kimi kiro)
 
 # ---------------------------------------------------------------------------
 # Usage
@@ -143,6 +143,7 @@ detect_openclaw()     { command -v openclaw >/dev/null 2>&1 || [[ -d "${HOME}/.o
 detect_windsurf()     { command -v windsurf >/dev/null 2>&1 || [[ -d "${HOME}/.codeium" ]]; }
 detect_qwen()         { command -v qwen >/dev/null 2>&1 || [[ -d "${HOME}/.qwen" ]]; }
 detect_kimi()         { command -v kimi >/dev/null 2>&1; }
+detect_kiro()         { command -v kiro >/dev/null 2>&1 || command -v kiro-cli >/dev/null 2>&1 || [[ -d "${HOME}/.kiro" ]]; }
 
 is_detected() {
   case "$1" in
@@ -157,6 +158,7 @@ is_detected() {
     windsurf)    detect_windsurf    ;;
     qwen)        detect_qwen        ;;
     kimi)        detect_kimi        ;;
+    kiro)        detect_kiro        ;;
     *)           return 1 ;;
   esac
 }
@@ -175,6 +177,7 @@ tool_label() {
     windsurf)    printf "%-14s  %s" "Windsurf"     "(.windsurfrules)"        ;;
     qwen)        printf "%-14s  %s" "Qwen Code"    "(~/.qwen/agents)"        ;;
     kimi)        printf "%-14s  %s" "Kimi Code"    "(~/.config/kimi/agents)" ;;
+    kiro)        printf "%-14s  %s" "Kiro CLI"     "(~/.kiro/skills)" ;;
   esac
 }
 
@@ -493,6 +496,26 @@ install_kimi() {
   ok "Usage: kimi --agent-file ~/.config/kimi/agents/<agent-name>/agent.yaml"
 }
 
+install_kiro() {
+  local src="$INTEGRATIONS/kiro/skills"
+  local dest="${HOME}/.kiro/skills"
+  local count=0
+
+  [[ -d "$src" ]] || { err "integrations/kiro missing. Run convert.sh first."; return 1; }
+
+  mkdir -p "$dest"
+
+  local d
+  while IFS= read -r -d '' d; do
+    local name; name="$(basename "$d")"
+    mkdir -p "$dest/$name"
+    cp "$d/SKILL.md" "$dest/$name/SKILL.md"
+    (( count++ )) || true
+  done < <(find "$src" -mindepth 1 -maxdepth 1 -type d -print0)
+
+  ok "Kiro CLI: $count skills -> $dest"
+}
+
 install_tool() {
   case "$1" in
     claude-code) install_claude_code ;;
@@ -506,6 +529,7 @@ install_tool() {
     windsurf)    install_windsurf    ;;
     qwen)        install_qwen        ;;
     kimi)        install_kimi        ;;
+    kiro)        install_kiro        ;;
   esac
 }
 

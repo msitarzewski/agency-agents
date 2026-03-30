@@ -206,3 +206,21 @@ kimi --agent-file ~/.config/kimi/agents/frontend-developer/agent.yaml \
 ```
 
 See [kimi/README.md](kimi/README.md) for details.
+
+---
+
+## Kiro CLI
+
+Each agent becomes a skill in `~/.kiro/skills/agency-<slug>/SKILL.md`.
+
+```bash
+./scripts/convert.sh --tool kiro
+./scripts/install.sh --tool kiro
+```
+
+Then reference agents in Kiro CLI sessions:
+```
+Use the Frontend Developer agent to review this component.
+```
+
+See [kiro/README.md](kiro/README.md) for details.
