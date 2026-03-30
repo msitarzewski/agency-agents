@@ -105,10 +105,10 @@ DEFAULT_MODELS: list[ModelSpec] = [
         strengths=("code", "architecture", "security", "review"),
     ),
     ModelSpec(
-        name="mistral.mistral-large-2407-v1:0",
+        name="mistral.mistral-large-2402-v1:0",
         tier=ModelTier.FREE_HEAVY,
         provider="bedrock",
-        context_window=131072,
+        context_window=32768,
         strengths=("general", "reasoning", "multilingual", "content"),
     ),
 
