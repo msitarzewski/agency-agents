@@ -1,0 +1,23 @@
+# Test tasks for design category agents.
+# 2 tasks: 1 straightforward, 1 requiring the agent's workflow.
+
+- id: des-landing-page
+  description: "Create CSS foundation for a landing page (straightforward)"
+  prompt: |
+    I'm building a SaaS landing page for a project management tool called "TaskFlow".
+    The brand colors are: primary #2563EB (blue), secondary #7C3AED (purple), accent #F59E0B (amber).
+    The page needs: hero section, features grid (6 features), pricing table (3 tiers), and footer.
+    Please create the CSS design system foundation and layout structure.
+
+- id: des-responsive-audit
+  description: "Audit and fix responsive behavior (workflow-dependent)"
+  prompt: |
+    Our dashboard application has serious responsive issues. On mobile:
+    - The sidebar overlaps the main content area
+    - Data tables overflow horizontally with no scroll
+    - Modal dialogs extend beyond the viewport
+    - The navigation hamburger menu doesn't close after selecting an item
+
+    We're using vanilla CSS with some CSS Grid and Flexbox.
+    Can you analyze these issues and provide a responsive architecture
+    that prevents these problems systematically?

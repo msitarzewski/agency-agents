@@ -1,0 +1,29 @@
+# Test tasks for academic category agents.
+# 2 tasks: 1 straightforward, 1 requiring the agent's workflow.
+
+- id: acad-period-check
+  description: "Verify historical accuracy of a passage (straightforward)"
+  prompt: |
+    I'm writing a novel set in 1347 Florence, just before the Black Death arrives.
+    Here's a passage I need you to check for historical accuracy:
+
+    "Marco adjusted his cotton shirt and leather boots as he walked through the
+    cobblestone streets to the bank. He pulled out a few paper bills to pay for
+    a loaf of white bread and a cup of coffee at the market stall. The church
+    bells rang noon as horse-drawn carriages rattled past."
+
+    Please identify any anachronisms and suggest corrections.
+
+- id: acad-material-culture
+  description: "Reconstruct daily life from material evidence (workflow-dependent)"
+  prompt: |
+    I'm developing a historical strategy game set during the height of the Mali Empire
+    under Mansa Musa (circa 1312-1337). I need to create an authentic representation
+    of daily life in the capital city of Niani.
+
+    What would a typical market day look like? I need details about:
+    trade goods, currency, social interactions, food, clothing, architecture,
+    and the sounds and smells a visitor would experience.
+
+    Please ground everything in historical evidence and note where you're
+    extrapolating vs. working from documented sources.

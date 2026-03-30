@@ -1,0 +1,21 @@
+# Test tasks for engineering category agents.
+# 2 tasks: 1 straightforward, 1 requiring the agent's workflow.
+
+- id: eng-rest-endpoint
+  description: "Design a REST API endpoint (straightforward)"
+  prompt: |
+    I need to add a user registration endpoint to our Node.js Express API.
+    It should accept email, password, and display name.
+    We use PostgreSQL and need input validation.
+    Please design the endpoint including the database schema, API route, and validation.
+
+- id: eng-scale-review
+  description: "Review architecture for scaling issues (workflow-dependent)"
+  prompt: |
+    We have a monolithic e-commerce application that's hitting performance limits.
+    Current stack: Node.js, PostgreSQL, Redis for sessions, deployed on a single EC2 instance.
+    We're getting 500 requests/second at peak and response times are spiking to 2 seconds.
+    Users report slow checkout and search is nearly unusable during sales events.
+
+    Can you analyze the architecture and recommend a scaling strategy?
+    We have a 3-month timeline and a small team of 4 developers.
