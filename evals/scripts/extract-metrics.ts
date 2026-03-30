@@ -1,7 +1,7 @@
 import fs from "fs";
 import path from "path";
 import matter from "gray-matter";
-import { glob } from "glob";
+import { globSync } from "glob";
 
 export interface AgentMetrics {
   name: string;
@@ -47,7 +47,8 @@ function extractSection(content: string, sectionName: string): string[] | null {
   for (const line of lines) {
     const headingMatch = line.match(/^(#{1,4})\s/);
 
-    if (headingMatch && line.toLowerCase().includes(sectionName.toLowerCase())) {
+    const headingText = line.replace(/^#{1,4}\s+/, "").replace(/[\p{Emoji_Presentation}\p{Emoji}\uFE0F]/gu, "").trim().toLowerCase();
+    if (headingMatch && headingText.includes(sectionName.toLowerCase())) {
       inSection = true;
       sectionLevel = headingMatch[1].length;
       continue;
@@ -86,7 +87,8 @@ function extractRawSection(content: string, sectionName: string): string | null 
   for (const line of lines) {
     const headingMatch = line.match(/^(#{1,4})\s/);
 
-    if (headingMatch && line.toLowerCase().includes(sectionName.toLowerCase())) {
+    const headingText = line.replace(/^#{1,4}\s+/, "").replace(/[\p{Emoji_Presentation}\p{Emoji}\uFE0F]/gu, "").trim().toLowerCase();
+    if (headingMatch && headingText.includes(sectionName.toLowerCase())) {
       inSection = true;
       sectionLevel = headingMatch[1].length;
       continue;
@@ -112,7 +114,7 @@ function extractRawSection(content: string, sectionName: string): string | null 
  * Extract metrics from one or more agent files (accepts a glob pattern or single path).
  */
 export function extractMetrics(pattern: string): AgentMetrics[] {
-  const files = glob.sync(pattern);
+  const files = globSync(pattern);
   return files.map(parseAgentFile);
 }
 
