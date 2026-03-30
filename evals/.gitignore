@@ -3,3 +3,4 @@ dist/
 .promptfoo/
 results/latest.json
 *.log
+.env
