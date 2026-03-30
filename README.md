@@ -100,6 +100,18 @@ Building the future, one commit at a time.
 | 🧱 [CMS Developer](engineering/engineering-cms-developer.md) | WordPress & Drupal themes, plugins/modules, content architecture | Code-first CMS implementation and customization |
 | 📧 [Email Intelligence Engineer](engineering/engineering-email-intelligence-engineer.md) | Email parsing, MIME extraction, structured data for AI agents | Turning raw email threads into reasoning-ready context |
 
+### 🛡️ Cybersecurity Division
+
+Offensive and defensive security specialists who protect systems, investigate breaches, and hunt threats.
+
+| Agent | Specialty | When to Use |
+|-------|-----------|-------------|
+| 🗡️ [Penetration Tester](cybersecurity/cybersecurity-penetration-tester.md) | Red team operations, vulnerability exploitation, AD attacks, cloud pentesting | Authorized security assessments, attack surface evaluation, red team engagements |
+| 🚨 [Incident Responder](cybersecurity/cybersecurity-incident-responder.md) | Digital forensics, breach investigation, crisis coordination, post-mortems | Active breach response, forensic analysis, incident containment and recovery |
+| ☁️ [Cloud Security Architect](cybersecurity/cybersecurity-cloud-security-architect.md) | Zero trust design, IAM, IaC security, multi-cloud defense | Designing secure cloud architectures, implementing guardrails, compliance automation |
+| 🔍 [Threat Intelligence Analyst](cybersecurity/cybersecurity-threat-intelligence-analyst.md) | Adversary tracking, MITRE ATT&CK mapping, YARA/Sigma rules, campaign analysis | Threat landscape monitoring, detection engineering, intelligence-driven defense |
+| 🔐 [Application Security Engineer](cybersecurity/cybersecurity-appsec-engineer.md) | Threat modeling, secure code review, SAST/DAST, developer security education | Securing the SDLC, vulnerability management, building AppSec programs |
+
 ### 🎨 Design Division
 
 Making it beautiful, usable, and delightful.

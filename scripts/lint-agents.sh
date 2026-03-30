@@ -11,6 +11,7 @@
 set -euo pipefail
 
 AGENT_DIRS=(
+  cybersecurity
   design
   engineering
   game-development

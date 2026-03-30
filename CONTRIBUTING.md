@@ -32,6 +32,7 @@ Have an idea for a specialized agent? Great! Here's how to add one:
 
 1. **Fork the repository**
 2. **Choose the appropriate category** (or propose a new one):
+   - `cybersecurity/` - Offensive and defensive security specialists
    - `engineering/` - Software development specialists
    - `design/` - UX/UI and creative specialists
    - `game-development/` - Game design and development specialists
