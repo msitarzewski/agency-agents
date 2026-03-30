@@ -19,7 +19,7 @@ prompts:
 # Agent model (generates responses)
 # ------------------------------------------------------------------
 providers:
-  - id: anthropic:messages:claude-sonnet-4-20250514
+  - id: anthropic:messages:claude-haiku-4-5-20251001
     config:
       max_tokens: 4096
       temperature: 0
@@ -29,7 +29,7 @@ providers:
 # ------------------------------------------------------------------
 defaultTest:
   options:
-    provider: anthropic:messages:claude-haiku-4-20250414
+    provider: anthropic:messages:claude-haiku-4-5-20251001
 
 # ------------------------------------------------------------------
 # Eval settings
