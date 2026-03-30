@@ -15,6 +15,7 @@
 #   antigravity  -- Copy skills to ~/.gemini/antigravity/skills/
 #   gemini-cli   -- Install extension to ~/.gemini/extensions/agency-agents/
 #   opencode     -- Copy agents to .opencode/agent/ in current directory
+#   codex        -- Copy skills to ~/.codex/skills/
 #   cursor       -- Copy rules to .cursor/rules/ in current directory
 #   aider        -- Copy CONVENTIONS.md to current directory
 #   windsurf     -- Copy .windsurfrules to current directory
@@ -101,7 +102,7 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 REPO_ROOT="$(cd "$SCRIPT_DIR/.." && pwd)"
 INTEGRATIONS="$REPO_ROOT/integrations"
 
-ALL_TOOLS=(claude-code copilot antigravity gemini-cli opencode openclaw cursor aider windsurf qwen)
+ALL_TOOLS=(claude-code copilot antigravity gemini-cli opencode codex openclaw cursor aider windsurf qwen)
 
 # ---------------------------------------------------------------------------
 # Usage
@@ -138,6 +139,7 @@ detect_antigravity()  { [[ -d "${HOME}/.gemini/antigravity/skills" ]]; }
 detect_gemini_cli()   { command -v gemini >/dev/null 2>&1 || [[ -d "${HOME}/.gemini" ]]; }
 detect_cursor()       { command -v cursor >/dev/null 2>&1 || [[ -d "${HOME}/.cursor" ]]; }
 detect_opencode()     { command -v opencode >/dev/null 2>&1 || [[ -d "${HOME}/.config/opencode" ]]; }
+detect_codex()        { [[ -d "${HOME}/.codex" ]]; }
 detect_aider()        { command -v aider >/dev/null 2>&1; }
 detect_openclaw()     { command -v openclaw >/dev/null 2>&1 || [[ -d "${HOME}/.openclaw" ]]; }
 detect_windsurf()     { command -v windsurf >/dev/null 2>&1 || [[ -d "${HOME}/.codeium" ]]; }
@@ -150,6 +152,7 @@ is_detected() {
     antigravity) detect_antigravity ;;
     gemini-cli)  detect_gemini_cli  ;;
     opencode)    detect_opencode    ;;
+    codex)       detect_codex       ;;
     openclaw)    detect_openclaw    ;;
     cursor)      detect_cursor      ;;
     aider)       detect_aider       ;;
@@ -167,6 +170,7 @@ tool_label() {
     antigravity) printf "%-14s  %s" "Antigravity"  "(~/.gemini/antigravity)" ;;
     gemini-cli)  printf "%-14s  %s" "Gemini CLI"   "(gemini extension)"      ;;
     opencode)    printf "%-14s  %s" "OpenCode"     "(opencode.ai)"           ;;
+    codex)       printf "%-14s  %s" "Codex"        "(~/.codex/skills)"       ;;
     openclaw)    printf "%-14s  %s" "OpenClaw"     "(~/.openclaw)"           ;;
     cursor)      printf "%-14s  %s" "Cursor"       "(.cursor/rules)"         ;;
     aider)       printf "%-14s  %s" "Aider"        "(CONVENTIONS.md)"        ;;
@@ -383,6 +387,25 @@ install_opencode() {
   warn "OpenCode: project-scoped. Run from your project root to install there."
 }
 
+install_codex() {
+  local src="$INTEGRATIONS/codex"
+  local dest="${HOME}/.codex/skills"
+  local count=0
+
+  [[ -d "$src" ]] || { err "integrations/codex missing. Run ./scripts/convert.sh --tool codex first."; return 1; }
+
+  mkdir -p "$dest"
+  local d name
+  while IFS= read -r -d '' d; do
+    name="$(basename "$d")"
+    mkdir -p "$dest/$name"
+    cp "$d/SKILL.md" "$dest/$name/SKILL.md"
+    (( count++ )) || true
+  done < <(find "$src" -mindepth 1 -maxdepth 1 -type d -print0)
+
+  ok "Codex: $count skills -> $dest"
+}
+
 install_openclaw() {
   local src="$INTEGRATIONS/openclaw"
   local dest="${HOME}/.openclaw/agency-agents"
@@ -475,6 +498,7 @@ install_tool() {
     antigravity) install_antigravity ;;
     gemini-cli)  install_gemini_cli  ;;
     opencode)    install_opencode    ;;
+    codex)       install_codex       ;;
     openclaw)    install_openclaw    ;;
     cursor)      install_cursor      ;;
     aider)       install_aider       ;;
