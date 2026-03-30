@@ -1,0 +1,24 @@
+{
+  "name": "agency-agents-evals",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Evaluation harness for agency-agents specialist prompts",
+  "scripts": {
+    "eval": "promptfoo eval",
+    "eval:view": "promptfoo view",
+    "eval:cache-clear": "promptfoo cache clear",
+    "extract": "ts-node scripts/extract-metrics.ts",
+    "test": "vitest run",
+    "test:watch": "vitest"
+  },
+  "dependencies": {
+    "gray-matter": "^4.0.3",
+    "promptfoo": "^0.100.0"
+  },
+  "devDependencies": {
+    "typescript": "^5.7.0",
+    "ts-node": "^10.9.0",
+    "vitest": "^3.0.0",
+    "@types/node": "^22.0.0"
+  }
+}

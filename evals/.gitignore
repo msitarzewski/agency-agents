@@ -1,0 +1,5 @@
+node_modules/
+dist/
+.promptfoo/
+results/latest.json
+*.log
