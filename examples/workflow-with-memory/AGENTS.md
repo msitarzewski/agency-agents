@@ -1,6 +1,6 @@
-# Multi-Agent Workflow: Startup MVP with Persistent Memory
+# Mission and Scope
 
-> The same startup MVP workflow from [workflow-startup-mvp.md](workflow-startup-mvp.md), but with an MCP memory server handling state between agents. No more copy-paste handoffs.
+This workflow shows how a multi-agent Startup MVP build runs when an MCP memory server keeps state between agents, eliminating manual handoffs.
 
 ## The Problem with Manual Handoffs
 
@@ -223,16 +223,3 @@ The Backend Architect can see exactly what the Reality Checker flagged, recall i
 | **QA failure recovery** | Manually describe what went wrong | Agent recalls feedback + rolls back |
 | **Multi-day projects** | Re-establish context every session | Agent picks up where it left off |
 | **Setup required** | None | Install an MCP memory server |
-
-## Key Patterns
-
-1. **Tag everything with the project name**: This is what makes recall work. Every memory gets tagged with `retroboard` (or whatever your project is).
-2. **Tag deliverables for the receiving agent**: When the Backend Architect finishes an API spec, it tags the memory with `frontend-developer` so the Frontend Developer finds it on recall.
-3. **Reality Checker gets full visibility**: Because all agents store their work in memory, the Reality Checker can recall everything for the project without you compiling it.
-4. **Rollback replaces manual undo**: When something fails, roll back to the last checkpoint instead of trying to figure out what changed.
-
-## Tips
-
-- You don't need to modify every agent at once. Start by adding Memory Integration to the agents you use most and expand from there.
-- The memory instructions are prompts, not code. The LLM interprets them and calls the MCP tools as needed. You can adjust the wording to match your style.
-- Any MCP-compatible memory server that supports `remember`, `recall`, `rollback`, and `search` tools will work with this workflow.

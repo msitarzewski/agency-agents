@@ -1,7 +1,9 @@
 # Acceptance Report
 
-- Source: `examples/workflow-with-memory.md`
-- Result: PASS
-- Checks:
-  - verify_conversion.py: PASS
-  - Manual spot review: Memory-specific workflow and rollback guidance preserved.
+## Verification
+- verify_conversion.py: PASS
+
+## Manual Review
+- All workflow steps, prompts, and tables preserved.
+- Memory usage patterns and tips captured in SOUL.
+- Identity scoped to the workflow and its origin.

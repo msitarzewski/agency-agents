@@ -1,6 +1,6 @@
-# Nexus Spatial Discovery Exercise
+# Nexus Spatial: Full Agency Discovery Exercise
 
-A full-agency discovery case demonstrating end-to-end product planning for a spatial AI command center.
+Multi-agent product discovery exercise.
 
 - Exercise type: Multi-agent product discovery
 - Date: March 5, 2026

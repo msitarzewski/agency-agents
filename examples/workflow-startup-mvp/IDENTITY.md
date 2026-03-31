@@ -1,6 +1,5 @@
-# Multi-Agent Workflow: Startup MVP
+# Startup MVP Multi-Agent Workflow
 
-A step-by-step workflow to coordinate multiple agents from idea to shipped SaaS MVP in four weeks.
+Step-by-step example of coordinating multiple agents to go from idea to shipped MVP.
 
-- Scenario: RetroBoard — a real-time team retrospective tool
-- Target: Working product with signups, core feature set, and landing page
+- Built around a 4-week SaaS MVP scenario

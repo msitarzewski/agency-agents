@@ -1,7 +1,9 @@
 # Acceptance Report
 
-- Source: `examples/workflow-startup-mvp.md`
-- Result: PASS
-- Checks:
-  - verify_conversion.py: PASS
-  - Manual spot review: Workflow steps, key patterns, and tips preserved.
+## Verification
+- verify_conversion.py: PASS
+
+## Manual Review
+- All workflow steps and prompts preserved.
+- Scenario and agent team kept intact.
+- Patterns and tips moved into SOUL.

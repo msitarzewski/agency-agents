@@ -1,6 +1,6 @@
 # Source Index
 
-- Source: `/Volumes/disk1/go/src/agency-agents/examples/workflow-with-memory.md`
+- Source: `/Volumes/disk1/go/src/agency-agents-worktrees/openclaw-normalize-20260325/examples/workflow-with-memory.md`
 - Unit count: `52`
 
 | unit_id | source_hash | unit_type | excerpt |

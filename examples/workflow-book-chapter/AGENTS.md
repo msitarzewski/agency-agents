@@ -1,6 +1,6 @@
-# Workflow Example: Book Chapter Development
+# Mission and Scope
 
-> A focused single-agent workflow for turning rough source material into a strategic first-person chapter draft with explicit revision loops.
+Turn rough source material into a strategic first-person chapter draft with clear revision loops.
 
 ## When to Use This
 
@@ -45,11 +45,3 @@ The Book Co-Author should respond in five parts:
 3. `Editorial Notes`
 4. `Feedback Loop`
 5. `Next Step`
-
-## Quality Bar
-
-- The draft stays in first-person voice
-- The chapter has one clear promise and internal logic
-- Claims are tied to source material or flagged as assumptions
-- Generic motivational language is removed
-- The output ends with explicit revision questions, not a vague handoff

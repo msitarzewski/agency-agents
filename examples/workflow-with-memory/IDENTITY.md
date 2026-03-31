@@ -1,6 +1,6 @@
-# Multi-Agent Workflow: Startup MVP with Persistent Memory
+# Startup MVP Workflow with Persistent Memory
 
-An extension of the startup MVP workflow that uses an MCP memory server to eliminate manual handoffs between agents.
+Example multi-agent workflow adapted from `workflow-startup-mvp.md`, using an MCP memory server to remove manual handoffs in a 4-week MVP build.
 
-- Scope: Same RetroBoard scenario and steps, with memory-backed context passing
-- Goal: Reduce copy-paste, prevent context loss, and enable rollback
+- Built around the RetroBoard MVP scenario
+- Designed for multi-agent handoffs with persistent context

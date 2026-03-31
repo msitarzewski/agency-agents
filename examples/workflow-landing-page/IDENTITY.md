@@ -1,6 +1,3 @@
-# Multi-Agent Workflow: Landing Page Sprint
+# Landing Page Sprint Workflow
 
-A one-day, four-agent workflow to ship a conversion-optimized landing page for a new product launch.
-
-- Agents: Content Creator, UI Designer, Frontend Developer, Growth Hacker
-- Target: A polished, live landing page by end of day
+Ship a conversion-optimized landing page in one day using four agents.

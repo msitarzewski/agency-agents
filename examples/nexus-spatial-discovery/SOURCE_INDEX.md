@@ -1,6 +1,6 @@
 # Source Index
 
-- Source: `/Volumes/disk1/go/src/agency-agents/examples/nexus-spatial-discovery.md`
+- Source: `/Volumes/disk1/go/src/agency-agents-worktrees/openclaw-normalize-20260325/examples/nexus-spatial-discovery.md`
 - Unit count: `217`
 
 | unit_id | source_hash | unit_type | excerpt |
