@@ -3,6 +3,7 @@ name: Lint Agent Files
 on:
   pull_request:
     paths:
+<<<<<<< HEAD
       - "academic/**"
       - "design/**"
       - "engineering/**"
@@ -17,6 +18,21 @@ on:
       - "support/**"
       - "spatial-computing/**"
       - "specialized/**"
+=======
+      - 'design/**'
+      - 'engineering/**'
+      - 'game-development/**'
+      - 'marketing/**'
+      - 'paid-media/**'
+      - 'sales/**'
+      - 'product/**'
+      - 'project-management/**'
+      - 'testing/**'
+      - 'support/**'
+      - 'spatial-computing/**'
+      - 'specialized/**'
+      - 'devrel/**'
+>>>>>>> aad7e44 (fix: register devrel/ in all tooling scripts and CI workflow)
 
 jobs:
   lint:
