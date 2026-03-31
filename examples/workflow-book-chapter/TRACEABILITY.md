@@ -1,0 +1,15 @@
+| unit_id | source_hash | target_file | target_section | status | note |
+| --- | --- | --- | --- | --- | --- |
+| U001 | 356536f530e5 | AGENTS.md | Full Example | mapped |  |
+| U002 | d0cbe4779c03 | AGENTS.md | Full Example | mapped |  |
+| U003 | 1d581cbef4e7 | AGENTS.md | Full Example | mapped |  |
+| U004 | 03ac8bd08a30 | AGENTS.md | Full Example | mapped |  |
+| U005 | c3366f7f31d6 | AGENTS.md | Full Example | mapped |  |
+| U006 | d23741ed36de | AGENTS.md | Full Example | mapped |  |
+| U007 | 314e199e6d22 | AGENTS.md | Full Example | mapped |  |
+| U008 | 354e3043cee9 | AGENTS.md | Full Example | mapped |  |
+| U009 | 03c9143287bb | AGENTS.md | Full Example | mapped |  |
+| U010 | 1c6e767b7e25 | AGENTS.md | Full Example | mapped |  |
+| U011 | a66c900d09a1 | AGENTS.md | Full Example | mapped |  |
+| U012 | d88c9f4f0bb5 | AGENTS.md | Full Example | mapped |  |
+| U013 | 397bf23388af | AGENTS.md | Full Example | mapped |  |

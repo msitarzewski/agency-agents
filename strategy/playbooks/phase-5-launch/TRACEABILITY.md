@@ -1,0 +1,36 @@
+| unit_id | source_hash | target_file | target_section | status | note |
+| --- | --- | --- | --- | --- | --- |
+| U001 | e0326ddd4da5 | IDENTITY.md | Title | mapped | |
+| U002 | 330e31ed9850 | IDENTITY.md | Metadata | mapped | |
+| U003 | 58b63e273b96 | AGENTS.md | Meta | mapped | |
+| U004 | 1618c17e187b | SOUL.md | Objective | mapped | |
+| U005 | 20217bb78d4a | SOUL.md | Objective | mapped | |
+| U006 | 12f4e3475171 | AGENTS.md | Playbook | mapped | |
+| U007 | 39389d89f40c | AGENTS.md | Playbook | mapped | |
+| U008 | 0c4923134cdd | AGENTS.md | Playbook | mapped | |
+| U009 | 059db65408c9 | AGENTS.md | Playbook | mapped | |
+| U010 | 7b28dd4c9d44 | AGENTS.md | Playbook | mapped | |
+| U011 | 9286780431d6 | AGENTS.md | Playbook | mapped | |
+| U012 | 4516fe2913d1 | AGENTS.md | Playbook | mapped | |
+| U013 | c10000a4707c | AGENTS.md | Playbook | mapped | |
+| U014 | 6fabfb8c3c4c | AGENTS.md | Playbook | mapped | |
+| U015 | 5552ed743376 | AGENTS.md | Playbook | mapped | |
+| U016 | ff48102b7dad | AGENTS.md | Playbook | mapped | |
+| U017 | fa748b38878e | AGENTS.md | Playbook | mapped | |
+| U018 | e034539f9972 | AGENTS.md | Playbook | mapped | |
+| U019 | 588a73fc3eb5 | AGENTS.md | Playbook | mapped | |
+| U020 | 3ade9b623b82 | AGENTS.md | Playbook | mapped | |
+| U021 | 23414b1a3471 | AGENTS.md | Playbook | mapped | |
+| U022 | 62782294bb50 | AGENTS.md | Playbook | mapped | |
+| U023 | 87705ac7a7dd | AGENTS.md | Playbook | mapped | |
+| U024 | c1c38e83dfd3 | AGENTS.md | Playbook | mapped | |
+| U025 | 542c4eb44591 | AGENTS.md | Playbook | mapped | |
+| U026 | 06ccd05e3f38 | AGENTS.md | Playbook | mapped | |
+| U027 | 2ff125171ea8 | AGENTS.md | Playbook | mapped | |
+| U028 | f260ccdd9c3c | AGENTS.md | Playbook | mapped | |
+| U029 | c0b894b37cd1 | AGENTS.md | Playbook | mapped | |
+| U030 | 3619ea4ea9ee | AGENTS.md | Playbook | mapped | |
+| U031 | 2a1b8c1a25c6 | AGENTS.md | Playbook | mapped | |
+| U032 | 28032a4d0e57 | AGENTS.md | Playbook | mapped | |
+| U033 | eb30a892242f | AGENTS.md | Playbook | mapped | |
+| U035 | 58063a78e969 | AGENTS.md | Completion | mapped | |

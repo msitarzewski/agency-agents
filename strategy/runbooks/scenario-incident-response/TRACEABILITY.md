@@ -1,0 +1,32 @@
+| unit_id | source_hash | target_file | target_section | status | note |
+| --- | --- | --- | --- | --- | --- |
+| U001 | 265b397bcb45 | AGENTS.md | Incident Response Runbook | mapped |  |
+| U002 | 70d09d8a3226 | AGENTS.md | Incident Response Runbook | mapped |  |
+| U003 | 58b63e273b96 | AGENTS.md | Incident Response Runbook | mapped |  |
+| U004 | 759150cde127 | AGENTS.md | Incident Response Runbook | mapped |  |
+| U005 | 008b1db276ff | AGENTS.md | Incident Response Runbook | mapped |  |
+| U006 | 4258da443ed7 | AGENTS.md | Incident Response Runbook | mapped |  |
+| U007 | cfe6b45a1fdc | AGENTS.md | Incident Response Runbook | mapped |  |
+| U008 | c5375b28ce4b | AGENTS.md | Incident Response Runbook | mapped |  |
+| U009 | 55ad948b403e | AGENTS.md | Incident Response Runbook | mapped |  |
+| U010 | 624db41f6bf0 | AGENTS.md | Incident Response Runbook | mapped |  |
+| U011 | d8b9ce6f57b5 | AGENTS.md | Incident Response Runbook | mapped |  |
+| U012 | 5949c02c89bd | AGENTS.md | Incident Response Runbook | mapped |  |
+| U013 | 3bda48ca33b1 | AGENTS.md | Incident Response Runbook | mapped |  |
+| U014 | feea494b8843 | AGENTS.md | Incident Response Runbook | mapped |  |
+| U015 | c2bbdaee63ed | AGENTS.md | Incident Response Runbook | mapped |  |
+| U016 | a40423435757 | AGENTS.md | Incident Response Runbook | mapped |  |
+| U017 | 08a0ffadc1f3 | AGENTS.md | Incident Response Runbook | mapped |  |
+| U018 | 53eac05bee9c | AGENTS.md | Incident Response Runbook | mapped |  |
+| U019 | 9b85bc843ccb | AGENTS.md | Incident Response Runbook | mapped |  |
+| U020 | 67d6b0876eb3 | AGENTS.md | Incident Response Runbook | mapped |  |
+| U021 | c1f7d57fdb25 | AGENTS.md | Incident Response Runbook | mapped |  |
+| U022 | fa4ece4f2b92 | AGENTS.md | Incident Response Runbook | mapped |  |
+| U023 | 8dcad9efcbf0 | AGENTS.md | Incident Response Runbook | mapped |  |
+| U024 | 837859433c90 | AGENTS.md | Incident Response Runbook | mapped |  |
+| U025 | 6c94e2571c3d | AGENTS.md | Incident Response Runbook | mapped |  |
+| U026 | 509534c2ff11 | AGENTS.md | Incident Response Runbook | mapped |  |
+| U027 | 87409e9089d0 | AGENTS.md | Incident Response Runbook | mapped |  |
+| U028 | 0a29b6b85a60 | AGENTS.md | Incident Response Runbook | mapped |  |
+| U029 | c807aaeafb8b | AGENTS.md | Incident Response Runbook | mapped |  |
+| U030 | f76be923c648 | AGENTS.md | Incident Response Runbook | mapped |  |

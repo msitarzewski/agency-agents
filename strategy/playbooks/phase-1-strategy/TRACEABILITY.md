@@ -1,0 +1,37 @@
+| unit_id | source_hash | target_file | target_section | status | note |
+| --- | --- | --- | --- | --- | --- |
+| U001 | 60582392fefd | IDENTITY.md | Title | mapped | |
+| U002 | 8a1364a11286 | IDENTITY.md | Metadata | mapped | |
+| U003 | 58b63e273b96 | AGENTS.md | Meta | mapped | |
+| U004 | 1618c17e187b | SOUL.md | Objective | mapped | |
+| U005 | 36490718269b | SOUL.md | Objective | mapped | |
+| U006 | 12f4e3475171 | AGENTS.md | Playbook | mapped | |
+| U007 | c718e42c4c8a | AGENTS.md | Playbook | mapped | |
+| U008 | ca4f6eee53c6 | AGENTS.md | Playbook | mapped | |
+| U009 | 5897ab2401ea | AGENTS.md | Playbook | mapped | |
+| U010 | 9d4538f5c16f | AGENTS.md | Playbook | mapped | |
+| U011 | 023732e2c423 | AGENTS.md | Playbook | mapped | |
+| U012 | 22b9fb9d33ac | AGENTS.md | Playbook | mapped | |
+| U013 | 2219e648ea98 | AGENTS.md | Playbook | mapped | |
+| U014 | f312507bd733 | AGENTS.md | Playbook | mapped | |
+| U015 | a7bd8570e2dc | AGENTS.md | Playbook | mapped | |
+| U016 | 40e859c3e8f9 | AGENTS.md | Playbook | mapped | |
+| U017 | 00dc5fd2b0a4 | AGENTS.md | Playbook | mapped | |
+| U018 | e58b591d1890 | AGENTS.md | Playbook | mapped | |
+| U019 | 03d0db10eb8c | AGENTS.md | Playbook | mapped | |
+| U020 | 9c7aae46d7b3 | AGENTS.md | Playbook | mapped | |
+| U021 | d3cb1cf76a44 | AGENTS.md | Playbook | mapped | |
+| U022 | 60dc9d8ba5d4 | AGENTS.md | Playbook | mapped | |
+| U023 | 850bda7ef236 | AGENTS.md | Playbook | mapped | |
+| U024 | 4e18f65b96b6 | AGENTS.md | Playbook | mapped | |
+| U025 | 62a190512b70 | AGENTS.md | Playbook | mapped | |
+| U026 | a37d2f316844 | AGENTS.md | Playbook | mapped | |
+| U027 | 8262f8c4c8e9 | AGENTS.md | Playbook | mapped | |
+| U028 | 2ff125171ea8 | AGENTS.md | Playbook | mapped | |
+| U029 | 08405778db20 | AGENTS.md | Playbook | mapped | |
+| U030 | c0b894b37cd1 | AGENTS.md | Playbook | mapped | |
+| U031 | 63bd31651739 | AGENTS.md | Playbook | mapped | |
+| U032 | 6e8481e10831 | AGENTS.md | Playbook | mapped | |
+| U033 | b3a1b967187b | AGENTS.md | Playbook | mapped | |
+| U034 | e62c152f14a9 | AGENTS.md | Playbook | mapped | |
+| U036 | 2e3b79d98308 | AGENTS.md | Completion | mapped | |

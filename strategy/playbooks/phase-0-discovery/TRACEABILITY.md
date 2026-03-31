@@ -1,0 +1,34 @@
+| unit_id | source_hash | target_file | target_section | status | note |
+| --- | --- | --- | --- | --- | --- |
+| U001 | 0ba4acedc404 | IDENTITY.md | Title | mapped | |
+| U002 | bf5c8718dfe7 | IDENTITY.md | Metadata | mapped | |
+| U003 | 58b63e273b96 | AGENTS.md | Meta | mapped | |
+| U004 | 1618c17e187b | SOUL.md | Objective | mapped | |
+| U005 | ff7caaacf166 | SOUL.md | Objective | mapped | |
+| U006 | 12f4e3475171 | AGENTS.md | Playbook | mapped | |
+| U007 | e0b43e6a6e3a | AGENTS.md | Playbook | mapped | |
+| U008 | ca4f6eee53c6 | AGENTS.md | Playbook | mapped | |
+| U009 | cc986ac18e6f | AGENTS.md | Playbook | mapped | |
+| U010 | 676ea73d25b4 | AGENTS.md | Playbook | mapped | |
+| U011 | 3f363555450e | AGENTS.md | Playbook | mapped | |
+| U012 | e96323d2dbb0 | AGENTS.md | Playbook | mapped | |
+| U013 | da51ab4e2f96 | AGENTS.md | Playbook | mapped | |
+| U014 | 88a4677181b0 | AGENTS.md | Playbook | mapped | |
+| U015 | 9a40d84d3c1a | AGENTS.md | Playbook | mapped | |
+| U016 | a1840022df1c | AGENTS.md | Playbook | mapped | |
+| U017 | ebc6c38c69a7 | AGENTS.md | Playbook | mapped | |
+| U018 | 068b4cb7b058 | AGENTS.md | Playbook | mapped | |
+| U019 | a066e6972751 | AGENTS.md | Playbook | mapped | |
+| U020 | 9f8defa707c2 | AGENTS.md | Playbook | mapped | |
+| U021 | 11cc8b7da574 | AGENTS.md | Playbook | mapped | |
+| U022 | 4055c2e54dff | AGENTS.md | Playbook | mapped | |
+| U023 | deef8151e262 | AGENTS.md | Playbook | mapped | |
+| U024 | f7b095306b42 | AGENTS.md | Playbook | mapped | |
+| U025 | cba73aab90e3 | AGENTS.md | Playbook | mapped | |
+| U026 | 2ff125171ea8 | AGENTS.md | Playbook | mapped | |
+| U027 | 2124ade9236f | AGENTS.md | Playbook | mapped | |
+| U028 | c0b894b37cd1 | AGENTS.md | Playbook | mapped | |
+| U029 | d72a8c4ef7cc | AGENTS.md | Playbook | mapped | |
+| U030 | 00c1b9dffde3 | AGENTS.md | Playbook | mapped | |
+| U031 | b695abd60327 | AGENTS.md | Playbook | mapped | |
+| U033 | 12bbf802a718 | AGENTS.md | Completion | mapped | |

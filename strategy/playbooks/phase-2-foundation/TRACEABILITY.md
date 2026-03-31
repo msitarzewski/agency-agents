@@ -1,0 +1,35 @@
+| unit_id | source_hash | target_file | target_section | status | note |
+| --- | --- | --- | --- | --- | --- |
+| U001 | 71b4f6a487ee | IDENTITY.md | Title | mapped | |
+| U002 | c7a8464cf2b3 | IDENTITY.md | Metadata | mapped | |
+| U003 | 58b63e273b96 | AGENTS.md | Meta | mapped | |
+| U004 | 1618c17e187b | SOUL.md | Objective | mapped | |
+| U005 | eeb3c43e43db | SOUL.md | Objective | mapped | |
+| U006 | 12f4e3475171 | AGENTS.md | Playbook | mapped | |
+| U007 | e838c88d8700 | AGENTS.md | Playbook | mapped | |
+| U008 | ca4f6eee53c6 | AGENTS.md | Playbook | mapped | |
+| U009 | 72e66bbb35a6 | AGENTS.md | Playbook | mapped | |
+| U010 | 5a670d800b40 | AGENTS.md | Playbook | mapped | |
+| U011 | 4bc2011c1aa3 | AGENTS.md | Playbook | mapped | |
+| U012 | 2c88d79928c9 | AGENTS.md | Playbook | mapped | |
+| U013 | d22d465ccc0e | AGENTS.md | Playbook | mapped | |
+| U014 | 357e3a8249c3 | AGENTS.md | Playbook | mapped | |
+| U015 | eced85bbfe16 | AGENTS.md | Playbook | mapped | |
+| U016 | 33dc7a4b6c80 | AGENTS.md | Playbook | mapped | |
+| U017 | d668b971ffba | AGENTS.md | Playbook | mapped | |
+| U018 | b8761f9376f0 | AGENTS.md | Playbook | mapped | |
+| U019 | 04c7580c418a | AGENTS.md | Playbook | mapped | |
+| U020 | fbf875d66e7a | AGENTS.md | Playbook | mapped | |
+| U021 | 1a6835cfa020 | AGENTS.md | Playbook | mapped | |
+| U022 | 050b0dd4911a | AGENTS.md | Playbook | mapped | |
+| U023 | 133e15ca3059 | AGENTS.md | Playbook | mapped | |
+| U024 | 29bb2eff6815 | AGENTS.md | Playbook | mapped | |
+| U025 | 7d56aae42724 | AGENTS.md | Playbook | mapped | |
+| U026 | 2ff125171ea8 | AGENTS.md | Playbook | mapped | |
+| U027 | e4d8f4cc5e7c | AGENTS.md | Playbook | mapped | |
+| U028 | c0b894b37cd1 | AGENTS.md | Playbook | mapped | |
+| U029 | 0ba3a1570c7e | AGENTS.md | Playbook | mapped | |
+| U030 | 953ff257841a | AGENTS.md | Playbook | mapped | |
+| U031 | 16c3ecd2d441 | AGENTS.md | Playbook | mapped | |
+| U032 | 4179e21e61be | AGENTS.md | Playbook | mapped | |
+| U034 | 60ced619da34 | AGENTS.md | Completion | mapped | |
