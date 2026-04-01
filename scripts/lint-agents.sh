@@ -22,6 +22,7 @@ AGENT_DIRS=(
   support
   spatial-computing
   specialized
+  security
 )
 
 REQUIRED_FRONTMATTER=("name" "description" "color")

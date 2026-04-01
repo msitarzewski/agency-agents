@@ -100,6 +100,14 @@ Building the future, one commit at a time.
 | 🧱 [CMS Developer](engineering/engineering-cms-developer.md) | WordPress & Drupal themes, plugins/modules, content architecture | Code-first CMS implementation and customization |
 | 📧 [Email Intelligence Engineer](engineering/engineering-email-intelligence-engineer.md) | Email parsing, MIME extraction, structured data for AI agents | Turning raw email threads into reasoning-ready context |
 
+### 🔐 Security Division
+
+Protecting applications, code, and infrastructure from the inside out.
+
+| Agent | Specialty | When to Use |
+|-------|-----------|-------------|
+| 🛡️ [Senior SecOps Engineer](security/security-senior-secops.md) | Defensive AppSec, automatic secrets scan, secure code review and implementation | Catching secrets before they reach production, implementing auth/JWT/cookies/headers/CORS/CSP/rate limiting, auditing code against security standards |
+
 ### 🎨 Design Division
 
 Making it beautiful, usable, and delightful.
@@ -497,7 +505,7 @@ Each agent is designed with:
 
 ## 📊 Stats
 
-- 🎭 **144 Specialized Agents** across 12 divisions
+- 🎭 **145 Specialized Agents** across 13 divisions
 - 📝 **10,000+ lines** of personality, process, and code examples
 - ⏱️ **Months of iteration** from real-world usage
 - 🌟 **Battle-tested** in production environments
@@ -849,7 +857,7 @@ MIT License - Use freely, commercially or personally. Attribution appreciated bu
 
 ## 🙏 Acknowledgments
 
-What started as a Reddit thread about AI agent specialization has grown into something remarkable — **147 agents across 12 divisions**, supported by a community of contributors from around the world. Every agent in this repo exists because someone cared enough to write it, test it, and share it.
+What started as a Reddit thread about AI agent specialization has grown into something remarkable — **148 agents across 13 divisions**, supported by a community of contributors from around the world. Every agent in this repo exists because someone cared enough to write it, test it, and share it.
 
 To everyone who has opened a PR, filed an issue, started a Discussion, or simply tried an agent and told us what worked — thank you. You're the reason The Agency keeps getting better.
 
