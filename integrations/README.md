@@ -1,20 +1,22 @@
-# 🔌 Integrations
+# ?? Integrations
 
 This directory contains The Agency integrations and converted formats for
 supported agentic coding tools.
 
 ## Supported Tools
 
-- **[Claude Code](#claude-code)** — `.md` agents, use the repo directly
-- **[GitHub Copilot](#github-copilot)** — `.md` agents, use the repo directly
-- **[Antigravity](#antigravity)** — `SKILL.md` per agent in `antigravity/`
-- **[Gemini CLI](#gemini-cli)** — extension + `SKILL.md` files in `gemini-cli/`
-- **[OpenCode](#opencode)** — `.md` agent files in `opencode/`
-- **[OpenClaw](#openclaw)** — `SOUL.md` + `AGENTS.md` + `IDENTITY.md` workspaces
-- **[Cursor](#cursor)** — `.mdc` rule files in `cursor/`
-- **[Aider](#aider)** — `CONVENTIONS.md` in `aider/`
-- **[Windsurf](#windsurf)** — `.windsurfrules` in `windsurf/`
-- **[Kimi Code](#kimi-code)** — YAML agent specs in `kimi/`
+- **[Codex](#codex)** - `SKILL.md` + `agents/openai.yaml` in `codex/`
+
+- **[Claude Code](#claude-code)** - `.md` agents, use the repo directly
+- **[GitHub Copilot](#github-copilot)** - `.md` agents, use the repo directly
+- **[Antigravity](#antigravity)** - `SKILL.md` per agent in `antigravity/`
+- **[Gemini CLI](#gemini-cli)** - extension + `SKILL.md` files in `gemini-cli/`
+- **[OpenCode](#opencode)** - `.md` agent files in `opencode/`
+- **[OpenClaw](#openclaw)** - `SOUL.md` + `AGENTS.md` + `IDENTITY.md` workspaces
+- **[Cursor](#cursor)** - `.mdc` rule files in `cursor/`
+- **[Aider](#aider)** - `CONVENTIONS.md` in `aider/`
+- **[Windsurf](#windsurf)** - `.windsurfrules` in `windsurf/`
+- **[Kimi Code](#kimi-code)** - YAML agent specs in `kimi/`
 
 ## Quick Install
 
@@ -25,6 +27,7 @@ supported agentic coding tools.
 # Install a specific home-scoped tool
 ./scripts/install.sh --tool antigravity
 ./scripts/install.sh --tool copilot
+./scripts/install.sh --tool codex
 ./scripts/install.sh --tool openclaw
 ./scripts/install.sh --tool claude-code
 
@@ -72,6 +75,24 @@ directly into `~/.github/agents/` and `~/.copilot/agents/` without conversion.
 ```
 
 See [github-copilot/README.md](github-copilot/README.md) for details.
+
+---
+
+## Codex
+
+Each agent becomes a Codex skill directory in `~/.codex/skills/` containing
+`SKILL.md` plus `agents/openai.yaml` metadata. Generated skill names are
+prefixed with `agency-` to avoid collisions with existing local skills.
+
+Because these skill folders are generated artifacts, run
+`./scripts/convert.sh --tool codex` before installing from a fresh clone.
+
+```bash
+./scripts/convert.sh --tool codex
+./scripts/install.sh --tool codex
+```
+
+See [codex/README.md](codex/README.md) for details.
 
 ---
 
@@ -139,7 +160,7 @@ See [openclaw/README.md](openclaw/README.md) for details.
 
 ## Cursor
 
-Each agent becomes a `.mdc` rule file. Rules are project-scoped — run the
+Each agent becomes a `.mdc` rule file. Rules are project-scoped - run the
 installer from your project root.
 
 ```bash

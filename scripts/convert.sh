@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 #
-# convert.sh — Convert agency agent .md files into tool-specific formats.
+# convert.sh - Convert agency agent .md files into tool-specific formats.
 #
 # Reads all agent files from the standard category directories and outputs
 # converted files to integrations/<tool>/. Run this to regenerate all
@@ -10,19 +10,20 @@
 #   ./scripts/convert.sh [--tool <name>] [--out <dir>] [--parallel] [--jobs N] [--help]
 #
 # Tools:
-#   antigravity  — Antigravity skill files (~/.gemini/antigravity/skills/)
-#   gemini-cli   — Gemini CLI extension (skills/ + gemini-extension.json)
-#   opencode     — OpenCode agent files (.opencode/agent/*.md)
-#   cursor       — Cursor rule files (.cursor/rules/*.mdc)
-#   aider        — Single CONVENTIONS.md for Aider
-#   windsurf     — Single .windsurfrules for Windsurf
-#   openclaw     — OpenClaw SOUL.md files (openclaw_workspace/<agent>/SOUL.md)
-#   qwen         — Qwen Code SubAgent files (~/.qwen/agents/*.md)
-#   kimi         — Kimi Code CLI agent files (~/.config/kimi/agents/)
-#   all          — All tools (default)
+#   codex        - Codex skill folders (~/.codex/skills/)
+#   antigravity  - Antigravity skill files (~/.gemini/antigravity/skills/)
+#   gemini-cli   - Gemini CLI extension (skills/ + gemini-extension.json)
+#   opencode     - OpenCode agent files (.opencode/agent/*.md)
+#   cursor       - Cursor rule files (.cursor/rules/*.mdc)
+#   aider        - Single CONVENTIONS.md for Aider
+#   windsurf     - Single .windsurfrules for Windsurf
+#   openclaw     - OpenClaw SOUL.md files (openclaw_workspace/<agent>/SOUL.md)
+#   qwen         - Qwen Code SubAgent files (~/.qwen/agents/*.md)
+#   kimi         - Kimi Code CLI agent files (~/.config/kimi/agents/)
+#   all          - All tools (default)
 #
 # Output is written to integrations/<tool>/ relative to the repo root.
-# This script never touches user config dirs — see install.sh for that.
+# This script never touches user config dirs - see install.sh for that.
 #
 #   --parallel       When tool is 'all', run independent tools in parallel (output order may vary).
 #   --jobs N         Max parallel jobs when using --parallel (default: nproc or 4).
@@ -99,9 +100,37 @@ get_body() {
 }
 
 # Convert a human-readable agent name to a lowercase kebab-case slug.
-# "Frontend Developer" → "frontend-developer"
+# "Frontend Developer" ? "frontend-developer"
 slugify() {
   echo "$1" | tr '[:upper:]' '[:lower:]' | sed 's/[^a-z0-9]/-/g' | sed 's/--*/-/g' | sed 's/^-//;s/-$//'
+}
+
+yaml_quote() {
+  printf '"%s"' "$(printf '%s' "$1" | sed 's/\\/\\\\/g; s/"/\\"/g')"
+}
+
+one_line() {
+  printf '%s' "$1" | tr '\n' ' ' | sed 's/[[:space:]]\+/ /g; s/^ //; s/ $//'
+}
+
+codex_short_description() {
+  local name="$1"
+  local candidate="Use the ${name} specialist"
+
+  if (( ${#candidate} < 25 )); then
+    candidate="${candidate} for guidance"
+  fi
+
+  if (( ${#candidate} > 64 )); then
+    candidate="Help with ${name} tasks"
+  fi
+
+  if (( ${#candidate} > 64 )); then
+    candidate="${candidate:0:64}"
+    candidate="$(printf '%s' "$candidate" | sed 's/[[:space:]]*$//')"
+  fi
+
+  printf '%s' "$candidate"
 }
 
 # --- Per-tool converters ---
@@ -129,6 +158,37 @@ source: community
 date_added: '${TODAY}'
 ---
 ${body}
+HEREDOC
+}
+
+convert_codex() {
+  local file="$1"
+  local name description slug skill_name outdir outfile body short_description
+
+  name="$(get_field "name" "$file")"
+  description="$(one_line "$(get_field "description" "$file")")"
+  slug="$(slugify "$name")"
+  skill_name="agency-${slug}"
+  body="$(get_body "$file")"
+  short_description="$(codex_short_description "$name")"
+
+  outdir="$OUT_DIR/codex/$skill_name"
+  outfile="$outdir/SKILL.md"
+  mkdir -p "$outdir/agents"
+
+  cat > "$outfile" <<HEREDOC
+---
+name: $(yaml_quote "$skill_name")
+description: $(yaml_quote "$description")
+---
+${body}
+HEREDOC
+
+  cat > "$outdir/agents/openai.yaml" <<HEREDOC
+interface:
+  display_name: $(yaml_quote "$name")
+  short_description: $(yaml_quote "$short_description")
+  default_prompt: $(yaml_quote "Use \$${skill_name} to help with this task.")
 HEREDOC
 }
 
@@ -311,17 +371,17 @@ convert_openclaw() {
     fi
   fi
 
-  # Write SOUL.md — persona, tone, boundaries
+  # Write SOUL.md - persona, tone, boundaries
   cat > "$outdir/SOUL.md" <<HEREDOC
 ${soul_content}
 HEREDOC
 
-  # Write AGENTS.md — mission, deliverables, workflow
+  # Write AGENTS.md - mission, deliverables, workflow
   cat > "$outdir/AGENTS.md" <<HEREDOC
 ${agents_content}
 HEREDOC
 
-  # Write IDENTITY.md — emoji + name + vibe from frontmatter, fallback to description
+  # Write IDENTITY.md - emoji + name + vibe from frontmatter, fallback to description
   local emoji vibe
   emoji="$(get_field "emoji" "$file")"
   vibe="$(get_field "vibe" "$file")"
@@ -407,7 +467,7 @@ ${body}
 HEREDOC
 }
 
-# Aider and Windsurf are single-file formats — accumulate into temp files
+# Aider and Windsurf are single-file formats - accumulate into temp files
 # then write at the end.
 AIDER_TMP="$(mktemp)"
 WINDSURF_TMP="$(mktemp)"
@@ -415,7 +475,7 @@ trap 'rm -f "$AIDER_TMP" "$WINDSURF_TMP"' EXIT
 
 # Write Aider/Windsurf headers once
 cat > "$AIDER_TMP" <<'HEREDOC'
-# The Agency — AI Agent Conventions
+# The Agency - AI Agent Conventions
 #
 # This file provides Aider with the full roster of specialized AI agents from
 # The Agency (https://github.com/msitarzewski/agency-agents).
@@ -423,17 +483,17 @@ cat > "$AIDER_TMP" <<'HEREDOC'
 # To activate an agent, reference it by name in your Aider session prompt, e.g.:
 #   "Use the Frontend Developer agent to review this component."
 #
-# Generated by scripts/convert.sh — do not edit manually.
+# Generated by scripts/convert.sh - do not edit manually.
 
 HEREDOC
 
 cat > "$WINDSURF_TMP" <<'HEREDOC'
-# The Agency — AI Agent Rules for Windsurf
+# The Agency - AI Agent Rules for Windsurf
 #
 # Full roster of specialized AI agents from The Agency.
 # To activate an agent, reference it by name in your Windsurf conversation.
 #
-# Generated by scripts/convert.sh — do not edit manually.
+# Generated by scripts/convert.sh - do not edit manually.
 
 HEREDOC
 
@@ -499,6 +559,7 @@ run_conversions() {
 
       case "$tool" in
         antigravity) convert_antigravity "$file" ;;
+        codex)       convert_codex       "$file" ;;
         gemini-cli)  convert_gemini_cli  "$file" ;;
         opencode)    convert_opencode    "$file" ;;
         cursor)      convert_cursor      "$file" ;;
@@ -535,7 +596,7 @@ main() {
     esac
   done
 
-  local valid_tools=("antigravity" "gemini-cli" "opencode" "cursor" "aider" "windsurf" "openclaw" "qwen" "kimi" "all")
+  local valid_tools=("antigravity" "codex" "gemini-cli" "opencode" "cursor" "aider" "windsurf" "openclaw" "qwen" "kimi" "all")
   local valid=false
   for t in "${valid_tools[@]}"; do [[ "$t" == "$tool" ]] && valid=true && break; done
   if ! $valid; then
@@ -554,7 +615,7 @@ main() {
 
   local tools_to_run=()
   if [[ "$tool" == "all" ]]; then
-    tools_to_run=("antigravity" "gemini-cli" "opencode" "cursor" "aider" "windsurf" "openclaw" "qwen" "kimi")
+    tools_to_run=("antigravity" "codex" "gemini-cli" "opencode" "cursor" "aider" "windsurf" "openclaw" "qwen" "kimi")
   else
     tools_to_run=("$tool")
   fi
@@ -565,7 +626,7 @@ main() {
 
   if $use_parallel && [[ "$tool" == "all" ]]; then
     # Tools that write to separate dirs can run in parallel; buffer output so each tool's output stays together
-    local parallel_tools=(antigravity gemini-cli opencode cursor openclaw qwen)
+    local parallel_tools=(antigravity codex gemini-cli opencode cursor openclaw qwen)
     local parallel_out_dir
     parallel_out_dir="$(mktemp -d)"
     info "Converting: ${#parallel_tools[@]}/${n_tools} tools in parallel (output buffered per tool)..."
@@ -577,7 +638,7 @@ main() {
       [[ -f "$parallel_out_dir/$t" ]] && cat "$parallel_out_dir/$t"
     done
     rm -rf "$parallel_out_dir"
-    local idx=7
+    local idx=8
     for t in aider windsurf; do
       progress_bar "$idx" "$n_tools"
       printf "\n"
