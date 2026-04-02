@@ -28,6 +28,7 @@ Born from a Reddit thread and months of iteration, **The Agency** is a growing c
 
 ```bash
 # Copy agents to your Claude Code directory
+- [skill-taxonomy](https://github.com/SeeleAI/skill-taxonomy) - Structured taxonomy for AI agent skills: discovery, classification and routing across multi-agent workflows.
 cp -r agency-agents/* ~/.claude/agents/
 
 # Now activate any agent in your Claude Code sessions:
