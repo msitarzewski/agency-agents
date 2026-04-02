@@ -67,6 +67,7 @@ NOTES.md
 # The scripts/ and integrations/*/README.md files ARE committed; only generated
 # agent/skill files are excluded.
 integrations/antigravity/agency-*/
+integrations/codex/agency-*/
 integrations/gemini-cli/skills/
 integrations/gemini-cli/gemini-extension.json
 integrations/opencode/agents/
@@ -78,3 +79,4 @@ integrations/qwen/agents/
 integrations/kimi/*/
 !integrations/openclaw/README.md
 !integrations/kimi/README.md
+!integrations/codex/README.md

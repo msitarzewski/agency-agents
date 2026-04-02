@@ -8,6 +8,7 @@ supported agentic coding tools.
 - **[Claude Code](#claude-code)** — `.md` agents, use the repo directly
 - **[GitHub Copilot](#github-copilot)** — `.md` agents, use the repo directly
 - **[Antigravity](#antigravity)** — `SKILL.md` per agent in `antigravity/`
+- **[Codex](#codex)** — `SKILL.md` per agent in `codex/`
 - **[Gemini CLI](#gemini-cli)** — extension + `SKILL.md` files in `gemini-cli/`
 - **[OpenCode](#opencode)** — `.md` agent files in `opencode/`
 - **[OpenClaw](#openclaw)** — `SOUL.md` + `AGENTS.md` + `IDENTITY.md` workspaces
@@ -24,6 +25,7 @@ supported agentic coding tools.
 
 # Install a specific home-scoped tool
 ./scripts/install.sh --tool antigravity
+./scripts/install.sh --tool codex
 ./scripts/install.sh --tool copilot
 ./scripts/install.sh --tool openclaw
 ./scripts/install.sh --tool claude-code
@@ -85,6 +87,20 @@ a separate skill prefixed with `agency-` to avoid naming conflicts.
 ```
 
 See [antigravity/README.md](antigravity/README.md) for details.
+
+---
+
+## Codex
+
+Skills are installed to `~/.codex/skills/`. Each agent becomes
+a separate skill prefixed with `agency-` to avoid naming conflicts.
+
+```bash
+./scripts/convert.sh --tool codex
+./scripts/install.sh --tool codex
+```
+
+See [codex/README.md](codex/README.md) for details.
 
 ---
 

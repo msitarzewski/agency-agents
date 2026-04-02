@@ -13,6 +13,7 @@
 #   claude-code  -- Copy agents to ~/.claude/agents/
 #   copilot      -- Copy agents to ~/.github/agents/ and ~/.copilot/agents/
 #   antigravity  -- Copy skills to ~/.gemini/antigravity/skills/
+#   codex        -- Copy skills to ~/.codex/skills/
 #   gemini-cli   -- Install extension to ~/.gemini/extensions/agency-agents/
 #   opencode     -- Copy agents to .opencode/agent/ in current directory
 #   cursor       -- Copy rules to .cursor/rules/ in current directory
@@ -101,7 +102,7 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 REPO_ROOT="$(cd "$SCRIPT_DIR/.." && pwd)"
 INTEGRATIONS="$REPO_ROOT/integrations"
 
-ALL_TOOLS=(claude-code copilot antigravity gemini-cli opencode openclaw cursor aider windsurf qwen kimi)
+ALL_TOOLS=(claude-code copilot antigravity codex gemini-cli opencode openclaw cursor aider windsurf qwen kimi)
 
 # ---------------------------------------------------------------------------
 # Usage
@@ -135,6 +136,7 @@ check_integrations() {
 detect_claude_code() { [[ -d "${HOME}/.claude" ]]; }
 detect_copilot()      { command -v code >/dev/null 2>&1 || [[ -d "${HOME}/.github" || -d "${HOME}/.copilot" ]]; }
 detect_antigravity()  { [[ -d "${HOME}/.gemini/antigravity/skills" ]]; }
+detect_codex()        { command -v codex >/dev/null 2>&1 || [[ -d "${HOME}/.codex" ]]; }
 detect_gemini_cli()   { command -v gemini >/dev/null 2>&1 || [[ -d "${HOME}/.gemini" ]]; }
 detect_cursor()       { command -v cursor >/dev/null 2>&1 || [[ -d "${HOME}/.cursor" ]]; }
 detect_opencode()     { command -v opencode >/dev/null 2>&1 || [[ -d "${HOME}/.config/opencode" ]]; }
@@ -149,6 +151,7 @@ is_detected() {
     claude-code) detect_claude_code ;;
     copilot)     detect_copilot     ;;
     antigravity) detect_antigravity ;;
+    codex)       detect_codex       ;;
     gemini-cli)  detect_gemini_cli  ;;
     opencode)    detect_opencode    ;;
     openclaw)    detect_openclaw    ;;
@@ -167,6 +170,7 @@ tool_label() {
     claude-code) printf "%-14s  %s" "Claude Code"  "(claude.ai/code)"        ;;
     copilot)     printf "%-14s  %s" "Copilot"      "(~/.github + ~/.copilot)" ;;
     antigravity) printf "%-14s  %s" "Antigravity"  "(~/.gemini/antigravity)" ;;
+    codex)       printf "%-14s  %s" "Codex"        "(~/.codex/skills)"       ;;
     gemini-cli)  printf "%-14s  %s" "Gemini CLI"   "(gemini extension)"      ;;
     opencode)    printf "%-14s  %s" "OpenCode"     "(opencode.ai)"           ;;
     openclaw)    printf "%-14s  %s" "OpenClaw"     "(~/.openclaw)"           ;;
@@ -351,6 +355,25 @@ install_antigravity() {
   ok "Antigravity: $count skills -> $dest"
 }
 
+install_codex() {
+  local src="$INTEGRATIONS/codex"
+  local dest="${HOME}/.codex/skills"
+  local count=0
+  [[ -d "$src" ]] || { err "integrations/codex missing. Run ./scripts/convert.sh --tool codex first."; return 1; }
+  local first_skill
+  first_skill="$(find "$src" -mindepth 2 -maxdepth 2 -type f -name "SKILL.md" -print -quit)"
+  [[ -n "$first_skill" ]] || { err "No Codex skills found in integrations/codex. Run ./scripts/convert.sh --tool codex first."; return 1; }
+  mkdir -p "$dest"
+  local d
+  while IFS= read -r -d '' d; do
+    local name; name="$(basename "$d")"
+    mkdir -p "$dest/$name"
+    cp "$d/SKILL.md" "$dest/$name/SKILL.md"
+    (( count++ )) || true
+  done < <(find "$src" -mindepth 1 -maxdepth 1 -type d -print0)
+  ok "Codex: $count skills -> $dest"
+}
+
 install_gemini_cli() {
   local src="$INTEGRATIONS/gemini-cli"
   local dest="${HOME}/.gemini/extensions/agency-agents"
@@ -498,6 +521,7 @@ install_tool() {
     claude-code) install_claude_code ;;
     copilot)     install_copilot     ;;
     antigravity) install_antigravity ;;
+    codex)       install_codex       ;;
     gemini-cli)  install_gemini_cli  ;;
     opencode)    install_opencode    ;;
     openclaw)    install_openclaw    ;;
