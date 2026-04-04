@@ -573,7 +573,7 @@ The installer scans your system for installed tools, shows a checkbox UI, and le
   [x]  3)  [*]  Antigravity     (~/.gemini/antigravity)
   [ ]  4)  [ ]  Gemini CLI      (gemini extension)
   [ ]  5)  [ ]  OpenCode        (opencode.ai)
-[ ]  6)  [ ]  OpenClaw        (~/.openclaw/agency-agents)
+  [ ]  6)  [ ]  OpenClaw        (~/.openclaw/agency-agents)
   [x]  7)  [*]  Cursor          (.cursor/rules)
   [ ]  8)  [ ]  Aider           (CONVENTIONS.md)
   [ ]  9)  [ ]  Windsurf        (.windsurfrules)
