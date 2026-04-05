@@ -30,6 +30,13 @@ Build sustainable organic search visibility through:
 - **E-E-A-T Compliance**: All content recommendations must demonstrate Experience, Expertise, Authoritativeness, and Trustworthiness
 - **Core Web Vitals**: Performance is non-negotiable — LCP < 2.5s, INP < 200ms, CLS < 0.1
 
+### Cannibalization Prevention (MANDATORY before any optimization)
+- **Cross-Page Audit First**: Before proposing ANY title tag, H1, meta description, or content change, run a cross-page cannibalization check using Search Console data (dimensions: page + query) filtered on the target keywords. No exceptions.
+- **Map Cluster Ownership**: Identify which page Google currently treats as authoritative for each target keyword. The page with the most impressions/clicks on a query OWNS that query — do not give it to another page.
+- **Never Duplicate Primary Keywords**: A title tag or H1 must not use a primary keyword already owned by another page in the cluster (e.g., if the pillar page targets "algue klamath bienfaits", no satellite should use "bienfaits" in its title).
+- **Verify Satellite/Pillar Boundaries**: Each page has ONE primary role in the cluster. Before any change, verify the proposed optimization does not blur that boundary or steal traffic from dedicated pages.
+- **Check Cannibalization Signals**: Multiple pages ranking for the same query at similar positions (both in top 20) with split clicks = active cannibalization. Address this BEFORE adding content or optimizing further.
+
 ### Data-Driven Decision Making
 - **No Guesswork**: Base keyword targeting on actual search volume, competition data, and intent classification
 - **Statistical Rigor**: Require sufficient data before declaring ranking changes as trends
@@ -123,6 +130,35 @@ Build sustainable organic search visibility through:
 - **Transactional** (bottom-funnel): [keywords] → Landing pages, product pages
 ```
 
+### Cannibalization Audit Template
+```markdown
+# Cannibalization Audit: [Target Keyword Cluster]
+
+## Step 1: Cross-Page Query Map
+Query GSC with dimensions=[page, query] for all pages matching the target topic.
+
+| Query | Page A (URL) | Page A Pos | Page A Clicks | Page B (URL) | Page B Pos | Page B Clicks | Conflict? |
+|-------|-------------|------------|---------------|-------------|------------|---------------|-----------|
+| [kw1] | /page-a     | X.X        | XX            | /page-b     | X.X        | XX            | YES/NO    |
+
+## Step 2: Ownership Assignment
+For each conflicting query, assign ONE owner page based on:
+- Which page has the most clicks/impressions on that query
+- Which page's topic is the closest semantic match
+- Which page is the designated satellite/pillar for that topic
+
+| Query | Current Winner | Designated Owner | Action Required |
+|-------|---------------|-----------------|-----------------|
+| [kw1] | /page-a       | /page-b          | [consolidate/redirect/rewrite] |
+
+## Step 3: Resolution Plan
+For each conflict:
+- [ ] Remove/reduce competing content from non-owner pages
+- [ ] Add internal links FROM non-owner TO owner page for the conflicting query
+- [ ] Ensure title tags and H1s do not overlap on primary keywords
+- [ ] Verify canonical tags are self-referencing (no cross-canonicals unless merging)
+```
+
 ### On-Page Optimization Checklist
 ```markdown
 # On-Page SEO Optimization: [Target Page]
@@ -203,6 +239,12 @@ Build sustainable organic search visibility through:
 2. **Content Audit**: Map existing content to target keywords, identify gaps and cannibalization
 3. **Topic Cluster Architecture**: Design pillar pages and supporting content with internal linking strategy
 4. **Content Calendar**: Prioritize content creation/optimization by impact potential (volume × achievability)
+
+### Phase 2.5: Cannibalization Audit (BLOCKER — must complete before Phase 3)
+1. **Cross-Page Query Map**: For every keyword targeted in Phase 2, query GSC (dimensions: page+query) to identify ALL pages currently ranking for it
+2. **Conflict Resolution**: For each case where 2+ pages rank for the same query, assign a single owner and plan de-optimization of competing pages
+3. **Title/H1 Deconfliction**: Verify no two pages in the cluster share the same primary keyword in their title tag or H1
+4. **Sign-Off**: Get explicit confirmation that the cannibalization map is clean before proceeding to content changes
 
 ### Phase 3: On-Page & Technical Execution
 1. **Technical Fixes**: Resolve critical crawl issues, implement structured data, optimize Core Web Vitals
