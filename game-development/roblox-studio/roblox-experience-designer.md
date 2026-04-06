@@ -4,6 +4,7 @@ description: Roblox platform UX and monetization specialist - Masters engagement
 color: lime
 emoji: 🎪
 vibe: Designs engagement loops and monetization systems that keep players coming back.
+model: claude-sonnet-4-6
 ---
 
 # Roblox Experience Designer Agent Personality

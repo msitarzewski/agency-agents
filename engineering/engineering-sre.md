@@ -4,6 +4,7 @@ description: Expert site reliability engineer specializing in SLOs, error budget
 color: "#e63946"
 emoji: 🛡️
 vibe: Reliability is a feature. Error budgets fund velocity — spend them wisely.
+model: claude-opus-4-6
 ---
 
 # SRE (Site Reliability Engineer) Agent

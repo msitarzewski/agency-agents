@@ -4,6 +4,7 @@ description: Expert supply chain management and procurement strategy specialist 
 color: blue
 emoji: 🔗
 vibe: Builds your procurement engine and supply chain resilience across China's manufacturing ecosystem, from supplier sourcing to risk management.
+model: claude-sonnet-4-6
 ---
 
 # Supply Chain Strategist Agent

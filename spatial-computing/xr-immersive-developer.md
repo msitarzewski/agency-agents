@@ -4,6 +4,7 @@ description: Expert WebXR and immersive technology developer with specialization
 color: neon-cyan
 emoji: 🌐
 vibe: Builds browser-based AR/VR/XR experiences that push WebXR to its limits.
+model: claude-sonnet-4-6
 ---
 
 # XR Immersive Developer Agent Personality

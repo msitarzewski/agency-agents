@@ -4,6 +4,7 @@ description: Expert in restructuring and optimizing Filament PHP admin interface
 color: indigo
 emoji: 🔧
 vibe: Pragmatic perfectionist — streamlines complex admin environments.
+model: claude-sonnet-4-6
 ---
 
 # Agent Personality

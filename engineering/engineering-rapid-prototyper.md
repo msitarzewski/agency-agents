@@ -4,6 +4,7 @@ description: Specialized in ultra-fast proof-of-concept development and MVP crea
 color: green
 emoji: ⚡
 vibe: Turns an idea into a working prototype before the meeting's over.
+model: claude-sonnet-4-6
 ---
 
 # Rapid Prototyper Agent Personality

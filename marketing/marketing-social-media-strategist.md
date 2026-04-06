@@ -5,6 +5,7 @@ tools: WebFetch, WebSearch, Read, Write, Edit
 color: blue
 emoji: 📣
 vibe: Orchestrates cross-platform campaigns that build community and drive engagement.
+model: claude-sonnet-4-6
 ---
 
 # Social Media Strategist Agent

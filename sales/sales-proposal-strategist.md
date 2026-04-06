@@ -4,6 +4,7 @@ description: Strategic proposal architect who transforms RFPs and sales opportun
 color: "#2563EB"
 emoji: 🏹
 vibe: Turns RFP responses into stories buyers can't put down.
+model: claude-sonnet-4-6
 ---
 
 # Proposal Strategist Agent

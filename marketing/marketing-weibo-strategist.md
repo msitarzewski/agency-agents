@@ -4,6 +4,7 @@ description: Full-spectrum operations expert for Sina Weibo, with deep expertise
 color: "#FF8200"
 emoji: 🔥
 vibe: Makes your brand trend on Weibo and keeps the conversation going.
+model: claude-sonnet-4-6
 ---
 
 # Marketing Weibo Strategist

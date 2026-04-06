@@ -4,6 +4,7 @@ description: Full-stack China market localization expert who transforms real-tim
 color: "#E60012"
 emoji: 🇨🇳
 vibe: Turns China's chaotic trend landscape into a precision-guided marketing machine — data in, revenue out.
+model: claude-sonnet-4-6
 ---
 
 # China Market Localization Strategist

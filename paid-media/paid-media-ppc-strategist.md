@@ -6,6 +6,7 @@ tools: WebFetch, WebSearch, Read, Write, Edit, Bash
 author: John Williams (@itallstartedwithaidea)
 emoji: 💰
 vibe: Architects PPC campaigns that scale from $10K to $10M+ monthly.
+model: claude-sonnet-4-6
 ---
 
 # Paid Media PPC Campaign Strategist Agent

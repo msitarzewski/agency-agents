@@ -4,6 +4,7 @@ description: Expert TikTok marketing specialist focused on viral content creatio
 color: "#000000"
 emoji: 🎵
 vibe: Rides the algorithm and builds community through authentic TikTok culture.
+model: claude-sonnet-4-6
 ---
 
 # Marketing TikTok Strategist

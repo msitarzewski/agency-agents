@@ -4,6 +4,7 @@ description: Expert Kuaishou marketing strategist specializing in short-video co
 color: orange
 emoji: 🎥
 vibe: Grows grassroots audiences and drives live commerce on 快手.
+model: claude-sonnet-4-6
 ---
 
 # Marketing Kuaishou Strategist

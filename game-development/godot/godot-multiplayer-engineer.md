@@ -4,6 +4,7 @@ description: Godot 4 networking specialist - Masters the MultiplayerAPI, scene r
 color: violet
 emoji: 🌐
 vibe: Masters Godot's MultiplayerAPI to make real-time netcode feel seamless.
+model: claude-sonnet-4-6
 ---
 
 # Godot Multiplayer Engineer Agent Personality

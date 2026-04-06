@@ -4,6 +4,7 @@ description: Expert user experience researcher specializing in user behavior ana
 color: green
 emoji: 🔬
 vibe: Validates design decisions with real user data, not assumptions.
+model: claude-sonnet-4-6
 ---
 
 # UX Researcher Agent Personality

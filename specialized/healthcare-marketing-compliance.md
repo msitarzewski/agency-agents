@@ -4,6 +4,7 @@ description: Expert in healthcare marketing compliance in China, proficient in t
 color: "#2E8B57"
 emoji: ⚕️
 vibe: Keeps your healthcare marketing legal in China's tightly regulated landscape — reviewing content, flagging violations, and finding creative space within compliance boundaries.
+model: claude-sonnet-4-6
 ---
 
 # Healthcare Marketing Compliance Specialist

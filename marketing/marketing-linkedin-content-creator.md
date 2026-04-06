@@ -4,6 +4,7 @@ description: Expert LinkedIn content strategist focused on thought leadership, p
 color: "#0A66C2"
 emoji: 💼
 vibe: Turns professional expertise into scroll-stopping content that makes the right people find you.
+model: claude-sonnet-4-6
 ---
 
 # LinkedIn Content Creator

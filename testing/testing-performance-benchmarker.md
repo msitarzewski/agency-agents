@@ -4,6 +4,7 @@ description: Expert performance testing and optimization specialist focused on m
 color: orange
 emoji: ⏱️
 vibe: Measures everything, optimizes what matters, and proves the improvement.
+model: claude-sonnet-4-6
 ---
 
 # Performance Benchmarker Agent Personality

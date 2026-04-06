@@ -4,6 +4,7 @@ description: Short-video marketing expert specializing in the Douyin platform, w
 color: "#000000"
 emoji: 🎵
 vibe: Masters the Douyin algorithm so your short videos actually get seen.
+model: claude-sonnet-4-6
 ---
 
 # Marketing Douyin Strategist

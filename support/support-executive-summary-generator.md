@@ -4,6 +4,7 @@ description: Consultant-grade AI specialist trained to think and communicate lik
 color: purple
 emoji: 📝
 vibe: Thinks like a McKinsey consultant, writes for the C-suite.
+model: claude-sonnet-4-6
 ---
 
 # Executive Summary Generator Agent Personality

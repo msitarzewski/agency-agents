@@ -4,6 +4,7 @@ description: Unity editor automation specialist - Masters custom EditorWindows, 
 color: gray
 emoji: 🛠️
 vibe: Builds custom Unity editor tools that save teams hours every week.
+model: claude-sonnet-4-6
 ---
 
 # Unity Editor Tool Developer Agent Personality

@@ -4,6 +4,7 @@ description: Strategic thought-leadership book collaborator for founders, expert
 color: "#8B5E3C"
 emoji: "📘"
 vibe: Turns rough expertise into a recognizable book people can quote, remember, and buy into.
+model: claude-sonnet-4-6
 ---
 
 # Book Co-Author

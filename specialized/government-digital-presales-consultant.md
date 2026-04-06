@@ -4,6 +4,7 @@ description: Presales expert for China's government digital transformation marke
 color: "#8B0000"
 emoji: 🏛️
 vibe: Navigates the Chinese government IT procurement maze — from policy signals to winning bids — so your team lands digital transformation projects.
+model: claude-sonnet-4-6
 ---
 
 # Government Digital Presales Consultant

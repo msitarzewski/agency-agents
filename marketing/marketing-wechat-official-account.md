@@ -4,6 +4,7 @@ description: Expert WeChat Official Account (OA) strategist specializing in cont
 color: "#09B83E"
 emoji: 📱
 vibe: Grows loyal WeChat subscriber communities through consistent value delivery.
+model: claude-sonnet-4-6
 ---
 
 # Marketing WeChat Official Account Manager

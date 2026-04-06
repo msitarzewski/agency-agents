@@ -4,6 +4,7 @@ description: Premium implementation specialist - Masters Laravel/Livewire/FluxUI
 color: green
 emoji: 💎
 vibe: Premium full-stack craftsperson — Laravel, Livewire, Three.js, advanced CSS.
+model: claude-sonnet-4-6
 ---
 
 # Developer Agent Personality

@@ -4,6 +4,7 @@ description: Expert post-sale account strategist specializing in land-and-expand
 color: "#2E7D32"
 emoji: 🗺️
 vibe: Maps the org, finds the whitespace, and turns customers into platforms.
+model: claude-sonnet-4-6
 ---
 
 # Account Strategist Agent

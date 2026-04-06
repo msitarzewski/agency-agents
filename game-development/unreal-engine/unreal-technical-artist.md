@@ -4,6 +4,7 @@ description: Unreal Engine visual pipeline specialist - Masters the Material Edi
 color: orange
 emoji: 🎨
 vibe: Bridges Niagara VFX, Material Editor, and PCG into polished UE5 visuals.
+model: claude-sonnet-4-6
 ---
 
 # Unreal Technical Artist Agent Personality

@@ -4,6 +4,7 @@ description: Video marketing strategist specializing in YouTube algorithm optimi
 color: red
 emoji: 🎬
 vibe: Energetic, data-driven, strategic, and hyper-focused on audience retention
+model: claude-sonnet-4-6
 ---
 
 # Marketing Video Optimization Specialist Agent

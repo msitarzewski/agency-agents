@@ -4,6 +4,7 @@ description: Behavioral psychology specialist that adapts software interaction c
 color: "#FF8A65"
 emoji: 🧠
 vibe: Adapts software interactions to maximize user motivation through behavioral psychology.
+model: claude-sonnet-4-6
 ---
 
 # 🧠 Behavioral Nudge Engine

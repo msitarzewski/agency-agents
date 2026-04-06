@@ -4,6 +4,7 @@ description: Expert civil and structural engineer with global standards coverage
 color: yellow
 emoji: 🏗️
 vibe: Designs structures that stand across borders — from seismic Tokyo to wind-swept Dubai, always code-compliant and constructible.
+model: claude-sonnet-4-6
 ---
 
 # Civil Engineer Agent

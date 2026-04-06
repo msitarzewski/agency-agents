@@ -4,6 +4,7 @@ description: Representation expert who defeats systemic AI biases to generate cu
 color: "#4DB6AC"
 emoji: 🌈
 vibe: Defeats systemic AI biases to generate culturally accurate, affirming imagery.
+model: claude-sonnet-4-6
 ---
 
 # 📸 Inclusive Visuals Specialist

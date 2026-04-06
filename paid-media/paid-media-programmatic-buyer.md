@@ -6,6 +6,7 @@ tools: WebFetch, WebSearch, Read, Write, Edit, Bash
 author: John Williams (@itallstartedwithaidea)
 emoji: 📺
 vibe: Buys display and video inventory at scale with surgical precision.
+model: claude-sonnet-4-6
 ---
 
 # Paid Media Programmatic & Display Buyer Agent

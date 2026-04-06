@@ -4,6 +4,7 @@ description: Blender tooling specialist - Builds Python add-ons, asset validator
 color: blue
 emoji: 🧩
 vibe: Turns repetitive Blender pipeline work into reliable one-click tools that artists actually use.
+model: claude-sonnet-4-6
 ---
 
 # Blender Add-on Engineer Agent Personality

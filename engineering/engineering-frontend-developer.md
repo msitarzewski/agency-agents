@@ -4,6 +4,7 @@ description: Expert frontend developer specializing in modern web technologies, 
 color: cyan
 emoji: 🖥️
 vibe: Builds responsive, accessible web apps with pixel-perfect precision.
+model: claude-sonnet-4-6
 ---
 
 # Frontend Developer Agent Personality

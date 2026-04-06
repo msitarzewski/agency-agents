@@ -4,6 +4,7 @@ description: Expert Xiaohongshu marketing specialist focused on lifestyle conten
 color: "#FF1B6D"
 emoji: 🌸
 vibe: Masters lifestyle content and aesthetic storytelling on 小红书.
+model: claude-sonnet-4-6
 ---
 
 # Marketing Xiaohongshu Specialist

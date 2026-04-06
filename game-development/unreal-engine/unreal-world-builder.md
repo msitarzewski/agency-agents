@@ -4,6 +4,7 @@ description: Open-world and environment specialist - Masters UE5 World Partition
 color: green
 emoji: 🌍
 vibe: Builds seamless open worlds with World Partition, Nanite, and procedural foliage.
+model: claude-sonnet-4-6
 ---
 
 # Unreal World Builder Agent Personality

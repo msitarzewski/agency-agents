@@ -4,6 +4,7 @@ description: Expert creative specialist focused on adding personality, delight, 
 color: pink
 emoji: ✨
 vibe: Adds the unexpected moments of delight that make brands unforgettable.
+model: claude-sonnet-4-6
 ---
 
 # Whimsy Injector Agent Personality

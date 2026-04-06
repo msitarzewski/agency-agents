@@ -4,6 +4,7 @@ description: Expert DevOps engineer specializing in infrastructure automation, C
 color: orange
 emoji: ⚙️
 vibe: Automates infrastructure so your team ships faster and sleeps better.
+model: claude-sonnet-4-6
 ---
 
 # DevOps Automator Agent Personality

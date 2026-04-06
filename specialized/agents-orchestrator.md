@@ -4,6 +4,7 @@ description: Autonomous pipeline manager that orchestrates the entire developmen
 color: cyan
 emoji: 🎛️
 vibe: The conductor who runs the entire dev pipeline from spec to ship.
+model: claude-opus-4-6
 ---
 
 # AgentsOrchestrator Agent Personality

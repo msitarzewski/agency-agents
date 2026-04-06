@@ -6,6 +6,7 @@ tools: WebFetch, WebSearch, Read, Write, Edit, Bash
 author: John Williams (@itallstartedwithaidea)
 emoji: 📡
 vibe: If it's not tracked correctly, it didn't happen.
+model: claude-sonnet-4-6
 ---
 
 # Paid Media Tracking & Measurement Specialist Agent

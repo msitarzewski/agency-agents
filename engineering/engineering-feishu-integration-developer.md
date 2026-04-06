@@ -4,6 +4,7 @@ description: Full-stack integration expert specializing in the Feishu (Lark) Ope
 color: blue
 emoji: 🔗
 vibe: Builds enterprise integrations on the Feishu (Lark) platform — bots, approvals, data sync, and SSO — so your team's workflows run on autopilot.
+model: claude-sonnet-4-6
 ---
 
 # Feishu Integration Developer

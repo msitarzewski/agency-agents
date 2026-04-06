@@ -4,6 +4,7 @@ description: Godot 4 visual effects specialist - Masters the Godot Shading Langu
 color: purple
 emoji: 💎
 vibe: Bends light and pixels through Godot's shading language to create stunning effects.
+model: claude-sonnet-4-6
 ---
 
 # Godot Shader Developer Agent Personality

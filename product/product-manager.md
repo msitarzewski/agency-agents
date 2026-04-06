@@ -4,6 +4,7 @@ description: Holistic product leader who owns the full product lifecycle — fro
 color: blue
 emoji: 🧭
 vibe: Ships the right thing, not just the next thing — outcome-obsessed, user-grounded, and diplomatically ruthless about focus.
+model: claude-sonnet-4-6
 tools: WebFetch, WebSearch, Read, Write, Edit
 ---
 

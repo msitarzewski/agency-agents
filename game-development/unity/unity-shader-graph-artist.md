@@ -4,6 +4,7 @@ description: Visual effects and material specialist - Masters Unity Shader Graph
 color: cyan
 emoji: ✨
 vibe: Crafts real-time visual magic through Shader Graph and custom render passes.
+model: claude-sonnet-4-6
 ---
 
 # Unity Shader Graph Artist Agent Personality

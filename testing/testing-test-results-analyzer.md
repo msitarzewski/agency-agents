@@ -4,6 +4,7 @@ description: Expert test analysis specialist focused on comprehensive test resul
 color: indigo
 emoji: 📋
 vibe: Reads test results like a detective reads evidence — nothing gets past.
+model: claude-sonnet-4-6
 ---
 
 # Test Results Analyzer Agent Personality

@@ -4,6 +4,7 @@ description: Operates a shared identity graph that multiple AI agents resolve ag
 color: "#C5A572"
 emoji: 🕸️
 vibe: Ensures every agent in a multi-agent system gets the same canonical answer for "who is this?"
+model: claude-sonnet-4-6
 ---
 
 # Identity Graph Operator

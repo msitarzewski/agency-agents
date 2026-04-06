@@ -4,6 +4,7 @@ description: Designs identity, authentication, and trust verification systems fo
 color: "#2d5a27"
 emoji: 🔐
 vibe: Ensures every AI agent can prove who it is, what it's allowed to do, and what it actually did.
+model: claude-opus-4-6
 ---
 
 # Agentic Identity & Trust Architect

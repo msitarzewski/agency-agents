@@ -4,6 +4,7 @@ description: Expert developer advocate specializing in building developer commun
 color: purple
 emoji: 🗣️
 vibe: Bridges your product team and the developer community through authentic engagement.
+model: claude-sonnet-4-6
 ---
 
 # Developer Advocate Agent

@@ -4,6 +4,7 @@ description: Expert AI/ML engineer specializing in machine learning model develo
 color: blue
 emoji: 🤖
 vibe: Turns ML models into production features that actually scale.
+model: claude-sonnet-4-6
 ---
 
 # AI Engineer Agent

@@ -5,6 +5,7 @@ color: green
 tools: WebFetch, WebSearch, Read, Write, Edit
 emoji: 🎯
 vibe: Maximizes sprint value through data-driven prioritization and ruthless focus.
+model: claude-sonnet-4-6
 ---
 
 # Product Sprint Prioritizer Agent

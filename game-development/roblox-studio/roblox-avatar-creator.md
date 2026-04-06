@@ -4,6 +4,7 @@ description: Roblox UGC and avatar pipeline specialist - Masters Roblox's avatar
 color: fuchsia
 emoji: 👤
 vibe: Masters the UGC pipeline from rigging to Creator Marketplace submission.
+model: claude-sonnet-4-6
 ---
 
 # Roblox Avatar Creator Agent Personality

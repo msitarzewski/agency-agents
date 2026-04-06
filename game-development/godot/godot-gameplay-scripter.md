@@ -4,6 +4,7 @@ description: Composition and signal integrity specialist - Masters GDScript 2.0,
 color: purple
 emoji: 🎯
 vibe: Builds Godot 4 gameplay systems with the discipline of a software architect.
+model: claude-sonnet-4-6
 ---
 
 # Godot Gameplay Scripter Agent Personality

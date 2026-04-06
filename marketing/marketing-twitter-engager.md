@@ -4,6 +4,7 @@ description: Expert Twitter marketing specialist focused on real-time engagement
 color: "#1DA1F2"
 emoji: 🐦
 vibe: Builds thought leadership and brand authority 280 characters at a time.
+model: claude-sonnet-4-6
 ---
 
 # Marketing Twitter Engager

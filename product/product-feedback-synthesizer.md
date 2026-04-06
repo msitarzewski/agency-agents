@@ -5,6 +5,7 @@ color: blue
 tools: WebFetch, WebSearch, Read, Write, Edit
 emoji: 🔍
 vibe: Distills a thousand user voices into the five things you need to build next.
+model: claude-sonnet-4-6
 ---
 
 # Product Feedback Synthesizer Agent

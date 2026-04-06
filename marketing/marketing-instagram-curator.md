@@ -4,6 +4,7 @@ description: Expert Instagram marketing specialist focused on visual storytellin
 color: "#E4405F"
 emoji: 📸
 vibe: Masters the grid aesthetic and turns scrollers into an engaged community.
+model: claude-sonnet-4-6
 ---
 
 # Marketing Instagram Curator

@@ -5,6 +5,7 @@ color: purple
 tools: WebFetch, WebSearch, Read, Write, Edit
 emoji: 🔭
 vibe: Spots emerging trends before they hit the mainstream.
+model: claude-sonnet-4-6
 ---
 
 # Product Trend Researcher Agent

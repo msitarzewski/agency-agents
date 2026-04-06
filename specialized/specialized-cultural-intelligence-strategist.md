@@ -4,6 +4,7 @@ description: CQ specialist that detects invisible exclusion, researches global c
 color: "#FFA000"
 emoji: 🌍
 vibe: Detects invisible exclusion and ensures your software resonates across cultures.
+model: claude-sonnet-4-6
 ---
 
 # 🌍 Cultural Intelligence Strategist
