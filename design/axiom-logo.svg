@@ -1,0 +1,41 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 800" width="800" height="800">
+
+  <!-- Background -->
+  <rect width="800" height="800" fill="#000000"/>
+
+  <!-- =============================================
+       AXIOM — Geometric Logo Mark
+
+       Two solid blocks separated by a diagonal void.
+       All edges at 0°, 90°, or ~30° from vertical.
+       Asymmetric balance. Forward thrust.
+       No curves. No gradients. No shadows.
+       ============================================= -->
+
+  <!-- UPPER BLOCK — left-dominant trapezoid -->
+  <!-- Vertical left edge, horizontal top/bottom, 30° slanted right edge -->
+  <polygon
+    points="100,170 580,170 460,390 100,390"
+    fill="#FFFFFF"
+  />
+
+  <!-- LOWER BLOCK — right-dominant trapezoid -->
+  <!-- 30° slanted left edge, horizontal top/bottom, vertical right edge -->
+  <polygon
+    points="340,430 700,430 700,640 220,640"
+    fill="#FFFFFF"
+  />
+
+  <!-- ============ WORDMARK ============ -->
+  <text
+    x="400"
+    y="740"
+    text-anchor="middle"
+    font-family="'Arial Black', 'Helvetica Neue', Arial, sans-serif"
+    font-weight="900"
+    font-size="60"
+    letter-spacing="22"
+    fill="#FFFFFF"
+  >AXIOM</text>
+
+</svg>
