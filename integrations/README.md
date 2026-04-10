@@ -33,6 +33,12 @@ supported agentic coding tools.
 ./scripts/install.sh --tool gemini-cli
 ```
 
+If you install OpenClaw and the gateway is already running, restart it after installation:
+
+```bash
+openclaw gateway restart
+```
+
 For project-scoped tools such as OpenCode, Cursor, Aider, and Windsurf, run
 the installer from your target project root as shown in the tool-specific
 sections below.

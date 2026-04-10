@@ -14,7 +14,7 @@
 #   copilot      -- Copy agents to ~/.github/agents/ and ~/.copilot/agents/
 #   antigravity  -- Copy skills to ~/.gemini/antigravity/skills/
 #   gemini-cli   -- Install extension to ~/.gemini/extensions/agency-agents/
-#   opencode     -- Copy agents to .opencode/agent/ in current directory
+#   opencode     -- Copy agents to .opencode/agents/ in current directory
 #   cursor       -- Copy rules to .cursor/rules/ in current directory
 #   aider        -- Copy CONVENTIONS.md to current directory
 #   windsurf     -- Copy .windsurfrules to current directory
@@ -169,7 +169,7 @@ tool_label() {
     antigravity) printf "%-14s  %s" "Antigravity"  "(~/.gemini/antigravity)" ;;
     gemini-cli)  printf "%-14s  %s" "Gemini CLI"   "(gemini extension)"      ;;
     opencode)    printf "%-14s  %s" "OpenCode"     "(opencode.ai)"           ;;
-    openclaw)    printf "%-14s  %s" "OpenClaw"     "(~/.openclaw)"           ;;
+    openclaw)    printf "%-14s  %s" "OpenClaw"     "(~/.openclaw/agency-agents)" ;;
     cursor)      printf "%-14s  %s" "Cursor"       "(.cursor/rules)"         ;;
     aider)       printf "%-14s  %s" "Aider"        "(CONVENTIONS.md)"        ;;
     windsurf)    printf "%-14s  %s" "Windsurf"     "(.windsurfrules)"        ;;
@@ -390,21 +390,31 @@ install_openclaw() {
   local src="$INTEGRATIONS/openclaw"
   local dest="${HOME}/.openclaw/agency-agents"
   local count=0
+  local existing_agents=""
   [[ -d "$src" ]] || { err "integrations/openclaw missing. Run convert.sh first."; return 1; }
   mkdir -p "$dest"
+  if command -v openclaw >/dev/null 2>&1; then
+    existing_agents=$'\n'"$(openclaw agents list --json 2>/dev/null | sed -n 's/^[[:space:]]*\"id\": \"\\([^\"]*\\)\".*/\\1/p')"$'\n'
+  fi
   local d
   while IFS= read -r -d '' d; do
     local name; name="$(basename "$d")"
+    [[ -f "$d/SOUL.md" && -f "$d/AGENTS.md" && -f "$d/IDENTITY.md" ]] || continue
     mkdir -p "$dest/$name"
     cp "$d/SOUL.md" "$dest/$name/SOUL.md"
     cp "$d/AGENTS.md" "$dest/$name/AGENTS.md"
     cp "$d/IDENTITY.md" "$dest/$name/IDENTITY.md"
-    # Register with OpenClaw so agents are usable by agentId immediately
     if command -v openclaw >/dev/null 2>&1; then
-      openclaw agents add "$name" --workspace "$dest/$name" --non-interactive || true
+      if [[ "$existing_agents" != *$'\n'"$name"$'\n'* ]]; then
+        openclaw agents add "$name" --workspace "$dest/$name" --non-interactive || true
+      fi
     fi
     (( count++ )) || true
   done < <(find "$src" -mindepth 1 -maxdepth 1 -type d -print0)
+  if (( count == 0 )); then
+    err "integrations/openclaw contains no generated workspaces. Run ./scripts/convert.sh --tool openclaw first."
+    return 1
+  fi
   ok "OpenClaw: $count workspaces -> $dest"
   if command -v openclaw >/dev/null 2>&1; then
     warn "OpenClaw: run 'openclaw gateway restart' to activate new agents"

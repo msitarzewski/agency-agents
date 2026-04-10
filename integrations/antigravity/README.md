@@ -1,6 +1,6 @@
 # Antigravity Integration
 
-Installs all 61 Agency agents as Antigravity skills. Each agent is prefixed
+Installs the full Agency roster as Antigravity skills. Each agent is prefixed
 with `agency-` to avoid conflicts with existing skills.
 
 ## Install

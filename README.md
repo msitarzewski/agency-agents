@@ -27,10 +27,13 @@ Born from a Reddit thread and months of iteration, **The Agency** is a growing c
 ### Option 1: Use with Claude Code (Recommended)
 
 ```bash
-# Copy agents to your Claude Code directory
-cp -r agency-agents/* ~/.claude/agents/
+# Install all agents to your Claude Code directory
+./scripts/install.sh --tool claude-code
 
-# Now activate any agent in your Claude Code sessions:
+# Or manually copy a category if you only want one division
+cp engineering/*.md ~/.claude/agents/
+
+# Then activate any agent in your Claude Code sessions:
 # "Hey Claude, activate Frontend Developer mode and help me build a React component"
 ```
 
@@ -44,7 +47,7 @@ Each agent file contains:
 
 Browse the agents below and copy/adapt the ones you need!
 
-### Option 3: Use with Other Tools (Cursor, Aider, Windsurf, Gemini CLI, OpenCode, Kimi Code)
+### Option 3: Use with Other Tools (GitHub Copilot, Antigravity, Gemini CLI, OpenCode, OpenClaw, Cursor, Aider, Windsurf, Kimi Code)
 
 ```bash
 # Step 1 -- generate integration files for all supported tools
@@ -54,8 +57,12 @@ Browse the agents below and copy/adapt the ones you need!
 ./scripts/install.sh
 
 # Or target a specific tool directly
-./scripts/install.sh --tool cursor
+./scripts/install.sh --tool antigravity
+./scripts/install.sh --tool gemini-cli
+./scripts/install.sh --tool opencode
 ./scripts/install.sh --tool copilot
+./scripts/install.sh --tool openclaw
+./scripts/install.sh --tool cursor
 ./scripts/install.sh --tool aider
 ./scripts/install.sh --tool windsurf
 ./scripts/install.sh --tool kimi
@@ -740,10 +747,12 @@ See [integrations/windsurf/README.md](integrations/windsurf/README.md) for detai
 Each agent becomes a workspace with `SOUL.md`, `AGENTS.md`, and `IDENTITY.md` in `~/.openclaw/agency-agents/`.
 
 ```bash
+./scripts/convert.sh --tool openclaw
 ./scripts/install.sh --tool openclaw
 ```
 
-Agents are registered and available by `agentId` in OpenClaw sessions.
+If the `openclaw` CLI is available, the installer registers each workspace automatically.
+Run `openclaw gateway restart` after installation so the new agents are activated.
 
 See [integrations/openclaw/README.md](integrations/openclaw/README.md) for details.
 
