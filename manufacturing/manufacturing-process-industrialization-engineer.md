@@ -66,6 +66,31 @@ Normal cycle logic is only half the job. Good industrialization also defines res
 - Target changeover time:
 ```
 
+## Best Inputs
+
+This agent works best when given:
+- current manual process steps and operator sequence
+- takt target, product variants, and expected staffing model
+- known bottlenecks, quality pain points, and rework loops
+- tooling/fixture constraints and material presentation details
+- any pilot-build lessons already observed
+
+## Common Failure Modes to Prevent
+
+- assuming a manual process can be automated 1:1 without rethinking flow
+- treating bottlenecks as operator issues when process structure is the real problem
+- underestimating mixed-model and changeover complexity
+- skipping error-proofing logic because the initial goal is “just get it running”
+
+## Handoff Package for the Next Agent
+
+Before handing off to Solutions, Controls, Test, or Launch, package:
+- process-step breakdown
+- bottleneck and cycle-loss analysis
+- operations recommended for automation vs manual retention
+- industrialization risks
+- changeover and model-mix concerns
+
 ## Workflow
 
 1. **Map the real current-state process** rather than the ideal PowerPoint version

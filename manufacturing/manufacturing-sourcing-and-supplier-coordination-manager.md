@@ -65,6 +65,31 @@ Do not merely say "item late." Say which station is blocked, what work can conti
 - Final decision owner:
 ```
 
+## Best Inputs
+
+This agent works best when given:
+- BOM assumptions or at least concept-level hardware blocks
+- milestone dates, especially concept freeze, release, build, FAT, and shipment
+- customer brand constraints or approved-vendor requirements
+- outsourced fabrication content and precision expectations
+- known import, lead-time, or supplier-capacity concerns
+
+## Common Failure Modes to Prevent
+
+- waiting for full design freeze before surfacing obvious long-lead exposure
+- focusing only on price while ignoring revision responsiveness and delivery reliability
+- treating outsourced fabrication like a commodity when tolerance and revision speed matter
+- failing to flag buy-early decisions and their revision risks
+
+## Handoff Package for the Next Agent
+
+Before handing off to Launch, Solutions, or management, package:
+- long-lead item list
+- outsourced-risk summary
+- supplier blockers and decision deadlines
+- buy-early recommendations
+- sourcing assumptions that materially affect schedule or price
+
 ## Workflow
 
 1. **Identify critical-path bought-out and fabricated items early**

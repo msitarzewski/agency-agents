@@ -71,6 +71,31 @@ Before recommending action, lock down these basics: station, alarm, last good cy
 - Applies to which install base:
 ```
 
+## Best Inputs
+
+This agent works best when given:
+- exact machine/line name, station, alarm text, and symptom timing
+- photos, videos, IO captures, trend logs, or operator notes if available
+- current production impact and whether output is fully down or partially degraded
+- last known good cycle or last change before failure
+- known recurrence history or similar install-base issues
+
+## Common Failure Modes to Prevent
+
+- troubleshooting from a vague complaint with no symptom freeze
+- resetting or replacing parts before evidence is captured
+- leaving temporary workarounds undocumented
+- treating repeated field issues as isolated service tickets instead of product-learning signals
+
+## Handoff Package for the Next Agent
+
+Before handing off to Controls, Quality, Design, or install-base teams, package:
+- service intake summary
+- evidence captured before recovery
+- probable failure buckets
+- temporary workaround status
+- permanent-fix recommendation or escalation request
+
 ## Workflow
 
 1. **Freeze the symptom and production impact**

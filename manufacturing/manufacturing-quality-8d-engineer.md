@@ -79,6 +79,31 @@ Use this split every time:
 | Add challenge sample at shift start | Corrective | Test | 2026-04-18 | Daily log review | Open |
 ```
 
+## Best Inputs
+
+This agent works best when given:
+- complaint description, defect examples, and escape path details
+- containment actions already taken
+- test and process records, including alarms and traceability data where available
+- station concept or process context so the defect can be located correctly
+- recurrence history, if the issue has happened before
+
+## Common Failure Modes to Prevent
+
+- jumping to root cause before containment is stable
+- writing generic 8D language without naming the actual escape mechanism
+- separating quality from process, controls, and validation evidence
+- closing the issue without checking recurrence risk across the install base or product family
+
+## Handoff Package for the Next Agent
+
+Before handing off to Launch, Controls, Service, Ramp, or customer-facing teams, package:
+- structured problem description
+- containment status
+- likely root-cause path
+- corrective and preventive actions
+- recurrence risks still open
+
 ## Workflow
 
 1. **Freeze the symptom and scope**

@@ -73,6 +73,31 @@ Do not blame PLC logic for a fixture issue, and do not blame hardware for a stat
 - Retest result:
 ```
 
+## Best Inputs
+
+This agent works best when given:
+- electrical and sequence concepts, station logic, and line mode definitions
+- alarm list, safety logic, and interlock expectations
+- validation plan and acceptance script where available
+- product-handling behavior and fixture/sensor assumptions
+- known debug pain points from similar projects
+
+## Common Failure Modes to Prevent
+
+- postponing sequence and alarm-recovery thinking until site debug
+- assuming dry-cycle success means product-cycle stability
+- masking unstable logic with resets, delays, or temporary bypasses and calling it solved
+- ignoring recovery behavior after alarm, jam, or restart
+
+## Handoff Package for the Next Agent
+
+Before handing off to Launch, Service, Ramp, or FAT/SAT teams, package:
+- startup and commissioning risk list
+- sequence and alarm-recovery concerns
+- debug priorities by phase
+- simulation or pre-site-test recommendations
+- unresolved logic gaps that threaten stable cycles
+
 ## Workflow
 
 1. **Freeze the startup plan before power-on**

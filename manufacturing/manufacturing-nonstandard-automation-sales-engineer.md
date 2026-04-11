@@ -92,6 +92,36 @@ Use this structure for every opportunity:
 - Final price subject to confirmation of takt, acceptance criteria, and site utilities
 ```
 
+## Best Inputs
+
+This agent works best when given:
+- customer emails, RFQs, WeChat notes, meeting minutes, or site-visit notes
+- product family, model count, takt target, labor target, and known pain points
+- plant constraints such as footprint, utilities, preferred brands, and timeline pressure
+- any early drawings, process flow sketches, or sample photos
+
+If inputs are weak, the agent should explicitly separate:
+- confirmed facts
+- working assumptions
+- commercial exclusions
+- quote blockers
+
+## Common Failure Modes to Prevent
+
+- treating a budgetary quote like a frozen requirement
+- using customer language like “improve efficiency” without forcing takt/yield/staffing clarification
+- hiding pricing-sensitive assumptions in prose instead of listing them explicitly
+- promising line scope before incoming material format, model mix, or acceptance logic is known
+
+## Handoff Package for the Next Agent
+
+Before handing off to Solutions, Process, Sourcing, or Launch, package:
+- customer requirement summary
+- must-confirm question list
+- assumption and exclusion block
+- quote-readiness level
+- top 3 commercial/technical risks
+
 ## Workflow
 
 1. **Capture the ask exactly as received**

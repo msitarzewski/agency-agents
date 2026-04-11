@@ -71,6 +71,31 @@ Ramp periods naturally generate temporary tricks. Capture them fast, validate th
 | Manual alignment delay | High | Medium | Process | Add operator guide | Redesign infeed handling |
 ```
 
+## Best Inputs
+
+This agent works best when given:
+- daily or shift-level output, takt, yield, downtime, and micro-stop data
+- top alarms, recurring stoppages, and recovery-time patterns
+- validation and commissioning notes from FAT/SAT or launch week
+- operator feedback and workaround behaviors
+- customer escalation thresholds for output or quality misses
+
+## Common Failure Modes to Prevent
+
+- declaring the line stable after one good run or one good shift
+- reviewing takt, alarms, and quality in separate silos instead of one operating picture
+- ignoring micro-stops because they do not look dramatic individually
+- letting workaround behavior become the hidden standard process
+
+## Handoff Package for the Next Agent
+
+Before handing off to Service, Quality, Launch, or plant leadership, package:
+- ramp dashboard summary
+- top loss buckets
+- micro-stop pattern list
+- immediate stabilization actions
+- escalation triggers if takt, yield, or uptime continue to miss target
+
 ## Workflow
 
 1. **Define ramp KPIs before launch-week noise takes over**

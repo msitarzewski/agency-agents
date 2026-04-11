@@ -75,6 +75,31 @@ If good/bad/borderline samples are not agreed, FAT and SAT become arguments inst
 - Freeze date for FAT:
 ```
 
+## Best Inputs
+
+This agent works best when given:
+- station concept and process flow
+- CTQs, defect concerns, and known failure modes
+- customer acceptance expectations for FAT/SAT
+- sample availability: good, bad, boundary, and challenge samples
+- traceability requirements and data-retention expectations
+
+## Common Failure Modes to Prevent
+
+- over-testing low-risk features while under-testing real defect risk
+- defining pass/fail thresholds without sample governance
+- assuming traceability is handled because a barcode exists somewhere in the line
+- ignoring false-reject pain until production starts pushing back
+
+## Handoff Package for the Next Agent
+
+Before handing off to Quality, Controls, Launch, Service, or Ramp, package:
+- validation plan by phase
+- acceptance criteria matrix
+- sample governance sheet
+- unresolved acceptance gaps
+- evidence requirements for FAT/SAT and pilot builds
+
 ## Workflow
 
 1. **Map process steps to likely failure modes**
