@@ -70,6 +70,28 @@ These examples answer the question: *"What does it actually look like when the f
 
 **Key takeaway:** The Manufacturing Division becomes much more actionable when paired with reusable forms, prompts, and review structures. This example bridges the gap between "good agent definitions" and "daily operating artifacts a factory team can actually use."
 
+### [workflow-manufacturing-rfq.md](./workflow-manufacturing-rfq.md)
+
+**What:** A full multi-agent workflow showing how to move a non-standard automation RFQ from vague customer ask to quotation readiness, launch planning, and ramp preparation.
+
+**The scenario:** A factory team receives an ambiguous automation request with aggressive timing and incomplete information. Instead of using one generic agent, the Manufacturing Division is sequenced function-by-function so scope, concept, validation, sourcing, launch, commissioning, serviceability, and ramp logic are all examined before the project becomes expensive chaos.
+
+**Agents used:**
+| Agent | Role |
+|-------|------|
+| Non-Standard Automation Sales Engineer | Requirement clarification and quotation gate |
+| Automation Solutions Architect | First-pass line concept and interface structure |
+| Process Industrialization Engineer | Manual-to-automation process translation |
+| Sourcing and Supplier Coordination Manager | Long-lead and supplier-risk exposure |
+| Test and Validation Engineer | Test strategy and acceptance logic |
+| Quality and 8D Engineer | Defect escape and recurrence-prevention logic |
+| Program Launch Manager | Milestones, gates, owners, and launch sequencing |
+| Controls and Commissioning Engineer | Startup/debug/alarm-recovery realism |
+| After-Sales Service Engineer | Field supportability and troubleshooting readiness |
+| Production Ramp Optimizer | Post-SAT stabilization and output recovery |
+
+**Key takeaway:** The Manufacturing Division works best as a coordinated chain, not as isolated specialist files. This workflow shows the handoff order, parallel work opportunities, and decision gates that make the agents feel like a real factory project team.
+
 ## Adding New Examples
 
 If you run an interesting multi-agent exercise, consider adding it here. Good examples show:

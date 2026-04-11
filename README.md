@@ -457,7 +457,15 @@ See the **[Nexus Spatial Discovery Exercise](examples/nexus-spatial-discovery.md
 
 See the **[Manufacturing Presales Template Pack](examples/manufacturing-presales-template-pack.md)** -- a concrete example showing how the manufacturing agents can support customer discovery, quotation gating, technical clarification, site surveys, and cross-functional solution reviews for custom equipment and production-line projects.
 
-**Result**: Reusable operating templates that turn the Manufacturing Division from a set of personas into daily working artifacts for sales, solution, commissioning, sourcing, service, and ramp-up teams. [More examples](examples/).
+**Result**: Reusable operating templates that turn the Manufacturing Division from a set of personas into daily working artifacts for sales, solution, commissioning, sourcing, service, and ramp-up teams.
+
+### Scenario 7: Manufacturing RFQ to Launch Workflow
+
+**Your Team**: Manufacturing Division agents sequenced like a real factory project team.
+
+See the **[Multi-Agent Workflow: Manufacturing RFQ to Launch Readiness](examples/workflow-manufacturing-rfq.md)** -- a step-by-step orchestration example showing how to move from vague customer request to clarified scope, concept architecture, sourcing risk visibility, validation logic, commissioning realism, serviceability thinking, and ramp-up readiness.
+
+**Result**: A usable handoff order and decision-gate structure for coordinating the 10 manufacturing agents on real custom automation opportunities. [More examples](examples/).
 
 ---
 
