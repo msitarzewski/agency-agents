@@ -39,6 +39,37 @@ These examples answer the question: *"What does it actually look like when the f
 
 **Key takeaway:** All 8 agents ran in parallel and produced coherent, cross-referencing plans without coordination overhead. The output demonstrates the agency's ability to go from "find an opportunity" to "here's the full blueprint" in a single session.
 
+### [manufacturing-presales-template-pack.md](./manufacturing-presales-template-pack.md)
+
+**What:** A practical manufacturing presales template pack showing how the Manufacturing Division can support real non-standard automation equipment and production-line work.
+
+**The scenario:** A sales/project team needs more than agent personas — they need repeatable scaffolding for discovery, quotation gating, technical alignment, site surveys, and cross-functional reviews. This example translates the manufacturing agents into reusable working templates for:
+
+- customer requirement intake
+- sales-solution prompting
+- quotation precheck
+- visit memo capture
+- technical agreement confirmation
+- project risk tracking
+- presales site survey
+- internal solution review
+
+**Agents used:**
+| Agent | Role |
+|-------|------|
+| Non-Standard Automation Sales Engineer | Requirement framing, quotation readiness, commercial assumptions |
+| Automation Solutions Architect | Line concept, station scope, interface definition |
+| Test and Validation Engineer | Acceptance logic, test coverage, evidence planning |
+| Process Industrialization Engineer | Converting manual process logic into scalable automation flow |
+| Quality and 8D Engineer | Risk framing, containment thinking, recurrence prevention |
+| Program Launch Manager | Milestone discipline and cross-functional ownership |
+| Controls and Commissioning Engineer | Startup, debug, alarm-recovery, commissioning realism |
+| Sourcing and Supplier Coordination Manager | Long-lead parts, supplier follow-up, purchased-risk visibility |
+| After-Sales Service Engineer | Install-base troubleshooting and corrective knowledge capture |
+| Production Ramp Optimizer | Post-launch stabilization, micro-stop reduction, takt recovery |
+
+**Key takeaway:** The Manufacturing Division becomes much more actionable when paired with reusable forms, prompts, and review structures. This example bridges the gap between "good agent definitions" and "daily operating artifacts a factory team can actually use."
+
 ## Adding New Examples
 
 If you run an interesting multi-agent exercise, consider adding it here. Good examples show:

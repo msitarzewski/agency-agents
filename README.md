@@ -449,7 +449,15 @@ Scholarly rigor for world-building, storytelling, and narrative design.
 
 See the **[Nexus Spatial Discovery Exercise](examples/nexus-spatial-discovery.md)** -- a complete example where 8 agents (Product Trend Researcher, Backend Architect, Brand Guardian, Growth Hacker, Support Responder, UX Researcher, Project Shepherd, and XR Interface Architect) were deployed simultaneously to evaluate a software opportunity and produce a unified product plan covering market validation, technical architecture, brand strategy, go-to-market, support systems, UX research, project execution, and spatial UI design.
 
-**Result**: Comprehensive, cross-functional product blueprint produced in a single session. [More examples](examples/).
+**Result**: Comprehensive, cross-functional product blueprint produced in a single session.
+
+### Scenario 6: Manufacturing Presales and Quotation Readiness
+
+**Your Team**: Manufacturing Division agents working together on a real non-standard automation opportunity.
+
+See the **[Manufacturing Presales Template Pack](examples/manufacturing-presales-template-pack.md)** -- a concrete example showing how the manufacturing agents can support customer discovery, quotation gating, technical clarification, site surveys, and cross-functional solution reviews for custom equipment and production-line projects.
+
+**Result**: Reusable operating templates that turn the Manufacturing Division from a set of personas into daily working artifacts for sales, solution, commissioning, sourcing, service, and ramp-up teams. [More examples](examples/).
 
 ---
 
