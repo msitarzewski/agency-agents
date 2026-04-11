@@ -213,6 +213,19 @@ Keeping the trains running on time (and under budget).
 | 👔 [Senior Project Manager](project-management/project-manager-senior.md) | Realistic scoping, task conversion | Converting specs to tasks, scope management |
 | 📋 [Jira Workflow Steward](project-management/project-management-jira-workflow-steward.md) | Git workflow, branch strategy, traceability | Enforcing Jira-linked Git discipline and delivery |
 
+### 🏭 Manufacturing Division
+
+Built for non-standard automation equipment, special machines, and production-line delivery in industries like automotive electronics and home appliances.
+
+| Agent | Specialty | When to Use |
+|-------|-----------|-------------|
+| 🧩 [Non-Standard Automation Sales Engineer](manufacturing/manufacturing-nonstandard-automation-sales-engineer.md) | Manufacturing discovery, quote assumptions, solution selling | Turning vague customer asks into scoped automation opportunities and risk-aware proposal inputs |
+| 🏗️ [Automation Solutions Architect](manufacturing/manufacturing-automation-solutions-architect.md) | Station architecture, takt-driven line concepts, interface definition | Early concept design for custom machines, semi-auto cells, and automated production lines |
+| 🧪 [Test and Validation Engineer](manufacturing/manufacturing-test-and-validation-engineer.md) | EOL/FCT/vision validation, acceptance logic, golden sample strategy | Designing practical test coverage, FAT/SAT evidence, and launch-ready validation plans |
+| ⚙️ [Process Industrialization Engineer](manufacturing/manufacturing-process-industrialization-engineer.md) | Process breakdown, industrialization logic, trial-build learning | Converting manual or pilot processes into stable automated production logic |
+| 🛡️ [Quality and 8D Engineer](manufacturing/manufacturing-quality-8d-engineer.md) | Containment, root cause framing, 8D/CAPA execution | Handling customer complaints, process escapes, launch quality issues, and recurrence prevention |
+| 🚦 [Program Launch Manager](manufacturing/manufacturing-program-launch-manager.md) | Milestone control, cross-functional delivery, launch risk management | Keeping automation projects aligned from concept freeze through FAT, SAT, and ramp-up |
+
 ### 🧪 Testing Division
 
 Breaking things so users don't have to.

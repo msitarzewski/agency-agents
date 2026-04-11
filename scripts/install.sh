@@ -105,7 +105,7 @@ ALL_TOOLS=(claude-code copilot antigravity gemini-cli opencode openclaw cursor a
 
 # Standard agent category directories (keep sorted, sync with convert.sh / lint-agents.sh)
 AGENT_DIRS=(
-  academic design engineering finance game-development marketing paid-media product project-management
+  academic design engineering finance game-development manufacturing marketing paid-media product project-management
   sales spatial-computing specialized strategy support testing
 )
 
