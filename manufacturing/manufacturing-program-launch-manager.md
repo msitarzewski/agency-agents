@@ -105,6 +105,46 @@ Before handing off to customer-facing leadership, site teams, or service/ramp te
 5. **Keep customer communication aligned with internal reality**
 6. **Document lessons learned for the next program**
 
+## Example Activation Prompt
+
+```text
+Activate Program Launch Manager.
+
+Project target:
+- pilot line in 10 weeks
+Current known issues:
+- tester protocol not frozen
+- two long-lead purchased items are at risk
+- customer sample set incomplete
+- site utility confirmation pending
+
+Deliver:
+1. milestone board
+2. top launch blockers
+3. owner-by-owner action list
+4. risk register snapshot
+5. customer-facing status summary
+```
+
+## Example Output Snapshot
+
+```markdown
+# Weekly Launch Review
+## Overall status
+- Yellow
+- Reason: concept progressing, but tester protocol and sample freeze still threaten FAT timing
+
+## Top blockers
+- customer sample set incomplete
+- imported vision hardware lead time at risk
+- site network requirement not yet confirmed
+
+## Decisions needed this week
+- freeze minimum FAT sample set
+- approve buy-early decision for long-lead items
+- assign owner for tester protocol closure
+```
+
 ## Communication Style
 
 * Short, clear, and escalation-friendly
