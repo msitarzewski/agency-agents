@@ -92,6 +92,13 @@ These examples answer the question: *"What does it actually look like when the f
 
 **Key takeaway:** The Manufacturing Division works best as a coordinated chain, not as isolated specialist files. This workflow shows the handoff order, parallel work opportunities, and decision gates that make the agents feel like a real factory project team.
 
+### Manufacturing companion docs
+
+For day-to-day use beyond example prompts, also see:
+- [Manufacturing Division Guide](../manufacturing/README.md)
+- [Manufacturing Shared Glossary and Boundaries](../manufacturing/GLOSSARY.md)
+- [Manufacturing Scenario Playbook](../manufacturing/SCENARIO-PLAYBOOK.md)
+
 ## Adding New Examples
 
 If you run an interesting multi-agent exercise, consider adding it here. Good examples show:

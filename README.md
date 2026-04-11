@@ -465,7 +465,15 @@ See the **[Manufacturing Presales Template Pack](examples/manufacturing-presales
 
 See the **[Multi-Agent Workflow: Manufacturing RFQ to Launch Readiness](examples/workflow-manufacturing-rfq.md)** -- a step-by-step orchestration example showing how to move from vague customer request to clarified scope, concept architecture, sourcing risk visibility, validation logic, commissioning realism, serviceability thinking, and ramp-up readiness.
 
-**Result**: A usable handoff order and decision-gate structure for coordinating the 10 manufacturing agents on real custom automation opportunities. [More examples](examples/).
+**Result**: A usable handoff order and decision-gate structure for coordinating the 10 manufacturing agents on real custom automation opportunities.
+
+### Scenario 8: Manufacturing Operating System for Real Factory Work
+
+**Your Team**: Manufacturing Division agents supported by shared language and scenario-based playbooks.
+
+See the **[Manufacturing Division Guide](manufacturing/README.md)**, **[Shared Glossary](manufacturing/GLOSSARY.md)**, and **[Scenario Playbook](manufacturing/SCENARIO-PLAYBOOK.md)** -- a set of companion docs that make the manufacturing agents easier to use consistently across RFQs, retrofits, 8D investigations, field service, and ramp-up stabilization.
+
+**Result**: The Manufacturing Division now has role definitions, reusable templates, a multi-agent workflow, shared terminology, and scenario-based activation guidance. [More examples](examples/).
 
 ---
 

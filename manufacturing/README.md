@@ -121,6 +121,11 @@ Best for:
 - low yield after handover
 - difficult launch weeks
 
+## Shared References
+
+- [Manufacturing Shared Glossary and Boundaries](./GLOSSARY.md)
+- [Manufacturing Scenario Playbook](./SCENARIO-PLAYBOOK.md)
+
 ## Example Workflows
 
 - [Manufacturing Presales Template Pack](../examples/manufacturing-presales-template-pack.md)
