@@ -471,9 +471,9 @@ See the **[Multi-Agent Workflow: Manufacturing RFQ to Launch Readiness](examples
 
 **Your Team**: Manufacturing Division agents supported by shared language and scenario-based playbooks.
 
-See the **[Manufacturing Division Guide](manufacturing/README.md)**, **[Shared Glossary](manufacturing/GLOSSARY.md)**, and **[Scenario Playbook](manufacturing/SCENARIO-PLAYBOOK.md)** -- a set of companion docs that make the manufacturing agents easier to use consistently across RFQs, retrofits, 8D investigations, field service, and ramp-up stabilization.
+See the **[Manufacturing Division Guide](manufacturing/README.md)**, **[Shared Glossary](manufacturing/GLOSSARY.md)**, **[Scenario Playbook](manufacturing/SCENARIO-PLAYBOOK.md)**, and **[Cross-Agent Handoff Templates](manufacturing/HANDOFF-TEMPLATES.md)** -- a set of companion docs that make the manufacturing agents easier to use consistently across RFQs, retrofits, 8D investigations, field service, and ramp-up stabilization.
 
-**Result**: The Manufacturing Division now has role definitions, reusable templates, a multi-agent workflow, shared terminology, and scenario-based activation guidance. [More examples](examples/).
+**Result**: The Manufacturing Division now has role definitions, reusable templates, a multi-agent workflow, shared terminology, scenario-based activation guidance, and standardized handoff structure. [More examples](examples/).
 
 ---
 

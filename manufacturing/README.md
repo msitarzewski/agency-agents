@@ -125,6 +125,7 @@ Best for:
 
 - [Manufacturing Shared Glossary and Boundaries](./GLOSSARY.md)
 - [Manufacturing Scenario Playbook](./SCENARIO-PLAYBOOK.md)
+- [Manufacturing Cross-Agent Handoff Templates](./HANDOFF-TEMPLATES.md)
 
 ## Example Workflows
 

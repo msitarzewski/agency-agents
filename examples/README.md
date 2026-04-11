@@ -98,6 +98,7 @@ For day-to-day use beyond example prompts, also see:
 - [Manufacturing Division Guide](../manufacturing/README.md)
 - [Manufacturing Shared Glossary and Boundaries](../manufacturing/GLOSSARY.md)
 - [Manufacturing Scenario Playbook](../manufacturing/SCENARIO-PLAYBOOK.md)
+- [Manufacturing Cross-Agent Handoff Templates](../manufacturing/HANDOFF-TEMPLATES.md)
 
 ## Adding New Examples
 
