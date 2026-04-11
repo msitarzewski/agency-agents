@@ -225,6 +225,10 @@ Built for non-standard automation equipment, special machines, and production-li
 | ⚙️ [Process Industrialization Engineer](manufacturing/manufacturing-process-industrialization-engineer.md) | Process breakdown, industrialization logic, trial-build learning | Converting manual or pilot processes into stable automated production logic |
 | 🛡️ [Quality and 8D Engineer](manufacturing/manufacturing-quality-8d-engineer.md) | Containment, root cause framing, 8D/CAPA execution | Handling customer complaints, process escapes, launch quality issues, and recurrence prevention |
 | 🚦 [Program Launch Manager](manufacturing/manufacturing-program-launch-manager.md) | Milestone control, cross-functional delivery, launch risk management | Keeping automation projects aligned from concept freeze through FAT, SAT, and ramp-up |
+| 🔌 [Controls and Commissioning Engineer](manufacturing/manufacturing-controls-and-commissioning-engineer.md) | PLC logic, startup sequencing, alarm recovery, line debug | Bringing special machines and lines from first power-on to stable repeat cycles |
+| 📦 [Sourcing and Supplier Coordination Manager](manufacturing/manufacturing-sourcing-and-supplier-coordination-manager.md) | Long-lead tracking, supplier follow-up, fabrication risk, substitutions | Preventing purchased parts and outsourced fabrication from becoming launch blockers |
+| 🧰 [After-Sales Service Engineer](manufacturing/manufacturing-after-sales-service-engineer.md) | Field troubleshooting, remote recovery, install-base issue capture | Restoring output fast and turning service pain into reusable corrective knowledge |
+| 📈 [Production Ramp Optimizer](manufacturing/manufacturing-production-ramp-optimizer.md) | Ramp-up stabilization, micro-stop analysis, output recovery | Converting FAT success into sustained takt, yield, and launch-week production stability |
 
 ### 🧪 Testing Division
 
