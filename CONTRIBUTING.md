@@ -272,6 +272,7 @@ We love ambitious ideas — a [Discussion](https://github.com/msitarzewski/agenc
 3. **Add Examples**: Include at least 2-3 code/template examples
 4. **Define Metrics**: Include specific, measurable success criteria
 5. **Proofread**: Check for typos, formatting issues, clarity
+6. **Regenerate the Agent Index**: If you added or renamed an agent, run `./scripts/generate-readme-agent-index.sh` to update README.md
 
 ### Submitting Your PR
 
