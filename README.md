@@ -47,7 +47,7 @@ Each agent file contains:
 
 Browse the agents below and copy/adapt the ones you need!
 
-### Option 3: Use with Other Tools (GitHub Copilot, Antigravity, Gemini CLI, OpenCode, OpenClaw, Cursor, Aider, Windsurf, Kimi Code)
+### Option 3: Use with Other Tools (GitHub Copilot, Antigravity, Gemini CLI, OpenCode, OpenClaw, Cursor, Aider, Windsurf, Kimi Code, Codex)
 
 ```bash
 # Step 1 -- generate integration files for all supported tools
@@ -66,6 +66,7 @@ Browse the agents below and copy/adapt the ones you need!
 ./scripts/install.sh --tool aider
 ./scripts/install.sh --tool windsurf
 ./scripts/install.sh --tool kimi
+./scripts/install.sh --tool codex
 ```
 
 See the [Multi-Tool Integrations](#-multi-tool-integrations) section below for full details.
@@ -555,6 +556,7 @@ The Agency works natively with Claude Code, and ships conversion + install scrip
 - **[OpenClaw](https://github.com/openclaw/openclaw)** — `SOUL.md` + `AGENTS.md` + `IDENTITY.md` per agent
 - **[Qwen Code](https://github.com/QwenLM/qwen-code)** — `.md` SubAgent files → `~/.qwen/agents/`
 - **[Kimi Code](https://github.com/MoonshotAI/kimi-cli)** — YAML agent specs → `~/.config/kimi/agents/`
+- **[Codex](https://developers.openai.com/codex/overview)** — TOML custom agents → `~/.codex/agents/`
 
 ---
 
@@ -592,8 +594,9 @@ The installer scans your system for installed tools, shows a checkbox UI, and le
   [ ]  9)  [ ]  Windsurf        (.windsurfrules)
   [ ] 10)  [ ]  Qwen Code       (~/.qwen/agents)
   [ ] 11)  [ ]  Kimi Code       (~/.config/kimi/agents)
+  [ ] 12)  [ ]  Codex           (~/.codex/agents)
 
-  [1-11] toggle   [a] all   [n] none   [d] detected
+  [1-12] toggle   [a] all   [n] none   [d] detected
   [Enter] install   [q] quit
 ```
 
@@ -603,6 +606,7 @@ The installer scans your system for installed tools, shows a checkbox UI, and le
 ./scripts/install.sh --tool opencode
 ./scripts/install.sh --tool openclaw
 ./scripts/install.sh --tool antigravity
+./scripts/install.sh --tool codex
 ```
 
 **Non-interactive (CI/scripts):**
@@ -831,6 +835,24 @@ See [integrations/kimi/README.md](integrations/kimi/README.md) for details.
 
 </details>
 
+<details>
+<summary><strong>Codex</strong></summary>
+
+Each agent is converted into a Codex custom agent TOML file and installed to `~/.codex/agents/`.
+
+```bash
+./scripts/convert.sh --tool codex
+./scripts/install.sh --tool codex
+```
+
+Then reference the custom agent by name in Codex:
+```
+Use the Frontend Developer agent to review this component.
+```
+
+See [integrations/codex/README.md](integrations/codex/README.md) for details.
+</details>
+
 ---
 
 ### Regenerating After Changes
@@ -840,6 +862,7 @@ When you add new agents or edit existing ones, regenerate all integration files:
 ```bash
 ./scripts/convert.sh                    # regenerate all (serial)
 ./scripts/convert.sh --parallel         # regenerate all in parallel (faster)
+./scripts/convert.sh --tool codex       # regenerate just one tool
 ./scripts/convert.sh --tool cursor      # regenerate just one tool
 ```
 
@@ -849,7 +872,7 @@ When you add new agents or edit existing ones, regenerate all integration files:
 
 - [ ] Interactive agent selector web tool
 - [x] Multi-agent workflow examples -- see [examples/](examples/)
-- [x] Multi-tool integration scripts (Claude Code, GitHub Copilot, Antigravity, Gemini CLI, OpenCode, OpenClaw, Cursor, Aider, Windsurf, Qwen Code, Kimi Code)
+- [x] Multi-tool integration scripts (Claude Code, GitHub Copilot, Antigravity, Gemini CLI, OpenCode, OpenClaw, Cursor, Aider, Windsurf, Qwen Code, Kimi Code, Codex)
 - [ ] Video tutorials on agent design
 - [ ] Community agent marketplace
 - [ ] Agent "personality quiz" for project matching

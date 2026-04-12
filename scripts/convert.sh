@@ -19,6 +19,7 @@
 #   openclaw     — OpenClaw workspaces (integrations/openclaw/<agent>/SOUL.md)
 #   qwen         — Qwen Code SubAgent files (~/.qwen/agents/*.md)
 #   kimi         — Kimi Code CLI agent files (~/.config/kimi/agents/)
+#   codex        — Codex custom agent TOML files (~/.codex/agents/*.toml)
 #   all          — All tools (default)
 #
 # Output is written to integrations/<tool>/ relative to the repo root.
@@ -104,6 +105,21 @@ slugify() {
   echo "$1" | tr '[:upper:]' '[:lower:]' | sed 's/[^a-z0-9]/-/g' | sed 's/--*/-/g' | sed 's/^-//;s/-$//'
 }
 
+# Escape a value for a TOML basic string, including control characters that
+# cannot appear raw in TOML source.
+toml_escape_string() {
+  printf '%s' "$1" | perl -0pe '
+    s/\\/\\\\/g;
+    s/"/\\"/g;
+    s/\n/\\n/g;
+    s/\r/\\r/g;
+    s/\t/\\t/g;
+    s/\f/\\f/g;
+    s/\x08/\\b/g;
+    s/([\x00-\x07\x0B\x0E-\x1F\x7F])/sprintf("\\u%04X", ord($1))/ge;
+  '
+}
+
 # --- Per-tool converters ---
 
 convert_antigravity() {
@@ -129,6 +145,28 @@ source: community
 date_added: '${TODAY}'
 ---
 ${body}
+HEREDOC
+}
+
+convert_codex() {
+  local file="$1"
+  local name description slug outfile body
+
+  name="$(get_field "name" "$file")"
+  description="$(get_field "description" "$file")"
+  slug="$(slugify "$name")"
+  body="$(get_body "$file")"
+
+  outfile="$OUT_DIR/codex/agents/${slug}.toml"
+  mkdir -p "$(dirname "$outfile")"
+
+  # Codex custom agent format: one TOML file per agent with minimal required
+  # fields only. Use a TOML basic string so control characters in the source
+  # body are encoded safely instead of producing invalid TOML.
+  cat > "$outfile" <<HEREDOC
+name = "$(toml_escape_string "$name")"
+description = "$(toml_escape_string "$description")"
+developer_instructions = "$(toml_escape_string "$body")"
 HEREDOC
 }
 
@@ -500,6 +538,7 @@ run_conversions() {
 
       case "$tool" in
         antigravity) convert_antigravity "$file" ;;
+        codex)       convert_codex       "$file" ;;
         gemini-cli)  convert_gemini_cli  "$file" ;;
         opencode)    convert_opencode    "$file" ;;
         cursor)      convert_cursor      "$file" ;;
@@ -536,7 +575,7 @@ main() {
     esac
   done
 
-  local valid_tools=("antigravity" "gemini-cli" "opencode" "cursor" "aider" "windsurf" "openclaw" "qwen" "kimi" "all")
+  local valid_tools=("antigravity" "gemini-cli" "opencode" "cursor" "aider" "windsurf" "openclaw" "qwen" "kimi" "codex" "all")
   local valid=false
   for t in "${valid_tools[@]}"; do [[ "$t" == "$tool" ]] && valid=true && break; done
   if ! $valid; then
@@ -555,7 +594,7 @@ main() {
 
   local tools_to_run=()
   if [[ "$tool" == "all" ]]; then
-    tools_to_run=("antigravity" "gemini-cli" "opencode" "cursor" "aider" "windsurf" "openclaw" "qwen" "kimi")
+    tools_to_run=("antigravity" "gemini-cli" "opencode" "cursor" "aider" "windsurf" "openclaw" "qwen" "kimi" "codex")
   else
     tools_to_run=("$tool")
   fi
@@ -566,7 +605,7 @@ main() {
 
   if $use_parallel && [[ "$tool" == "all" ]]; then
     # Tools that write to separate dirs can run in parallel; buffer output so each tool's output stays together
-    local parallel_tools=(antigravity gemini-cli opencode cursor openclaw qwen)
+    local parallel_tools=(antigravity gemini-cli opencode cursor openclaw qwen codex)
     local parallel_out_dir
     parallel_out_dir="$(mktemp -d)"
     info "Converting: ${#parallel_tools[@]}/${n_tools} tools in parallel (output buffered per tool)..."
@@ -578,7 +617,7 @@ main() {
       [[ -f "$parallel_out_dir/$t" ]] && cat "$parallel_out_dir/$t"
     done
     rm -rf "$parallel_out_dir"
-    local idx=7
+    local idx=8
     for t in aider windsurf; do
       progress_bar "$idx" "$n_tools"
       printf "\n"

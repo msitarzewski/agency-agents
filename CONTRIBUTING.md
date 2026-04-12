@@ -221,6 +221,8 @@ quickstart guide wearing an agent costume does not.
 
 **Qwen Code Compatibility**: Agent bodies support `${variable}` templating for dynamic context (e.g., `${project_name}`, `${task_description}`). Qwen SubAgents use minimal frontmatter: only `name` and `description` are required; `color`, `emoji`, and `version` fields are omitted as Qwen doesn't use them.
 
+**Codex Compatibility**: Codex custom agents are generated as standalone TOML files. The Codex integration keeps a minimal 1:1 mapping: `name` and `description` are copied from frontmatter, and the Markdown body becomes `developer_instructions`. Source-only metadata such as `color`, `emoji`, `vibe`, and other unsupported frontmatter fields are omitted.
+
 ### What Makes a Great Agent?
 
 **Great agents have**:
