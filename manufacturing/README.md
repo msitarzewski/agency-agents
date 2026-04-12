@@ -8,6 +8,17 @@ This division is especially well suited to:
 - test stations, assembly lines, inspection cells, and retrofit projects
 - projects where technical scope, quotation assumptions, launch timing, and field stability are tightly connected
 
+## Primary Business Focus
+
+For the Jinkaibo Automation context behind this division, treat these as the strongest and most immediate business directions:
+- automotive electronics
+- home appliances
+
+Typical project patterns in those directions include:
+- assembly lines, inspection cells, test stations, leak-test / functional-test integration, barcode traceability, and retrofit projects
+- mixed manual/automatic stations that need tighter takt, better defect containment, and more stable launch behavior
+- projects where RFQ clarity, technical agreement, FAT/SAT, commissioning, and post-launch stabilization are tightly coupled
+
 ## Agents in This Division
 
 | Agent | Best used for | Main output |

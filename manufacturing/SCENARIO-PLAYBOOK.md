@@ -2,6 +2,12 @@
 
 This playbook helps you choose the right Manufacturing Division agents for the most common real-world situations in non-standard automation projects.
 
+Primary business fit for this division:
+- automotive electronics
+- home appliances
+
+Use those as the default industry lens unless a scenario explicitly says otherwise.
+
 ## Scenario 1: New Line Introduction
 
 ### Typical situation

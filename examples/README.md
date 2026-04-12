@@ -70,6 +70,8 @@ These examples answer the question: *"What does it actually look like when the f
 
 **Key takeaway:** The Manufacturing Division becomes much more actionable when paired with reusable forms, prompts, and review structures. This example bridges the gap between "good agent definitions" and "daily operating artifacts a factory team can actually use."
 
+**Business fit note:** In the user's repo organization, this manufacturing line maps cleanly to Jinkaibo Automation, especially around automotive electronics and home appliance projects.
+
 ### [workflow-manufacturing-rfq.md](./workflow-manufacturing-rfq.md)
 
 **What:** A full multi-agent workflow showing how to move a non-standard automation RFQ from vague customer ask to quotation readiness, launch planning, and ramp preparation.

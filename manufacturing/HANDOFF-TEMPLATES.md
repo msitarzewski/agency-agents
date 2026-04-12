@@ -7,6 +7,10 @@ Goal:
 - reduce rework caused by missing assumptions
 - make the 10 manufacturing agents feel like one coordinated team
 
+Default business lens for these templates:
+- Jinkaibo Automation
+- primary directions: automotive electronics and home appliances
+
 ## General Handoff Rules
 
 Every handoff should try to include:

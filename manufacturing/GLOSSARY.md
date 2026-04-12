@@ -4,6 +4,14 @@ This glossary keeps the Manufacturing Division aligned on common factory terms, 
 
 Use it when you want the 10 manufacturing agents to sound like one coordinated team instead of 10 unrelated specialists.
 
+## Primary Market Context
+
+For Jinkaibo Automation, assume the default and strongest fit is:
+- automotive electronics
+- home appliances
+
+When a scenario is ambiguous, bias examples, assumptions, and tradeoffs toward those two industries first.
+
 ## Core Throughput Terms
 
 ### Takt Time
