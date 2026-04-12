@@ -20,6 +20,7 @@
 #   windsurf     -- Copy .windsurfrules to current directory
 #   openclaw     -- Copy workspaces to ~/.openclaw/agency-agents/
 #   qwen         -- Copy SubAgents to ~/.qwen/agents/ (user-wide) or .qwen/agents/ (project)
+#   kimi         -- Copy agents to ~/.config/kimi/agents/
 #   all          -- Install for all detected tools (default)
 #
 # Flags:
