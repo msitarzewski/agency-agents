@@ -70,6 +70,23 @@ Browse the agents below and copy/adapt the ones you need!
 
 See the [Multi-Tool Integrations](#-multi-tool-integrations) section below for full details.
 
+### Option 4: Quick install with agent-add (18+ hosts supported)
+
+[agent-add](https://github.com/pea3nut/agent-add) auto-detects your AI host and installs any agent from this repo as a sub-agent — no clone, no script.
+
+```bash
+# Install a specific agent (replace <category>/<agent-file>.md with any path from the roster below)
+npx -y agent-add --sub-agent 'https://raw.githubusercontent.com/msitarzewski/agency-agents/main/<category>/<agent-file>.md'
+```
+
+Example — install the Backend Architect:
+
+```bash
+npx -y agent-add --sub-agent 'https://raw.githubusercontent.com/msitarzewski/agency-agents/main/engineering/engineering-backend-architect.md'
+```
+
+> Requires [Node.js](https://nodejs.org/) 18+. Supports Cursor, Claude Code, Claude Desktop, Windsurf, GitHub Copilot, Gemini, and [more](https://github.com/pea3nut/agent-add).
+
 ---
 
 ## 🎨 The Agency Roster
