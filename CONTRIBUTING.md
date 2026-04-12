@@ -36,6 +36,7 @@ Have an idea for a specialized agent? Great! Here's how to add one:
    - `design/` - UX/UI and creative specialists
    - `finance/` - Financial planning, accounting, and investment specialists
    - `game-development/` - Game design and development specialists
+   - `manufacturing/` - Industrial automation, process engineering, quality, and launch specialists
    - `marketing/` - Growth and marketing specialists
    - `paid-media/` - Paid acquisition and media specialists
    - `product/` - Product management specialists
@@ -298,7 +299,7 @@ We love ambitious ideas — a [Discussion](https://github.com/msitarzewski/agenc
 ```markdown
 ## Agent Information
 **Agent Name**: [Name]
-**Category**: [engineering/design/marketing/etc.]
+**Category**: [engineering/design/manufacturing/marketing/etc.]
 **Specialty**: [One-line description]
 
 ## Motivation

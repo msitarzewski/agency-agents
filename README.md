@@ -213,6 +213,23 @@ Keeping the trains running on time (and under budget).
 | 👔 [Senior Project Manager](project-management/project-manager-senior.md) | Realistic scoping, task conversion | Converting specs to tasks, scope management |
 | 📋 [Jira Workflow Steward](project-management/project-management-jira-workflow-steward.md) | Git workflow, branch strategy, traceability | Enforcing Jira-linked Git discipline and delivery |
 
+### 🏭 Manufacturing Division
+
+Built for non-standard automation equipment, special machines, and production-line delivery in industries like automotive electronics and home appliances.
+
+| Agent | Specialty | When to Use |
+|-------|-----------|-------------|
+| 🧩 [Non-Standard Automation Sales Engineer](manufacturing/manufacturing-nonstandard-automation-sales-engineer.md) | Manufacturing discovery, quote assumptions, solution selling | Turning vague customer asks into scoped automation opportunities and risk-aware proposal inputs |
+| 🏗️ [Automation Solutions Architect](manufacturing/manufacturing-automation-solutions-architect.md) | Station architecture, takt-driven line concepts, interface definition | Early concept design for custom machines, semi-auto cells, and automated production lines |
+| 🧪 [Test and Validation Engineer](manufacturing/manufacturing-test-and-validation-engineer.md) | EOL/FCT/vision validation, acceptance logic, golden sample strategy | Designing practical test coverage, FAT/SAT evidence, and launch-ready validation plans |
+| ⚙️ [Process Industrialization Engineer](manufacturing/manufacturing-process-industrialization-engineer.md) | Process breakdown, industrialization logic, trial-build learning | Converting manual or pilot processes into stable automated production logic |
+| 🛡️ [Quality and 8D Engineer](manufacturing/manufacturing-quality-8d-engineer.md) | Containment, root cause framing, 8D/CAPA execution | Handling customer complaints, process escapes, launch quality issues, and recurrence prevention |
+| 🚦 [Program Launch Manager](manufacturing/manufacturing-program-launch-manager.md) | Milestone control, cross-functional delivery, launch risk management | Keeping automation projects aligned from concept freeze through FAT, SAT, and ramp-up |
+| 🔌 [Controls and Commissioning Engineer](manufacturing/manufacturing-controls-and-commissioning-engineer.md) | PLC logic, startup sequencing, alarm recovery, line debug | Bringing special machines and lines from first power-on to stable repeat cycles |
+| 📦 [Sourcing and Supplier Coordination Manager](manufacturing/manufacturing-sourcing-and-supplier-coordination-manager.md) | Long-lead tracking, supplier follow-up, fabrication risk, substitutions | Preventing purchased parts and outsourced fabrication from becoming launch blockers |
+| 🧰 [After-Sales Service Engineer](manufacturing/manufacturing-after-sales-service-engineer.md) | Field troubleshooting, remote recovery, install-base issue capture | Restoring output fast and turning service pain into reusable corrective knowledge |
+| 📈 [Production Ramp Optimizer](manufacturing/manufacturing-production-ramp-optimizer.md) | Ramp-up stabilization, micro-stop analysis, output recovery | Converting FAT success into sustained takt, yield, and launch-week production stability |
+
 ### 🧪 Testing Division
 
 Breaking things so users don't have to.
@@ -432,7 +449,31 @@ Scholarly rigor for world-building, storytelling, and narrative design.
 
 See the **[Nexus Spatial Discovery Exercise](examples/nexus-spatial-discovery.md)** -- a complete example where 8 agents (Product Trend Researcher, Backend Architect, Brand Guardian, Growth Hacker, Support Responder, UX Researcher, Project Shepherd, and XR Interface Architect) were deployed simultaneously to evaluate a software opportunity and produce a unified product plan covering market validation, technical architecture, brand strategy, go-to-market, support systems, UX research, project execution, and spatial UI design.
 
-**Result**: Comprehensive, cross-functional product blueprint produced in a single session. [More examples](examples/).
+**Result**: Comprehensive, cross-functional product blueprint produced in a single session.
+
+### Scenario 6: Manufacturing Presales and Quotation Readiness
+
+**Your Team**: Manufacturing Division agents working together on a real non-standard automation opportunity.
+
+See the **[Manufacturing Presales Template Pack](examples/manufacturing-presales-template-pack.md)** -- a concrete example showing how the manufacturing agents can support customer discovery, quotation gating, technical clarification, site surveys, and cross-functional solution reviews for custom equipment and production-line projects.
+
+**Result**: Reusable operating templates that turn the Manufacturing Division from a set of personas into daily working artifacts for sales, solution, commissioning, sourcing, service, and ramp-up teams.
+
+### Scenario 7: Manufacturing RFQ to Launch Workflow
+
+**Your Team**: Manufacturing Division agents sequenced like a real factory project team.
+
+See the **[Multi-Agent Workflow: Manufacturing RFQ to Launch Readiness](examples/workflow-manufacturing-rfq.md)** -- a step-by-step orchestration example showing how to move from vague customer request to clarified scope, concept architecture, sourcing risk visibility, validation logic, commissioning realism, serviceability thinking, and ramp-up readiness.
+
+**Result**: A usable handoff order and decision-gate structure for coordinating the 10 manufacturing agents on real custom automation opportunities.
+
+### Scenario 8: Manufacturing Operating System for Real Factory Work
+
+**Your Team**: Manufacturing Division agents supported by shared language and scenario-based playbooks.
+
+See the **[Manufacturing Division Guide](manufacturing/README.md)**, **[Shared Glossary](manufacturing/GLOSSARY.md)**, **[Scenario Playbook](manufacturing/SCENARIO-PLAYBOOK.md)**, and **[Cross-Agent Handoff Templates](manufacturing/HANDOFF-TEMPLATES.md)** -- a set of companion docs that make the manufacturing agents easier to use consistently across RFQs, retrofits, 8D investigations, field service, and ramp-up stabilization.
+
+**Result**: The Manufacturing Division now has role definitions, reusable templates, a multi-agent workflow, shared terminology, scenario-based activation guidance, and standardized handoff structure. [More examples](examples/).
 
 ---
 

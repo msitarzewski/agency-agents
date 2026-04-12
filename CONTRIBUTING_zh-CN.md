@@ -30,6 +30,7 @@
 2. 选择合适的分类（或提议新增分类）：
    - `engineering/` —— 软件开发专家
    - `design/` —— UX/UI 与创意设计专家
+   - `manufacturing/` —— 制造业、工业自动化、工艺与质量专家
    - `marketing/` —— 增长与营销专家
    - `product/` —— 产品管理专家
    - `project-management/` —— 项目管理与协调专家
