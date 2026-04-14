@@ -3,8 +3,10 @@
 # install.sh -- Install The Agency agents into your local agentic tool(s).
 #
 # Reads converted files from integrations/ and copies them to the appropriate
-# config directory for each tool. Run scripts/convert.sh first if integrations/
-# is missing or stale.
+# config directory for each tool. All convert.sh invocations are handled
+# automatically via run_convert_if_needed(), which checks whether the required
+# integration directory (or the entire integrations/ tree) already exists before
+# running convert.sh, so the script is fully self-contained.
 #
 # Usage:
 #   ./scripts/install.sh [--tool <name>] [--interactive] [--no-interactive] [--parallel] [--jobs N] [--help]
@@ -51,6 +53,7 @@ else
 fi
 
 ok()     { printf "${C_GREEN}[OK]${C_RESET}  %s\n" "$*"; }
+info()   { printf "${C_CYAN}[INFO]${C_RESET} %s\n" "$*"; }
 warn()   { printf "${C_YELLOW}[!!]${C_RESET}  %s\n" "$*"; }
 err()    { printf "${C_RED}[ERR]${C_RESET} %s\n" "$*" >&2; }
 header() { printf "\n${C_BOLD}%s${C_RESET}\n" "$*"; }
@@ -128,10 +131,41 @@ parallel_jobs_default() {
 # ---------------------------------------------------------------------------
 # Preflight
 # ---------------------------------------------------------------------------
-check_integrations() {
-  if [[ ! -d "$INTEGRATIONS" ]]; then
-    err "integrations/ not found. Run ./scripts/convert.sh first."
+
+# run_convert_if_needed [tool]
+#
+# Ensures the required integration files exist, running convert.sh only when
+# they are absent.  With a tool argument, checks integrations/<tool>/; without
+# one, checks the entire integrations/ directory.
+run_convert_if_needed() {
+  local tool="${1:-}"
+  local convert_script="$SCRIPT_DIR/convert.sh"
+
+  if [[ ! -x "$convert_script" ]]; then
+    err "convert.sh not found at $convert_script — cannot auto-generate integrations/."
+    err "Clone the full repository and try again."
     exit 1
+  fi
+
+  if [[ -n "$tool" ]]; then
+    local src="$INTEGRATIONS/$tool"
+    [[ -d "$src" ]] && return 0   # already present, nothing to do
+    info "integrations/$tool missing — running convert.sh --tool $tool automatically..."
+    if bash "$convert_script" --tool "$tool"; then
+      ok "Integration files generated for $tool."
+    else
+      err "convert.sh --tool $tool failed."
+      exit 1
+    fi
+  else
+    [[ -d "$INTEGRATIONS" ]] && return 0   # already present, nothing to do
+    info "integrations/ not found — running convert.sh automatically..."
+    if bash "$convert_script"; then
+      ok "Integration files generated."
+    else
+      err "convert.sh failed."
+      exit 1
+    fi
   fi
 }
 
@@ -345,7 +379,7 @@ install_antigravity() {
   local src="$INTEGRATIONS/antigravity"
   local dest="${HOME}/.gemini/antigravity/skills"
   local count=0
-  [[ -d "$src" ]] || { err "integrations/antigravity missing. Run convert.sh first."; return 1; }
+  run_convert_if_needed "antigravity"
   mkdir -p "$dest"
   local d
   while IFS= read -r -d '' d; do
@@ -363,9 +397,7 @@ install_gemini_cli() {
   local count=0
   local manifest="$src/gemini-extension.json"
   local skills_dir="$src/skills"
-  [[ -d "$src" ]] || { err "integrations/gemini-cli missing. Run ./scripts/convert.sh --tool gemini-cli first."; return 1; }
-  [[ -f "$manifest" ]] || { err "integrations/gemini-cli/gemini-extension.json missing. Run ./scripts/convert.sh --tool gemini-cli first."; return 1; }
-  [[ -d "$skills_dir" ]] || { err "integrations/gemini-cli/skills missing. Run ./scripts/convert.sh --tool gemini-cli first."; return 1; }
+  run_convert_if_needed "gemini-cli"
   mkdir -p "$dest/skills"
   cp "$manifest" "$dest/gemini-extension.json"
   local d
@@ -382,7 +414,7 @@ install_opencode() {
   local src="$INTEGRATIONS/opencode"
   local dest="${PWD}/.opencode/agents"
   local count=0
-  [[ -d "$src" ]] || { err "integrations/opencode missing. Run convert.sh first."; return 1; }
+  run_convert_if_needed "opencode"
   # Support both flat layout (integrations/opencode/*.md) and nested (integrations/opencode/agents/*.md)
   local search_dir="$src"
   [[ -d "$src/agents" ]] && search_dir="$src/agents"
@@ -405,8 +437,8 @@ install_openclaw() {
   local src="$INTEGRATIONS/openclaw"
   local dest="${HOME}/.openclaw/agency-agents"
   local count=0
+  run_convert_if_needed "openclaw"
   local existing_agents=""
-  [[ -d "$src" ]] || { err "integrations/openclaw missing. Run convert.sh first."; return 1; }
   mkdir -p "$dest"
   if command -v openclaw >/dev/null 2>&1; then
     existing_agents=$'\n'"$(openclaw agents list --json 2>/dev/null | sed -n 's/^[[:space:]]*\"id\": \"\\([^\"]*\\)\".*/\\1/p')"$'\n'
@@ -440,7 +472,7 @@ install_cursor() {
   local src="$INTEGRATIONS/cursor/rules"
   local dest="${PWD}/.cursor/rules"
   local count=0
-  [[ -d "$src" ]] || { err "integrations/cursor missing. Run convert.sh first."; return 1; }
+  run_convert_if_needed "cursor"
   mkdir -p "$dest"
   local f
   while IFS= read -r -d '' f; do
@@ -453,10 +485,10 @@ install_cursor() {
 install_aider() {
   local src="$INTEGRATIONS/aider/CONVENTIONS.md"
   local dest="${PWD}/CONVENTIONS.md"
-  [[ -f "$src" ]] || { err "integrations/aider/CONVENTIONS.md missing. Run convert.sh first."; return 1; }
+  run_convert_if_needed "aider"
   if [[ -f "$dest" ]]; then
     warn "Aider: CONVENTIONS.md already exists at $dest (remove to reinstall)."
-    return 0
+    return 2
   fi
   cp "$src" "$dest"
   ok "Aider: installed -> $dest"
@@ -466,10 +498,10 @@ install_aider() {
 install_windsurf() {
   local src="$INTEGRATIONS/windsurf/.windsurfrules"
   local dest="${PWD}/.windsurfrules"
-  [[ -f "$src" ]] || { err "integrations/windsurf/.windsurfrules missing. Run convert.sh first."; return 1; }
+  run_convert_if_needed "windsurf"
   if [[ -f "$dest" ]]; then
     warn "Windsurf: .windsurfrules already exists at $dest (remove to reinstall)."
-    return 0
+    return 2
   fi
   cp "$src" "$dest"
   ok "Windsurf: installed -> $dest"
@@ -481,7 +513,7 @@ install_qwen() {
   local dest="${PWD}/.qwen/agents"
   local count=0
 
-  [[ -d "$src" ]] || { err "integrations/qwen missing. Run convert.sh first."; return 1; }
+  run_convert_if_needed "qwen"
 
   mkdir -p "$dest"
 
@@ -501,7 +533,7 @@ install_kimi() {
   local dest="${HOME}/.config/kimi/agents"
   local count=0
 
-  [[ -d "$src" ]] || { err "integrations/kimi missing. Run convert.sh first."; return 1; }
+  run_convert_if_needed "kimi"
 
   mkdir -p "$dest"
 
@@ -519,7 +551,14 @@ install_kimi() {
 }
 
 install_tool() {
-  case "$1" in
+  local t="$1"
+  if [[ -z "$t" ]]; then
+    err "No tool specified. Use --tool <name>"
+    exit 1
+  fi
+  info "Installing agents for $t..."
+  local _rc=0
+  case "$t" in
     claude-code) install_claude_code ;;
     copilot)     install_copilot     ;;
     antigravity) install_antigravity ;;
@@ -527,11 +566,14 @@ install_tool() {
     opencode)    install_opencode    ;;
     openclaw)    install_openclaw    ;;
     cursor)      install_cursor      ;;
-    aider)       install_aider       ;;
-    windsurf)    install_windsurf    ;;
+    aider)       install_aider    ; _rc=$? ;;
+    windsurf)    install_windsurf ; _rc=$? ;;
     qwen)        install_qwen        ;;
     kimi)        install_kimi        ;;
+    *) err "Unknown tool '$t'. Valid: ${ALL_TOOLS[*]}"; exit 1 ;;
   esac
+  # rc=0 → installed; rc=2 → skipped (already exists); anything else → error
+  [[ $_rc -eq 0 ]] && ok "Installation completed for $t." || true
 }
 
 # ---------------------------------------------------------------------------
@@ -556,7 +598,7 @@ main() {
     esac
   done
 
-  check_integrations
+  run_convert_if_needed
 
   # Validate explicit tool
   if [[ "$tool" != "all" ]]; then

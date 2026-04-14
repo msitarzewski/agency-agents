@@ -50,10 +50,7 @@ Browse the agents below and copy/adapt the ones you need!
 ### Option 3: Use with Other Tools (GitHub Copilot, Antigravity, Gemini CLI, OpenCode, OpenClaw, Cursor, Aider, Windsurf, Kimi Code)
 
 ```bash
-# Step 1 -- generate integration files for all supported tools
-./scripts/convert.sh
-
-# Step 2 -- install interactively (auto-detects what you have installed)
+# Install interactively (auto-detects what you have installed)
 ./scripts/install.sh
 
 # Or target a specific tool directly
@@ -67,6 +64,8 @@ Browse the agents below and copy/adapt the ones you need!
 ./scripts/install.sh --tool windsurf
 ./scripts/install.sh --tool kimi
 ```
+
+> If integration files are missing, `install.sh` will automatically run `convert.sh`.
 
 See the [Multi-Tool Integrations](#-multi-tool-integrations) section below for full details.
 
@@ -560,17 +559,13 @@ The Agency works natively with Claude Code, and ships conversion + install scrip
 
 ### ⚡ Quick Install
 
-**Step 1 -- Generate integration files:**
-```bash
-./scripts/convert.sh
-# Faster (parallel, output order may vary): ./scripts/convert.sh --parallel
-```
-
-**Step 2 -- Install (interactive, auto-detects your tools):**
+**Install (interactive, auto-detects your tools):**
 ```bash
 ./scripts/install.sh
 # Faster (parallel, output order may vary): ./scripts/install.sh --no-interactive --parallel
 ```
+
+> `install.sh` will automatically run `convert.sh` if integration files are missing. To pre-generate them explicitly: `./scripts/convert.sh`
 
 The installer scans your system for installed tools, shows a checkbox UI, and lets you pick exactly what to install:
 
@@ -679,10 +674,8 @@ See [integrations/antigravity/README.md](integrations/antigravity/README.md) for
 <summary><strong>Gemini CLI</strong></summary>
 
 Installs as a Gemini CLI extension with one skill per agent plus a manifest.
-On a fresh clone, generate the Gemini extension files before running the installer.
 
 ```bash
-./scripts/convert.sh --tool gemini-cli
 ./scripts/install.sh --tool gemini-cli
 ```
 
@@ -790,9 +783,8 @@ See [integrations/openclaw/README.md](integrations/openclaw/README.md) for detai
 SubAgents are installed to `.qwen/agents/` in your project root (project-scoped).
 
 ```bash
-# Convert and install (run from your project root)
+# Run from your project root
 cd /your/project
-./scripts/convert.sh --tool qwen
 ./scripts/install.sh --tool qwen
 ```
 
@@ -811,8 +803,6 @@ cd /your/project
 Agents are converted to Kimi Code CLI format (YAML + system prompt) and installed to `~/.config/kimi/agents/`.
 
 ```bash
-# Convert and install
-./scripts/convert.sh --tool kimi
 ./scripts/install.sh --tool kimi
 ```
 
