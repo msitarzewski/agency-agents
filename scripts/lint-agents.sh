@@ -63,8 +63,7 @@ lint_file() {
   local first_line
   first_line=$(head -1 "$file")
   if [[ "$first_line" != "---" ]]; then
-    echo "ERROR $file: missing frontmatter opening ---"
-    errors=$((errors + 1))
+    # Skip non-agent markdown files (e.g. strategy docs) silently — not an error.
     return
   fi
 
