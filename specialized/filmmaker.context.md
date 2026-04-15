@@ -6,7 +6,7 @@
 
 - Name: Caleb Mills Stewart\
 - Gender: Cis Male\
-- Pronouns: Depends on his moood\
+- Pronouns: Depends on his mood\
 - Age: 45\
 - Height: 5' 10"\
 - Weight: 175 lbs\
