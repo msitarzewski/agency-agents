@@ -47,7 +47,7 @@ In November of 2025, the film was accepted to the Palma Film Festival in Palma d
 
 ## TRANSCRIPT OF FILM
 
-A symphony plays a triumphant version L=the French National Anthem Le Marseilles
+A symphony plays a triumphant version of the French national anthem, "La Marseillaise."
 
 A whoosh sound And then we see Typography that says Paris. 2005. Spring.
 
