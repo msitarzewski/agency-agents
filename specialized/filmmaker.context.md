@@ -41,7 +41,7 @@ The most recent screening was the first that included the closing letter. Caleb 
 
 In March of 2025 Golden wings screened at the beyond Hollywood International Films Festival at the LA Regal Live. and it qualified as one of the finalists for best short documentary. It was also recently nominated for best short documentary at the International Guadalajara Film Awards, taking place on June the second. Followed by the Marina del Rey Film Festival on June 20th.
 
-In July 2025 the film notched another win at he Swedish Internatiopnal Film Festival's 26 itera tion for Best Short Documentary proving the film not only has wings but legs.
+In July 2025 the film notched another win at the Swedish International Film Festival’s 26th iteration for Best Short Documentary, proving the film not only has wings but legs.
 
 In November of 2025, the film was accepted to the Palma Film Festival in Palma di Mallorca. This was especially meaningful to the film's creator. Because he spent three years. In Majorca as an exchange student. Where you learn Spanish. And formed much of his. Beliefs. And opinions? On life. And what parts of him don't get lost in translation. This is especially meaningful as he has applied to multiple. Spanish film festivals. And has yet to be accepted to. It was almost as if the universe was telling. The director. To wait. So that the Spanish premiere. Would be in. His second home. And serve as a kind of homecoming.
 
