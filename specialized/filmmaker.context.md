@@ -4,7 +4,7 @@
 
 ## BASIC USER INFORMATION
 
-- Name: Caleb Millls Stewart\
+- Name: Caleb Mills Stewart\
 - Gender: Cis Male\
 - Pronouns: Depends on his moood\
 - Age: 45\
