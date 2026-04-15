@@ -29,7 +29,7 @@ Realizing he had a deeper story to tell, Caleb expanded the documentary to inclu
 - Most Outstanding at the NewsFest Film Festival\
 - Most Inspiring at the NewsFest Film Festival\
 - Best Trailer NewsFest Film Festival\
-- Best Docmentary at ARFF Amsterdam
+- Best Documentary at ARFF Amsterdam
 
 The documentary's premiere at Silicon Beach Film Festival in Los Angeles marked a turning point, with Golden Wings receiving the Best Short Cinematography award. The film's success at Silicon Beach not only highlighted its visual achievements but also underscored its emotional resonance and universality, drawing strong reactions from audiences and industry professionals alike.
 
