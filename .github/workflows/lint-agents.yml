@@ -1,0 +1,55 @@
+name: Lint Agent Files
+
+on:
+  pull_request:
+    paths:
+      - "academic/**"
+      - "design/**"
+      - "engineering/**"
+      - "finance/**"
+      - "game-development/**"
+      - "marketing/**"
+      - "paid-media/**"
+      - "sales/**"
+      - "product/**"
+      - "project-management/**"
+      - "testing/**"
+      - "support/**"
+      - "spatial-computing/**"
+      - "specialized/**"
+
+jobs:
+  lint:
+    name: Validate agent frontmatter and structure
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Get changed agent files
+        id: changed
+        run: |
+          FILES=$(git diff --name-only --diff-filter=ACMR origin/${{ github.base_ref }}...HEAD -- \
+            'academic/**/*.md' 'design/**/*.md' 'engineering/**/*.md' 'finance/**/*.md' 'game-development/**/*.md' 'marketing/**/*.md' 'paid-media/**/*.md' 'sales/**/*.md' 'product/**/*.md' \
+            'project-management/**/*.md' 'testing/**/*.md' 'support/**/*.md' \
+            'spatial-computing/**/*.md' 'specialized/**/*.md')
+          {
+            echo "files<<ENDOFLIST"
+            echo "$FILES"
+            echo "ENDOFLIST"
+          } >> "$GITHUB_OUTPUT"
+          if [ -z "$FILES" ]; then
+            echo "No agent files changed."
+          else
+            echo "Changed files:"
+            echo "$FILES"
+          fi
+
+      - name: Run agent linter
+        if: steps.changed.outputs.files != ''
+        env:
+          CHANGED_FILES: ${{ steps.changed.outputs.files }}
+        run: |
+          chmod +x scripts/lint-agents.sh
+          ./scripts/lint-agents.sh $CHANGED_FILES

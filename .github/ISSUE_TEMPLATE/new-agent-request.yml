@@ -1,0 +1,46 @@
+name: New Agent Request
+description: Suggest a new agent to add to The Agency
+labels: ["enhancement", "new-agent"]
+body:
+  - type: input
+    id: agent-name
+    attributes:
+      label: Agent Name
+      placeholder: e.g. Database Engineer
+    validations:
+      required: true
+
+  - type: dropdown
+    id: category
+    attributes:
+      label: Category
+      options:
+        - engineering
+        - design
+        - marketing
+        - product
+        - project-management
+        - testing
+        - support
+        - spatial-computing
+        - specialized
+        - strategy
+        - new category (describe below)
+    validations:
+      required: true
+
+  - type: textarea
+    id: description
+    attributes:
+      label: What would this agent do?
+      placeholder: Describe the agent's specialty, when you'd use it, and what gap it fills.
+    validations:
+      required: true
+
+  - type: textarea
+    id: use-cases
+    attributes:
+      label: Example use cases
+      placeholder: Give 2-3 real scenarios where this agent would be useful.
+    validations:
+      required: false
