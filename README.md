@@ -380,6 +380,17 @@ Scholarly rigor for world-building, storytelling, and narrative design.
 | 📜 [Narratologist](academic/academic-narratologist.md) | Narrative theory, story structure, character arcs | Analyzing and improving story structure with established theoretical frameworks |
 | 🧠 [Psychologist](academic/academic-psychologist.md) | Personality theory, motivation, cognitive patterns | Building psychologically credible characters grounded in research |
 
+### 🛠️ Developer Relations Division (4 Agents)
+
+Bridging the gap between product and developer community.
+
+| Agent | Specialty | When to Use |
+| --- | --- | --- |
+| 🎤 [Developer Advocate](devrel/devrel-developer-advocate.md) | Talks, tutorials, demos, launch content | Conference CFPs, technical blog posts, developer-first launches |
+| 🔬 [DX Engineer](devrel/devrel-dx-engineer.md) | SDK design, onboarding flows, error messages | Friction audits, first-run experience, developer feedback loops |
+| 📖 [Docs Engineer](devrel/devrel-docs-engineer.md) | API reference, tutorials, changelogs | Getting-started guides, API docs, migration guides |
+| 🌱 [Community Builder](devrel/devrel-community-builder.md) | Discord/forum strategy, contributor programs | Community growth, health monitoring, contributor recognition |
+
 ---
 
 ## 🎯 Real-World Use Cases

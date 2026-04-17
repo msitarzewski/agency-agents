@@ -23,7 +23,9 @@ AGENT_DIRS=(
   project-management
   sales
   spatial-computing
+
   specialized
+  devrel
   strategy
   support
   testing
