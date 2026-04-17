@@ -11,6 +11,7 @@
 #
 # Tools:
 #   antigravity  — Antigravity skill files (~/.gemini/antigravity/skills/)
+#   codex        — Codex skill files (~/.codex/skills/)
 #   gemini-cli   — Gemini CLI extension (skills/ + gemini-extension.json)
 #   opencode     — OpenCode agent files (.opencode/agents/*.md)
 #   cursor       — Cursor rule files (.cursor/rules/*.mdc)
@@ -104,6 +105,45 @@ slugify() {
   echo "$1" | tr '[:upper:]' '[:lower:]' | sed 's/[^a-z0-9]/-/g' | sed 's/--*/-/g' | sed 's/^-//;s/-$//'
 }
 
+yaml_quote() {
+  printf "'%s'" "$(printf '%s' "$1" | sed "s/'/''/g")"
+}
+
+write_frontmatter_doc() {
+  local outfile="$1" body="$2"
+  shift 2
+
+  : > "$outfile"
+  printf '%s\n' '---' >> "$outfile"
+  local line
+  for line in "$@"; do
+    printf '%s\n' "$line" >> "$outfile"
+  done
+  printf '%s\n' '---' >> "$outfile"
+  printf '%s' "$body" >> "$outfile"
+}
+
+write_text_doc() {
+  local outfile="$1"
+  shift
+
+  : > "$outfile"
+  local chunk
+  for chunk in "$@"; do
+    printf '%s' "$chunk" >> "$outfile"
+  done
+}
+
+append_text_doc() {
+  local outfile="$1"
+  shift
+
+  local chunk
+  for chunk in "$@"; do
+    printf '%s' "$chunk" >> "$outfile"
+  done
+}
+
 # --- Per-tool converters ---
 
 convert_antigravity() {
@@ -120,16 +160,31 @@ convert_antigravity() {
   mkdir -p "$outdir"
 
   # Antigravity SKILL.md format mirrors community skills in ~/.gemini/antigravity/skills/
-  cat > "$outfile" <<HEREDOC
----
-name: ${slug}
-description: ${description}
-risk: low
-source: community
-date_added: '${TODAY}'
----
-${body}
-HEREDOC
+  write_frontmatter_doc "$outfile" "$body" \
+    "name: $(yaml_quote "$slug")" \
+    "description: $(yaml_quote "$description")" \
+    "risk: low" \
+    "source: community" \
+    "date_added: $(yaml_quote "$TODAY")"
+}
+
+convert_codex() {
+  local file="$1"
+  local name description slug outdir outfile body
+
+  name="$(get_field "name" "$file")"
+  description="$(get_field "description" "$file")"
+  slug="agency-$(slugify "$name")"
+  body="$(get_body "$file")"
+
+  outdir="$OUT_DIR/codex/$slug"
+  outfile="$outdir/SKILL.md"
+  mkdir -p "$outdir"
+
+  # Codex skill format: folder containing a SKILL.md with YAML frontmatter.
+  write_frontmatter_doc "$outfile" "$body" \
+    "name: $(yaml_quote "$slug")" \
+    "description: $(yaml_quote "$description")"
 }
 
 convert_gemini_cli() {
@@ -146,13 +201,9 @@ convert_gemini_cli() {
   mkdir -p "$outdir"
 
   # Gemini CLI skill format: minimal frontmatter (name + description only)
-  cat > "$outfile" <<HEREDOC
----
-name: ${slug}
-description: ${description}
----
-${body}
-HEREDOC
+  write_frontmatter_doc "$outfile" "$body" \
+    "name: $(yaml_quote "$slug")" \
+    "description: $(yaml_quote "$description")"
 }
 
 # Map known color names and normalize to OpenCode-safe #RRGGBB values.
@@ -214,15 +265,11 @@ convert_opencode() {
 
   # OpenCode agent format: .md with YAML frontmatter in .opencode/agents/.
   # Named colors are resolved to hex via resolve_opencode_color().
-  cat > "$outfile" <<HEREDOC
----
-name: ${name}
-description: ${description}
-mode: subagent
-color: '${color}'
----
-${body}
-HEREDOC
+  write_frontmatter_doc "$outfile" "$body" \
+    "name: $(yaml_quote "$name")" \
+    "description: $(yaml_quote "$description")" \
+    "mode: subagent" \
+    "color: $(yaml_quote "$color")"
 }
 
 convert_cursor() {
@@ -238,14 +285,10 @@ convert_cursor() {
   mkdir -p "$OUT_DIR/cursor/rules"
 
   # Cursor .mdc format: description + globs + alwaysApply frontmatter
-  cat > "$outfile" <<HEREDOC
----
-description: ${description}
-globs: ""
-alwaysApply: false
----
-${body}
-HEREDOC
+  write_frontmatter_doc "$outfile" "$body" \
+    "description: $(yaml_quote "$description")" \
+    "globs: $(yaml_quote "")" \
+    "alwaysApply: false"
 }
 
 convert_openclaw() {
@@ -313,14 +356,10 @@ convert_openclaw() {
   fi
 
   # Write SOUL.md — persona, tone, boundaries
-  cat > "$outdir/SOUL.md" <<HEREDOC
-${soul_content}
-HEREDOC
+  write_text_doc "$outdir/SOUL.md" "$soul_content"
 
   # Write AGENTS.md — mission, deliverables, workflow
-  cat > "$outdir/AGENTS.md" <<HEREDOC
-${agents_content}
-HEREDOC
+  write_text_doc "$outdir/AGENTS.md" "$agents_content"
 
   # Write IDENTITY.md — emoji + name + vibe from frontmatter, fallback to description
   local emoji vibe
@@ -328,15 +367,9 @@ HEREDOC
   vibe="$(get_field "vibe" "$file")"
 
   if [[ -n "$emoji" && -n "$vibe" ]]; then
-    cat > "$outdir/IDENTITY.md" <<HEREDOC
-# ${emoji} ${name}
-${vibe}
-HEREDOC
+    write_text_doc "$outdir/IDENTITY.md" "# ${emoji} ${name}" $'\n' "${vibe}" $'\n'
   else
-    cat > "$outdir/IDENTITY.md" <<HEREDOC
-# ${name}
-${description}
-HEREDOC
+    write_text_doc "$outdir/IDENTITY.md" "# ${name}" $'\n' "${description}" $'\n'
   fi
 }
 
@@ -356,22 +389,14 @@ convert_qwen() {
   # Qwen Code SubAgent format: .md with YAML frontmatter in ~/.qwen/agents/
   # name and description required; tools optional (only if present in source)
   if [[ -n "$tools" ]]; then
-    cat > "$outfile" <<HEREDOC
----
-name: ${slug}
-description: ${description}
-tools: ${tools}
----
-${body}
-HEREDOC
+    write_frontmatter_doc "$outfile" "$body" \
+      "name: $(yaml_quote "$slug")" \
+      "description: $(yaml_quote "$description")" \
+      "tools: ${tools}"
   else
-    cat > "$outfile" <<HEREDOC
----
-name: ${slug}
-description: ${description}
----
-${body}
-HEREDOC
+    write_frontmatter_doc "$outfile" "$body" \
+      "name: $(yaml_quote "$slug")" \
+      "description: $(yaml_quote "$description")"
   fi
 }
 
@@ -390,22 +415,18 @@ convert_kimi() {
 
   # Kimi Code CLI agent format: YAML with separate system prompt file
   # Uses extend: default to inherit Kimi's default toolset
-  cat > "$agent_file" <<HEREDOC
-version: 1
-agent:
-  name: ${slug}
-  extend: default
-  system_prompt_path: ./system.md
-HEREDOC
+  write_text_doc "$agent_file" \
+    "version: 1"$'\n' \
+    "agent:"$'\n' \
+    "  name: ${slug}"$'\n' \
+    "  extend: default"$'\n' \
+    "  system_prompt_path: ./system.md"$'\n'
 
   # Write system prompt to separate file
-  cat > "$outdir/system.md" <<HEREDOC
-# ${name}
-
-${description}
-
-${body}
-HEREDOC
+  write_text_doc "$outdir/system.md" \
+    "# ${name}"$'\n'$'\n' \
+    "${description}"$'\n'$'\n' \
+    "$body"
 }
 
 # Aider and Windsurf are single-file formats — accumulate into temp files
@@ -446,16 +467,11 @@ accumulate_aider() {
   description="$(get_field "description" "$file")"
   body="$(get_body "$file")"
 
-  cat >> "$AIDER_TMP" <<HEREDOC
-
----
-
-## ${name}
-
-> ${description}
-
-${body}
-HEREDOC
+  append_text_doc "$AIDER_TMP" \
+    $'\n---\n\n' \
+    "## ${name}"$'\n'$'\n' \
+    "> ${description}"$'\n'$'\n' \
+    "$body"
 }
 
 accumulate_windsurf() {
@@ -466,16 +482,13 @@ accumulate_windsurf() {
   description="$(get_field "description" "$file")"
   body="$(get_body "$file")"
 
-  cat >> "$WINDSURF_TMP" <<HEREDOC
-
-================================================================================
-## ${name}
-${description}
-================================================================================
-
-${body}
-
-HEREDOC
+  append_text_doc "$WINDSURF_TMP" \
+    $'\n================================================================================\n' \
+    "## ${name}"$'\n' \
+    "${description}"$'\n' \
+    "================================================================================"$'\n'$'\n' \
+    "$body" \
+    $'\n'
 }
 
 # --- Main loop ---
@@ -500,6 +513,7 @@ run_conversions() {
 
       case "$tool" in
         antigravity) convert_antigravity "$file" ;;
+        codex)       convert_codex       "$file" ;;
         gemini-cli)  convert_gemini_cli  "$file" ;;
         opencode)    convert_opencode    "$file" ;;
         cursor)      convert_cursor      "$file" ;;
@@ -536,7 +550,7 @@ main() {
     esac
   done
 
-  local valid_tools=("antigravity" "gemini-cli" "opencode" "cursor" "aider" "windsurf" "openclaw" "qwen" "kimi" "all")
+  local valid_tools=("antigravity" "codex" "gemini-cli" "opencode" "cursor" "aider" "windsurf" "openclaw" "qwen" "kimi" "all")
   local valid=false
   for t in "${valid_tools[@]}"; do [[ "$t" == "$tool" ]] && valid=true && break; done
   if ! $valid; then
@@ -555,7 +569,7 @@ main() {
 
   local tools_to_run=()
   if [[ "$tool" == "all" ]]; then
-    tools_to_run=("antigravity" "gemini-cli" "opencode" "cursor" "aider" "windsurf" "openclaw" "qwen" "kimi")
+    tools_to_run=("antigravity" "codex" "gemini-cli" "opencode" "cursor" "aider" "windsurf" "openclaw" "qwen" "kimi")
   else
     tools_to_run=("$tool")
   fi
@@ -566,7 +580,7 @@ main() {
 
   if $use_parallel && [[ "$tool" == "all" ]]; then
     # Tools that write to separate dirs can run in parallel; buffer output so each tool's output stays together
-    local parallel_tools=(antigravity gemini-cli opencode cursor openclaw qwen)
+    local parallel_tools=(antigravity codex gemini-cli opencode cursor openclaw qwen kimi)
     local parallel_out_dir
     parallel_out_dir="$(mktemp -d)"
     info "Converting: ${#parallel_tools[@]}/${n_tools} tools in parallel (output buffered per tool)..."
@@ -578,7 +592,7 @@ main() {
       [[ -f "$parallel_out_dir/$t" ]] && cat "$parallel_out_dir/$t"
     done
     rm -rf "$parallel_out_dir"
-    local idx=7
+    local idx=9
     for t in aider windsurf; do
       progress_bar "$idx" "$n_tools"
       printf "\n"
