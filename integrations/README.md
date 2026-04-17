@@ -7,6 +7,7 @@ supported agentic coding tools.
 
 - **[Claude Code](#claude-code)** — `.md` agents, use the repo directly
 - **[GitHub Copilot](#github-copilot)** — `.md` agents, use the repo directly
+- **[Codex](#codex)** — `SKILL.md` per agent in `codex/`
 - **[Antigravity](#antigravity)** — `SKILL.md` per agent in `antigravity/`
 - **[Gemini CLI](#gemini-cli)** — extension + `SKILL.md` files in `gemini-cli/`
 - **[OpenCode](#opencode)** — `.md` agent files in `opencode/`
@@ -26,8 +27,13 @@ supported agentic coding tools.
 # Install a specific home-scoped tool
 ./scripts/install.sh --tool antigravity
 ./scripts/install.sh --tool copilot
+./scripts/install.sh --tool codex
 ./scripts/install.sh --tool openclaw
 ./scripts/install.sh --tool claude-code
+
+# Codex skills are generated artifacts on a fresh clone
+./scripts/convert.sh --tool codex
+./scripts/install.sh --tool codex
 
 # Gemini CLI needs generated integration files on a fresh clone
 ./scripts/convert.sh --tool gemini-cli
@@ -84,6 +90,21 @@ directly into `~/.github/agents/` and `~/.copilot/agents/` without conversion.
 ```
 
 See [github-copilot/README.md](github-copilot/README.md) for details.
+
+---
+
+## Codex
+
+Each agent becomes a Codex skill in `~/.codex/skills/agency-<slug>/`.
+Because these skill folders are generated artifacts, run `./scripts/convert.sh --tool codex`
+before installing from a fresh clone.
+
+```bash
+./scripts/convert.sh --tool codex
+./scripts/install.sh --tool codex
+```
+
+See [codex/README.md](codex/README.md) for details.
 
 ---
 

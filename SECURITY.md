@@ -21,11 +21,12 @@ This repository contains Markdown-based agent definitions and shell scripts for 
 ### Shell scripts (scripts/)
 - install.sh, convert.sh, and lint-agents.sh are executable
 - Contributors should review scripts for unintended behavior before running
+- Generated integration files should treat agent text as data, not shell input
 
 ## Best Practices for Contributors
 
 - Never commit API keys, tokens, or credentials
 - Never add executable code inside agent Markdown files
+- Avoid shell metacharacters and command substitutions in frontmatter values
 - Shell scripts must be reviewed before merging
 - Report suspicious agent definitions that attempt prompt injection
-EOFcat SECURITY.md
