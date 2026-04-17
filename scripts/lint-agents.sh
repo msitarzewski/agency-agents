@@ -10,7 +10,10 @@
 
 set -euo pipefail
 
-# Keep in sync with AGENT_DIRS in scripts/convert.sh
+# Frontmatter-based agent source directories.
+# Keep this aligned with the directories that are treated as installable/convertible
+# agent assets. NEXUS strategy docs under strategy/ are validated separately by
+# scripts/lint-strategy.sh because they are documentation assets, not agent files.
 AGENT_DIRS=(
   academic
   design
@@ -24,7 +27,6 @@ AGENT_DIRS=(
   sales
   spatial-computing
   specialized
-  strategy
   support
   testing
 )

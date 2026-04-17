@@ -843,6 +843,29 @@ When you add new agents or edit existing ones, regenerate all integration files:
 ./scripts/convert.sh --tool cursor      # regenerate just one tool
 ```
 
+### ✅ Validation Suite
+
+Use the lint suite that matches the asset type you changed:
+
+```bash
+./scripts/lint-agents.sh        # frontmatter-based agent assets
+./scripts/lint-strategy.sh      # NEXUS strategy/playbooks/runbooks/templates
+./scripts/lint-integrations.sh  # convert/install readiness across tool outputs
+./scripts/lint-all.sh           # run every validation layer
+```
+
+### 🧭 Full Utilization Workflow
+
+To get full value from this repository, use all four layers together:
+
+1. **Agents** — install specialist personas into your coding tool
+2. **Strategy** — run NEXUS using `strategy/` doctrine, playbooks, and handoff templates
+3. **Distribution** — generate/install tool-specific formats with `convert.sh` and `install.sh`
+4. **Proof** — study `examples/` for complete multi-agent output patterns
+
+See [`docs/full-utilization-guide.md`](docs/full-utilization-guide.md) for a practical local workflow that combines all four layers.
+Need a ready-to-run local sprint operating doc? Start with [`docs/local-nexus-sprint-template.md`](docs/local-nexus-sprint-template.md).
+
 ---
 
 ## 🗺️ Roadmap
