@@ -13,7 +13,7 @@
 #   claude-code  -- Copy agents to ~/.claude/agents/
 #   copilot      -- Copy agents to ~/.github/agents/ and ~/.copilot/agents/
 #   antigravity  -- Copy skills to ~/.gemini/antigravity/skills/
-#   gemini-cli   -- Install extension to ~/.gemini/extensions/agency-agents/
+#   gemini-cli   -- Install agents to ~/.gemini/agents/
 #   opencode     -- Copy agents to .opencode/agents/ in current directory
 #   cursor       -- Copy rules to .cursor/rules/ in current directory
 #   aider        -- Copy CONVENTIONS.md to current directory
@@ -173,7 +173,7 @@ tool_label() {
     claude-code) printf "%-14s  %s" "Claude Code"  "(claude.ai/code)"        ;;
     copilot)     printf "%-14s  %s" "Copilot"      "(~/.github + ~/.copilot)" ;;
     antigravity) printf "%-14s  %s" "Antigravity"  "(~/.gemini/antigravity)" ;;
-    gemini-cli)  printf "%-14s  %s" "Gemini CLI"   "(gemini extension)"      ;;
+    gemini-cli)  printf "%-14s  %s" "Gemini CLI"   "(~/.gemini/agents)"      ;;
     opencode)    printf "%-14s  %s" "OpenCode"     "(opencode.ai)"           ;;
     openclaw)    printf "%-14s  %s" "OpenClaw"     "(~/.openclaw/agency-agents)" ;;
     cursor)      printf "%-14s  %s" "Cursor"       "(.cursor/rules)"         ;;
@@ -358,24 +358,17 @@ install_antigravity() {
 }
 
 install_gemini_cli() {
-  local src="$INTEGRATIONS/gemini-cli"
-  local dest="${HOME}/.gemini/extensions/agency-agents"
+  local src="$INTEGRATIONS/gemini-cli/agents"
+  local dest="${HOME}/.gemini/agents"
   local count=0
-  local manifest="$src/gemini-extension.json"
-  local skills_dir="$src/skills"
-  [[ -d "$src" ]] || { err "integrations/gemini-cli missing. Run ./scripts/convert.sh --tool gemini-cli first."; return 1; }
-  [[ -f "$manifest" ]] || { err "integrations/gemini-cli/gemini-extension.json missing. Run ./scripts/convert.sh --tool gemini-cli first."; return 1; }
-  [[ -d "$skills_dir" ]] || { err "integrations/gemini-cli/skills missing. Run ./scripts/convert.sh --tool gemini-cli first."; return 1; }
-  mkdir -p "$dest/skills"
-  cp "$manifest" "$dest/gemini-extension.json"
-  local d
-  while IFS= read -r -d '' d; do
-    local name; name="$(basename "$d")"
-    mkdir -p "$dest/skills/$name"
-    cp "$d/SKILL.md" "$dest/skills/$name/SKILL.md"
+  [[ -d "$src" ]] || { err "integrations/gemini-cli/agents missing. Run ./scripts/convert.sh --tool gemini-cli first."; return 1; }
+  mkdir -p "$dest"
+  local f
+  while IFS= read -r -d '' f; do
+    cp "$f" "$dest/"
     (( count++ )) || true
-  done < <(find "$skills_dir" -mindepth 1 -maxdepth 1 -type d -print0)
-  ok "Gemini CLI: $count skills -> $dest"
+  done < <(find "$src" -maxdepth 1 -name "*.md" -print0)
+  ok "Gemini CLI: $count agents -> $dest"
 }
 
 install_opencode() {

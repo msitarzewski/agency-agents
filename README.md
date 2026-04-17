@@ -584,7 +584,7 @@ The installer scans your system for installed tools, shows a checkbox UI, and le
   [x]  1)  [*]  Claude Code     (claude.ai/code)
   [x]  2)  [*]  Copilot         (~/.github + ~/.copilot)
   [x]  3)  [*]  Antigravity     (~/.gemini/antigravity)
-  [ ]  4)  [ ]  Gemini CLI      (gemini extension)
+  [ ]  4)  [ ]  Gemini CLI      (~/.gemini/agents)
   [ ]  5)  [ ]  OpenCode        (opencode.ai)
   [ ]  6)  [ ]  OpenClaw        (~/.openclaw/agency-agents)
   [x]  7)  [*]  Cursor          (.cursor/rules)
@@ -678,8 +678,8 @@ See [integrations/antigravity/README.md](integrations/antigravity/README.md) for
 <details>
 <summary><strong>Gemini CLI</strong></summary>
 
-Installs as a Gemini CLI extension with one skill per agent plus a manifest.
-On a fresh clone, generate the Gemini extension files before running the installer.
+Installs as Gemini CLI subagents.
+On a fresh clone, generate the Gemini agent files before running the installer.
 
 ```bash
 ./scripts/convert.sh --tool gemini-cli
