@@ -864,6 +864,7 @@ To get full value from this repository, use all four layers together:
 4. **Proof** — study `examples/` for complete multi-agent output patterns
 
 See [`docs/full-utilization-guide.md`](docs/full-utilization-guide.md) for a practical local workflow that combines all four layers.
+Need a ready-to-run local sprint operating doc? Start with [`docs/local-nexus-sprint-template.md`](docs/local-nexus-sprint-template.md).
 
 ---
 

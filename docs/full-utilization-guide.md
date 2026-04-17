@@ -63,6 +63,9 @@ Do not copy the `strategy/` documents into a tool-specific agents folder and for
 - **Reality Checker** is the final release gate.
 - **Agents Orchestrator** decides whether to advance, retry, or escalate.
 
+### Ready-to-run template
+If you want a concrete starting point instead of assembling the workflow yourself, use [`docs/local-nexus-sprint-template.md`](docs/local-nexus-sprint-template.md). It provides a local folder convention, sprint brief template, orchestrator kickoff prompt, phase-by-phase flow, and QA/escalation rules.
+
 ## 4. Use the validation suite correctly
 
 This repository now has three validation layers plus one combined entrypoint.
