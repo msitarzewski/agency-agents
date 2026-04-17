@@ -1,36 +1,40 @@
 # Gemini CLI Integration
 
-Packages all 61 Agency agents as a Gemini CLI extension. The extension
-installs to `~/.gemini/extensions/agency-agents/`.
+Packages all 61 Agency agents as Gemini CLI subagents. These agents
+install to `~/.gemini/agents/`.
 
 ## Install
 
 ```bash
-# Generate the Gemini CLI integration files first
+# Generate the Gemini CLI agent files first
 ./scripts/convert.sh --tool gemini-cli
 
-# Then install the extension
+# Then install them to ~/.gemini/agents/
 ./scripts/install.sh --tool gemini-cli
 ```
 
-## Activate a Skill
+## Use an Agent
 
-In Gemini CLI, reference an agent by name:
-
-```
-Use the frontend-developer skill to help me build this UI.
-```
-
-## Extension Structure
+In Gemini CLI, reference an agent by name in your prompt:
 
 ```
-~/.gemini/extensions/agency-agents/
-  gemini-extension.json
-  skills/
-    frontend-developer/SKILL.md
-    backend-architect/SKILL.md
-    reality-checker/SKILL.md
-    ...
+Use the frontend-developer agent to help me build this UI.
+```
+
+Or invoke the agent directly if your version of Gemini CLI supports it:
+
+```bash
+gemini --agent frontend-developer "How should I structure this React component?"
+```
+
+## Structure
+
+```
+~/.gemini/agents/
+  frontend-developer.md
+  backend-architect.md
+  reality-checker.md
+  ...
 ```
 
 ## Regenerate

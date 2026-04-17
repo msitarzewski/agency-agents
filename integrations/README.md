@@ -8,7 +8,7 @@ supported agentic coding tools.
 - **[Claude Code](#claude-code)** — `.md` agents, use the repo directly
 - **[GitHub Copilot](#github-copilot)** — `.md` agents, use the repo directly
 - **[Antigravity](#antigravity)** — `SKILL.md` per agent in `antigravity/`
-- **[Gemini CLI](#gemini-cli)** — extension + `SKILL.md` files in `gemini-cli/`
+- **[Gemini CLI](#gemini-cli)** — `.md` agent files in `gemini-cli/agents/`
 - **[OpenCode](#opencode)** — `.md` agent files in `opencode/`
 - **[OpenClaw](#openclaw)** — `SOUL.md` + `AGENTS.md` + `IDENTITY.md` workspaces
 - **[Cursor](#cursor)** — `.mdc` rule files in `cursor/`
@@ -102,9 +102,9 @@ See [antigravity/README.md](antigravity/README.md) for details.
 
 ## Gemini CLI
 
-Agents are packaged as a Gemini CLI extension with individual skill files.
-The extension is installed to `~/.gemini/extensions/agency-agents/`.
-Because the Gemini manifest and skill folders are generated artifacts, run
+Agents are packaged as Gemini CLI subagents.
+Subagents are installed to `~/.gemini/agents/`.
+Because the agent files are generated artifacts, run
 `./scripts/convert.sh --tool gemini-cli` before installing from a fresh clone.
 
 ```bash

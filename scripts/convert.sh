@@ -11,7 +11,7 @@
 #
 # Tools:
 #   antigravity  — Antigravity skill files (~/.gemini/antigravity/skills/)
-#   gemini-cli   — Gemini CLI extension (skills/ + gemini-extension.json)
+#   gemini-cli   — Gemini CLI subagent files (~/.gemini/agents/*.md)
 #   opencode     — OpenCode agent files (.opencode/agents/*.md)
 #   cursor       — Cursor rule files (.cursor/rules/*.mdc)
 #   aider        — Single CONVENTIONS.md for Aider
@@ -141,11 +141,11 @@ convert_gemini_cli() {
   slug="$(slugify "$name")"
   body="$(get_body "$file")"
 
-  outdir="$OUT_DIR/gemini-cli/skills/$slug"
-  outfile="$outdir/SKILL.md"
+  # Gemini CLI subagent format: .md file in ~/.gemini/agents/
+  outdir="$OUT_DIR/gemini-cli/agents"
+  outfile="$outdir/${slug}.md"
   mkdir -p "$outdir"
 
-  # Gemini CLI skill format: minimal frontmatter (name + description only)
   cat > "$outfile" <<HEREDOC
 ---
 name: ${slug}
@@ -599,19 +599,6 @@ main() {
       local count
       count="$(run_conversions "$t")"
       total=$(( total + count ))
-
-      # Gemini CLI also needs the extension manifest (written by this process when --tool gemini-cli)
-      if [[ "$t" == "gemini-cli" ]]; then
-        mkdir -p "$OUT_DIR/gemini-cli"
-        cat > "$OUT_DIR/gemini-cli/gemini-extension.json" <<'HEREDOC'
-{
-  "name": "agency-agents",
-  "version": "1.0.0"
-}
-HEREDOC
-        info "Wrote gemini-extension.json"
-      fi
-
       info "Converted $count agents for $t"
     done
   fi
