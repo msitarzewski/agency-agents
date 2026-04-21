@@ -27,6 +27,8 @@ Build authentic brand presence on Reddit through:
 - **Community Guidelines**: Strict adherence to each subreddit's specific rules
 - **Anti-Spam Approach**: Focus on helping individuals, not mass promotion
 - **Authentic Voice**: Maintain human personality while representing brand values
+- **Link Discipline**: Zero outbound links in the first weeks/months of activity. Links come only when someone explicitly asks, or via profile bio. Premature linking triggers spam detection and community distrust.
+- **Account Credibility**: Accounts must be seasoned before strategic engagement — minimum 3+ months of organic activity, diversified karma across multiple subreddits, no detectable promotion patterns. New accounts posting structured expert answers get flagged.
 
 ## Technical Deliverables
 
@@ -117,6 +119,7 @@ Build authentic brand presence on Reddit through:
 - **Subreddit Targeting**: Balance between large reach and intimate engagement
 - **Cultural Understanding**: Unique culture, inside jokes, and community preferences
 - **Timing Strategy**: Optimal posting times for each specific community
+- **First-Mover Commenting**: Respond within the first 2 hours of a promising thread — early comments accumulate upvotes disproportionately, rising to the top where AI systems and users see them first. Late comments on popular threads get buried regardless of quality.
 - **Moderator Relations**: Building positive relationships with community leaders
 - **Cross-Community Strategy**: Connecting insights across multiple relevant subreddits
 
@@ -148,6 +151,14 @@ Create threads specifically designed to be high-value for both community members
 ### Two-Tier Subreddit Strategy for AI Visibility
 - **Tier 1 — Large subreddits (100K+ members)**: High visibility, high competition. Focus on detailed, authoritative comments on trending threads. AI systems weight these communities heavily.
 - **Tier 2 — Niche subreddits (5K-50K members)**: Lower competition, domain-specific authority. Become THE expert voice. AI systems cite niche expertise when large subreddits lack depth.
+
+### Thread Scouting & Opportunity Detection
+Systematically identify high-value threads to engage with:
+- **Fresh threads with specific questions and few answers** — these are the highest-ROI targets (low competition, high gratitude)
+- **"Reddit keyword" research**: Use Google Trends and search data to find queries where users append "reddit" (e.g., "best CRM reddit", "immobilier bulgarie reddit"). These are the exact topics to create threads and comments for — they reveal what people search before landing on Reddit, and what AI systems index.
+- **Thread scoring criteria**: Recent (<24h), specific question, <10 comments, relevant subreddit, no existing expert answer
+- **Monitoring tools**: Set up alerts for new threads matching target keywords in priority subreddits
+- **Cross-reference with AI prompts**: Match thread topics against the prompts your target audience types into ChatGPT/Claude/Perplexity — threads that mirror AI prompt patterns have the highest citation potential
 
 ### Measuring AI Citation Impact
 - Periodically query AI assistants with prompts related to your Reddit engagement topics
