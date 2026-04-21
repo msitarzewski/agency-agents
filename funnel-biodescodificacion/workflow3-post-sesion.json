@@ -1,0 +1,114 @@
+{
+  "name": "Biodescodificacion - Post Sesion (Seguimiento + Testimonio + Upsell)",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "sesion-completada",
+        "responseMode": "onReceived"
+      },
+      "id": "webhook-sesion-completada",
+      "name": "Webhook Sesion Completada",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 1,
+      "position": [240, 300],
+      "notes": "Disparar manualmente o al marcar como completada en tu CRM/Google Sheets"
+    },
+    {
+      "parameters": {
+        "amount": 24,
+        "unit": "hours"
+      },
+      "id": "espera-24h",
+      "name": "Esperar 24 Horas",
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1,
+      "position": [460, 300]
+    },
+    {
+      "parameters": {
+        "fromEmail": "tu@email.com",
+        "toEmail": "={{$json.email}}",
+        "subject": "¿Cómo estás hoy, {{$json.nombre}}?",
+        "emailFormat": "html",
+        "message": "<!DOCTYPE html><html><body style='font-family: Georgia, serif; max-width: 600px; margin: 0 auto; color: #333; line-height: 1.7;'><div style='padding: 30px;'><p>Hola <strong>{{$json.nombre}}</strong>,</p><p>Han pasado 24 horas desde nuestra sesión y quería saber cómo estás.</p><p>Es completamente normal que después de una sesión de biodescodificación experimentes:</p><ul><li>Algo de <strong>movimiento emocional</strong> — ganas de llorar, sensaciones físicas, sueños vívidos</li><li><strong>Claridad nueva</strong> sobre situaciones que antes no entendías</li><li>O simplemente <strong>calma</strong> — una sensación de que algo se asentó</li></ul><p>Todo eso es parte del proceso de integración. Tu cuerpo y tu mente están procesando lo que trabajamos.</p><p style='background: #f0f4f0; padding: 15px; border-radius: 8px;'><strong>Mi recomendación para esta semana:</strong><br>Sé amable contigo. Hidratación, descanso, y si puedes, un poco de tiempo en silencio cada día para observar qué surge.</p><p>Si tienes alguna duda o algo que quieras compartir, responde este email. Estoy aquí.</p><p>Con cariño,<br><strong>[TU NOMBRE]</strong></p></div></body></html>"
+      },
+      "id": "email-seguimiento-24h",
+      "name": "Email Seguimiento 24h",
+      "type": "n8n-nodes-base.emailSend",
+      "typeVersion": 2,
+      "position": [680, 200]
+    },
+    {
+      "parameters": {
+        "url": "https://api.ultramsg.com/instance[TU_INSTANCIA]/messages/chat",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [{ "name": "Content-Type", "value": "application/x-www-form-urlencoded" }]
+        },
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            { "name": "token", "value": "[TU_TOKEN_ULTRAMSG]" },
+            { "name": "to", "value": "52{{$json.telefono}}" },
+            {
+              "name": "body",
+              "value": "Hola {{$json.nombre}} 🌿\n\n¿Cómo amaneciste hoy?\n\nQuería checar cómo te sientes después de nuestra sesión. Si hay algo que quieras compartir o alguna duda, aquí estoy.\n\nRecuerda: lo que exploramos ayer necesita tiempo para integrarse. Sé amable contigo esta semana. ✨\n\n[TU NOMBRE]"
+            }
+          ]
+        }
+      },
+      "id": "whatsapp-seguimiento-24h",
+      "name": "WhatsApp Seguimiento 24h",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 3,
+      "position": [680, 400]
+    },
+    {
+      "parameters": {
+        "amount": 6,
+        "unit": "days"
+      },
+      "id": "espera-6-dias",
+      "name": "Esperar 6 Dias Mas",
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1,
+      "position": [900, 300]
+    },
+    {
+      "parameters": {
+        "fromEmail": "tu@email.com",
+        "toEmail": "={{$json.email}}",
+        "subject": "¿Me cuentas cómo vas? (+ algo especial para ti)",
+        "emailFormat": "html",
+        "message": "<!DOCTYPE html><html><body style='font-family: Georgia, serif; max-width: 600px; margin: 0 auto; color: #333; line-height: 1.7;'><div style='padding: 30px;'><p>Hola <strong>{{$json.nombre}}</strong>,</p><p>Ha pasado una semana desde nuestra sesión y me gustaría saber dos cosas:</p><p><strong>1. ¿Cómo has estado?</strong><br>¿Notaste algún cambio esta semana — en el síntoma, en tus emociones, en cómo te relacionas con la situación que trabajamos?</p><p>Me encantaría escucharlo. Responde este email con lo que quieras compartir.</p><hr style='border: none; border-top: 1px solid #eee; margin: 25px 0;'><p><strong>2. ¿Me regalas tu testimonio?</strong></p><p>Si la sesión te aportó algo valioso, me ayudaría muchísimo que lo compartieras. No necesita ser largo — con una o dos líneas honestas es suficiente.</p><a href='[LINK_FORMULARIO_TESTIMONIO]' style='display:inline-block; background: #2d6a4f; color: white; padding: 12px 24px; border-radius: 8px; text-decoration: none; margin: 15px 0;'>Dejar mi testimonio (2 minutos)</a><hr style='border: none; border-top: 1px solid #eee; margin: 25px 0;'><div style='background: #f0f4f0; padding: 20px; border-radius: 8px;'><p><strong>¿Sientes que hay más por explorar?</strong></p><p>La primera sesión abre la puerta. Muchas personas encuentran valor en continuar el proceso — cada sesión va más profundo y trabaja nuevas capas.</p><p>Para ti, como clienta que ya vivió el proceso, tengo una oferta especial:</p><p style='font-size: 20px;'><del style='color: #999;'>$1,100</del> → <strong style='color: #2d6a4f;'>$900 MXN</strong> la siguiente sesión</p><a href='[TU_LINK_CALENDLY]?utm_source=email&utm_campaign=upsell_postsesion' style='display:inline-block; background: #e67e22; color: white; padding: 12px 24px; border-radius: 8px; text-decoration: none;'>Agendar mi segunda sesión</a></div><p style='margin-top: 25px;'>Gracias por confiarme tu proceso, {{$json.nombre}}.<br><strong>[TU NOMBRE]</strong></p></div></body></html>"
+      },
+      "id": "email-testimonio-upsell",
+      "name": "Email Testimonio + Upsell Dia 7",
+      "type": "n8n-nodes-base.emailSend",
+      "typeVersion": 2,
+      "position": [1100, 300]
+    }
+  ],
+  "connections": {
+    "Webhook Sesion Completada": {
+      "main": [[{ "node": "Esperar 24 Horas", "type": "main", "index": 0 }]]
+    },
+    "Esperar 24 Horas": {
+      "main": [
+        [
+          { "node": "Email Seguimiento 24h", "type": "main", "index": 0 },
+          { "node": "WhatsApp Seguimiento 24h", "type": "main", "index": 0 },
+          { "node": "Esperar 6 Dias Mas", "type": "main", "index": 0 }
+        ]
+      ]
+    },
+    "Esperar 6 Dias Mas": {
+      "main": [[{ "node": "Email Testimonio + Upsell Dia 7", "type": "main", "index": 0 }]]
+    }
+  },
+  "settings": { "executionOrder": "v1" },
+  "meta": {
+    "description": "Workflow 3: Seguimiento post-sesion, solicitud de testimonio y oferta de sesion de seguimiento"
+  }
+}
