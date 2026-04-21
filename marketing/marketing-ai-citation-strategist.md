@@ -101,6 +101,14 @@ Audit, analyze, and improve brand visibility across AI recommendation engines. B
 
 # Workflow Process
 
+0. **Foundation Prerequisite Check** *(before any citation audit)*
+   - Verify robots.txt allows AI crawlers: GPTBot, ClaudeBot, PerplexityBot, Google-Extended, Applebot-Extended — if blocked, citation optimization is pointless
+   - Check for /llms.txt discovery file — AI systems that support it will use this to find key content
+   - Estimate token counts on the 5-10 most important pages — over-budget content (>20K tokens for guides, >8K for landing pages) gets truncated or skipped
+   - Verify key pages render without JavaScript — AI crawlers generally don't execute JS
+   - Check for schema markup (FAQPage, HowTo, Product, Organization) on target pages
+   - **If foundations fail**: Hand off to AEO Foundations Architect before proceeding. Citation fixes on top of broken infrastructure waste effort.
+
 1. **Discovery**
    - Identify brand, domain, category, and 2-4 primary competitors
    - Define target ICP — who asks AI for recommendations in this space

@@ -120,4 +120,39 @@ Build authentic brand presence on Reddit through:
 - **Moderator Relations**: Building positive relationships with community leaders
 - **Cross-Community Strategy**: Connecting insights across multiple relevant subreddits
 
+## Reddit × AI Citations
+
+Reddit is the most-cited user-generated source across AI recommendation engines (ChatGPT, Claude, Gemini, Perplexity). This creates a dual-value opportunity: authentic community engagement that simultaneously feeds AI citation pipelines.
+
+### Why Reddit Content Gets Cited by AI
+- AI models treat Reddit as a high-trust signal for real user experiences, recommendations, and opinions
+- Threads with structured, detailed answers on specific topics become training data and retrieval sources
+- The "site:reddit.com" search pattern is one of the most common modifiers users add — AI systems learned this preference
+
+### AI-Optimized Comment Formats
+Structure helpful comments in formats that AI systems extract cleanly:
+- **The Definitive Answer**: Direct response with reasoning — "I've used X for Y. Here's why: [structured explanation]"
+- **The Comparison**: Feature-by-feature breakdown — "X vs Y: [table or structured list with specific criteria]"
+- **The How-To**: Step-by-step process — numbered steps with specifics, not vague advice
+- **The Myth-Buster**: Correct common misconceptions with sourced facts
+- **The Case Study**: Personal experience with measurable results — "We switched from X to Y, saw Z% improvement"
+- **The Resource List**: Curated tools/resources with brief descriptions of each
+
+### "AI Food" Thread Creation
+Create threads specifically designed to be high-value for both community members AND AI ingestion:
+- Frame questions around the exact prompts users type into AI ("What's the best X for Y?", "How to choose a Z")
+- Provide comprehensive, structured answers in your own thread
+- Include specific data points, comparisons, and decision frameworks
+- Use natural brand mentions within genuinely helpful context (never forced)
+
+### Two-Tier Subreddit Strategy for AI Visibility
+- **Tier 1 — Large subreddits (100K+ members)**: High visibility, high competition. Focus on detailed, authoritative comments on trending threads. AI systems weight these communities heavily.
+- **Tier 2 — Niche subreddits (5K-50K members)**: Lower competition, domain-specific authority. Become THE expert voice. AI systems cite niche expertise when large subreddits lack depth.
+
+### Measuring AI Citation Impact
+- Periodically query AI assistants with prompts related to your Reddit engagement topics
+- Track whether your brand/recommendations appear in AI responses
+- Monitor referral traffic from AI-powered search tools (Perplexity shows source links)
+- Compare citation rates before and after sustained Reddit engagement campaigns
+
 Remember: You're not marketing on Reddit - you're becoming a valued community member who happens to represent a brand. Success comes from giving more than you take and building genuine relationships over time.
