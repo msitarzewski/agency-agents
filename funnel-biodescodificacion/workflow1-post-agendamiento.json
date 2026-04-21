@@ -1,0 +1,213 @@
+{
+  "name": "Biodescodificacion - Post Agendamiento Calendly",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "calendly-webhook",
+        "responseMode": "onReceived",
+        "responseData": "allEntries"
+      },
+      "id": "webhook-calendly",
+      "name": "Webhook Calendly",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 1,
+      "position": [240, 300]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "string": [
+            {
+              "value1": "={{$json.event}}",
+              "operation": "equals",
+              "value2": "invitee.created"
+            }
+          ]
+        }
+      },
+      "id": "filter-evento",
+      "name": "Filtrar Agendamiento Nuevo",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 1,
+      "position": [460, 300]
+    },
+    {
+      "parameters": {
+        "functionCode": "const payload = $input.item.json.payload;\nreturn [{\n  json: {\n    nombre: payload.invitee?.name || 'Cliente',\n    email: payload.invitee?.email,\n    fecha_sesion: payload.event?.start_time,\n    fecha_formateada: new Date(payload.event?.start_time).toLocaleDateString('es-MX', {\n      weekday: 'long', year: 'numeric', month: 'long', day: 'numeric'\n    }),\n    hora_formateada: new Date(payload.event?.start_time).toLocaleTimeString('es-MX', {\n      hour: '2-digit', minute: '2-digit'\n    }),\n    cancel_url: payload.invitee?.cancel_url,\n    reschedule_url: payload.invitee?.reschedule_url,\n    timestamp_24h_antes: new Date(new Date(payload.event?.start_time).getTime() - 24*60*60*1000).toISOString(),\n    timestamp_1h_antes: new Date(new Date(payload.event?.start_time).getTime() - 60*60*1000).toISOString()\n  }\n}];"
+      },
+      "id": "extraer-datos",
+      "name": "Extraer Datos del Agendamiento",
+      "type": "n8n-nodes-base.function",
+      "typeVersion": 1,
+      "position": [680, 300]
+    },
+    {
+      "parameters": {
+        "fromEmail": "tu@email.com",
+        "toEmail": "={{$json.email}}",
+        "subject": "✅ Tu sesión de biodescodificación está confirmada, {{$json.nombre}}",
+        "emailFormat": "html",
+        "message": "<!DOCTYPE html><html><body style='font-family: Georgia, serif; max-width: 600px; margin: 0 auto; color: #333;'><div style='background: #f0f4f0; padding: 30px; border-radius: 12px;'><h1 style='color: #2d6a4f; font-size: 24px;'>¡Tu sesión está confirmada! 🌿</h1><p style='font-size: 16px;'>Hola <strong>{{$json.nombre}}</strong>,</p><p>Qué gusto tenerte. Tu sesión de biodescodificación está agendada y lista.</p><div style='background: white; padding: 20px; border-radius: 8px; margin: 20px 0; border-left: 4px solid #2d6a4f;'><p><strong>📅 Fecha:</strong> {{$json.fecha_formateada}}</p><p><strong>⏰ Hora:</strong> {{$json.hora_formateada}} (hora Ciudad de México)</p><p><strong>📍 Modalidad:</strong> Videollamada (te envío el link 30 min antes)</p></div><h2 style='color: #2d6a4f;'>Cómo prepararte para tu sesión</h2><ol><li><strong>Elige un espacio tranquilo</strong> donde puedas hablar con privacidad durante 60-75 minutos.</li><li><strong>Ten agua cerca</strong> — las sesiones pueden ser emocionalmente intensas.</li><li><strong>Llega con intención:</strong> piensa en qué síntoma o situación quieres explorar.</li><li><strong>No es necesaria ninguna preparación especial</strong> — solo llega siendo tú.</li></ol><p style='background: #e8f5e9; padding: 15px; border-radius: 8px;'><strong>Reflexión previa (opcional):</strong><br>¿Cuándo apareció por primera vez este síntoma? ¿Qué estaba pasando en tu vida en ese momento? No necesitas la respuesta perfecta — es solo para empezar a conectar.</p><div style='margin: 30px 0;'><a href='{{$json.reschedule_url}}' style='background: #95a5a6; color: white; padding: 10px 20px; border-radius: 6px; text-decoration: none; margin-right: 10px;'>Reagendar</a><a href='{{$json.cancel_url}}' style='background: #e74c3c; color: white; padding: 10px 20px; border-radius: 6px; text-decoration: none;'>Cancelar</a></div><p>Cualquier duda escríbeme por WhatsApp: <strong>[TU NÚMERO]</strong></p><p>Hasta pronto,<br><strong>[TU NOMBRE]</strong><br>Terapeuta en Biodescodificación</p></div></body></html>"
+      },
+      "id": "email-confirmacion",
+      "name": "Email Confirmacion",
+      "type": "n8n-nodes-base.emailSend",
+      "typeVersion": 2,
+      "position": [900, 200]
+    },
+    {
+      "parameters": {
+        "url": "https://api.ultramsg.com/instance[TU_INSTANCIA]/messages/chat",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Content-Type",
+              "value": "application/x-www-form-urlencoded"
+            }
+          ]
+        },
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "token",
+              "value": "[TU_TOKEN_ULTRAMSG]"
+            },
+            {
+              "name": "to",
+              "value": "52[TELEFONO_CLIENTE]"
+            },
+            {
+              "name": "body",
+              "value": "Hola {{$json.nombre}} 🌿\n\n¡Tu sesión de biodescodificación está confirmada!\n\n📅 *{{$json.fecha_formateada}}*\n⏰ *{{$json.hora_formateada}}* (CDMX)\n\nTe mando el link de videollamada 30 minutos antes.\n\nSi necesitas reagendar o tienes alguna duda, escríbeme aquí mismo.\n\n¡Nos vemos pronto! ✨\n[TU NOMBRE]"
+            }
+          ]
+        }
+      },
+      "id": "whatsapp-confirmacion",
+      "name": "WhatsApp Confirmacion",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 3,
+      "position": [900, 400]
+    },
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "cronExpression",
+              "expression": "0 9 * * *"
+            }
+          ]
+        }
+      },
+      "id": "cron-recordatorios",
+      "name": "Cron Diario Recordatorios",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1,
+      "position": [240, 600]
+    },
+    {
+      "parameters": {
+        "operation": "getAll",
+        "resource": "row",
+        "tableId": "[ID_TABLA_SESIONES]"
+      },
+      "id": "obtener-sesiones-pendientes",
+      "name": "Obtener Sesiones Pendientes",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4,
+      "position": [460, 600],
+      "notes": "Alternativa: guarda sesiones en Google Sheets cuando llega el webhook"
+    },
+    {
+      "parameters": {
+        "url": "https://api.ultramsg.com/instance[TU_INSTANCIA]/messages/chat",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            { "name": "Content-Type", "value": "application/x-www-form-urlencoded" }
+          ]
+        },
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            { "name": "token", "value": "[TU_TOKEN_ULTRAMSG]" },
+            { "name": "to", "value": "52{{$json.telefono}}" },
+            {
+              "name": "body",
+              "value": "Hola {{$json.nombre}} 👋\n\nTe recuerdo que *mañana* tienes tu sesión de biodescodificación:\n\n📅 {{$json.fecha_formateada}}\n⏰ {{$json.hora_formateada}} (CDMX)\n\n*Prepárate:*\n✦ Busca un espacio tranquilo y privado\n✦ Ten agua a la mano\n✦ Piensa en qué síntoma quieres explorar\n\nTe mando el link de Zoom mañana 30 min antes. ¡Nos vemos! 🌿\n[TU NOMBRE]"
+            }
+          ]
+        }
+      },
+      "id": "whatsapp-24h",
+      "name": "WhatsApp 24h Antes",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 3,
+      "position": [900, 600]
+    },
+    {
+      "parameters": {
+        "url": "https://api.ultramsg.com/instance[TU_INSTANCIA]/messages/chat",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            { "name": "Content-Type", "value": "application/x-www-form-urlencoded" }
+          ]
+        },
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            { "name": "token", "value": "[TU_TOKEN_ULTRAMSG]" },
+            { "name": "to", "value": "52{{$json.telefono}}" },
+            {
+              "name": "body",
+              "value": "¡Hola {{$json.nombre}}! 🌿\n\nTu sesión empieza *en 1 hora* ({{$json.hora_formateada}}).\n\n🔗 Link de videollamada:\n[LINK_ZOOM_O_MEET]\n\nSi necesitas algo antes, escríbeme aquí. ¡Te espero! ✨"
+            }
+          ]
+        }
+      },
+      "id": "whatsapp-1h",
+      "name": "WhatsApp 1h Antes",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 3,
+      "position": [900, 740]
+    }
+  ],
+  "connections": {
+    "Webhook Calendly": {
+      "main": [[{ "node": "Filtrar Agendamiento Nuevo", "type": "main", "index": 0 }]]
+    },
+    "Filtrar Agendamiento Nuevo": {
+      "main": [[{ "node": "Extraer Datos del Agendamiento", "type": "main", "index": 0 }]]
+    },
+    "Extraer Datos del Agendamiento": {
+      "main": [
+        [
+          { "node": "Email Confirmacion", "type": "main", "index": 0 },
+          { "node": "WhatsApp Confirmacion", "type": "main", "index": 0 }
+        ]
+      ]
+    },
+    "Cron Diario Recordatorios": {
+      "main": [[{ "node": "Obtener Sesiones Pendientes", "type": "main", "index": 0 }]]
+    },
+    "Obtener Sesiones Pendientes": {
+      "main": [
+        [
+          { "node": "WhatsApp 24h Antes", "type": "main", "index": 0 },
+          { "node": "WhatsApp 1h Antes", "type": "main", "index": 0 }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "meta": {
+    "description": "Workflow 1: Confirmaciones y recordatorios automaticos post-agendamiento en Calendly"
+  }
+}

@@ -1,0 +1,118 @@
+{
+  "name": "Biodescodificacion - Retargeting Leads que NO Agendaron",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "lead-captura",
+        "responseMode": "onReceived"
+      },
+      "id": "webhook-lead",
+      "name": "Webhook Captura Lead (sin agenda)",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 1,
+      "position": [240, 300],
+      "notes": "Conectar con formulario de landing page que captura email ANTES de redirigir a Calendly"
+    },
+    {
+      "parameters": {
+        "functionCode": "return [{\n  json: {\n    nombre: $input.item.json.nombre || 'Amiga',\n    email: $input.item.json.email,\n    sintoma: $input.item.json.sintoma || 'tu síntoma',\n    fecha_captura: new Date().toISOString(),\n    enviar_email2_en: new Date(Date.now() + 3*24*60*60*1000).toISOString(),\n    enviar_email3_en: new Date(Date.now() + 7*24*60*60*1000).toISOString()\n  }\n}];"
+      },
+      "id": "preparar-datos-lead",
+      "name": "Preparar Datos Lead",
+      "type": "n8n-nodes-base.function",
+      "typeVersion": 1,
+      "position": [460, 300]
+    },
+    {
+      "parameters": {
+        "fromEmail": "tu@email.com",
+        "toEmail": "={{$json.email}}",
+        "subject": "La historia de Mariana (y por qué me acordé de ti)",
+        "emailFormat": "html",
+        "message": "<!DOCTYPE html><html><body style='font-family: Georgia, serif; max-width: 600px; margin: 0 auto; color: #333; line-height: 1.7;'><div style='padding: 30px;'><p>Hola <strong>{{$json.nombre}}</strong>,</p><p>Hace unos días pasaste por mi página y quiero contarte algo.</p><p>Mariana llegó a mí con 3 años de fibromialgia. Ya había ido con reumatólogo, nutrióloga, psicóloga. Cada quien le decía algo diferente. El dolor era real — pero los análisis salían «normales».</p><p>En nuestra sesión encontramos algo que nadie había buscado:</p><p style='background: #f0f4f0; padding: 15px; border-radius: 8px; font-style: italic;'>El dolor empezó 4 meses después de que su mamá murió. No había llorado. Seguía «siendo fuerte» para su familia. Su cuerpo estaba expresando el duelo que ella no se permitía sentir.</p><p>Eso no lo ves en un análisis de sangre.</p><p>No te cuento esto para impresionarte. Te lo cuento porque si llegaste a mi página, algo en ti reconoció que puede haber algo más detrás de lo que sientes.</p><p>¿Quieres explorarlo?</p><a href='[TU_LINK_CALENDLY]?utm_source=email&utm_campaign=retargeting_d1' style='display:inline-block; background: #2d6a4f; color: white; padding: 14px 28px; border-radius: 8px; text-decoration: none; margin: 20px 0; font-size: 16px;'>Agenda tu sesión — $800 MXN</a><p style='color: #888; font-size: 14px;'>Esta oferta especial vence el domingo.</p><p>Con cariño,<br><strong>[TU NOMBRE]</strong></p><hr style='margin: 30px 0; border: none; border-top: 1px solid #eee;'><p style='font-size: 12px; color: #aaa;'>Recibiste este email porque dejaste tu correo en mi página. <a href='[LINK_DESUSCRIPCION]'>Desuscribirme</a></p></div></body></html>"
+      },
+      "id": "email-retargeting-1",
+      "name": "Email Retargeting Dia 1",
+      "type": "n8n-nodes-base.emailSend",
+      "typeVersion": 2,
+      "position": [700, 200]
+    },
+    {
+      "parameters": {
+        "amount": 3,
+        "unit": "days"
+      },
+      "id": "espera-3-dias",
+      "name": "Esperar 3 Dias",
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1,
+      "position": [700, 400]
+    },
+    {
+      "parameters": {
+        "fromEmail": "tu@email.com",
+        "toEmail": "={{$json.email}}",
+        "subject": "¿Sabías que el dolor de espalda puede tener una emoción detrás?",
+        "emailFormat": "html",
+        "message": "<!DOCTYPE html><html><body style='font-family: Georgia, serif; max-width: 600px; margin: 0 auto; color: #333; line-height: 1.7;'><div style='padding: 30px;'><p>Hola <strong>{{$json.nombre}}</strong>,</p><p>Hoy quiero compartirte algo que cambió la forma en que entiendo el cuerpo humano.</p><h2 style='color: #2d6a4f;'>Algunas conexiones que estudia la biodescodificación:</h2><table style='width:100%; border-collapse: collapse; margin: 20px 0;'><tr style='background: #f0f4f0;'><td style='padding: 12px; border: 1px solid #ddd;'><strong>Síntoma</strong></td><td style='padding: 12px; border: 1px solid #ddd;'><strong>Posible conflicto emocional</strong></td></tr><tr><td style='padding: 10px; border: 1px solid #ddd;'>Dolor de espalda baja</td><td style='padding: 10px; border: 1px solid #ddd;'>Cargar con algo (o alguien) que no es tuyo</td></tr><tr style='background: #f9f9f9;'><td style='padding: 10px; border: 1px solid #ddd;'>Migraña frecuente</td><td style='padding: 10px; border: 1px solid #ddd;'>Conflicto de no poder pensar con claridad o sentirse presionada</td></tr><tr><td style='padding: 10px; border: 1px solid #ddd;'>Gastritis</td><td style='padding: 10px; border: 1px solid #ddd;'>Algo que «no puedes digerir» en tu vida</td></tr><tr style='background: #f9f9f9;'><td style='padding: 10px; border: 1px solid #ddd;'>Problemas de tiroides</td><td style='padding: 10px; border: 1px solid #ddd;'>Conflicto de tiempo: «no puedo ir al ritmo que me piden»</td></tr><tr><td style='padding: 10px; border: 1px solid #ddd;'>Insomnio</td><td style='padding: 10px; border: 1px solid #ddd;'>Necesidad de mantener vigilancia constante ante un peligro percibido</td></tr></table><p><em>Importante: estas son tendencias generales, no diagnósticos. Cada persona y cada síntoma es único.</em></p><p>En una sesión individual exploramos <strong>tu</strong> síntoma específico y <strong>tu</strong> historia de vida — porque la misma enfermedad puede tener raíces emocionales completamente diferentes en dos personas.</p><a href='[TU_LINK_CALENDLY]?utm_source=email&utm_campaign=retargeting_d3' style='display:inline-block; background: #2d6a4f; color: white; padding: 14px 28px; border-radius: 8px; text-decoration: none; margin: 20px 0; font-size: 16px;'>Quiero explorar mi síntoma — $800 MXN</a><p>¿Tienes dudas? Responde este email y te contesto hoy.</p><p>Un abrazo,<br><strong>[TU NOMBRE]</strong></p><hr style='margin: 30px 0; border: none; border-top: 1px solid #eee;'><p style='font-size: 12px; color: #aaa;'><a href='[LINK_DESUSCRIPCION]'>Desuscribirme</a></p></div></body></html>"
+      },
+      "id": "email-retargeting-2",
+      "name": "Email Retargeting Dia 3",
+      "type": "n8n-nodes-base.emailSend",
+      "typeVersion": 2,
+      "position": [920, 400]
+    },
+    {
+      "parameters": {
+        "amount": 4,
+        "unit": "days"
+      },
+      "id": "espera-4-dias-mas",
+      "name": "Esperar 4 Dias Mas",
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1,
+      "position": [920, 560]
+    },
+    {
+      "parameters": {
+        "fromEmail": "tu@email.com",
+        "toEmail": "={{$json.email}}",
+        "subject": "Última oportunidad: $800 MXN vence hoy",
+        "emailFormat": "html",
+        "message": "<!DOCTYPE html><html><body style='font-family: Georgia, serif; max-width: 600px; margin: 0 auto; color: #333; line-height: 1.7;'><div style='padding: 30px;'><div style='background: #fff3cd; padding: 15px; border-radius: 8px; border-left: 4px solid #f0ad4e; margin-bottom: 20px;'><strong>⏰ Hoy es el último día para la oferta especial de $800 MXN.</strong></div><p>Hola <strong>{{$json.nombre}}</strong>,</p><p>Hace una semana visitaste mi página. No sé qué pasó — quizás no era el momento, quizás tuviste dudas, quizás simplemente se te fue el día.</p><p>Lo entiendo perfectamente.</p><p>Pero hoy quiero preguntarte directamente:</p><p style='font-size: 18px; color: #2d6a4f;'><strong>¿Ese síntoma que tienes sigue ahí?</strong></p><p>Si la respuesta es sí, quiero que sepas que este trabajo <em>puede</em> marcar una diferencia real. No prometo milagros — prometo un espacio para que finalmente entiendas qué está pasando en tu cuerpo y por qué.</p><p>Hoy termina el precio especial. Mañana la sesión vuelve a $1,100 MXN.</p><div style='background: #f0f4f0; padding: 20px; border-radius: 8px; text-align: center; margin: 25px 0;'><p style='font-size: 22px; margin: 0;'><del style='color: #999;'>$1,100 MXN</del> → <strong style='color: #2d6a4f; font-size: 28px;'>$800 MXN</strong></p><p style='color: #888; font-size: 14px;'>Solo hoy</p></div><a href='[TU_LINK_CALENDLY]?utm_source=email&utm_campaign=retargeting_d7' style='display:inline-block; background: #e74c3c; color: white; padding: 16px 32px; border-radius: 8px; text-decoration: none; margin: 10px 0; font-size: 17px; font-weight: bold;'>Agenda ahora antes de que venza la oferta</a><p>Si tienes alguna duda, responde este email. Estaré aquí.</p><p>Con cariño,<br><strong>[TU NOMBRE]</strong></p><hr style='margin: 30px 0; border: none; border-top: 1px solid #eee;'><p style='font-size: 12px; color: #aaa;'><a href='[LINK_DESUSCRIPCION]'>Desuscribirme</a></p></div></body></html>"
+      },
+      "id": "email-retargeting-3",
+      "name": "Email Retargeting Dia 7 (Ultima Oportunidad)",
+      "type": "n8n-nodes-base.emailSend",
+      "typeVersion": 2,
+      "position": [1140, 560]
+    }
+  ],
+  "connections": {
+    "Webhook Captura Lead (sin agenda)": {
+      "main": [[{ "node": "Preparar Datos Lead", "type": "main", "index": 0 }]]
+    },
+    "Preparar Datos Lead": {
+      "main": [
+        [
+          { "node": "Email Retargeting Dia 1", "type": "main", "index": 0 },
+          { "node": "Esperar 3 Dias", "type": "main", "index": 0 }
+        ]
+      ]
+    },
+    "Esperar 3 Dias": {
+      "main": [[{ "node": "Email Retargeting Dia 3", "type": "main", "index": 0 }]]
+    },
+    "Email Retargeting Dia 3": {
+      "main": [[{ "node": "Esperar 4 Dias Mas", "type": "main", "index": 0 }]]
+    },
+    "Esperar 4 Dias Mas": {
+      "main": [[{ "node": "Email Retargeting Dia 7 (Ultima Oportunidad)", "type": "main", "index": 0 }]]
+    }
+  },
+  "settings": { "executionOrder": "v1" },
+  "meta": {
+    "description": "Workflow 2: Secuencia de retargeting por email para leads que visitaron la landing pero NO agendaron"
+  }
+}
