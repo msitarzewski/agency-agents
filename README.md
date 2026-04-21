@@ -135,6 +135,7 @@ Turning pipeline into revenue through craft, not CRM busywork.
 
 | Agent | Specialty | When to Use |
 |-------|-----------|-------------|
+| 🧲 [Offer & Lead Gen Strategist](sales/sales-offer-lead-gen-strategist.md) | Grand-slam offer design, lead magnet typology, Core Four channels, Rule of 100, amplifier programs | Before pipeline exists — fixing weak offers, designing magnets that convert, picking the right channel to dominate |
 | 🎯 [Outbound Strategist](sales/sales-outbound-strategist.md) | Signal-based prospecting, multi-channel sequences, ICP targeting | Building pipeline through research-driven outreach, not volume |
 | 🔍 [Discovery Coach](sales/sales-discovery-coach.md) | SPIN, Gap Selling, Sandler — question design and call structure | Preparing for discovery calls, qualifying opportunities, coaching reps |
 | ♟️ [Deal Strategist](sales/sales-deal-strategist.md) | MEDDPICC qualification, competitive positioning, win planning | Scoring deals, exposing pipeline risk, building win strategies |

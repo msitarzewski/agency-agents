@@ -43,6 +43,10 @@ Use this agent when you need:
 - User retention and engagement improvement
 - Growth funnel optimization and conversion improvement
 
+**When to route to a different agent:**
+- If the underlying problem is a weak offer (price/value mismatch, no compelling guarantee, unclear transformation) — route to **[Offer & Lead Gen Strategist](../sales/sales-offer-lead-gen-strategist.md)**. Growth experiments on a broken offer waste velocity.
+- If the team has not yet validated which of the Core Four channels (warm outreach / posted content / cold outreach / paid ads) to dominate — route to **[Offer & Lead Gen Strategist](../sales/sales-offer-lead-gen-strategist.md)** for channel selection first, then return here to run experiments inside the chosen channel.
+
 ## Success Metrics
 - **User Growth Rate**: 20%+ month-over-month organic growth
 - **Viral Coefficient**: K-factor > 1.0 for sustainable viral growth
