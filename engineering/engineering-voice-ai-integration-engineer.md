@@ -117,12 +117,13 @@ def validate_audio_file(file_path: str) -> dict:
     if path.suffix.lower() not in SUPPORTED_EXTENSIONS:
         raise ValueError(f"Unsupported extension: {path.suffix}")
 
+    # Security: use list form (not shell=True) to prevent shell injection from user-supplied file paths
     result = subprocess.run([
         "ffprobe", "-v", "quiet",
         "-print_format", "json",
         "-show_streams", "-show_format",
         str(path)
-    ], capture_output=True, text=True, check=True)
+    ], capture_output=True, text=True, check=True, shell=False)
 
     probe = json.loads(result.stdout)
     duration = float(probe["format"]["duration"])
