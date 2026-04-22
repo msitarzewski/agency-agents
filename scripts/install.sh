@@ -23,52 +23,22 @@
 #   all          -- Install for all detected tools (default)
 #
 # Flags:
-#   --tool <name>     Install only the specified tool
-#   --interactive     Show interactive selector (default when run in a terminal)
-#   --no-interactive  Skip interactive selector, install all detected tools
-#   --parallel        Run install for each selected tool in parallel (output order may vary)
-#   --jobs N          Max parallel jobs when using --parallel (default: nproc or 4)
-#   --help            Show this help
+#   --tool <name>           Install only the specified tool
+#   --interactive           Show interactive selector (default when run in a terminal)
+#   --no-interactive        Skip interactive selector, install all detected tools
+#   --parallel              Run install for each selected tool in parallel (output order may vary)
+#   --jobs N                Max parallel jobs when using --parallel (default: nproc or 4)
+#   --agents-file <path>    Filter agents by name (one per line); if not found, install all;
+#   --help                  Show this help
 #
 # Platform support:
 #   Linux, macOS (requires bash 3.2+), Windows Git Bash / WSL
 
 set -euo pipefail
 
-# ---------------------------------------------------------------------------
-# Colours -- only when stdout supports color
-# ---------------------------------------------------------------------------
-if [[ -t 1 && -z "${NO_COLOR:-}" && "${TERM:-}" != "dumb" ]]; then
-  C_GREEN=$'\033[0;32m'
-  C_YELLOW=$'\033[1;33m'
-  C_RED=$'\033[0;31m'
-  C_CYAN=$'\033[0;36m'
-  C_BOLD=$'\033[1m'
-  C_DIM=$'\033[2m'
-  C_RESET=$'\033[0m'
-else
-  C_GREEN=''; C_YELLOW=''; C_RED=''; C_CYAN=''; C_BOLD=''; C_DIM=''; C_RESET=''
-fi
-
-ok()     { printf "${C_GREEN}[OK]${C_RESET}  %s\n" "$*"; }
-warn()   { printf "${C_YELLOW}[!!]${C_RESET}  %s\n" "$*"; }
-err()    { printf "${C_RED}[ERR]${C_RESET} %s\n" "$*" >&2; }
-header() { printf "\n${C_BOLD}%s${C_RESET}\n" "$*"; }
-dim()    { printf "${C_DIM}%s${C_RESET}\n" "$*"; }
-
-# Progress bar: [=======>    ] 3/8 (tqdm-style)
-progress_bar() {
-  local current="$1" total="$2" width="${3:-20}" i filled empty
-  (( total > 0 )) || return
-  filled=$(( width * current / total ))
-  empty=$(( width - filled ))
-  printf "\r  ["
-  for (( i=0; i<filled; i++ )); do printf "="; done
-  if (( filled < width )); then printf ">"; (( empty-- )); fi
-  for (( i=0; i<empty; i++ )); do printf " "; done
-  printf "] %s/%s" "$current" "$total"
-  [[ -t 1 ]] || printf "\n"
-}
+# Source shared utilities (colors, functions, constants)
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+source "${SCRIPT_DIR}/utils.sh"
 
 # ---------------------------------------------------------------------------
 # Box drawing -- pure ASCII, fixed 52-char wide
@@ -94,36 +64,18 @@ box_row() {
 }
 box_blank() { printf "  |%*s|\n" $BOX_INNER ''; }
 
+usage() {
+  head -32 "$0" | tail -n +2
+  exit 0
+}
+
 # ---------------------------------------------------------------------------
 # Paths
 # ---------------------------------------------------------------------------
-SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 REPO_ROOT="$(cd "$SCRIPT_DIR/.." && pwd)"
 INTEGRATIONS="$REPO_ROOT/integrations"
 
 ALL_TOOLS=(claude-code copilot antigravity gemini-cli opencode openclaw cursor aider windsurf qwen kimi)
-
-# Standard agent category directories (keep sorted, sync with convert.sh / lint-agents.sh)
-AGENT_DIRS=(
-  academic design engineering finance game-development marketing paid-media product project-management
-  sales spatial-computing specialized strategy support testing
-)
-
-# ---------------------------------------------------------------------------
-# Usage
-# ---------------------------------------------------------------------------
-usage() {
-  sed -n '3,32p' "$0" | sed 's/^# \{0,1\}//'
-  exit 0
-}
-
-# Default parallel job count (nproc on Linux; sysctl on macOS when nproc missing)
-parallel_jobs_default() {
-  local n
-  n=$(nproc 2>/dev/null) && [[ -n "$n" ]] && echo "$n" && return
-  n=$(sysctl -n hw.ncpu 2>/dev/null) && [[ -n "$n" ]] && echo "$n" && return
-  echo 4
-}
 
 # ---------------------------------------------------------------------------
 # Preflight
@@ -306,12 +258,14 @@ install_claude_code() {
   local dest="${HOME}/.claude/agents"
   local count=0
   mkdir -p "$dest"
-  local dir f first_line
+  local dir f first_line name
   for dir in "${AGENT_DIRS[@]}"; do
     [[ -d "$REPO_ROOT/$dir" ]] || continue
     while IFS= read -r -d '' f; do
       first_line="$(head -1 "$f")"
       [[ "$first_line" == "---" ]] || continue
+      name="$(get_agent_name "$f")"
+      name_in_filter "$name" || continue
       cp "$f" "$dest/"
       (( count++ )) || true
     done < <(find "$REPO_ROOT/$dir" -name "*.md" -type f -print0)
@@ -324,12 +278,14 @@ install_copilot() {
   local dest_copilot="${HOME}/.copilot/agents"
   local count=0
   mkdir -p "$dest_github" "$dest_copilot"
-  local dir f first_line
+  local dir f first_line name
   for dir in "${AGENT_DIRS[@]}"; do
     [[ -d "$REPO_ROOT/$dir" ]] || continue
     while IFS= read -r -d '' f; do
       first_line="$(head -1 "$f")"
       [[ "$first_line" == "---" ]] || continue
+      name="$(get_agent_name "$f")"
+      name_in_filter "$name" || continue
       cp "$f" "$dest_github/"
       cp "$f" "$dest_copilot/"
       (( count++ )) || true
@@ -387,10 +343,12 @@ install_opencode() {
   local search_dir="$src"
   [[ -d "$src/agents" ]] && search_dir="$src/agents"
   mkdir -p "$dest"
-  local f
+  local f name
   while IFS= read -r -d '' f; do
     local base; base="$(basename "$f")"
     [[ "$base" == "README.md" ]] && continue
+    name="$(get_agent_name "$f")"
+    name_in_filter "$name" || continue
     cp "$f" "$dest/"; (( count++ )) || true
   done < <(find "$search_dir" -maxdepth 1 -name "*.md" -print0)
   if (( count == 0 )); then
@@ -442,8 +400,10 @@ install_cursor() {
   local count=0
   [[ -d "$src" ]] || { err "integrations/cursor missing. Run convert.sh first."; return 1; }
   mkdir -p "$dest"
-  local f
+  local f fname
   while IFS= read -r -d '' f; do
+    fname="$(basename "$f" .mdc)"
+    slug_in_filter "$fname" || continue
     cp "$f" "$dest/"; (( count++ )) || true
   done < <(find "$src" -maxdepth 1 -name "*.mdc" -print0)
   ok "Cursor: $count rules -> $dest"
@@ -485,8 +445,10 @@ install_qwen() {
 
   mkdir -p "$dest"
 
-  local f
+  local f fname
   while IFS= read -r -d '' f; do
+    fname="$(basename "$f" .md)"
+    slug_in_filter "$fname" || continue
     cp "$f" "$dest/"
     (( count++ )) || true
   done < <(find "$src" -maxdepth 1 -name "*.md" -print0)
@@ -539,6 +501,7 @@ install_tool() {
 # ---------------------------------------------------------------------------
 main() {
   local tool="all"
+  local agents_file=""
   local interactive_mode="auto"
   local use_parallel=false
   local parallel_jobs
@@ -547,6 +510,7 @@ main() {
   while [[ $# -gt 0 ]]; do
     case "$1" in
       --tool)            tool="${2:?'--tool requires a value'}"; shift 2; interactive_mode="no" ;;
+      --agents-file)     agents_file="${2:?'--agents-file requires a value'}"; shift 2 ;;
       --interactive)     interactive_mode="yes"; shift ;;
       --no-interactive)  interactive_mode="no"; shift ;;
       --parallel)        use_parallel=true; shift ;;
@@ -557,6 +521,7 @@ main() {
   done
 
   check_integrations
+  load_agents_filter "$agents_file"
 
   # Validate explicit tool
   if [[ "$tool" != "all" ]]; then
@@ -633,7 +598,8 @@ main() {
     install_out_dir="$(mktemp -d)"
     export AGENCY_INSTALL_OUT_DIR="$install_out_dir"
     export AGENCY_INSTALL_SCRIPT="$SCRIPT_DIR/install.sh"
-    printf '%s\n' "${SELECTED_TOOLS[@]}" | xargs -P "$parallel_jobs" -I {} sh -c 'AGENCY_INSTALL_WORKER=1 "$AGENCY_INSTALL_SCRIPT" --tool "{}" --no-interactive > "$AGENCY_INSTALL_OUT_DIR/{}" 2>&1'
+    export AGENCY_AGENTS_FILE="$agents_file"
+    printf '%s\n' "${SELECTED_TOOLS[@]}" | xargs -P "$parallel_jobs" -I {} sh -c 'AGENCY_INSTALL_WORKER=1 "$AGENCY_INSTALL_SCRIPT" --tool "{}" --no-interactive --agents-file "$AGENCY_AGENTS_FILE" > "$AGENCY_INSTALL_OUT_DIR/{}" 2>&1'
     for t in "${SELECTED_TOOLS[@]}"; do
       [[ -f "$install_out_dir/$t" ]] && cat "$install_out_dir/$t"
     done

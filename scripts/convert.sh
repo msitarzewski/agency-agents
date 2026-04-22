@@ -29,79 +29,19 @@
 
 set -euo pipefail
 
-# --- Colour helpers ---
-if [[ -t 1 && -z "${NO_COLOR:-}" && "${TERM:-}" != "dumb" ]]; then
-  GREEN=$'\033[0;32m'; YELLOW=$'\033[1;33m'; RED=$'\033[0;31m'; BOLD=$'\033[1m'; RESET=$'\033[0m'
-else
-  GREEN=''; YELLOW=''; RED=''; BOLD=''; RESET=''
-fi
-
-info()    { printf "${GREEN}[OK]${RESET}  %s\n" "$*"; }
-warn()    { printf "${YELLOW}[!!]${RESET}  %s\n" "$*"; }
-error()   { printf "${RED}[ERR]${RESET} %s\n" "$*" >&2; }
-header()  { echo -e "\n${BOLD}$*${RESET}"; }
-
-# Progress bar: [=======>    ] 3/8 (tqdm-style)
-progress_bar() {
-  local current="$1" total="$2" width="${3:-20}" i filled empty
-  (( total > 0 )) || return
-  filled=$(( width * current / total ))
-  empty=$(( width - filled ))
-  printf "\r  ["
-  for (( i=0; i<filled; i++ )); do printf "="; done
-  if (( filled < width )); then printf ">"; (( empty-- )); fi
-  for (( i=0; i<empty; i++ )); do printf " "; done
-  printf "] %s/%s" "$current" "$total"
-  [[ -t 1 ]] || printf "\n"
-}
+# Source shared utilities (colors, functions, constants)
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+source "${SCRIPT_DIR}/utils.sh"
 
 # --- Paths ---
-SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 REPO_ROOT="$(cd "$SCRIPT_DIR/.." && pwd)"
 OUT_DIR="$REPO_ROOT/integrations"
 TODAY="$(date +%Y-%m-%d)"
-
-AGENT_DIRS=(
-  academic design engineering finance game-development marketing paid-media product project-management
-  sales spatial-computing specialized strategy support testing
-)
 
 # --- Usage ---
 usage() {
   sed -n '3,26p' "$0" | sed 's/^# \{0,1\}//'
   exit 0
-}
-
-# Default parallel job count (nproc on Linux; sysctl on macOS when nproc missing)
-parallel_jobs_default() {
-  local n
-  n=$(nproc 2>/dev/null) && [[ -n "$n" ]] && echo "$n" && return
-  n=$(sysctl -n hw.ncpu 2>/dev/null) && [[ -n "$n" ]] && echo "$n" && return
-  echo 4
-}
-
-# --- Frontmatter helpers ---
-
-# Extract a single field value from YAML frontmatter block.
-# Usage: get_field <field> <file>
-get_field() {
-  local field="$1" file="$2"
-  awk -v f="$field" '
-    /^---$/ { fm++; next }
-    fm == 1 && $0 ~ "^" f ": " { sub("^" f ": ", ""); print; exit }
-  ' "$file"
-}
-
-# Strip the leading frontmatter block and return only the body.
-# Usage: get_body <file>
-get_body() {
-  awk 'BEGIN{fm=0} /^---$/{fm++; next} fm>=2{print}' "$1"
-}
-
-# Convert a human-readable agent name to a lowercase kebab-case slug.
-# "Frontend Developer" → "frontend-developer"
-slugify() {
-  echo "$1" | tr '[:upper:]' '[:lower:]' | sed 's/[^a-z0-9]/-/g' | sed 's/--*/-/g' | sed 's/^-//;s/-$//'
 }
 
 # --- Per-tool converters ---
@@ -495,7 +435,7 @@ run_conversions() {
       [[ "$first_line" == "---" ]] || continue
 
       local name
-      name="$(get_field "name" "$file")"
+      name="$(get_agent_name "$file")"
       [[ -n "$name" ]] || continue
 
       case "$tool" in
@@ -532,7 +472,7 @@ main() {
       --parallel) use_parallel=true; shift ;;
       --jobs)     parallel_jobs="${2:?'--jobs requires a value'}"; shift 2 ;;
       --help|-h)  usage ;;
-      *)          error "Unknown option: $1"; usage ;;
+      *)          err "Unknown option: $1"; usage ;;
     esac
   done
 
@@ -540,7 +480,7 @@ main() {
   local valid=false
   for t in "${valid_tools[@]}"; do [[ "$t" == "$tool" ]] && valid=true && break; done
   if ! $valid; then
-    error "Unknown tool '$tool'. Valid: ${valid_tools[*]}"
+    err "Unknown tool '$tool'. Valid: ${valid_tools[*]}"
     exit 1
   fi
 
@@ -550,7 +490,7 @@ main() {
   echo "  Tool:   $tool"
   echo "  Date:   $TODAY"
   if $use_parallel && [[ "$tool" == "all" ]]; then
-    info "Parallel mode: output buffered so each tool's output stays together."
+    ok "Parallel mode: output buffered so each tool's output stays together."
   fi
 
   local tools_to_run=()
@@ -569,7 +509,7 @@ main() {
     local parallel_tools=(antigravity gemini-cli opencode cursor openclaw qwen)
     local parallel_out_dir
     parallel_out_dir="$(mktemp -d)"
-    info "Converting: ${#parallel_tools[@]}/${n_tools} tools in parallel (output buffered per tool)..."
+    ok "Converting: ${#parallel_tools[@]}/${n_tools} tools in parallel (output buffered per tool)..."
     export AGENCY_CONVERT_OUT_DIR="$parallel_out_dir"
     export AGENCY_CONVERT_SCRIPT="$SCRIPT_DIR/convert.sh"
     export AGENCY_CONVERT_OUT="$OUT_DIR"
@@ -586,7 +526,7 @@ main() {
       local count
       count="$(run_conversions "$t")"
       total=$(( total + count ))
-      info "Converted $count agents for $t"
+      ok "Converted $count agents for $t"
       (( idx++ )) || true
     done
   else
@@ -609,10 +549,10 @@ main() {
   "version": "1.0.0"
 }
 HEREDOC
-        info "Wrote gemini-extension.json"
+        ok "Wrote gemini-extension.json"
       fi
 
-      info "Converted $count agents for $t"
+      ok "Converted $count agents for $t"
     done
   fi
 
@@ -620,19 +560,19 @@ HEREDOC
   if [[ "$tool" == "all" || "$tool" == "aider" ]]; then
     mkdir -p "$OUT_DIR/aider"
     cp "$AIDER_TMP" "$OUT_DIR/aider/CONVENTIONS.md"
-    info "Wrote integrations/aider/CONVENTIONS.md"
+    ok "Wrote integrations/aider/CONVENTIONS.md"
   fi
   if [[ "$tool" == "all" || "$tool" == "windsurf" ]]; then
     mkdir -p "$OUT_DIR/windsurf"
     cp "$WINDSURF_TMP" "$OUT_DIR/windsurf/.windsurfrules"
-    info "Wrote integrations/windsurf/.windsurfrules"
+    ok "Wrote integrations/windsurf/.windsurfrules"
   fi
 
   echo ""
   if $use_parallel && [[ "$tool" == "all" ]]; then
-    info "Done. $n_tools tools (parallel; total conversions not aggregated)."
+    ok "Done. $n_tools tools (parallel; total conversions not aggregated)."
   else
-    info "Done. Total conversions: $total"
+    ok "Done. Total conversions: $total."
   fi
 }
 
