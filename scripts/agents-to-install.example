@@ -1,0 +1,34 @@
+# This is just an example file for `--agents-file` flag of install.sh
+# Specify the `name` of the agents you want to install
+# If the specified name is not found, it will be omitted
+Agents Orchestrator
+AI Engineer
+API Tester
+Autonomous Optimization Architect
+Backend Architect
+Code Reviewer
+Database Optimizer
+DevOps Automator
+Document Generator
+Email Intelligence Engineer
+Embedded Firmware Engineer
+Feishu Integration Developer
+Frontend Developer
+Git Workflow Master
+Incident Response Commander
+Inclusive Visuals Specialist
+LSP/Index Engineer
+MCP Builder
+Mobile App Builder
+Rapid Prototyper
+Security Engineer
+Senior Developer
+Senior Project Manager
+Software Architect
+Technical Artist
+Technical Writer
+Trend Researcher
+UI Designer
+UX Architect
+UX Researcher
+Whimsy Injector
