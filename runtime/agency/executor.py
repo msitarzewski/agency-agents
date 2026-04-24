@@ -12,6 +12,7 @@ from .skills import Skill, SkillRegistry
 from .tools import Tool, ToolContext, builtin_tools, tools_by_name
 
 MAX_TURNS = 12  # safety cap on tool-use iterations
+MAX_DELEGATION_DEPTH = 2  # A → B → C is allowed; A → B → C → D is not
 
 
 @dataclass
@@ -37,6 +38,7 @@ class Executor:
         memory: MemoryStore | None = None,
         tools: list[Tool] | None = None,
         workdir: Path | None = None,
+        delegation_depth: int = 0,
     ):
         self.registry = registry
         self.llm = llm
@@ -44,12 +46,28 @@ class Executor:
         self.tools = tools if tools is not None else builtin_tools()
         self._tool_index = tools_by_name(self.tools)
         self.ctx = ToolContext.from_env(workdir=workdir)
+        self._delegation_depth = delegation_depth
         # Inject sibling-skill summary so the `list_skills` tool can describe them.
         summary_lines = [
             f"- {s.slug}: {s.name} ({s.category}) — {s.description}"
             for s in registry.all()
         ]
         setattr(self.ctx, "_skills_summary", "\n".join(summary_lines))
+        setattr(self.ctx, "_delegate_runner", self._delegate)
+
+    def _delegate(self, slug: str, request: str) -> str:
+        if self._delegation_depth >= MAX_DELEGATION_DEPTH:
+            raise RecursionError(
+                f"Delegation depth {self._delegation_depth} exceeds cap {MAX_DELEGATION_DEPTH}."
+            )
+        sub_skill = self.registry.by_slug(slug)
+        if sub_skill is None:
+            raise KeyError(slug)
+        sub = Executor(
+            self.registry, self.llm, memory=None, tools=self.tools,
+            workdir=self.ctx.workdir, delegation_depth=self._delegation_depth + 1,
+        )
+        return sub.run(sub_skill, request).text
 
     def run(self, skill: Skill, user_message: str, session: Session | None = None) -> ExecutionResult:
         events: list[ExecutionEvent] = []

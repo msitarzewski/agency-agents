@@ -244,6 +244,56 @@ def test_executor_streams_text_deltas_and_tool_events(tmp_path: Path):
     assert kinds[-1] == "stop"
 
 
+def test_delegate_tool_invokes_another_skill(tmp_path: Path):
+    """Skill A delegates to skill B; B returns text; A reports it back."""
+    reg_full = SkillRegistry.load(discover_repo_root())
+    a = reg_full.all()[0]
+    b = reg_full.all()[1]
+    reg = SkillRegistry([a, b])
+
+    llm = _ScriptedLLM([
+        # A calls delegate_to_skill(b, "do the thing")
+        _Resp(
+            stop_reason="tool_use",
+            content=[_ToolUseBlock(
+                id="t1", name="delegate_to_skill",
+                input={"slug": b.slug, "request": "do the thing"},
+            )],
+        ),
+        # Sub-executor turn for B — returns final text directly
+        _Resp(stop_reason="end_turn", content=[_TextBlock("B done: 42")]),
+        # A wraps up
+        _Resp(stop_reason="end_turn", content=[_TextBlock("Got from B: 42")]),
+    ])
+
+    executor = Executor(reg, llm, workdir=tmp_path)
+    result = executor.run(a, "please delegate")
+
+    assert "Got from B: 42" in result.text
+    tool_results = [e for e in result.events if e.kind == "tool_result"]
+    assert tool_results and not tool_results[0].payload["is_error"]
+    assert "B done: 42" in tool_results[0].payload["content"]
+
+
+def test_delegate_tool_rejects_unknown_skill(tmp_path: Path):
+    reg, skill = _registry_with_one_skill()
+    llm = _ScriptedLLM([
+        _Resp(
+            stop_reason="tool_use",
+            content=[_ToolUseBlock(
+                id="t1", name="delegate_to_skill",
+                input={"slug": "not-a-real-slug", "request": "x"},
+            )],
+        ),
+        _Resp(stop_reason="end_turn", content=[_TextBlock("can't find it")]),
+    ])
+    executor = Executor(reg, llm, workdir=tmp_path)
+    result = executor.run(skill, "delegate somewhere")
+    tr = [e for e in result.events if e.kind == "tool_result"][0]
+    assert tr.payload["is_error"] is True
+    assert "not-a-real-slug" in tr.payload["content"]
+
+
 def test_executor_handles_unknown_tool_gracefully(tmp_path: Path):
     reg, skill = _registry_with_one_skill()
     llm = _ScriptedLLM([

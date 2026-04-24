@@ -196,6 +196,27 @@ def _list_skills(args: dict[str, Any], ctx: ToolContext) -> ToolResult:
     return ToolResult(skills)
 
 
+def _delegate_to_skill(args: dict[str, Any], ctx: ToolContext) -> ToolResult:
+    """Invoke another skill as a subagent and return its final text.
+
+    Requires the executor to have populated `ctx._delegate_runner`. Enforces
+    a small recursion cap so delegation cycles can't explode.
+    """
+    runner = getattr(ctx, "_delegate_runner", None)
+    if runner is None:
+        return ToolResult("Delegation is not available in this session.", is_error=True)
+    slug = args.get("slug", "").strip()
+    request = args.get("request", "").strip()
+    if not slug or not request:
+        return ToolResult("delegate_to_skill requires 'slug' and 'request'.", is_error=True)
+    try:
+        return ToolResult(runner(slug, request))
+    except KeyError as e:
+        return ToolResult(f"No such skill: {e}", is_error=True)
+    except RecursionError as e:
+        return ToolResult(str(e), is_error=True)
+
+
 # ----- Builtin registry ----------------------------------------------------
 
 def builtin_tools() -> list[Tool]:
@@ -260,6 +281,23 @@ def builtin_tools() -> list[Tool]:
             description="List the other agency skills available for delegation.",
             input_schema={"type": "object", "properties": {}},
             func=_list_skills,
+        ),
+        Tool(
+            name="delegate_to_skill",
+            description=(
+                "Invoke another agency skill as a sub-agent and return its final "
+                "text response. Use when a task falls outside your specialty and "
+                "another skill is a better fit. Look up valid slugs with list_skills."
+            ),
+            input_schema={
+                "type": "object",
+                "properties": {
+                    "slug": {"type": "string", "description": "Target skill slug."},
+                    "request": {"type": "string", "description": "Task to hand off."},
+                },
+                "required": ["slug", "request"],
+            },
+            func=_delegate_to_skill,
         ),
     ]
 

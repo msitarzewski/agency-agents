@@ -102,9 +102,27 @@ runtime/agency/
 cd runtime && python3 -m pytest
 ```
 
-21 tests cover the skill loader, planner parser, planner/LLM wiring (with a
-stub), the file-IO + shell-allowlist tool sandbox, and the executor's
-non-streaming and streaming tool-use loops with memory persistence.
+34 tests cover the skill loader, planner (parser + LLM wiring with a stub),
+the file-IO + shell-allowlist tool sandbox, the executor's non-streaming and
+streaming tool-use loops, session-memory round-trips, delegation between
+skills, the CLI (Click `CliRunner`), and the server endpoints (FastAPI
+`TestClient`).
+
+## Delegation
+
+Agents can hand off to each other via the `delegate_to_skill` tool. The
+executor exposes it by default. Delegation is capped at depth 2 so a chain
+like *strategy → engineering → writing* is allowed but can't recurse
+indefinitely.
+
+## Docker
+
+```bash
+docker build -f runtime/Dockerfile -t agency-runtime .
+docker run --rm -p 8765:8765 -e ANTHROPIC_API_KEY=... agency-runtime
+# CLI usage:
+docker run --rm -e ANTHROPIC_API_KEY=... agency-runtime agency list
+```
 
 ## Extending
 
