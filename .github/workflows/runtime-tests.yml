@@ -1,0 +1,44 @@
+name: Runtime tests
+
+on:
+  pull_request:
+    paths:
+      - "runtime/**"
+      - ".github/workflows/runtime-tests.yml"
+  push:
+    branches: [main]
+    paths:
+      - "runtime/**"
+      - ".github/workflows/runtime-tests.yml"
+
+jobs:
+  pytest:
+    name: pytest (Python ${{ matrix.python-version }})
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        python-version: ["3.10", "3.11", "3.12"]
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+          cache: pip
+
+      - name: Install runtime
+        run: pip install -e runtime[dev]
+
+      - name: Run pytest
+        run: python -m pytest runtime/tests -q
+
+      - name: Smoke-test CLI
+        env:
+          ANTHROPIC_API_KEY: ""
+        run: |
+          agency list | head -5
+          agency list --category engineering | head -3
+          agency plan "build a React component"
+          agency doctor
