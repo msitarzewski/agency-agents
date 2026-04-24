@@ -23,6 +23,39 @@ class LLMConfig:
     max_tokens: int = DEFAULT_MAX_TOKENS
     api_key: str | None = None
     extra_headers: dict[str, str] = field(default_factory=dict)
+    # Optional task budget for Opus 4.7 agentic loops.
+    # When set, we pass output_config.task_budget and add the beta header.
+    task_budget_tokens: int | None = None  # >= 20_000 per Anthropic spec
+    betas: list[str] = field(default_factory=list)
+    # MCP server passthrough (beta). Each entry is a dict per Anthropic's schema.
+    mcp_servers: list[dict] = field(default_factory=list)
+
+    @classmethod
+    def from_env(cls) -> "LLMConfig":
+        import json, os
+        cfg = cls()
+        if (m := os.environ.get("AGENCY_MODEL")):
+            cfg.model = m
+        if (m := os.environ.get("AGENCY_PLANNER_MODEL")):
+            cfg.planner_model = m
+        if (mt := os.environ.get("AGENCY_MAX_TOKENS")):
+            try:
+                cfg.max_tokens = int(mt)
+            except ValueError:
+                pass
+        if (tb := os.environ.get("AGENCY_TASK_BUDGET")):
+            try:
+                cfg.task_budget_tokens = int(tb)
+            except ValueError:
+                pass
+        if (mcp := os.environ.get("AGENCY_MCP_SERVERS")):
+            try:
+                servers = json.loads(mcp)
+                if isinstance(servers, list):
+                    cfg.mcp_servers = servers
+            except json.JSONDecodeError:
+                pass
+        return cfg
 
 
 class AnthropicLLM:
@@ -66,11 +99,12 @@ class AnthropicLLM:
     ) -> Any:
         """Direct call to messages.create with sensible defaults."""
         client = self._ensure_client()
-        kwargs = self._build_kwargs(
+        kwargs, use_beta = self._build_kwargs(
             system=system, messages=messages, tools=tools,
             model=model, max_tokens=max_tokens, thinking=thinking,
         )
-        return client.messages.create(**kwargs)
+        target = client.beta.messages if use_beta else client.messages
+        return target.create(**kwargs)
 
     def messages_stream(
         self,
@@ -88,13 +122,15 @@ class AnthropicLLM:
         Stream exposes `.text_stream`, iterable events, and `.get_final_message()`.
         """
         client = self._ensure_client()
-        kwargs = self._build_kwargs(
+        kwargs, use_beta = self._build_kwargs(
             system=system, messages=messages, tools=tools,
             model=model, max_tokens=max_tokens, thinking=thinking,
         )
-        return client.messages.stream(**kwargs)
+        target = client.beta.messages if use_beta else client.messages
+        return target.stream(**kwargs)
 
-    def _build_kwargs(self, **opts: Any) -> dict[str, Any]:
+    def _build_kwargs(self, **opts: Any) -> tuple[dict[str, Any], bool]:
+        """Assemble the create/stream kwargs. Returns (kwargs, use_beta)."""
         kwargs: dict[str, Any] = {
             "model": opts["model"] or self.config.model,
             "max_tokens": opts["max_tokens"] or self.config.max_tokens,
@@ -107,7 +143,29 @@ class AnthropicLLM:
             kwargs["thinking"] = opts["thinking"]
         if self.config.extra_headers:
             kwargs["extra_headers"] = self.config.extra_headers
-        return kwargs
+
+        use_beta = False
+        betas = list(self.config.betas)
+
+        if self.config.task_budget_tokens and self.config.task_budget_tokens >= 20_000:
+            kwargs.setdefault("output_config", {})
+            kwargs["output_config"]["task_budget"] = {
+                "type": "tokens", "total": self.config.task_budget_tokens,
+            }
+            use_beta = True
+            if "task-budgets-2026-03-13" not in betas:
+                betas.append("task-budgets-2026-03-13")
+
+        if self.config.mcp_servers:
+            kwargs["mcp_servers"] = self.config.mcp_servers
+            use_beta = True
+            if "mcp-client-2025-11-20" not in betas:
+                betas.append("mcp-client-2025-11-20")
+
+        if betas:
+            kwargs["betas"] = betas
+
+        return kwargs, use_beta
 
     @staticmethod
     def cached_system(text: str) -> list[dict[str, Any]]:

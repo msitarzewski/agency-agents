@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+from concurrent.futures import ThreadPoolExecutor
 from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Any, Iterator
@@ -13,12 +14,45 @@ from .tools import Tool, ToolContext, builtin_tools, tools_by_name
 
 MAX_TURNS = 12  # safety cap on tool-use iterations
 MAX_DELEGATION_DEPTH = 2  # A → B → C is allowed; A → B → C → D is not
+PARALLEL_SAFE_TOOLS = frozenset({
+    "read_file", "list_dir", "list_skills", "extract_doc", "web_fetch",
+})  # tools with no side effects; safe to fan out
 
 
 @dataclass
 class ExecutionEvent:
-    kind: str  # "text" | "tool_use" | "tool_result" | "stop"
+    kind: str  # "text" | "tool_use" | "tool_result" | "stop" | "usage"
     payload: Any = None
+
+
+@dataclass
+class Usage:
+    input_tokens: int = 0
+    output_tokens: int = 0
+    cache_creation_input_tokens: int = 0
+    cache_read_input_tokens: int = 0
+
+    def add(self, sdk_usage: Any) -> None:
+        """Fold an SDK `response.usage` into this accumulator.
+
+        The SDK usage object has attributes; we use getattr to stay tolerant
+        of older/newer SDK versions and stubs in tests.
+        """
+        for attr in (
+            "input_tokens", "output_tokens",
+            "cache_creation_input_tokens", "cache_read_input_tokens",
+        ):
+            val = getattr(sdk_usage, attr, None)
+            if isinstance(val, int):
+                setattr(self, attr, getattr(self, attr) + val)
+
+    def as_dict(self) -> dict[str, int]:
+        return {
+            "input_tokens": self.input_tokens,
+            "output_tokens": self.output_tokens,
+            "cache_creation_input_tokens": self.cache_creation_input_tokens,
+            "cache_read_input_tokens": self.cache_read_input_tokens,
+        }
 
 
 @dataclass
@@ -26,6 +60,7 @@ class ExecutionResult:
     text: str
     turns: int
     events: list[ExecutionEvent] = field(default_factory=list)
+    usage: Usage = field(default_factory=Usage)
 
 
 class Executor:
@@ -81,6 +116,7 @@ class Executor:
     def run(self, skill: Skill, user_message: str, session: Session | None = None) -> ExecutionResult:
         events: list[ExecutionEvent] = []
         text_parts: list[str] = []
+        usage = Usage()
 
         self._bind_session_to_ctx(session)
         messages = self._initial_messages(session, user_message)
@@ -95,6 +131,8 @@ class Executor:
                 messages=messages,
                 tools=tool_defs,
             )
+            if getattr(response, "usage", None) is not None:
+                usage.add(response.usage)
 
             assistant_blocks = [self._block_to_dict(b) for b in response.content]
             messages.append({"role": "assistant", "content": assistant_blocks})
@@ -112,9 +150,9 @@ class Executor:
                 events.append(ExecutionEvent("stop", response.stop_reason))
                 break
 
+            tool_outputs = self._execute_tools(tool_uses)
             tool_results = []
-            for use in tool_uses:
-                result = self._run_tool(use.name, use.input)
+            for use, result in zip(tool_uses, tool_outputs):
                 events.append(ExecutionEvent("tool_result", {
                     "name": use.name,
                     "is_error": result.is_error,
@@ -131,13 +169,14 @@ class Executor:
             events.append(ExecutionEvent("stop", "max_turns_exceeded"))
 
         final_text = "\n".join(text_parts).strip()
+        events.append(ExecutionEvent("usage", usage.as_dict()))
 
         if self.memory is not None and session is not None:
             session.append("user", user_message)
             session.append("assistant", final_text)
             self.memory.save(session)
 
-        return ExecutionResult(text=final_text, turns=turns, events=events)
+        return ExecutionResult(text=final_text, turns=turns, events=events, usage=usage)
 
     def stream(self, skill: Skill, user_message: str, session: Session | None = None) -> Iterator[ExecutionEvent]:
         """Yield events as they happen.
@@ -154,6 +193,7 @@ class Executor:
 
         self._bind_session_to_ctx(session)
         text_parts: list[str] = []
+        usage = Usage()
         messages = self._initial_messages(session, user_message)
         system = AnthropicLLM.cached_system(skill.system_prompt)
         tool_defs = [t.to_anthropic() for t in self.tools]
@@ -169,6 +209,8 @@ class Executor:
                         if getattr(delta, "type", None) == "text_delta":
                             yield ExecutionEvent("text_delta", delta.text)
                 final = stream.get_final_message()
+                if getattr(final, "usage", None) is not None:
+                    usage.add(final.usage)
 
             assistant_blocks = [self._block_to_dict(b) for b in final.content]
             messages.append({"role": "assistant", "content": assistant_blocks})
@@ -202,6 +244,8 @@ class Executor:
         else:
             yield ExecutionEvent("stop", "max_turns_exceeded")
 
+        yield ExecutionEvent("usage", usage.as_dict())
+
         if self.memory is not None and session is not None:
             session.append("user", user_message)
             session.append("assistant", "\n".join(text_parts).strip())
@@ -216,6 +260,35 @@ class Executor:
                 messages.append({"role": turn.role, "content": turn.text})
         messages.append({"role": "user", "content": user_message})
         return messages
+
+    def _execute_tools(self, tool_uses: list[Any]) -> list[Any]:
+        """Run all tool calls in a turn. Fan out parallel-safe ones; serialize the rest.
+
+        Tool calls are grouped into runs of contiguous parallel-safe calls; each
+        group runs on a threadpool, and mutating calls execute inline. This
+        preserves the ordering the model requested (so a read-then-write in one
+        turn still happens in the right order).
+        """
+        results: list[Any] = [None] * len(tool_uses)
+        i = 0
+        while i < len(tool_uses):
+            if tool_uses[i].name in PARALLEL_SAFE_TOOLS:
+                j = i
+                while j < len(tool_uses) and tool_uses[j].name in PARALLEL_SAFE_TOOLS:
+                    j += 1
+                group = tool_uses[i:j]
+                if len(group) == 1:
+                    results[i] = self._run_tool(group[0].name, group[0].input)
+                else:
+                    with ThreadPoolExecutor(max_workers=min(4, len(group))) as pool:
+                        futures = [pool.submit(self._run_tool, u.name, u.input) for u in group]
+                        for k, fut in enumerate(futures):
+                            results[i + k] = fut.result()
+                i = j
+            else:
+                results[i] = self._run_tool(tool_uses[i].name, tool_uses[i].input)
+                i += 1
+        return results
 
     def _run_tool(self, name: str, args: dict[str, Any]):
         tool = self._tool_index.get(name)

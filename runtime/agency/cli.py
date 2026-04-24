@@ -73,9 +73,12 @@ def plan_cmd(ctx: click.Context, request: str, skill_slug: str | None) -> None:
 @click.option("--session", "session_id", help="Session id to load/save (enables memory).")
 @click.option("--workdir", type=click.Path(file_okay=False, path_type=Path),
               help="Workdir for tool calls. Defaults to current directory.")
+@click.option("--show-usage/--no-show-usage", default=False,
+              help="Print token usage after the run.")
 @click.pass_context
 def run_cmd(ctx: click.Context, request: str, skill_slug: str | None,
-            session_id: str | None, workdir: Path | None) -> None:
+            session_id: str | None, workdir: Path | None,
+            show_usage: bool) -> None:
     """Run REQUEST through the planner and execute it."""
     registry = _registry(ctx.obj["repo"])
     try:
@@ -99,6 +102,14 @@ def run_cmd(ctx: click.Context, request: str, skill_slug: str | None,
     executor = Executor(registry, llm, memory=memory, workdir=workdir)
     result = executor.run(plan.skill, request, session=session)
     click.echo(result.text)
+    if show_usage:
+        u = result.usage
+        click.echo(
+            f"\n[usage] input={u.input_tokens} output={u.output_tokens} "
+            f"cache_write={u.cache_creation_input_tokens} "
+            f"cache_read={u.cache_read_input_tokens} turns={result.turns}",
+            err=True,
+        )
     if session_id:
         click.echo(f"\n[session saved: {sid}]", err=True)
 
@@ -133,6 +144,46 @@ def debug_cmd(ctx: click.Context, request: str, skill_slug: str | None) -> None:
     click.echo(f"\nturns: {result.turns}")
 
 
+@main.command("init")
+@click.argument("slug")
+@click.option("--name", help="Human-readable name (default: derived from slug).")
+@click.option("--category", default="specialized", show_default=True,
+              help="Category folder under the repo root.")
+@click.option("--emoji", default="🤖", show_default=True)
+@click.option("--description", default="A specialized agent.", show_default=True)
+@click.pass_context
+def init_cmd(ctx: click.Context, slug: str, name: str | None, category: str,
+             emoji: str, description: str) -> None:
+    """Scaffold a new persona markdown file at <category>/<slug>.md."""
+    root = ctx.obj["repo"] if ctx.obj["repo"] else discover_repo_root()
+    target_dir = root / category
+    target_dir.mkdir(parents=True, exist_ok=True)
+    path = target_dir / f"{slug}.md"
+    if path.exists():
+        raise click.ClickException(f"{path} already exists.")
+    nice_name = name or slug.replace("-", " ").title()
+    body = (
+        f"---\n"
+        f"name: {nice_name}\n"
+        f"description: {description}\n"
+        f"color: cyan\n"
+        f"emoji: {emoji}\n"
+        f"vibe: Purpose-built specialist. Edit this file to shape its voice.\n"
+        f"---\n\n"
+        f"# {nice_name} Agent Personality\n\n"
+        f"You are **{nice_name}**. {description}\n\n"
+        f"## 🧠 Your Identity & Memory\n"
+        f"- **Role**: [fill in]\n"
+        f"- **Personality**: [fill in]\n\n"
+        f"## 🎯 Your Core Mission\n"
+        f"- [fill in]\n\n"
+        f"## 🚨 Critical Rules You Must Follow\n"
+        f"- [fill in]\n"
+    )
+    path.write_text(body, encoding="utf-8")
+    click.echo(f"Created {path.relative_to(root)}")
+
+
 @main.command("serve")
 @click.option("--host", default="127.0.0.1")
 @click.option("--port", default=8765, type=int)
@@ -154,7 +205,7 @@ def serve_cmd(ctx: click.Context, host: str, port: int) -> None:
 def _maybe_llm() -> AnthropicLLM | None:
     """Return an LLM client if configured, else None (for offline planning)."""
     try:
-        llm = AnthropicLLM(LLMConfig())
+        llm = AnthropicLLM(LLMConfig.from_env())
         llm._ensure_client()  # noqa: SLF001 — surface error early
         return llm
     except LLMError:
@@ -162,7 +213,7 @@ def _maybe_llm() -> AnthropicLLM | None:
 
 
 def _require_llm() -> AnthropicLLM:
-    llm = AnthropicLLM(LLMConfig())
+    llm = AnthropicLLM(LLMConfig.from_env())
     llm._ensure_client()  # noqa: SLF001
     return llm
 

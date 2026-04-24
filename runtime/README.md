@@ -16,16 +16,31 @@ sandboxed shell, and web fetch.
 ## Install
 
 ```bash
-pip install -e runtime
+pip install -e runtime            # base runtime
+pip install -e 'runtime[docs]'    # add PDF / DOCX / XLSX extraction
+pip install -e 'runtime[dev]'     # add pytest
 export ANTHROPIC_API_KEY=sk-ant-...
 ```
 
-Optional:
+### Config via env
+
+| Variable | Effect |
+|---|---|
+| `AGENCY_MODEL` | Override execution model (default `claude-opus-4-7`). |
+| `AGENCY_PLANNER_MODEL` | Override planner model (default `claude-haiku-4-5`). |
+| `AGENCY_MAX_TOKENS` | Per-request `max_tokens` (default 16000). |
+| `AGENCY_TASK_BUDGET` | If ≥ 20000, pass `output_config.task_budget` (Opus 4.7 beta). Agent self-moderates within this token budget across a loop. |
+| `AGENCY_MCP_SERVERS` | JSON list of MCP server configs. When set, the runtime switches to `client.beta.messages` with the `mcp-client-2025-11-20` beta header. |
+| `AGENCY_ALLOW_SHELL=1` | Opt into the allowlisted shell tool. |
+| `AGENCY_NO_NETWORK=1` | Disable `web_fetch`. |
+| `AGENCY_TOOL_TIMEOUT` | Per-tool wall-clock seconds (default 30). |
+
+Example MCP config:
 
 ```bash
-export AGENCY_ALLOW_SHELL=1   # opt in to allowlisted shell tool
-export AGENCY_NO_NETWORK=1    # disable the web_fetch tool
-export AGENCY_TOOL_TIMEOUT=30 # per-tool wall clock
+export AGENCY_MCP_SERVERS='[
+  {"type": "url", "name": "github", "url": "https://api.githubcopilot.com/mcp/"}
+]'
 ```
 
 ## Use
@@ -50,6 +65,13 @@ agency plan "design a brand identity for a B2B SaaS startup"
 agency run "review the security of this code base"
 agency run "..." --skill engineering-frontend-developer   # force a skill
 agency run "..." --session my-project                    # remember context
+agency run "..." --show-usage                            # print token totals
+```
+
+### Scaffold a new persona
+
+```bash
+agency init my-slug --name "My Agent" --category specialized --emoji 🎯
 ```
 
 ### Debug the tool-use loop
@@ -77,13 +99,16 @@ API endpoints:
 ```
 runtime/agency/
   skills.py     — discover *.md persona files, parse frontmatter
-  llm.py        — Anthropic SDK wrapper (caches the persona system prompt)
-  tools.py      — read_file, write_file, list_dir, run_shell, web_fetch, list_skills
+  llm.py        — Anthropic SDK wrapper (caches the persona system prompt,
+                  task-budget + MCP passthrough, config from env)
+  tools.py      — read_file, write_file, edit_file, list_dir, extract_doc,
+                  run_shell, web_fetch, list_skills, plan, delegate_to_skill
   planner.py    — keyword shortlist → Haiku picks the best skill
-  executor.py   — tool-use loop with optional on-disk session memory
+  executor.py   — tool-use loop (streaming + non-streaming), parallel-safe
+                  tool fan-out, usage tracking, plan binding, memory
   memory.py     — JSONL session store under ~/.agency/sessions/
-  cli.py        — Click CLI: list, plan, run, debug, serve
-  server.py     — FastAPI + minimal HTML chat UI
+  cli.py        — Click CLI: list, plan, run, debug, serve, init
+  server.py     — FastAPI + streaming chat UI
 ```
 
 ### Defaults
@@ -102,11 +127,12 @@ runtime/agency/
 cd runtime && python3 -m pytest
 ```
 
-39 tests cover the skill loader, planner (parser + LLM wiring with a stub),
-the file-IO + shell-allowlist tool sandbox, the plan tool, the executor's
-non-streaming and streaming tool-use loops, session-memory round-trips,
-delegation between skills, the CLI (Click `CliRunner`), and the server
-endpoints (FastAPI `TestClient`).
+56 tests cover the skill loader, planner (parser + LLM wiring with a stub),
+the file-IO + shell-allowlist tool sandbox, edit_file, extract_doc, the plan
+tool, the executor's non-streaming and streaming tool-use loops, token-usage
+accumulation, parallel-safe tool fan-out, session-memory round-trips,
+delegation between skills, LLM config + task-budget + MCP routing, the CLI
+(Click `CliRunner`), and the server endpoints (FastAPI `TestClient`).
 
 ## Delegation
 

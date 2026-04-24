@@ -72,6 +72,30 @@ See the [Multi-Tool Integrations](#-multi-tool-integrations) section below for f
 
 ---
 
+## 🏃 Runnable Runtime
+
+A Python orchestration runtime lives under [`runtime/`](runtime/README.md). It
+loads every persona file below as a runnable skill, routes requests through a
+planner, and runs them through a Claude tool-use loop with file IO, shell
+allowlist, web fetch, document extraction, and skill delegation.
+
+```bash
+pip install -e runtime
+export ANTHROPIC_API_KEY=...
+agency list                     # browse 180+ skills
+agency run "review this repo"   # auto-route to the best agent
+agency serve                    # chat UI on http://127.0.0.1:8765
+```
+
+See [`runtime/README.md`](runtime/README.md) for the full surface (CLI,
+streaming SSE API, delegation, persistent plans, task budgets, MCP).
+
+## 🧭 See Also
+
+If you're assembling a stack, complementary community lists:
+- [awesome-claude-code](https://github.com/hesreallyhim/awesome-claude-code) — skills, hooks, slash-commands, orchestrators.
+- [awesome-mcp-servers](https://github.com/appcypher/awesome-mcp-servers) — MCP servers you can plug in via `AGENCY_MCP_SERVERS`.
+
 ## 🎨 The Agency Roster
 
 ### 💻 Engineering Division

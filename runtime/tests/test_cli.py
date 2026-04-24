@@ -68,3 +68,41 @@ def test_run_without_api_key_gives_useful_error(runner, no_api_key):
     result = runner.invoke(main, ["run", "hello"])
     assert result.exit_code != 0
     assert "ANTHROPIC_API_KEY" in result.output
+
+
+def test_init_scaffolds_new_persona(runner, no_api_key, tmp_path):
+    # Point at a fake repo that looks like the real one.
+    (tmp_path / "engineering").mkdir()
+    (tmp_path / "engineering" / "existing.md").write_text("placeholder")
+    (tmp_path / "README.md").write_text("fake repo")
+
+    result = runner.invoke(main, [
+        "--repo", str(tmp_path),
+        "init", "rocket-scientist",
+        "--name", "Rocket Scientist",
+        "--category", "specialized",
+        "--emoji", "🚀",
+        "--description", "Builds rockets.",
+    ])
+    assert result.exit_code == 0, result.output
+    created = tmp_path / "specialized" / "rocket-scientist.md"
+    assert created.exists()
+    text = created.read_text()
+    assert "name: Rocket Scientist" in text
+    assert "🚀" in text
+    assert "Builds rockets" in text
+
+
+def test_init_refuses_to_overwrite(runner, no_api_key, tmp_path):
+    (tmp_path / "engineering").mkdir()
+    (tmp_path / "engineering" / "existing.md").write_text("x")
+    (tmp_path / "README.md").write_text("fake")
+    (tmp_path / "specialized").mkdir()
+    (tmp_path / "specialized" / "taken.md").write_text("y")
+
+    result = runner.invoke(main, [
+        "--repo", str(tmp_path),
+        "init", "taken", "--category", "specialized",
+    ])
+    assert result.exit_code != 0
+    assert "exists" in result.output.lower()

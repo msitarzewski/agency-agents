@@ -131,7 +131,7 @@ def _sse(event_kind: str, payload: Any) -> str:
 
 def _maybe_llm() -> AnthropicLLM | None:
     try:
-        llm = AnthropicLLM(LLMConfig())
+        llm = AnthropicLLM(LLMConfig.from_env())
         llm._ensure_client()  # noqa: SLF001
         return llm
     except LLMError:
@@ -139,7 +139,7 @@ def _maybe_llm() -> AnthropicLLM | None:
 
 
 def _require_llm() -> AnthropicLLM:
-    llm = AnthropicLLM(LLMConfig())
+    llm = AnthropicLLM(LLMConfig.from_env())
     llm._ensure_client()  # noqa: SLF001
     return llm
 

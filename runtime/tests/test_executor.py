@@ -35,9 +35,18 @@ class _ToolUseBlock:
 
 
 @dataclass
+class _FakeUsage:
+    input_tokens: int = 0
+    output_tokens: int = 0
+    cache_creation_input_tokens: int = 0
+    cache_read_input_tokens: int = 0
+
+
+@dataclass
 class _Resp:
     content: list
     stop_reason: str
+    usage: Any = None
 
 
 @dataclass
@@ -124,11 +133,12 @@ def test_executor_runs_tool_use_loop_and_returns_final_text(tmp_path: Path):
     assert isinstance(sys_block, list)
     assert sys_block[0]["cache_control"] == {"type": "ephemeral"}
 
-    # Event stream surfaces text, tool_use, tool_result, stop in order.
+    # Event stream surfaces text, tool_use, tool_result, stop, usage.
     kinds = [e.kind for e in result.events]
     assert kinds.count("tool_use") == 2
     assert kinds.count("tool_result") == 2
-    assert kinds[-1] == "stop"
+    assert "stop" in kinds
+    assert kinds[-1] == "usage"
 
 
 def test_executor_persists_session_memory(tmp_path: Path):
@@ -241,7 +251,8 @@ def test_executor_streams_text_deltas_and_tool_events(tmp_path: Path):
     kinds = [e.kind for e in events]
     assert "tool_use" in kinds
     assert "tool_result" in kinds
-    assert kinds[-1] == "stop"
+    assert "stop" in kinds
+    assert kinds[-1] == "usage"
 
 
 def test_delegate_tool_invokes_another_skill(tmp_path: Path):
@@ -292,6 +303,60 @@ def test_delegate_tool_rejects_unknown_skill(tmp_path: Path):
     tr = [e for e in result.events if e.kind == "tool_result"][0]
     assert tr.payload["is_error"] is True
     assert "not-a-real-slug" in tr.payload["content"]
+
+
+def test_executor_sums_usage_across_turns(tmp_path: Path):
+    reg, skill = _registry_with_one_skill()
+    llm = _ScriptedLLM([
+        _Resp(
+            stop_reason="tool_use",
+            content=[_ToolUseBlock(id="t1", name="list_dir", input={})],
+            usage=_FakeUsage(input_tokens=100, output_tokens=20,
+                             cache_creation_input_tokens=500, cache_read_input_tokens=0),
+        ),
+        _Resp(
+            stop_reason="end_turn",
+            content=[_TextBlock("done")],
+            usage=_FakeUsage(input_tokens=150, output_tokens=30,
+                             cache_creation_input_tokens=0, cache_read_input_tokens=500),
+        ),
+    ])
+    executor = Executor(reg, llm, workdir=tmp_path)
+    result = executor.run(skill, "anything")
+    assert result.usage.input_tokens == 250
+    assert result.usage.output_tokens == 50
+    assert result.usage.cache_creation_input_tokens == 500
+    assert result.usage.cache_read_input_tokens == 500
+    # The final event is the usage event and carries the same totals.
+    last = result.events[-1]
+    assert last.kind == "usage"
+    assert last.payload["output_tokens"] == 50
+
+
+def test_parallel_tools_preserve_order(tmp_path: Path):
+    """When the model calls read-only tools back-to-back, results return in order."""
+    (tmp_path / "a.txt").write_text("A")
+    (tmp_path / "b.txt").write_text("B")
+    (tmp_path / "c.txt").write_text("C")
+
+    reg, skill = _registry_with_one_skill()
+    llm = _ScriptedLLM([
+        _Resp(
+            stop_reason="tool_use",
+            content=[
+                _ToolUseBlock(id="t1", name="read_file", input={"path": "a.txt"}),
+                _ToolUseBlock(id="t2", name="read_file", input={"path": "b.txt"}),
+                _ToolUseBlock(id="t3", name="read_file", input={"path": "c.txt"}),
+            ],
+        ),
+        _Resp(stop_reason="end_turn", content=[_TextBlock("saw A, B, C")]),
+    ])
+
+    executor = Executor(reg, llm, workdir=tmp_path)
+    result = executor.run(skill, "read those three")
+
+    tool_results = [e for e in result.events if e.kind == "tool_result"]
+    assert [r.payload["content"] for r in tool_results] == ["A", "B", "C"]
 
 
 def test_executor_handles_unknown_tool_gracefully(tmp_path: Path):
