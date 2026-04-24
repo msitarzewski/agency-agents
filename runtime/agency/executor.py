@@ -55,6 +55,15 @@ class Executor:
         setattr(self.ctx, "_skills_summary", "\n".join(summary_lines))
         setattr(self.ctx, "_delegate_runner", self._delegate)
 
+    def _bind_session_to_ctx(self, session: Session | None) -> None:
+        if session is None:
+            setattr(self.ctx, "_plan_root", None)
+            setattr(self.ctx, "_plan_session_id", None)
+            return
+        plan_root = Path.home() / ".agency" / "plans"
+        setattr(self.ctx, "_plan_root", plan_root)
+        setattr(self.ctx, "_plan_session_id", session.session_id)
+
     def _delegate(self, slug: str, request: str) -> str:
         if self._delegation_depth >= MAX_DELEGATION_DEPTH:
             raise RecursionError(
@@ -73,6 +82,7 @@ class Executor:
         events: list[ExecutionEvent] = []
         text_parts: list[str] = []
 
+        self._bind_session_to_ctx(session)
         messages = self._initial_messages(session, user_message)
         system = AnthropicLLM.cached_system(skill.system_prompt)
         tool_defs = [t.to_anthropic() for t in self.tools]
@@ -142,6 +152,7 @@ class Executor:
             yield from result.events
             return
 
+        self._bind_session_to_ctx(session)
         text_parts: list[str] = []
         messages = self._initial_messages(session, user_message)
         system = AnthropicLLM.cached_system(skill.system_prompt)

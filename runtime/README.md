@@ -102,11 +102,11 @@ runtime/agency/
 cd runtime && python3 -m pytest
 ```
 
-34 tests cover the skill loader, planner (parser + LLM wiring with a stub),
-the file-IO + shell-allowlist tool sandbox, the executor's non-streaming and
-streaming tool-use loops, session-memory round-trips, delegation between
-skills, the CLI (Click `CliRunner`), and the server endpoints (FastAPI
-`TestClient`).
+39 tests cover the skill loader, planner (parser + LLM wiring with a stub),
+the file-IO + shell-allowlist tool sandbox, the plan tool, the executor's
+non-streaming and streaming tool-use loops, session-memory round-trips,
+delegation between skills, the CLI (Click `CliRunner`), and the server
+endpoints (FastAPI `TestClient`).
 
 ## Delegation
 
@@ -114,6 +114,16 @@ Agents can hand off to each other via the `delegate_to_skill` tool. The
 executor exposes it by default. Delegation is capped at depth 2 so a chain
 like *strategy → engineering → writing* is allowed but can't recurse
 indefinitely.
+
+## Persistent plan (per-session scratchpad)
+
+When a session id is set, agents get a `plan` tool that reads/writes a
+markdown file under `~/.agency/plans/<session_id>.md`. Use it for long
+tasks: the agent decomposes the work up front, checks items off as it
+goes, and re-reads the plan between turns so it stays on track.
+
+Actions: `view`, `write`, `append`, `clear`.
+Inspired by the Manus-style planning pattern.
 
 ## Docker
 

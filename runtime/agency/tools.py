@@ -217,6 +217,50 @@ def _delegate_to_skill(args: dict[str, Any], ctx: ToolContext) -> ToolResult:
         return ToolResult(str(e), is_error=True)
 
 
+def _plan_path(ctx: ToolContext) -> Path | None:
+    root = getattr(ctx, "_plan_root", None)
+    session_id = getattr(ctx, "_plan_session_id", None)
+    if root is None or session_id is None:
+        return None
+    Path(root).mkdir(parents=True, exist_ok=True)
+    safe = "".join(c for c in session_id if c.isalnum() or c in "-_") or "default"
+    return Path(root) / f"{safe}.md"
+
+
+def _plan_tool(args: dict[str, Any], ctx: ToolContext) -> ToolResult:
+    """View / write / append / clear a persistent plan file for the session.
+
+    The plan is a markdown scratchpad the agent can maintain across turns and
+    re-read when starting work on a new turn. Based on the Manus-style
+    planning pattern (github.com/OthmanAdi/planning-with-files).
+    """
+    path = _plan_path(ctx)
+    if path is None:
+        return ToolResult(
+            "Plan is only available within a named session. Re-run with --session <id>.",
+            is_error=True,
+        )
+    action = (args.get("action") or "view").lower().strip()
+    if action == "view":
+        if not path.exists():
+            return ToolResult("(no plan yet)")
+        return ToolResult(_truncate(path.read_text(encoding="utf-8")))
+    if action == "write":
+        content = args.get("content", "")
+        path.write_text(content, encoding="utf-8")
+        return ToolResult(f"Wrote {len(content)} chars to plan.")
+    if action == "append":
+        content = args.get("content", "")
+        with path.open("a", encoding="utf-8") as f:
+            f.write(content if content.endswith("\n") else content + "\n")
+        return ToolResult(f"Appended {len(content)} chars to plan.")
+    if action == "clear":
+        if path.exists():
+            path.unlink()
+        return ToolResult("Plan cleared.")
+    return ToolResult(f"Unknown action: {action}. Use view|write|append|clear.", is_error=True)
+
+
 # ----- Builtin registry ----------------------------------------------------
 
 def builtin_tools() -> list[Tool]:
@@ -298,6 +342,30 @@ def builtin_tools() -> list[Tool]:
                 "required": ["slug", "request"],
             },
             func=_delegate_to_skill,
+        ),
+        Tool(
+            name="plan",
+            description=(
+                "Read or update a persistent per-session markdown plan. Use it to "
+                "decompose a task, track progress across turns, and re-read what "
+                "you've committed to before acting. Actions: view | write | append "
+                "| clear. Only available when a session id is set."
+            ),
+            input_schema={
+                "type": "object",
+                "properties": {
+                    "action": {
+                        "type": "string",
+                        "enum": ["view", "write", "append", "clear"],
+                    },
+                    "content": {
+                        "type": "string",
+                        "description": "Markdown content for write/append.",
+                    },
+                },
+                "required": ["action"],
+            },
+            func=_plan_tool,
         ),
     ]
 
