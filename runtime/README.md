@@ -31,6 +31,9 @@ export ANTHROPIC_API_KEY=sk-ant-...
 | `AGENCY_MAX_TOKENS` | Per-request `max_tokens` (default 16000). |
 | `AGENCY_TASK_BUDGET` | If ≥ 20000, pass `output_config.task_budget` (Opus 4.7 beta). Agent self-moderates within this token budget across a loop. |
 | `AGENCY_MCP_SERVERS` | JSON list of MCP server configs. When set, the runtime switches to `client.beta.messages` with the `mcp-client-2025-11-20` beta header. |
+| `AGENCY_ENABLE_WEB_SEARCH=1` | Register Anthropic's hosted `web_search_20260209` tool. |
+| `AGENCY_ENABLE_CODE_EXECUTION=1` | Register the hosted Python sandbox `code_execution_20260120`. |
+| `AGENCY_ENABLE_COMPUTER_USE=1` | Enable mouse/keyboard/screenshot via `pip install -e 'runtime[computer]'`. Requires a display. |
 | `AGENCY_ALLOW_SHELL=1` | Opt into the allowlisted shell tool. |
 | `AGENCY_NO_NETWORK=1` | Disable `web_fetch`. |
 | `AGENCY_TOOL_TIMEOUT` | Per-tool wall-clock seconds (default 30). |
@@ -73,6 +76,16 @@ agency run "..." --show-usage                            # print token totals
 ```bash
 agency init my-slug --name "My Agent" --category specialized --emoji 🎯
 ```
+
+### Diagnose the environment
+
+```bash
+agency doctor
+```
+
+Shows loaded skills per category, which env flags are set, which optional
+deps (`[docs]`, `[computer]`) are installed, and the tool context defaults.
+Run it first if something isn't working.
 
 ### Debug the tool-use loop
 

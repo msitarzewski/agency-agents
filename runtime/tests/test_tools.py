@@ -177,6 +177,123 @@ def test_extract_doc_rejects_missing(tmp_path: Path):
     assert res.is_error
 
 
+# ----- computer_use ------------------------------------------------------
+
+
+from agency.tools import _computer_use
+
+
+def _computer_ctx(tmp_path: Path, enabled: bool = True) -> ToolContext:
+    return ToolContext(workdir=tmp_path.resolve(), allow_computer_use=enabled)
+
+
+def test_computer_use_off_by_default(tmp_path: Path):
+    ctx = _computer_ctx(tmp_path, enabled=False)
+    res = _computer_use({"action": "screenshot"}, ctx)
+    assert res.is_error
+    assert "AGENCY_ENABLE_COMPUTER_USE" in res.content
+
+
+def test_computer_use_gives_install_hint_when_deps_missing(tmp_path: Path, monkeypatch):
+    """With the flag on but pyautogui absent, we should explain what to install."""
+    import builtins
+
+    real_import = builtins.__import__
+
+    def _fake_import(name, *args, **kwargs):
+        if name == "pyautogui":
+            raise ImportError("no pyautogui here")
+        return real_import(name, *args, **kwargs)
+    monkeypatch.setattr(builtins, "__import__", _fake_import)
+
+    ctx = _computer_ctx(tmp_path, enabled=True)
+    res = _computer_use({"action": "screenshot"}, ctx)
+    assert res.is_error
+    assert "pip install" in res.content
+    assert "pyautogui" in res.content
+
+
+def test_computer_use_dispatches_clicks_via_stub(tmp_path: Path, monkeypatch):
+    """When pyautogui IS importable, the right function fires for each action."""
+    calls: list[tuple] = []
+
+    class _StubAutogui:
+        @staticmethod
+        def click(*args, **kwargs):
+            calls.append(("click", args, kwargs))
+
+        @staticmethod
+        def rightClick(*args, **kwargs):
+            calls.append(("rightClick", args, kwargs))
+
+        @staticmethod
+        def doubleClick(*args, **kwargs):
+            calls.append(("doubleClick", args, kwargs))
+
+        @staticmethod
+        def write(text, interval=0):
+            calls.append(("write", text, interval))
+
+        @staticmethod
+        def press(key):
+            calls.append(("press", key))
+
+        @staticmethod
+        def hotkey(*keys):
+            calls.append(("hotkey", keys))
+
+        @staticmethod
+        def scroll(amount):
+            calls.append(("scroll", amount))
+
+        @staticmethod
+        def moveTo(x, y):
+            calls.append(("moveTo", x, y))
+
+        @staticmethod
+        def position():
+            return (100, 200)
+
+    import sys
+    monkeypatch.setitem(sys.modules, "pyautogui", _StubAutogui)
+    monkeypatch.setitem(sys.modules, "PIL", type("M", (), {})())
+    # Pillow's Image submodule is also imported in the handler; stub it.
+    pil_image = type("I", (), {})()
+    monkeypatch.setattr(sys.modules["PIL"], "Image", pil_image, raising=False)
+    monkeypatch.setitem(sys.modules, "PIL.Image", pil_image)
+
+    ctx = _computer_ctx(tmp_path, enabled=True)
+
+    # Click at coordinate
+    res = _computer_use({"action": "left_click", "coordinate": [50, 75]}, ctx)
+    assert not res.is_error and calls[-1][:2] == ("click", (50, 75))
+
+    # Type text
+    res = _computer_use({"action": "type", "text": "hello"}, ctx)
+    assert not res.is_error and calls[-1][0] == "write" and calls[-1][1] == "hello"
+
+    # Key chord
+    res = _computer_use({"action": "key", "text": "ctrl+c"}, ctx)
+    assert not res.is_error and calls[-1] == ("hotkey", ("ctrl", "c"))
+
+    # cursor_position
+    res = _computer_use({"action": "cursor_position"}, ctx)
+    assert not res.is_error and res.content == "100,200"
+
+
+def test_computer_use_rejects_unknown_action(tmp_path: Path, monkeypatch):
+    import sys
+    monkeypatch.setitem(sys.modules, "pyautogui", type("S", (), {})())
+    pil_image = type("I", (), {})()
+    monkeypatch.setitem(sys.modules, "PIL", type("M", (), {"Image": pil_image})())
+    monkeypatch.setitem(sys.modules, "PIL.Image", pil_image)
+
+    ctx = _computer_ctx(tmp_path, enabled=True)
+    res = _computer_use({"action": "teleport"}, ctx)
+    assert res.is_error
+    assert "unsupported action" in res.content.lower()
+
+
 def test_extract_doc_gives_helpful_hint_when_dep_missing(tmp_path: Path, monkeypatch):
     """If a `.pdf` is requested but pypdf is absent, we should say so — not crash."""
     import builtins

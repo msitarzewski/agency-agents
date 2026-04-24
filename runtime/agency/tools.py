@@ -60,6 +60,7 @@ class ToolContext:
     allow_shell: bool = False
     shell_allowlist: tuple[str, ...] = DEFAULT_SHELL_ALLOWLIST
     allow_network: bool = True
+    allow_computer_use: bool = False
     timeout_s: int = 30
 
     @classmethod
@@ -68,6 +69,7 @@ class ToolContext:
             workdir=(workdir or Path.cwd()).resolve(),
             allow_shell=_truthy(os.environ.get("AGENCY_ALLOW_SHELL")),
             allow_network=not _truthy(os.environ.get("AGENCY_NO_NETWORK")),
+            allow_computer_use=_truthy(os.environ.get("AGENCY_ENABLE_COMPUTER_USE")),
             timeout_s=int(os.environ.get("AGENCY_TOOL_TIMEOUT", "30")),
         )
 
@@ -325,6 +327,93 @@ def _delegate_to_skill(args: dict[str, Any], ctx: ToolContext) -> ToolResult:
         return ToolResult(str(e), is_error=True)
 
 
+def _computer_use(args: dict[str, Any], ctx: ToolContext) -> ToolResult:
+    """Dispatch to pyautogui for mouse/keyboard/screenshot actions.
+
+    Implements Anthropic's `computer_20250124` client side. Requires a
+    display (X11/Wayland on Linux, native on macOS/Windows) and the
+    `[computer]` extra. Disabled unless AGENCY_ENABLE_COMPUTER_USE=1.
+
+    ⚠️ Gives the agent full UI control of the running user session. Only
+    enable in a sandbox or dedicated VM.
+    """
+    if not ctx.allow_computer_use:
+        return ToolResult(
+            "Computer use is disabled. Set AGENCY_ENABLE_COMPUTER_USE=1 AND run "
+            "on a machine with a display + `pip install -e 'runtime[computer]'`.",
+            is_error=True,
+        )
+    try:
+        import base64
+        import io
+
+        import pyautogui  # type: ignore[import-not-found]
+        from PIL import Image  # noqa: F401 — used only to verify install
+    except ImportError as e:
+        return ToolResult(
+            "Missing deps: pip install -e 'runtime[computer]' (pyautogui, pillow).",
+            is_error=True,
+        )
+    except Exception as e:  # noqa: BLE001 — e.g. no DISPLAY
+        return ToolResult(
+            f"pyautogui init failed ({type(e).__name__}: {e}). Need a display.",
+            is_error=True,
+        )
+
+    action = (args.get("action") or "").strip()
+    coord = args.get("coordinate")
+    text = args.get("text")
+
+    try:
+        if action == "screenshot":
+            img = pyautogui.screenshot()
+            buf = io.BytesIO()
+            img.save(buf, format="PNG")
+            b64 = base64.b64encode(buf.getvalue()).decode("ascii")
+            return ToolResult(f"screenshot:base64,png,{len(b64)}bytes")  # summary; UI can re-fetch
+        if action == "cursor_position":
+            x, y = pyautogui.position()
+            return ToolResult(f"{x},{y}")
+        if action == "mouse_move" and coord:
+            pyautogui.moveTo(coord[0], coord[1])
+            return ToolResult(f"moved to {coord[0]},{coord[1]}")
+        if action == "left_click":
+            if coord:
+                pyautogui.click(coord[0], coord[1])
+            else:
+                pyautogui.click()
+            return ToolResult("clicked")
+        if action == "right_click":
+            pyautogui.rightClick(*(coord or ()))
+            return ToolResult("right-clicked")
+        if action == "double_click":
+            pyautogui.doubleClick(*(coord or ()))
+            return ToolResult("double-clicked")
+        if action == "middle_click":
+            pyautogui.middleClick(*(coord or ()))
+            return ToolResult("middle-clicked")
+        if action == "left_click_drag" and coord:
+            pyautogui.dragTo(coord[0], coord[1], duration=0.2)
+            return ToolResult(f"dragged to {coord[0]},{coord[1]}")
+        if action == "type" and text is not None:
+            pyautogui.write(text, interval=0.01)
+            return ToolResult(f"typed {len(text)} chars")
+        if action == "key" and text is not None:
+            # text is a key name or +-joined chord ("ctrl+c")
+            keys = text.split("+")
+            pyautogui.hotkey(*keys) if len(keys) > 1 else pyautogui.press(keys[0])
+            return ToolResult(f"pressed {text}")
+        if action == "scroll" and text is not None:
+            try:
+                pyautogui.scroll(int(text))
+            except ValueError:
+                return ToolResult("scroll text must be an integer", is_error=True)
+            return ToolResult(f"scrolled {text}")
+        return ToolResult(f"unsupported action: {action}", is_error=True)
+    except Exception as e:  # noqa: BLE001 — surface to model
+        return ToolResult(f"computer_use error: {type(e).__name__}: {e}", is_error=True)
+
+
 def _plan_path(ctx: ToolContext) -> Path | None:
     root = getattr(ctx, "_plan_root", None)
     session_id = getattr(ctx, "_plan_session_id", None)
@@ -482,6 +571,32 @@ def builtin_tools() -> list[Tool]:
                 "required": ["slug", "request"],
             },
             func=_delegate_to_skill,
+        ),
+        Tool(
+            name="computer_use",
+            description=(
+                "Control the desktop: mouse, keyboard, screenshots. Off unless "
+                "AGENCY_ENABLE_COMPUTER_USE=1 AND the `[computer]` extra is "
+                "installed AND a display is available. Actions: screenshot, "
+                "cursor_position, mouse_move, left_click, right_click, "
+                "middle_click, double_click, left_click_drag, type, key, scroll."
+            ),
+            input_schema={
+                "type": "object",
+                "properties": {
+                    "action": {"type": "string"},
+                    "coordinate": {
+                        "type": "array",
+                        "items": {"type": "integer"},
+                        "minItems": 2,
+                        "maxItems": 2,
+                        "description": "[x, y] for move/click/drag actions.",
+                    },
+                    "text": {"type": "string", "description": "For type / key / scroll."},
+                },
+                "required": ["action"],
+            },
+            func=_computer_use,
         ),
         Tool(
             name="plan",

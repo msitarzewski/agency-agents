@@ -26,6 +26,10 @@ docs = [
   "python-docx>=1.1",
   "openpyxl>=3.1",
 ]
+computer = [
+  "pyautogui>=0.9.54",
+  "pillow>=10.0",
+]
 
 [project.scripts]
 agency = "agency.cli:main"

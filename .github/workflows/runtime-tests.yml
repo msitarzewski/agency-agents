@@ -41,3 +41,4 @@ jobs:
           agency list | head -5
           agency list --category engineering | head -3
           agency plan "build a React component"
+          agency doctor

@@ -93,6 +93,18 @@ def test_init_scaffolds_new_persona(runner, no_api_key, tmp_path):
     assert "Builds rockets" in text
 
 
+def test_doctor_reports_skill_counts_and_env(runner, no_api_key):
+    result = runner.invoke(main, ["doctor"])
+    assert result.exit_code == 0, result.output
+    assert "Agency Runtime Doctor" in result.output
+    assert "skills loaded:" in result.output
+    assert "engineering" in result.output  # a category should appear
+    assert "ANTHROPIC_API_KEY" in result.output
+    assert "AGENCY_ENABLE_COMPUTER_USE" in result.output
+    assert "optional deps" in result.output
+    assert "tool context" in result.output
+
+
 def test_init_refuses_to_overwrite(runner, no_api_key, tmp_path):
     (tmp_path / "engineering").mkdir()
     (tmp_path / "engineering" / "existing.md").write_text("x")

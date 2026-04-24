@@ -41,12 +41,19 @@ All notable changes to the agency runtime, newest first.
 - **Dockerfile** and **CI** (`runtime-tests.yml` on Python 3.10 / 3.11 /
   3.12, plus a no-key CLI smoke test).
 
-### Intentionally not included
-- **Computer use.** The `computer_20250124` tool needs a display-enabled
-  container with client-side screenshot/mouse/keyboard handlers. Adding a
-  stub that crashes at runtime would be worse than not adding it. If you
-  have the infra, you can pass the declaration via a future
-  `enable_computer_use` option — I'll wire it when there's a real target.
+### Added (continued)
+- **Opt-in `computer_use` tool.** Implements Anthropic's
+  `computer_20250124` client side via pyautogui: screenshot,
+  cursor_position, mouse_move, left/right/middle/double click, drag,
+  type, key (chord), scroll. Off by default. Enable with
+  `AGENCY_ENABLE_COMPUTER_USE=1` + `pip install -e 'runtime[computer]'`
+  + a display (X11/Wayland/macOS/Windows). Gives the agent full UI
+  control — only enable in a sandbox or dedicated VM.
+- **`agency doctor`** diagnostic command: prints loaded skills per
+  category, env flags, optional-deps install status, and tool context.
+- **Integration test** that keeps `DEFAULT_CATEGORIES` in sync with the
+  real top-level persona folders in the repo — catches drift when a new
+  category is added.
 
 ## 0.1.0
 

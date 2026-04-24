@@ -184,6 +184,80 @@ def init_cmd(ctx: click.Context, slug: str, name: str | None, category: str,
     click.echo(f"Created {path.relative_to(root)}")
 
 
+@main.command("doctor")
+@click.pass_context
+def doctor_cmd(ctx: click.Context) -> None:
+    """Diagnose the runtime: show what's loaded, enabled, and missing."""
+    import importlib
+    import os
+    from .tools import ToolContext
+
+    click.echo("=== Agency Runtime Doctor ===\n")
+
+    # Repo + skills
+    try:
+        root = ctx.obj["repo"] if ctx.obj["repo"] else discover_repo_root()
+        click.echo(f"repo root: {root}")
+    except FileNotFoundError as e:
+        click.echo(f"repo root: ERROR — {e}")
+        return
+    try:
+        registry = SkillRegistry.load(root)
+    except Exception as e:  # noqa: BLE001
+        click.echo(f"skills: ERROR — {type(e).__name__}: {e}")
+        return
+
+    click.echo(f"skills loaded: {len(registry)}")
+    for cat in registry.categories():
+        count = len(registry.by_category(cat))
+        click.echo(f"  {cat:22s}  {count}")
+
+    # API key
+    key = os.environ.get("ANTHROPIC_API_KEY", "")
+    click.echo(f"\nANTHROPIC_API_KEY: {'set ('+str(len(key))+' chars)' if key else 'NOT SET'}")
+
+    # Env flags
+    flags = [
+        "AGENCY_MODEL", "AGENCY_PLANNER_MODEL", "AGENCY_MAX_TOKENS",
+        "AGENCY_TASK_BUDGET", "AGENCY_MCP_SERVERS",
+        "AGENCY_ENABLE_WEB_SEARCH", "AGENCY_ENABLE_CODE_EXECUTION",
+        "AGENCY_ENABLE_COMPUTER_USE", "AGENCY_ALLOW_SHELL", "AGENCY_NO_NETWORK",
+    ]
+    click.echo("\nenv flags:")
+    for f in flags:
+        val = os.environ.get(f)
+        click.echo(f"  {f:32s}  {val or '—'}")
+
+    # Optional deps
+    click.echo("\noptional deps:")
+    for group, mods in {
+        "[docs]":     ["pypdf", "docx", "openpyxl"],
+        "[computer]": ["pyautogui", "PIL"],
+    }.items():
+        installed = []
+        missing = []
+        for m in mods:
+            try:
+                importlib.import_module(m)
+                installed.append(m)
+            except ImportError:
+                missing.append(m)
+        status = "ok" if not missing else f"missing: {', '.join(missing)}"
+        click.echo(f"  {group:12s}  {status}")
+
+    # Tool context defaults
+    tc = ToolContext.from_env()
+    click.echo(
+        f"\ntool context:\n"
+        f"  allow_shell={tc.allow_shell}  "
+        f"allow_network={tc.allow_network}  "
+        f"allow_computer_use={tc.allow_computer_use}  "
+        f"timeout={tc.timeout_s}s"
+    )
+
+    click.echo("\nDone.")
+
+
 @main.command("serve")
 @click.option("--host", default="127.0.0.1")
 @click.option("--port", default=8765, type=int)
