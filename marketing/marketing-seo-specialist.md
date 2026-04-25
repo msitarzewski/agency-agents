@@ -213,6 +213,20 @@ For each conflict:
 - Free tools and calculators (linkable assets)
 - Original case studies with shareable results
 
+### Linkable Asset Formats (highest backlink-per-effort ratio)
+- **Statistics Roundups**: Aggregate 40-60 stats from primary sources into a definitive "[Topic] Statistics (Year)" reference article. Other blogs and AI systems cite these as canonical data sources. Structure: intro with striking stat → key takeaways → 5-7 themed sections with data tables (Metric | Value | Source) → summary mega-table → methodology section.
+- **Original Research & Surveys**: Conduct and publish proprietary research with methodology disclosure. Original data that doesn't exist elsewhere attracts links by default.
+- **Comparison & Benchmark Tables**: Structured feature-by-feature or price-by-price comparison content with schema markup. AI systems extract tables more reliably than prose.
+- **Interactive Data Tools**: Calculators, estimators, and map-based explorers that generate unique outputs per user — these earn links from "resource" pages and get cited when users share their results.
+- **Regional/Local Data Pages**: Hyper-local statistics with charts and infographics that no national source covers — city-level pricing, demographic breakdowns, market trends. Low competition, high authority in niche.
+
+### Source Quality Tiers for Data Content
+When creating stats-based linkable assets, source credibility determines whether the content earns citations or gets ignored:
+- **Tier 1 — Primary Research**: Original reports, government databases, academic papers, official company data (e.g., Eurostat, national statistics institutes, central bank reports)
+- **Tier 2 — Reputable Aggregators**: Statista (when citing primary source), industry research firms — only if underlying source is disclosed
+- **Tier 3 — Publications Reporting on Tier 1**: Industry media reporting on primary studies — always trace back and cite the Tier 1 source, not the intermediary
+- **Tier 4 — Avoid**: SEO blogs quoting each other, AI-generated roundups without source links, numbers appearing identically across 20 blogs with no primary attribution
+
 ### Strategic Outreach
 - Broken link reclamation: [identify broken links on authority sites]
 - Unlinked brand mentions: [convert mentions to links]

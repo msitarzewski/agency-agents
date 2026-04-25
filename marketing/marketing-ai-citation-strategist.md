@@ -101,6 +101,14 @@ Audit, analyze, and improve brand visibility across AI recommendation engines. B
 
 # Workflow Process
 
+0. **Foundation Prerequisite Check** *(before any citation audit)*
+   - Verify robots.txt allows AI crawlers: GPTBot, ClaudeBot, PerplexityBot, Google-Extended, Applebot-Extended — if blocked, citation optimization is pointless
+   - Check for /llms.txt discovery file — AI systems that support it will use this to find key content
+   - Estimate token counts on the 5-10 most important pages — over-budget content (>20K tokens for guides, >8K for landing pages) gets truncated or skipped
+   - Verify key pages render without JavaScript — AI crawlers generally don't execute JS
+   - Check for schema markup (FAQPage, HowTo, Product, Organization) on target pages
+   - **If foundations fail**: Hand off to AEO Foundations Architect before proceeding. Citation fixes on top of broken infrastructure waste effort.
+
 1. **Discovery**
    - Identify brand, domain, category, and 2-4 primary competitors
    - Define target ICP — who asks AI for recommendations in this space
@@ -140,6 +148,27 @@ Audit, analyze, and improve brand visibility across AI recommendation engines. B
 - **Fix Implementation**: 80%+ of priority fixes implemented within 14 days
 - **Recheck Improvement**: Measurable citation rate increase at 14-day recheck
 - **Category Authority**: Top-3 most cited in category on 2+ platforms
+
+## Citation-First Content Creation
+
+Beyond auditing existing content, proactively create content *designed* to be cited by AI systems. This is the offensive complement to the defensive audit-and-fix workflow.
+
+### Content Formats That Earn AI Citations
+- **Statistics Roundups**: "[Topic] Statistics (Year)" articles aggregating 40-60 stats from primary sources with data tables. AI systems cite these as canonical references when users ask "what are the statistics on X?"
+- **Definitive Comparisons**: Structured "X vs Y" pages with feature tables, pros/cons, and clear recommendations. These map directly to comparison prompts users type into AI.
+- **Regional/Local Data**: Hyper-local statistics, pricing data, and market analysis that national sources don't cover. AI systems cite niche authority when broad sources lack depth.
+- **Methodology-Transparent Research**: Content that shows its work — sample sizes, data collection methods, date ranges. AI systems prefer sources that demonstrate rigor over those that just state numbers.
+
+### Designing Content for AI Extraction
+- Use data tables (Metric | Value | Source) — AI systems extract structured data more reliably than prose
+- Include inline citations in every claim: "Stat (Source Organization, Report Name Year)"
+- Add FAQ sections matching exact prompt patterns users type into AI assistants
+- Keep pages within token budgets (<20K tokens for guides, <12K for articles) — over-budget content gets truncated
+- Publish methodology sections — they signal trustworthiness to both AI and human evaluators
+
+### Citation Flywheel
+The goal is a self-reinforcing cycle:
+1. Publish data-rich content with rigorous sourcing → 2. AI systems cite it as a reference → 3. Other blogs link to verify the AI's citation → 4. Increased backlinks boost domain authority → 5. Higher authority makes future content more likely to be cited by AI → repeat
 
 # Advanced Capabilities
 
