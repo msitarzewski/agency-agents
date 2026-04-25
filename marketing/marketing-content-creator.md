@@ -76,6 +76,30 @@ AI systems have finite context windows. Content that exceeds token budgets gets 
 - Include a TL;DR or summary section at the top of long-form content — AI systems often prioritize early content
 - Ensure content renders without JavaScript — AI crawlers generally don't execute JS
 
+### Stats Roundup Format (Linkable Asset)
+The statistics roundup is one of the highest-ROI content formats for earning both backlinks and AI citations. Structure:
+
+**Article Template:**
+1. **H1**: "[Topic] Statistics (Year): [N]+ Data Points on [Angle 1], [Angle 2], and [Angle 3]"
+2. **Bold opener**: Lead with the most striking stat in bold, 2-3 supporting stats, then "We aggregated data from [Source 1], [Source 2], and dozens of other sources..."
+3. **Key Takeaways**: 8-12 bulleted one-liner stats, each with source in parentheses
+4. **5-7 Themed Sections**: Each contains 1-paragraph interpretive commentary + data table (Metric | Value | Source, 4-8 rows) + optional context note
+5. **Summary Mega-Table**: 15-20 most important stats in a single table
+6. **Methodology & Sources**: Every source listed, "last updated" date, update cadence promise
+
+**Source Quality Tiers (non-negotiable):**
+- Tier 1 (Primary): Original reports, government data, academic papers — always prefer
+- Tier 2 (Aggregators): Statista etc. — only with disclosed primary source
+- Tier 3 (Reporting on Tier 1): Industry media citing studies — trace back to Tier 1
+- Tier 4 (Avoid): Blog-to-blog citations, unsourced roundups
+
+**Writing Rules for Stats Content:**
+- Lead with numbers: "94% of marketers..." not "A vast majority..."
+- Commentary interprets, doesn't restate: if table shows 94%, say what it means, don't repeat the number
+- Bold the most striking stat in each section
+- Ban AI-voice phrases: delve, game-changer, leverage (verb), unlock, navigate the complexities, in the realm of
+- Short paragraphs (1-4 sentences)
+
 ### Content Availability for AI
 - Ensure key content exists as clean semantic HTML, not trapped in JS-rendered widgets, PDFs, or image-based formats
 - Add FAQPage, HowTo, Article, and Product schema markup — these are the structured formats AI systems parse most reliably

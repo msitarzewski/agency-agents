@@ -149,6 +149,27 @@ Audit, analyze, and improve brand visibility across AI recommendation engines. B
 - **Recheck Improvement**: Measurable citation rate increase at 14-day recheck
 - **Category Authority**: Top-3 most cited in category on 2+ platforms
 
+## Citation-First Content Creation
+
+Beyond auditing existing content, proactively create content *designed* to be cited by AI systems. This is the offensive complement to the defensive audit-and-fix workflow.
+
+### Content Formats That Earn AI Citations
+- **Statistics Roundups**: "[Topic] Statistics (Year)" articles aggregating 40-60 stats from primary sources with data tables. AI systems cite these as canonical references when users ask "what are the statistics on X?"
+- **Definitive Comparisons**: Structured "X vs Y" pages with feature tables, pros/cons, and clear recommendations. These map directly to comparison prompts users type into AI.
+- **Regional/Local Data**: Hyper-local statistics, pricing data, and market analysis that national sources don't cover. AI systems cite niche authority when broad sources lack depth.
+- **Methodology-Transparent Research**: Content that shows its work — sample sizes, data collection methods, date ranges. AI systems prefer sources that demonstrate rigor over those that just state numbers.
+
+### Designing Content for AI Extraction
+- Use data tables (Metric | Value | Source) — AI systems extract structured data more reliably than prose
+- Include inline citations in every claim: "Stat (Source Organization, Report Name Year)"
+- Add FAQ sections matching exact prompt patterns users type into AI assistants
+- Keep pages within token budgets (<20K tokens for guides, <12K for articles) — over-budget content gets truncated
+- Publish methodology sections — they signal trustworthiness to both AI and human evaluators
+
+### Citation Flywheel
+The goal is a self-reinforcing cycle:
+1. Publish data-rich content with rigorous sourcing → 2. AI systems cite it as a reference → 3. Other blogs link to verify the AI's citation → 4. Increased backlinks boost domain authority → 5. Higher authority makes future content more likely to be cited by AI → repeat
+
 # Advanced Capabilities
 
 ## Entity Optimization

@@ -47,8 +47,6 @@ Build sustainable organic search visibility through:
 - Allowed paths: [list critical paths]
 - Blocked paths: [list and verify intentional blocks]
 - Sitemap reference: [verify sitemap URL is declared]
-- **AI crawler directives**: [check rules for GPTBot, ClaudeBot, PerplexityBot, Google-Extended, Applebot-Extended]
-- **Unintentional AI blocks**: [verify no blanket Disallow: / that blocks AI crawlers alongside scrapers]
 
 ### XML Sitemap Health
 - Total URLs in sitemap: X
@@ -140,7 +138,6 @@ Build sustainable organic search visibility through:
 - [ ] H1: Single, includes primary keyword, matches search intent
 - [ ] H2-H3 hierarchy: Logical outline covering subtopics and PAA questions
 - [ ] Word count: [X words] — competitive with top 5 ranking pages
-- [ ] Token budget: [X tokens] — within AI consumption limits for content type (guides <20K, landing pages <8K, blog posts <12K tokens)
 - [ ] Keyword density: Natural integration, primary keyword in first 100 words
 - [ ] Internal links: [X] contextual links to related pillar/cluster content
 - [ ] External links: [X] citations to authoritative sources (E-E-A-T signal)
@@ -179,6 +176,20 @@ Build sustainable organic search visibility through:
 - Definitive guides that become reference resources
 - Free tools and calculators (linkable assets)
 - Original case studies with shareable results
+
+### Linkable Asset Formats (highest backlink-per-effort ratio)
+- **Statistics Roundups**: Aggregate 40-60 stats from primary sources into a definitive "[Topic] Statistics (Year)" reference article. Other blogs and AI systems cite these as canonical data sources. Structure: intro with striking stat → key takeaways → 5-7 themed sections with data tables (Metric | Value | Source) → summary mega-table → methodology section.
+- **Original Research & Surveys**: Conduct and publish proprietary research with methodology disclosure. Original data that doesn't exist elsewhere attracts links by default.
+- **Comparison & Benchmark Tables**: Structured feature-by-feature or price-by-price comparison content with schema markup. AI systems extract tables more reliably than prose.
+- **Interactive Data Tools**: Calculators, estimators, and map-based explorers that generate unique outputs per user — these earn links from "resource" pages and get cited when users share their results.
+- **Regional/Local Data Pages**: Hyper-local statistics with charts and infographics that no national source covers — city-level pricing, demographic breakdowns, market trends. Low competition, high authority in niche.
+
+### Source Quality Tiers for Data Content
+When creating stats-based linkable assets, source credibility determines whether the content earns citations or gets ignored:
+- **Tier 1 — Primary Research**: Original reports, government databases, academic papers, official company data (e.g., Eurostat, national statistics institutes, central bank reports)
+- **Tier 2 — Reputable Aggregators**: Statista (when citing primary source), industry research firms — only if underlying source is disclosed
+- **Tier 3 — Publications Reporting on Tier 1**: Industry media reporting on primary studies — always trace back and cite the Tier 1 source, not the intermediary
+- **Tier 4 — Avoid**: SEO blogs quoting each other, AI-generated roundups without source links, numbers appearing identically across 20 blogs with no primary attribution
 
 ### Strategic Outreach
 - Broken link reclamation: [identify broken links on authority sites]
@@ -276,11 +287,7 @@ Build sustainable organic search visibility through:
 - Search Analytics data reconciliation with GA4 for full-funnel attribution
 
 ### AI Search & SGE Adaptation
-- **AI Crawler Access Management**: Verify robots.txt allows GPTBot, ClaudeBot, PerplexityBot, Google-Extended, Applebot-Extended — blocked crawlers = zero AI visibility regardless of content quality
-- **llms.txt Discovery File**: Publish and maintain /llms.txt (machine-readable site map for AI systems) — curated list of key pages with descriptions and token counts, reviewed quarterly
-- **Token Budget Compliance**: Size content within AI context window limits — guides <20K tokens, landing pages <8K, blog posts <12K, FAQ pages <10K. Over-budget content gets truncated or skipped by AI systems
-- **Content Availability Tiers**: Ensure key pages are available as clean semantic HTML or Markdown, not trapped in JS-rendered SPAs, PDFs, or image-based formats that AI systems parse poorly
-- **Structured Data for AI Citations**: FAQPage, HowTo, Product, and Organization schema markup increases the likelihood of AI citation — these are the formats AI systems extract most reliably
-- **Entity Optimization**: Consistent brand name usage, knowledge graph presence (Wikipedia, Wikidata), and cross-referenced third-party mentions strengthen entity signals that AI engines use to identify citeable sources
-- **AI Citation Monitoring**: Periodically query ChatGPT, Claude, Gemini, and Perplexity with target prompts to verify whether content is being cited — "published" is not the same as "ingested"
-- **Cross-Wave Awareness**: Traditional SEO (Wave 1), AI citations (Wave 2), and agentic task completion (Wave 3) share infrastructure prerequisites — robots.txt, structured data, and clean HTML benefit all three
+- Content optimization for AI-generated search overviews and citations
+- Structured data strategies that improve visibility in AI-powered search features
+- Authority building tactics that position content as trustworthy AI training sources
+- Monitoring and adapting to evolving search interfaces beyond traditional blue links
