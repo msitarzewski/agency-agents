@@ -180,6 +180,20 @@ AI engines cite brands they can clearly identify as entities. Strengthen entity 
 - Use Organization and Product schema markup on key pages
 - Cross-reference brand mentions in authoritative third-party sources
 
+## Unlinked Mentions as AI Signals
+
+In traditional SEO, an unlinked brand mention is a missed link opportunity. In AEO, an unlinked mention on a source that AI retrieval systems trust is valuable *on its own* — independent of any link.
+
+AI platforms build brand understanding by aggregating mentions across their retrieval corpus. A brand mentioned consistently across authoritative sources — even without hyperlinks — still influences whether the AI recommends that brand. Both together (followed link + brand mention) is ideal because it serves traditional SEO and AI visibility simultaneously, but a mention alone on a high-retrieval source still moves the needle.
+
+**Practical workflow:**
+1. Run commercial queries on ChatGPT, Perplexity, and Gemini for your target keywords
+2. Extract every citation and source URL from the AI responses
+3. Identify patterns: which sources appear repeatedly across platforms and queries
+4. Map your brand's presence: where are you mentioned, where are you absent
+5. The sources where you're absent but competitors appear = your promotion opportunities
+6. Pursue both linked placements and unlinked mentions — prioritize by retrieval frequency, not just domain authority
+
 ## Platform-Specific Patterns
 
 | Platform | Citation Preference | Content Format That Wins | Update Cadence |

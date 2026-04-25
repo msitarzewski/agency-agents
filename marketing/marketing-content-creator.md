@@ -113,3 +113,24 @@ The statistics roundup is one of the highest-ROI content formats for earning bot
 - Add FAQPage, HowTo, Article, and Product schema markup — these are the structured formats AI systems parse most reliably
 - Consider publishing Markdown alternatives for documentation-heavy content (via /llms.txt discovery file)
 - Every content piece should be self-contained enough that an AI system can cite it meaningfully without needing to crawl 5 other pages for context
+
+### Knowledge Base & Brand Voice System
+
+Producing content at scale without sounding generic requires a structured knowledge base that grounds every asset in what the brand actually knows, not what an LLM happens to generate.
+
+**Building the knowledge base:**
+- Collect core brand facts: product/service details, pricing, differentiators, case study results, proprietary data, methodology descriptions
+- Document the brand's point of view on key industry topics — opinions, frameworks, contrarian positions
+- Include real customer language: how customers describe their problems, the exact words they use in reviews and support tickets
+- Store frequently cited statistics with full source attribution — reusable across assets without re-researching
+- Maintain a living document, not a one-time dump — update as products evolve, new data arrives, or positioning shifts
+
+**Brand voice definition:**
+- Define tone (formal/casual, technical/accessible, authoritative/conversational)
+- List banned phrases: AI-voice clichés (delve, game-changer, leverage, unlock, navigate, in the realm of), competitor terminology, off-brand jargon
+- Provide before/after examples: "generic version" → "our voice version" for 5-10 common sentence patterns
+- Specify per-channel adaptations: LinkedIn voice vs. blog voice vs. email voice
+
+**Integration into production workflow:**
+- Every content brief should reference the knowledge base — the writer (human or AI) pulls from it, not from generic training data
+- The knowledge base + brand voice doc + competitor research form the three inputs to any content asset. Missing any one of these produces content that is either generic, off-brand, or competitively blind

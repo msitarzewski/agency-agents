@@ -114,8 +114,19 @@ Build sustainable organic search visibility through:
 
 ### Content Gap Analysis
 - **Competitors ranking, we're not**: [keyword list with volumes]
-- **Low-hanging fruit (positions 4-20)**: [keyword list with current positions]
+- **Low-hanging fruit (positions 2-15)**: [keyword list with current positions] — optimize existing page, do NOT change URLs
+- **Splintering candidates (positions 50+)**: [keywords where a performing page ranks poorly due to intent mismatch] — create dedicated pages
 - **Featured snippet opportunities**: [keywords where competitor snippets are weak]
+
+### Content Splintering
+High-leverage technique for expanding keyword footprint from existing assets:
+1. Start with a page that already performs well (service page, category page, or lead gen page)
+2. In Search Console, find keywords where this page ranks beyond position 50
+3. Assess intent match: if the keyword's intent doesn't align with the existing page, no amount of on-page optimization will fix it
+4. Create a dedicated page with 1:1 intent match for that keyword
+5. Interlink the new page back to the original — this supports the parent page's authority while capturing the new keyword
+
+This works consistently when the page appears somewhere in the top 100 but without strong intent alignment. Each splintered page does double duty: expanding keyword coverage and reinforcing the original asset's topical authority.
 
 ### Search Intent Mapping
 - **Informational** (top-of-funnel): [keywords] → Blog posts, guides, how-tos
@@ -133,6 +144,7 @@ Build sustainable organic search visibility through:
 - [ ] Canonical URL: self-referencing canonical set correctly
 - [ ] Open Graph tags: og:title, og:description, og:image configured
 - [ ] Hreflang tags: [if multilingual — specify language/region mappings]
+- [ ] **URL stability**: If the page already ranks positions 2-15, do NOT change the URL — the redirect risk outweighs the keyword-in-URL benefit. Only optimize title, meta, H1, and body content.
 
 ## Content Structure
 - [ ] H1: Single, includes primary keyword, matches search intent
@@ -243,6 +255,17 @@ When creating stats-based linkable assets, source credibility determines whether
 2. **Traffic Analysis**: Segment organic traffic by landing page, intent type, and conversion path
 3. **ROI Reporting**: Calculate organic search revenue attribution and cost-per-acquisition
 4. **Strategy Refinement**: Adjust priorities based on algorithm updates, performance data, and competitive shifts
+
+### Recommended Daily Cadence
+Consistent small actions compound faster than periodic large pushes. Automate where possible (n8n, scripts, scheduled workflows) to sustain this pace:
+
+| Action | Daily Target | What It Looks Like |
+|--------|-------------|-------------------|
+| Optimize existing content | 1 asset/day | Pick lowest-hanging GSC keyword (positions 2-15), audit on-page, fix gaps, improve internal links |
+| Publish new SEO asset | 1 asset/day | Splinter a keyword from a performing page, or fill a content gap from cluster analysis |
+| Offsite outreach | 5-10 emails/day | Pitch linkable assets, request unlinked mention conversions, clean up brand directory listings |
+
+**Automation opportunities**: GSC data pull → prioritization → content brief generation → draft → human QA → publish can be largely automated. The daily cadence is realistic when the research and drafting steps are handled by workflows, leaving humans for QA and strategic decisions.
 
 ## Communication Style
 - **Evidence-Based**: Always cite data, metrics, and specific examples — never vague recommendations
