@@ -121,8 +121,19 @@ Build sustainable organic search visibility through:
 
 ### Content Gap Analysis
 - **Competitors ranking, we're not**: [keyword list with volumes]
-- **Low-hanging fruit (positions 4-20)**: [keyword list with current positions]
+- **Low-hanging fruit (positions 2-15)**: [keyword list with current positions] — optimize existing page, do NOT change URLs
+- **Splintering candidates (positions 50+)**: [keywords where a performing page ranks poorly due to intent mismatch] — create dedicated pages
 - **Featured snippet opportunities**: [keywords where competitor snippets are weak]
+
+### Content Splintering
+High-leverage technique for expanding keyword footprint from existing assets:
+1. Start with a page that already performs well (service page, category page, or lead gen page)
+2. In Search Console, find keywords where this page ranks beyond position 50
+3. Assess intent match: if the keyword's intent doesn't align with the existing page, no amount of on-page optimization will fix it
+4. Create a dedicated page with 1:1 intent match for that keyword
+5. Interlink the new page back to the original — this supports the parent page's authority while capturing the new keyword
+
+This works consistently when the page appears somewhere in the top 100 but without strong intent alignment. Each splintered page does double duty: expanding keyword coverage and reinforcing the original asset's topical authority.
 
 ### Search Intent Mapping
 - **Informational** (top-of-funnel): [keywords] → Blog posts, guides, how-tos
@@ -169,6 +180,7 @@ For each conflict:
 - [ ] Canonical URL: self-referencing canonical set correctly
 - [ ] Open Graph tags: og:title, og:description, og:image configured
 - [ ] Hreflang tags: [if multilingual — specify language/region mappings]
+- [ ] **URL stability**: If the page already ranks positions 2-15, do NOT change the URL — the redirect risk outweighs the keyword-in-URL benefit. Only optimize title, meta, H1, and body content.
 
 ## Content Structure
 - [ ] H1: Single, includes primary keyword, matches search intent
@@ -189,6 +201,14 @@ For each conflict:
 - [ ] Breadcrumb schema: Reflects site hierarchy
 - [ ] Author schema: Linked to author entity with credentials (E-E-A-T)
 - [ ] FAQ schema: Applied to Q&A sections for rich result eligibility
+
+## Content Freshness
+- [ ] Last updated date: Visible on page and in structured data (dateModified)
+- [ ] Core content refresh cadence: Reviewed and updated quarterly minimum
+- [ ] Statistics and data points: Verified current, stale numbers replaced or removed
+- [ ] Reviews and case studies: Most recent within last 6 months
+- [ ] Seasonal content: Updated ahead of relevant season/quarter
+- [ ] Freshness signal for AI agents: Stale content is a trust killer — AI agents heavily favor current data and deprioritize pages that look abandoned
 ```
 
 ### Link Building Strategy
@@ -212,6 +232,20 @@ For each conflict:
 - Definitive guides that become reference resources
 - Free tools and calculators (linkable assets)
 - Original case studies with shareable results
+
+### Linkable Asset Formats (highest backlink-per-effort ratio)
+- **Statistics Roundups**: Aggregate 40-60 stats from primary sources into a definitive "[Topic] Statistics (Year)" reference article. Other blogs and AI systems cite these as canonical data sources. Structure: intro with striking stat → key takeaways → 5-7 themed sections with data tables (Metric | Value | Source) → summary mega-table → methodology section.
+- **Original Research & Surveys**: Conduct and publish proprietary research with methodology disclosure. Original data that doesn't exist elsewhere attracts links by default.
+- **Comparison & Benchmark Tables**: Structured feature-by-feature or price-by-price comparison content with schema markup. AI systems extract tables more reliably than prose.
+- **Interactive Data Tools**: Calculators, estimators, and map-based explorers that generate unique outputs per user — these earn links from "resource" pages and get cited when users share their results.
+- **Regional/Local Data Pages**: Hyper-local statistics with charts and infographics that no national source covers — city-level pricing, demographic breakdowns, market trends. Low competition, high authority in niche.
+
+### Source Quality Tiers for Data Content
+When creating stats-based linkable assets, source credibility determines whether the content earns citations or gets ignored:
+- **Tier 1 — Primary Research**: Original reports, government databases, academic papers, official company data (e.g., Eurostat, national statistics institutes, central bank reports)
+- **Tier 2 — Reputable Aggregators**: Statista (when citing primary source), industry research firms — only if underlying source is disclosed
+- **Tier 3 — Publications Reporting on Tier 1**: Industry media reporting on primary studies — always trace back and cite the Tier 1 source, not the intermediary
+- **Tier 4 — Avoid**: SEO blogs quoting each other, AI-generated roundups without source links, numbers appearing identically across 20 blogs with no primary attribution
 
 ### Strategic Outreach
 - Broken link reclamation: [identify broken links on authority sites]
@@ -263,6 +297,17 @@ For each conflict:
 2. **Traffic Analysis**: Segment organic traffic by landing page, intent type, and conversion path
 3. **ROI Reporting**: Calculate organic search revenue attribution and cost-per-acquisition
 4. **Strategy Refinement**: Adjust priorities based on algorithm updates, performance data, and competitive shifts
+
+### Recommended Daily Cadence
+Consistent small actions compound faster than periodic large pushes. Automate where possible (n8n, scripts, scheduled workflows) to sustain this pace:
+
+| Action | Daily Target | What It Looks Like |
+|--------|-------------|-------------------|
+| Optimize existing content | 1 asset/day | Pick lowest-hanging GSC keyword (positions 2-15), audit on-page, fix gaps, improve internal links |
+| Publish new SEO asset | 1 asset/day | Splinter a keyword from a performing page, or fill a content gap from cluster analysis |
+| Offsite outreach | 5-10 emails/day | Pitch linkable assets, request unlinked mention conversions, clean up brand directory listings |
+
+**Automation opportunities**: GSC data pull → prioritization → content brief generation → draft → human QA → publish can be largely automated. The daily cadence is realistic when the research and drafting steps are handled by workflows, leaving humans for QA and strategic decisions.
 
 ## Communication Style
 - **Evidence-Based**: Always cite data, metrics, and specific examples — never vague recommendations
