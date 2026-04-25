@@ -322,6 +322,22 @@ Structure content in tiers of AI accessibility:
 | Tier 4 | JS-rendered SPA content | Low — requires headless rendering | Dashboards, interactive tools |
 | Tier 5 | PDF-only or image-based | Minimal — lossy extraction | Legacy docs (migrate to Tier 1-2) |
 
+## Accessibility = AI Visibility
+
+The same practices that make a site accessible to people with disabilities are now the exact signals that make it parseable by AI agents. This is not a metaphor — it is the same underlying infrastructure:
+
+| Accessibility Practice | AI Agent Benefit |
+|----------------------|-----------------|
+| ARIA labels and roles | AI agents use these to understand interactive element purposes |
+| Clean HTML structure (semantic tags) | AI parsers extract meaning from `<nav>`, `<main>`, `<article>`, `<section>` far more reliably than from generic `<div>` soup |
+| Descriptive alt text on images | AI agents extract image context without needing vision models |
+| Clear form labels (`<label for="...">`) | AI agents can identify form fields and complete tasks programmatically |
+| Logical heading hierarchy (H1→H6) | AI systems use heading structure to build content outlines and identify key topics |
+| Keyboard-navigable interfaces | AI agents that simulate browser interaction rely on focusable, keyboard-accessible elements |
+| Skip-navigation links | Help AI agents bypass boilerplate and reach main content faster |
+
+**Practical implication**: Running a WCAG 2.1 audit and fixing the results is one of the highest-ROI AEO foundations actions. Sites that score well on accessibility audits are inherently more parseable by AI systems. A11y compliance and AI readiness are the same work.
+
 ## Cross-Wave Prerequisite Checklist
 
 Use this to verify foundations are in place before handing off to wave-specific specialists:
@@ -347,7 +363,51 @@ Use this to verify foundations are in place before handing off to wave-specific 
 - [ ] Key task flows use native HTML forms (not JS-only widgets)
 - [ ] Guest flows available (no mandatory auth for first interaction)
 - [ ] Form inputs have labels and semantic markup
+- [ ] Pricing and inventory accessible via structured data or API (not buried in JS widgets)
+- [ ] Booking/scheduling queryable without requiring human interaction
+- [ ] WCAG 2.1 Level AA compliance on key pages (accessibility = parseability)
 ```
+
+## Agent Commerce Readiness
+
+AI agents are moving beyond reading and citing content — they are starting to browse, compare, and complete transactions on behalf of users. Google's Universal Commerce Protocol and ChatGPT's shopping features signal a shift where the entire customer journey (discovery → comparison → purchase) happens inside a single AI conversation without the human ever visiting a website directly.
+
+### What AI Shopping Agents Evaluate
+
+When an AI agent receives a prompt like "Find me the best X for Y under Z budget," it visits dozens of sites and evaluates:
+
+1. **Structured pricing data** — Can the agent extract exact pricing without scraping prose? Product/Service schema with `offers.price`, `priceCurrency`, and `availability` is the minimum. If pricing is hidden behind "Contact us" or trapped in a JavaScript calculator, the agent skips to a competitor with clear numbers.
+2. **Inventory and availability signals** — Real-time stock status, service availability windows, booking slots. Agents that can query this data programmatically (via API, structured data feed, or clean HTML) get recommended first.
+3. **Comparison-ready specifications** — Feature tables, spec sheets, and structured attribute data that agents can align across competitors. Unstructured marketing prose about "our amazing solution" is invisible to comparison logic.
+4. **Reviews and social proof in structured format** — AggregateRating schema, individual Review schema with author and date. Agents cross-reference these with third-party review sites (G2, Trustpilot, Google Business Profile) to validate credibility.
+5. **Transaction completion path** — Can the agent complete or initiate the purchase? Clean checkout flows, API-based booking, data feeds that support add-to-cart. The fewer steps between "agent decides" and "transaction complete," the more likely the agent recommends you.
+
+### Commerce Readiness Checklist
+
+```markdown
+## Agent Commerce Audit
+- [ ] Product/Service schema includes price, currency, availability on all key pages
+- [ ] Pricing is visible in clean HTML (not JS-rendered, not "Contact us" only)
+- [ ] Inventory/availability status exposed via structured data or API endpoint
+- [ ] Feature specifications in HTML tables or structured data (not marketing prose)
+- [ ] AggregateRating and Review schema present with real review data
+- [ ] Checkout or booking flow works without JavaScript dependency (graceful degradation)
+- [ ] API or data feed available for programmatic product/service queries
+- [ ] Guest checkout available (no mandatory account creation before purchase)
+```
+
+### Applicability by Business Type
+
+Not every site needs full commerce readiness. Prioritize by business model:
+
+| Business Type | Priority Actions | Full API Needed? |
+|---------------|-----------------|-----------------|
+| E-commerce (products) | Product schema + pricing + inventory + checkout | Yes — high ROI |
+| SaaS / subscriptions | Service schema + pricing tiers + trial/signup flow | Yes |
+| Service businesses | Service schema + pricing + booking/scheduling | API for booking |
+| Lead generation | Service schema + clear pricing signals + contact forms | No — structured data sufficient |
+| Content/media | Article schema + freshness signals + subscription options | No |
+| Marketplace | Product schema + multi-vendor pricing + availability | Yes — critical |
 
 ## Collaboration with Complementary Agents
 

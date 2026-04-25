@@ -76,6 +76,14 @@ AI systems have finite context windows. Content that exceeds token budgets gets 
 - Include a TL;DR or summary section at the top of long-form content — AI systems often prioritize early content
 - Ensure content renders without JavaScript — AI crawlers generally don't execute JS
 
+### Content Freshness for AI
+AI agents and citation engines heavily favor current data. Stale content is a trust killer — pages that look abandoned get deprioritized or skipped entirely.
+- Add visible "Last updated: [date]" to every data-driven page and include `dateModified` in Article/WebPage schema
+- Commit to a refresh cadence and honor it: quarterly for evergreen guides, monthly for data/statistics pages, immediately for any content with outdated numbers
+- When refreshing, update the year in H1 titles (e.g., "Statistics 2025" → "Statistics 2026") — AI systems treat year-tagged content as fresher
+- Remove or replace stale statistics rather than leaving them — an outdated number cited by AI damages credibility more than a missing number
+- Publish a methodology/sources section with a "data collection period" range so AI systems (and readers) can assess currency
+
 ### Stats Roundup Format (Linkable Asset)
 The statistics roundup is one of the highest-ROI content formats for earning both backlinks and AI citations. Structure:
 

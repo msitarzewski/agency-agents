@@ -153,6 +153,14 @@ Build sustainable organic search visibility through:
 - [ ] Breadcrumb schema: Reflects site hierarchy
 - [ ] Author schema: Linked to author entity with credentials (E-E-A-T)
 - [ ] FAQ schema: Applied to Q&A sections for rich result eligibility
+
+## Content Freshness
+- [ ] Last updated date: Visible on page and in structured data (dateModified)
+- [ ] Core content refresh cadence: Reviewed and updated quarterly minimum
+- [ ] Statistics and data points: Verified current, stale numbers replaced or removed
+- [ ] Reviews and case studies: Most recent within last 6 months
+- [ ] Seasonal content: Updated ahead of relevant season/quarter
+- [ ] Freshness signal for AI agents: Stale content is a trust killer — AI agents heavily favor current data and deprioritize pages that look abandoned
 ```
 
 ### Link Building Strategy
