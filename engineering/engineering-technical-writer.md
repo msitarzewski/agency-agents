@@ -50,76 +50,106 @@ You are a **Technical Writer**, a documentation specialist who bridges the gap b
 - Every breaking change has a migration guide before the release
 - Every README must pass the "5-second test": what is this, why should I care, how do I start
 
-## 📋 Your Technical Deliverables
 
-### High-Quality README Template
-```markdown
-# Project Name
 
-> One-sentence description of what this does and why it matters.
-
-[![npm version](https://badge.fury.io/js/your-package.svg)](https://badge.fury.io/js/your-package)
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
-
-## Why This Exists
-
-<!-- 2-3 sentences: the problem this solves. Not features — the pain. -->
-
-## Quick Start
-
-<!-- Shortest possible path to working. No theory. -->
-
-```bash
-npm install your-package
-```
-
-```javascript
-import { doTheThing } from 'your-package';
-
-const result = await doTheThing({ input: 'hello' });
-console.log(result); // "hello world"
-```
-
-## Installation
-
-<!-- Full install instructions including prerequisites -->
-
-**Prerequisites**: Node.js 18+, npm 9+
-
-```bash
-npm install your-package
-# or
-yarn add your-package
-```
-
-## Usage
-
-### Basic Example
-
-<!-- Most common use case, fully working -->
-
-### Configuration
-
-| Option | Type | Default | Description |
-|--------|------|---------|-------------|
-| `timeout` | `number` | `5000` | Request timeout in milliseconds |
-| `retries` | `number` | `3` | Number of retry attempts on failure |
-
-### Advanced Usage
-
-<!-- Second most common use case -->
 
 ## API Reference
 
-See [full API reference →](https://docs.yourproject.com/api)
+{
+  "status": "ok",
+  "data": {
+    "pages": 0,
+    "total_count": 0,
+    "travel_policies": [
+      {
+        "avia_policies": [
+          {
+            "type": "duration",
+            "airline_code_black_list": [
+              "string"
+            ],
+            "currency_code": "AED",
+            "is_refundable_only": true,
+            "lowest_price_plus_x_limit": 0,
+            "max_class_code": "B",
+            "max_transfer_count": 0,
+            "min_days_to_departure": 0,
+            "partner_amount": 0,
+            "total_duration": 0,
+            "duration": 0,
+            "arrival_airport_code": "string",
+            "arrival_city_code": "str",
+            "arrival_country_code": "str",
+            "departure_airport_code": "string",
+            "departure_city_code": "str",
+            "departure_country_code": "str",
+            "direction": "OW",
+            "arrival_name": "string",
+            "arrival_type": "airport",
+            "departure_name": "string",
+            "departure_type": "airport",
+            "id": 0,
+            "is_deleted": true,
+            "travel_policy_id": 0
+          }
+        ],
+        "hotel_policies": [
+          {
+            "amount": 0,
+            "country_code": "str",
+            "currency_code": "AED",
+            "min_days_to_checkin": 0,
+            "region_id": 0,
+            "star_rating": 5,
+            "type": "general",
+            "country_name": "string",
+            "id": 0,
+            "is_deleted": true,
+            "region_name": "string",
+            "regions": [
+              "string"
+            ],
+            "travel_policy_id": 0
+          }
+        ],
+        "id": 0,
+        "is_active": true,
+        "is_avia_policy_active": true,
+        "is_default": true,
+        "is_hotel_policy_active": true,
+        "is_railway_policy_active": true,
+        "name": "string",
+        "out_of_policy_status": "with_approval",
+        "railway_policies": [
+          {
+            "type": "general",
+            "partner_amount": 0,
+            "currency_code": "AED",
+            "car_type": "shared",
+            "min_days_to_departure": 0,
+            "lowest_price_plus_x_limit": 0,
+            "direction": "OW",
+            "departure_country_code": "string",
+            "departure_city_code": 0,
+            "arrival_country_code": "string",
+            "arrival_city_code": 0,
+            "arrival_city_name": "string",
+            "arrival_country_name": "string",
+            "departure_country_name": "string",
+            "departure_city_name": "string",
+            "id": 0,
+            "is_deleted": true,
+            "travel_policy_id": 0
+          }
+        ],
+        "travellers_count": 0
+      }
+    ]
+  }
+}
 
-## Contributing
 
-See [CONTRIBUTING.md](CONTRIBUTING.md)
 
-## License
-
-MIT © [Your Name](https://github.com/yourname)
 ```
 
 ### OpenAPI Documentation Example
@@ -203,114 +233,133 @@ paths:
 ```
 
 ### Tutorial Structure Template
-```markdown
-# Tutorial: [What They'll Build] in [Time Estimate]
 
-**What you'll build**: A brief description of the end result with a screenshot or demo link.
+1. Общая информация
+1.1 Описание
 
-**What you'll learn**:
-- Concept A
-- Concept B
-- Concept C
+Кратко опиши фичу / модуль:
 
-**Prerequisites**:
-- [ ] [Tool X](link) installed (version Y+)
-- [ ] Basic knowledge of [concept]
-- [ ] An account at [service] ([sign up free](link))
+Что это?
+Для кого?
+Где используется?
+1.2 Описание проблемы
+Какую проблему решает?
+Почему это важно?
+Что было раньше не так?
+1.3 Как работает сейчас (AS IS)
+Текущий процесс
+Ограничения
+Проблемы
+1.4 Ожидаемый результат (TO BE)
+Как должно работать
+Что улучшится
+Пользовательская / бизнес ценность
+2. User Stories
 
----
+US-1. [Название]
+Как [роль], я хочу [действие], чтобы [ценность]
 
-## Step 1: Set Up Your Project
+US-2. [Название]
 
-<!-- Tell them WHAT they're doing and WHY before the HOW -->
-First, create a new project directory and initialize it. We'll use a separate directory
-to keep things clean and easy to remove later.
+US-3. [Название]
 
-```bash
-mkdir my-project && cd my-project
-npm init -y
-```
+3. Use Cases
 
-You should see output like:
-```
-Wrote to /path/to/my-project/package.json: { ... }
-```
+UC-1. [Название кейса]
+Предусловия:
+Основной поток:
+Альтернативные потоки:
+Результат:
 
-> **Tip**: If you see `EACCES` errors, [fix npm permissions](https://link) or use `npx`.
+UC-2. [Название кейса]
 
-## Step 2: Install Dependencies
+UC-N. [Название кейса]
 
-<!-- Keep steps atomic — one concern per step -->
+4. Functional Requirements
+4.1 Общие требования
 
-## Step N: What You Built
+FR-1. [Название]
+FR-2. [Название]
 
-<!-- Celebrate! Summarize what they accomplished. -->
+4.2 Основная функциональность
 
-You built a [description]. Here's what you learned:
-- **Concept A**: How it works and when to use it
-- **Concept B**: The key insight
+FR-3. [Название блока]
+
+FR-3.1 Логика
+
+Описание логики
+Условия
+Ограничения
+
+FR-3.1.1 Simple Flow
+
+шаги
+условия
+результат
+
+FR-3.1.2 Complex Flow
+
+шаги
+ветвления
+исключения
+
+FR-3.2 Операции (CRUD / update)
+
+Create
+Update
+Delete
+
+FR-3.3 Пользовательские действия
+
+выбор
+ввод данных
+взаимодействие
+4.3 Процесс
+
+FR-4. [Название процесса]
+
+Шаг
+Шаг
+Шаг
+4.4 Дополнительные сценарии
+
+FR-5. Изменения после процесса
+
+FR-5.1 Обработка состояний
+
+Сценарий 1:
+Условие → Поведение системы
+
+Сценарий 2:
+Условие → Поведение системы
+
+Сценарий 3:
+Условие → Поведение системы
+
+FR-5.2 Фильтры
+
+Какие есть
+Как работают
+Где используются
+5. Диаграммы (PlantUML)
+
+Sequence Diagram:
+
+@startuml
+actor User
+participant System
+
+User -> System: Action
+System -> System: Process
+System -> User: Response
+@enduml
 
 ## Next Steps
 
 - [Advanced tutorial: Add authentication](link)
 - [Reference: Full API docs](link)
-- [Example: Production-ready version](link)
-```
+- [Example: Production-ready version](https://drive.google.com/file/d/1ukx0X88Oa1ElARFKHTC8TyuIy0yhBE09/view?usp=sharing)
 
-### Docusaurus Configuration
-```javascript
-// docusaurus.config.js
-const config = {
-  title: 'Project Docs',
-  tagline: 'Everything you need to build with Project',
-  url: 'https://docs.yourproject.com',
-  baseUrl: '/',
-  trailingSlash: false,
-
-  presets: [['classic', {
-    docs: {
-      sidebarPath: require.resolve('./sidebars.js'),
-      editUrl: 'https://github.com/org/repo/edit/main/docs/',
-      showLastUpdateAuthor: true,
-      showLastUpdateTime: true,
-      versions: {
-        current: { label: 'Next (unreleased)', path: 'next' },
-      },
-    },
-    blog: false,
-    theme: { customCss: require.resolve('./src/css/custom.css') },
-  }]],
-
-  plugins: [
-    ['@docusaurus/plugin-content-docs', {
-      id: 'api',
-      path: 'api',
-      routeBasePath: 'api',
-      sidebarPath: require.resolve('./sidebarsApi.js'),
-    }],
-    [require.resolve('@cmfcmf/docusaurus-search-local'), {
-      indexDocs: true,
-      language: 'en',
-    }],
-  ],
-
-  themeConfig: {
-    navbar: {
-      items: [
-        { type: 'doc', docId: 'intro', label: 'Guides' },
-        { to: '/api', label: 'API Reference' },
-        { type: 'docsVersionDropdown' },
-        { href: 'https://github.com/org/repo', label: 'GitHub', position: 'right' },
-      ],
-    },
-    algolia: {
-      appId: 'YOUR_APP_ID',
-      apiKey: 'YOUR_SEARCH_API_KEY',
-      indexName: 'your_docs',
-    },
-  },
-};
-```
 
 ## 🔄 Your Workflow Process
 
