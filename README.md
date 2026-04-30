@@ -71,6 +71,8 @@ Browse the agents below and copy/adapt the ones you need!
 See the [Multi-Tool Integrations](#-multi-tool-integrations) section below for full details.
 
 ---
+- [OpenClaw Monitor](https://github.com/flik2002/openclaw-monitor-frontend) — AI monitoring dashboard for AI agents and LLMs (Vue3 + Node.js, open source). [![Dashboard](https://raw.githubusercontent.com/flik2002/openclaw-monitor-frontend/main/Openclaw%20Monitor.jpg)](https://github.com/flik2002/openclaw-monitor-frontend)
+
 
 ## 🎨 The Agency Roster
 
