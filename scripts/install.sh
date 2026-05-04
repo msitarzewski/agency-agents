@@ -36,6 +36,17 @@
 set -euo pipefail
 
 # ---------------------------------------------------------------------------
+# Counter increment under 'set -e'
+# ---------------------------------------------------------------------------
+# Use ': $((var++))' to increment counters, NOT '(( var++ ))'.
+#
+# '(( var++ ))' returns the *pre-increment* value as its exit status. When
+# var is 0 the command exits with status 1 and 'set -e' aborts the script
+# on the first increment. ': $((var++))' wraps the arithmetic in the ':'
+# (true) builtin, so the exit status is always 0 -- safe under errexit.
+# ---------------------------------------------------------------------------
+
+# ---------------------------------------------------------------------------
 # Colours -- only when stdout supports color
 # ---------------------------------------------------------------------------
 if [[ -t 1 && -z "${NO_COLOR:-}" && "${TERM:-}" != "dumb" ]]; then
@@ -230,7 +241,7 @@ interactive_select() {
         chk="${C_DIM}[ ]${C_RESET}"
       fi
       printf "  %s  %s)  %s  %s\n" "$chk" "$num" "$dot" "$label"
-      (( i++ )) || true
+      : $((i++))
     done
 
     # --- controls ---
@@ -294,7 +305,7 @@ interactive_select() {
   local i=0
   for t in "${ALL_TOOLS[@]}"; do
     [[ "${selected[$i]}" == "1" ]] && SELECTED_TOOLS+=("$t")
-    (( i++ )) || true
+    : $((i++))
   done
 }
 
@@ -313,7 +324,7 @@ install_claude_code() {
       first_line="$(head -1 "$f")"
       [[ "$first_line" == "---" ]] || continue
       cp "$f" "$dest/"
-      (( count++ )) || true
+      : $((count++))
     done < <(find "$REPO_ROOT/$dir" -name "*.md" -type f -print0)
   done
   ok "Claude Code: $count agents -> $dest"
@@ -332,7 +343,7 @@ install_copilot() {
       [[ "$first_line" == "---" ]] || continue
       cp "$f" "$dest_github/"
       cp "$f" "$dest_copilot/"
-      (( count++ )) || true
+      : $((count++))
     done < <(find "$REPO_ROOT/$dir" -name "*.md" -type f -print0)
   done
   ok "Copilot: $count agents -> $dest_github"
@@ -352,7 +363,7 @@ install_antigravity() {
     local name; name="$(basename "$d")"
     mkdir -p "$dest/$name"
     cp "$d/SKILL.md" "$dest/$name/SKILL.md"
-    (( count++ )) || true
+    : $((count++))
   done < <(find "$src" -mindepth 1 -maxdepth 1 -type d -print0)
   ok "Antigravity: $count skills -> $dest"
 }
@@ -373,7 +384,7 @@ install_gemini_cli() {
     local name; name="$(basename "$d")"
     mkdir -p "$dest/skills/$name"
     cp "$d/SKILL.md" "$dest/skills/$name/SKILL.md"
-    (( count++ )) || true
+    : $((count++))
   done < <(find "$skills_dir" -mindepth 1 -maxdepth 1 -type d -print0)
   ok "Gemini CLI: $count skills -> $dest"
 }
@@ -391,7 +402,7 @@ install_opencode() {
   while IFS= read -r -d '' f; do
     local base; base="$(basename "$f")"
     [[ "$base" == "README.md" ]] && continue
-    cp "$f" "$dest/"; (( count++ )) || true
+    cp "$f" "$dest/"; : $((count++))
   done < <(find "$search_dir" -maxdepth 1 -name "*.md" -print0)
   if (( count == 0 )); then
     warn "OpenCode: no agent files found in $search_dir. Run convert.sh --tool opencode first."
@@ -424,7 +435,7 @@ install_openclaw() {
         openclaw agents add "$name" --workspace "$dest/$name" --non-interactive || true
       fi
     fi
-    (( count++ )) || true
+    : $((count++))
   done < <(find "$src" -mindepth 1 -maxdepth 1 -type d -print0)
   if (( count == 0 )); then
     err "integrations/openclaw contains no generated workspaces. Run ./scripts/convert.sh --tool openclaw first."
@@ -444,7 +455,7 @@ install_cursor() {
   mkdir -p "$dest"
   local f
   while IFS= read -r -d '' f; do
-    cp "$f" "$dest/"; (( count++ )) || true
+    cp "$f" "$dest/"; : $((count++))
   done < <(find "$src" -maxdepth 1 -name "*.mdc" -print0)
   ok "Cursor: $count rules -> $dest"
   warn "Cursor: project-scoped. Run from your project root to install there."
@@ -488,7 +499,7 @@ install_qwen() {
   local f
   while IFS= read -r -d '' f; do
     cp "$f" "$dest/"
-    (( count++ )) || true
+    : $((count++))
   done < <(find "$src" -maxdepth 1 -name "*.md" -print0)
 
   ok "Qwen Code: installed $count agents to $dest"
@@ -511,7 +522,7 @@ install_kimi() {
     mkdir -p "$dest/$name"
     cp "$d/agent.yaml" "$dest/$name/agent.yaml"
     cp "$d/system.md" "$dest/$name/system.md"
-    (( count++ )) || true
+    : $((count++))
   done < <(find "$src" -mindepth 1 -maxdepth 1 -type d -print0)
 
   ok "Kimi Code: installed $count agents to $dest"
@@ -641,12 +652,12 @@ main() {
     installed=$n_selected
   else
     for t in "${SELECTED_TOOLS[@]}"; do
-      (( i++ )) || true
+      : $((i++))
       progress_bar "$i" "$n_selected"
       printf "\n"
       printf "  ${C_DIM}[%s/%s]${C_RESET} %s\n" "$i" "$n_selected" "$t"
       install_tool "$t"
-      (( installed++ )) || true
+      : $((installed++))
     done
   fi
 

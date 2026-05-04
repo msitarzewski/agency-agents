@@ -19,6 +19,10 @@ Thumbs.db
 *.sublime-project
 *.sublime-workspace
 
+# AI assistant local state (keep team-shared settings.json / agents / skills)
+.claude/settings.local.json
+.claude/.credentials.json
+
 # Node.js (if adding web tools later)
 node_modules/
 npm-debug.log*
