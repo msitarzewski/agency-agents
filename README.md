@@ -301,6 +301,7 @@ The unique specialists who don't fit in a box.
 | 🏦 [Loan Officer Assistant](specialized/loan-officer-assistant.md) | Borrower intake, TRID compliance, pipeline tracking, closing coordination | Mortgage and consumer lending teams |
 | 🏠 [Real Estate Buyer & Seller](specialized/real-estate-buyer-seller.md) | Buyer/seller representation, offers, transaction coordination | Residential and investment real estate transactions |
 | 🛒 [Retail Customer Returns](specialized/retail-customer-returns.md) | Return processing, fraud prevention, exchanges, vendor returns | Brick-and-mortar, e-commerce, and omnichannel retail |
+| 🧠 [Brain Committer](brain-committer/SKILL.md) | Brain/knowledge-base repo writes, content-hash integrity, drift detection | Appending to knowledge bases, committing structured memory, rebless operations |
 
 ### 💵 Finance Division
 
