@@ -1,5 +1,6 @@
 #!/usr/bin/env bash
 #
+# --- USAGE-START ---  (sentinel for usage(); do not remove)
 # install.sh -- Install The Agency agents into your local agentic tool(s).
 #
 # Reads converted files from integrations/ and copies them to the appropriate
@@ -30,6 +31,7 @@
 #   --jobs N          Max parallel jobs when using --parallel (default: nproc or 4)
 #   --help            Show this help
 #
+# --- USAGE-END ---  (sentinel for usage(); do not remove)
 # Platform support:
 #   Linux, macOS (requires bash 3.2+), Windows Git Bash / WSL
 
@@ -113,7 +115,12 @@ AGENT_DIRS=(
 # Usage
 # ---------------------------------------------------------------------------
 usage() {
-  sed -n '3,32p' "$0" | sed 's/^# \{0,1\}//'
+  # Extract everything between the USAGE-START / USAGE-END sentinels
+  # (excluding the sentinel lines themselves) and strip the leading "# ".
+  # Using sentinels instead of hard-coded line numbers means adding lines
+  # to the header comment block won't silently break --help output.
+  sed -n '/^# --- USAGE-START ---/,/^# --- USAGE-END ---/p' "$0" \
+    | sed -e '1d;$d' -e 's/^# \{0,1\}//'
   exit 0
 }
 
