@@ -38,7 +38,9 @@ ENV AGENTS_REPO_PATH=/agents-repo
 ENV LITELLM_API_BASE=http://localhost:4000
 ENV LITELLM_API_KEY=sk-1234
 ENV DEFAULT_MODEL=deepseek-v3.2
+# Railway sets PORT; fall back to 9000 for local use
+ENV PORT=9000
 
 EXPOSE 9000
 
-CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "9000"]
+CMD ["sh", "-c", "uvicorn main:app --host 0.0.0.0 --port ${PORT}"]
