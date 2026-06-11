@@ -12,7 +12,7 @@
 #   Bare invocation installs all teams to detected tools (interactive when a TTY).
 #
 # Tools:
-#   claude-code  -- Copy agents to ~/.claude/agents/
+#   claude-code  -- Copy agents to ~/.claude/agents/ (or $CLAUDE_CONFIG_DIR/agents)
 #   copilot      -- Copy agents to ~/.github/agents/ and ~/.copilot/agents/
 #   antigravity  -- Copy skills to ~/.gemini/antigravity/skills/
 #   gemini-cli   -- Install agents to ~/.gemini/agents/
@@ -256,7 +256,14 @@ resolve_dest() {
     qwen)        var="QWEN_AGENTS_DIR" ;;
     codex)       var="CODEX_AGENTS_DIR" ;;
   esac
-  if [[ -n "$var" && -n "${!var:-}" ]]; then printf '%s' "${!var}"; else printf '%s' "$def"; fi
+  if [[ -n "$var" && -n "${!var:-}" ]]; then
+    # CLAUDE_CONFIG_DIR is Claude Code's config *root* (it replaces ~/.claude);
+    # agents live in its agents/ subdir, so append that rather than using the
+    # value verbatim. Other tools' vars already point at the agents dir.
+    if [[ "$tool" == "claude-code" ]]; then printf '%s' "${!var%/}/agents"; else printf '%s' "${!var}"; fi
+  else
+    printf '%s' "$def"
+  fi
 }
 
 # resolve_tool_path <tool> — best-effort binary path for the detection UI.
@@ -351,7 +358,7 @@ check_integrations() {
 # ---------------------------------------------------------------------------
 # Tool detection
 # ---------------------------------------------------------------------------
-detect_claude_code() { [[ -d "${HOME}/.claude" ]]; }
+detect_claude_code() { [[ -n "${CLAUDE_CONFIG_DIR:-}" && -d "${CLAUDE_CONFIG_DIR}" ]] || [[ -d "${HOME}/.claude" ]]; }
 detect_copilot()      { command -v code >/dev/null 2>&1 || [[ -d "${HOME}/.github" || -d "${HOME}/.copilot" ]]; }
 detect_antigravity()  { [[ -d "${HOME}/.gemini/antigravity/skills" ]]; }
 detect_gemini_cli()   { command -v gemini >/dev/null 2>&1 || [[ -d "${HOME}/.gemini" ]]; }

@@ -10,6 +10,7 @@ natively with the existing `.md` + YAML frontmatter format.
 ./scripts/install.sh --tool claude-code
 
 # Or manually copy a category
+# (use "$CLAUDE_CONFIG_DIR/agents" instead if you've relocated your config)
 cp engineering/*.md ~/.claude/agents/
 ```
 

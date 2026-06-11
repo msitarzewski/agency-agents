@@ -67,7 +67,7 @@ The Agency was originally designed for Claude Code. Agents work natively
 without conversion.
 
 ```bash
-cp -r <category>/*.md ~/.claude/agents/
+cp -r <category>/*.md ~/.claude/agents/   # or "$CLAUDE_CONFIG_DIR/agents" if relocated
 # or install everything at once:
 ./scripts/install.sh --tool claude-code
 ```
