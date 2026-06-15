@@ -17,6 +17,7 @@ supported agentic coding tools.
 - **[Kimi Code](#kimi-code)** — YAML agent specs in `kimi/`
 - **[Qwen Code](#qwen-code)** — project-scoped `.md` SubAgents in `.qwen/agents/`
 - **[Codex](#codex)** — `.toml` custom agents in `codex/`
+- **[Pi](#pi)** — `SKILL.md` per agent in `pi/`
 
 ## Quick Install
 
@@ -30,6 +31,7 @@ supported agentic coding tools.
 ./scripts/install.sh --tool openclaw
 ./scripts/install.sh --tool claude-code
 ./scripts/install.sh --tool codex
+./scripts/install.sh --tool pi
 
 # Gemini CLI needs generated integration files on a fresh clone
 ./scripts/convert.sh --tool gemini-cli
@@ -257,3 +259,20 @@ directly, run the converter before installing from a fresh clone:
 ```
 
 See [codex/README.md](codex/README.md) for details.
+
+---
+
+## Pi
+
+Each agent becomes a Pi Coding Agent skill folder containing a `SKILL.md` file.
+Skills are installed to `~/.pi/agent/skills/`.
+
+Because the skill files are generated from the source Markdown, run
+`./scripts/convert.sh --tool pi` before installing from a fresh clone.
+
+```bash
+./scripts/convert.sh --tool pi
+./scripts/install.sh --tool pi
+```
+
+See [pi/README.md](pi/README.md) for details.
