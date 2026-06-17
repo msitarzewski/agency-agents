@@ -1,5 +1,5 @@
 {
-  "_note": "Source of truth for the agent division set. Each division (a top-level agent directory) maps to a display label, a Lucide icon name (PascalCase), and a brand color (hex). Consumed by the Agency Agents app and any other catalog tooling. scripts/check-divisions.sh (CI: check-divisions.yml) fails the build if this list disagrees with the directories on disk, the AGENT_DIRS arrays in scripts/convert.sh and scripts/lint-agents.sh, or the path filters in lint-agents.yml. To add a division: create its directory, add an entry here, then run scripts/check-divisions.sh and update wherever it points. NOT every top-level directory is a division: integrations/ holds per-tool conversion OUTPUTS written by scripts/convert.sh (not source agents) and is excluded via NON_DIVISION_DIRS in check-divisions.sh; examples/ and scripts/ are likewise excluded.",
+  "_note": "Source of truth for the agent division set. Each division (a top-level agent directory) maps to a display label, a Lucide icon name (PascalCase), and a brand color (hex). Consumed by the Agency Agents app and any other catalog tooling. scripts/check-divisions.sh (CI: check-divisions.yml) fails the build if this list disagrees with the directories on disk, the AGENT_DIRS arrays in scripts/convert.sh and scripts/lint-agents.sh, or the path filters in lint-agents.yml. To add a division: create its directory, add an entry here, then run scripts/check-divisions.sh and update wherever it points. NOT every top-level directory is a division: integrations/ holds per-tool conversion OUTPUTS written by scripts/convert.sh (not source agents); strategy/ holds playbooks and runbooks with no agent frontmatter; both — plus examples/ and scripts/ — are excluded via NON_DIVISION_DIRS in check-divisions.sh. A division must contain at least one frontmatter agent file.",
   "divisions": {
     "academic": { "label": "Academic", "icon": "GraduationCap", "color": "#8B5CF6" },
     "design": { "label": "Design", "icon": "PenTool", "color": "#EC4899" },
@@ -15,7 +15,6 @@
     "security": { "label": "Security", "icon": "ShieldCheck", "color": "#EF4444" },
     "spatial-computing": { "label": "Spatial Computing", "icon": "Boxes", "color": "#06B6D4" },
     "specialized": { "label": "Specialized", "icon": "Sparkles", "color": "#6366F1" },
-    "strategy": { "label": "Strategy", "icon": "Network", "color": "#F43F5E" },
     "support": { "label": "Support", "icon": "LifeBuoy", "color": "#84CC16" },
     "testing": { "label": "Testing", "icon": "FlaskConical", "color": "#F59E0B" }
   }

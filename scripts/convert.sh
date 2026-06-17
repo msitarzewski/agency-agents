@@ -68,7 +68,7 @@ TODAY="$(date +%Y-%m-%d)"
 
 AGENT_DIRS=(
   academic design engineering finance game-development gis marketing paid-media product project-management
-  sales security spatial-computing specialized strategy support testing
+  sales security spatial-computing specialized support testing
 )
 
 # --- Usage ---

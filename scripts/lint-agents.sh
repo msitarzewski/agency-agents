@@ -26,7 +26,6 @@ AGENT_DIRS=(
   security
   spatial-computing
   specialized
-  strategy
   support
   testing
 )

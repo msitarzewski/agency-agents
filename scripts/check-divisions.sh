@@ -26,8 +26,10 @@ JSON="divisions.json"
 # root that is a directory is treated as a division (so a new division dir is
 # caught even if nobody remembered to register it).
 # integrations/ is convert.sh's OUTPUT tree (per-tool conversions written back
-# into the repo), not a source-agent category — it must never be scanned as one.
-NON_DIVISION_DIRS=(examples scripts integrations)
+# into the repo), not a source-agent category. strategy/ holds playbooks and
+# runbooks (no agent frontmatter), not agents. Neither is a division — they must
+# never be scanned as source-agent categories.
+NON_DIVISION_DIRS=(examples scripts integrations strategy)
 
 errors=0
 fail() { echo "ERROR $*"; errors=$((errors + 1)); }
@@ -102,6 +104,26 @@ while IFS= read -r div; do
     echo "$block" | grep -qE "\"$field\"[[:space:]]*:" \
       || fail "division '$div' in $JSON is missing \"$field\""
   done
+done < <(canonical)
+
+# Every division must contain at least one agent file: a .md whose first line is
+# '---' frontmatter. This is the content-derived backstop that keeps a docs or
+# playbook directory (e.g. strategy/, all of whose files are frontmatter-less)
+# from being registered as an empty agent division.
+has_agent_file() {
+  local f first
+  while IFS= read -r f; do
+    first="$(head -1 "$f" | tr -d '\r')"
+    [[ "$first" == "---" ]] && return 0
+  done < <(find "$1" -name '*.md' -type f 2>/dev/null)
+  return 1
+}
+while IFS= read -r div; do
+  if [[ ! -d "$div" ]]; then
+    fail "division '$div' has no directory on disk"
+  elif ! has_agent_file "$div"; then
+    fail "division '$div' has no agent files (.md with '---' frontmatter) — not a real division"
+  fi
 done < <(canonical)
 
 # --- result ----------------------------------------------------------------
