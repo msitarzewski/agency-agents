@@ -45,16 +45,18 @@ canonical() {
     | sed -E 's/"([a-z0-9-]+)".*/\1/' | sort -u
 }
 
-# Actual division directories on disk (top-level dirs minus the excludes and
-# anything dot-prefixed).
+# Actual division directories: top-level dirs that contain at least one
+# git-TRACKED file, minus the excludes and anything dot-prefixed. Using
+# `git ls-files` (not a filesystem glob) keeps this in lockstep with what CI's
+# clean checkout sees, so a local gitignored scratch dir (e.g. notes/) can't
+# produce a false failure.
 actual_dirs() {
-  local d base
-  for d in */; do
-    base="${d%/}"
+  local base
+  git ls-files | awk -F/ 'NF>1{print $1}' | sort -u | while IFS= read -r base; do
     [[ "$base" == .* ]] && continue
     case " ${NON_DIVISION_DIRS[*]} " in *" $base "*) continue ;; esac
     echo "$base"
-  done | sort -u
+  done
 }
 
 # Contents of a bash AGENT_DIRS=( ... ) array in the given file, one per line.
