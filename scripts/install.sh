@@ -23,6 +23,7 @@
 #   openclaw     -- Copy workspaces to ~/.openclaw/agency-agents/
 #   qwen         -- Copy SubAgents to ~/.qwen/agents/ (user-wide) or .qwen/agents/ (project)
 #   codex        -- Copy custom agent TOML files to ~/.codex/agents/
+#   hermes       -- Copy skills to ~/.hermes/skills/
 #   all          -- Install for all detected tools (default)
 #
 # Selection (compose freely; empty = everything):
@@ -125,7 +126,7 @@ INTEGRATIONS="$REPO_ROOT/integrations"
 # shellcheck source=lib.sh
 . "$SCRIPT_DIR/lib.sh"
 
-ALL_TOOLS=(claude-code copilot antigravity gemini-cli opencode openclaw cursor aider windsurf qwen kimi codex)
+ALL_TOOLS=(claude-code copilot antigravity gemini-cli opencode openclaw cursor aider windsurf qwen kimi codex hermes)
 
 # Standard agent category directories (keep sorted, sync with convert.sh / lint-agents.sh)
 AGENT_DIRS=(
@@ -255,6 +256,7 @@ resolve_dest() {
     openclaw)    var="OPENCLAW_DIR" ;;
     qwen)        var="QWEN_AGENTS_DIR" ;;
     codex)       var="CODEX_AGENTS_DIR" ;;
+    hermes)      var="HERMES_SKILLS_DIR" ;;
   esac
   if [[ -n "$var" && -n "${!var:-}" ]]; then printf '%s' "${!var}"; else printf '%s' "$def"; fi
 }
@@ -266,7 +268,7 @@ resolve_tool_path() {
     claude-code) bin="claude" ;; copilot) bin="code" ;; gemini-cli) bin="gemini" ;;
     opencode) bin="opencode" ;; openclaw) bin="openclaw" ;; cursor) bin="cursor" ;;
     aider) bin="aider" ;; windsurf) bin="windsurf" ;; qwen) bin="qwen" ;;
-    kimi) bin="kimi" ;; codex) bin="codex" ;; antigravity) bin="" ;;
+    kimi) bin="kimi" ;; codex) bin="codex" ;; hermes) bin="hermes" ;; antigravity) bin="" ;;
   esac
   [[ -n "$bin" ]] && command -v "$bin" 2>/dev/null
 }
@@ -378,6 +380,7 @@ is_detected() {
     qwen)        detect_qwen        ;;
     kimi)        detect_kimi        ;;
     codex)       detect_codex       ;;
+    hermes)      detect_hermes      ;;
     *)           return 1 ;;
   esac
 }
@@ -397,6 +400,7 @@ tool_label() {
     qwen)        printf "%-14s  %s" "Qwen Code"    "(~/.qwen/agents)"        ;;
     kimi)        printf "%-14s  %s" "Kimi Code"    "(~/.config/kimi/agents)" ;;
     codex)       printf "%-14s  %s" "Codex"        "(~/.codex/agents)"       ;;
+    hermes)      printf "%-14s  %s" "Hermes"       "(~/.hermes/skills)"      ;;
   esac
 }
 
@@ -520,7 +524,7 @@ tool_simple_name() {
     claude-code) echo "Claude Code";; copilot) echo "Copilot";; antigravity) echo "Antigravity";;
     gemini-cli) echo "Gemini CLI";; opencode) echo "OpenCode";; openclaw) echo "OpenClaw";;
     cursor) echo "Cursor";; aider) echo "Aider";; windsurf) echo "Windsurf";;
-    qwen) echo "Qwen Code";; kimi) echo "Kimi Code";; codex) echo "Codex";; *) echo "$1";;
+    qwen) echo "Qwen Code";; kimi) echo "Kimi Code";; codex) echo "Codex";; hermes) echo "Hermes";; *) echo "$1";;
   esac
 }
 
@@ -882,6 +886,33 @@ install_kimi() {
   ok "Usage: kimi --agent-file ~/.config/kimi/agents/<agent-name>/agent.yaml"
 }
 
+install_hermes() {
+  local src="$INTEGRATIONS/hermes"
+  local dest; dest="$(resolve_dest hermes "${HOME}/.hermes/skills")"
+  local count=0
+  [[ -d "$src" ]] || { err "integrations/hermes missing. Run ./scripts/convert.sh --tool hermes first."; return 1; }
+  mkdir -p "$dest"
+  local d
+  while IFS= read -r -d '' d; do
+    local name; name="$(basename "$d")"
+    slug_allowed "$name" || continue
+    [[ -f "$d/SKILL.md" ]] || continue
+    # Read category from .division file (written by convert_hermes)
+    local category=""
+    [[ -f "$d/.division" ]] && category="$(cat "$d/.division")"
+    [[ -z "$category" ]] && category="specialized"
+    mkdir -p "$dest/$category/$name"
+    install_file "$d/SKILL.md" "$dest/$category/$name/SKILL.md"
+    incr count
+  done < <(find "$src" -mindepth 1 -maxdepth 1 -type d -print0)
+  if (( count == 0 )); then
+    err "integrations/hermes contains no generated skills. Run ./scripts/convert.sh --tool hermes first."
+    return 1
+  fi
+  ok "Hermes: $count skills -> $dest (16 categories)"
+  warn "Hermes: Run '/reload-skills' or restart Hermes to activate new skills."
+}
+
 install_codex() {
   local src="$INTEGRATIONS/codex/agents"
   local dest; dest="$(resolve_dest codex "${HOME}/.codex/agents")"
@@ -912,6 +943,7 @@ install_tool() {
     qwen)        install_qwen        ;;
     kimi)        install_kimi        ;;
     codex)       install_codex       ;;
+    hermes)      install_hermes      ;;
   esac
 }
 

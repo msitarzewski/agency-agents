@@ -20,6 +20,7 @@
 #   qwen         — Qwen Code SubAgent files (~/.qwen/agents/*.md)
 #   kimi         — Kimi Code CLI agent files (~/.config/kimi/agents/)
 #   codex        — Codex custom agent TOML files (~/.codex/agents/*.toml)
+#   hermes       — Hermes Agent skill files (~/.hermes/skills/)
 #   all          — All tools (default)
 #
 # Output is written to integrations/<tool>/ relative to the repo root.
@@ -428,6 +429,30 @@ ${body}
 HEREDOC
 }
 
+convert_hermes() {
+  local file="$1"
+  local name description slug outdir body category
+  name="$(get_field "name" "$file")"
+  description="$(get_field "description" "$file")"
+  slug="$(slugify "$name")"
+  body="$(get_body "$file")"
+  # Derive category from file path relative to repo root
+  category="$(dirname "${file#$REPO_ROOT/}")"
+  # For subdirectories (e.g. game-development/unity), use only the top-level division
+  category="${category%%/*}"
+  outdir="$OUT_DIR/hermes/$slug"
+  mkdir -p "$outdir"
+  cat > "$outdir/SKILL.md" <<HEREDOC
+---
+name: ${slug}
+description: ${description}
+---
+${body}
+HEREDOC
+  # Store division for fast install mapping
+  printf '%s' "$category" > "$outdir/.division"
+}
+
 # Aider and Windsurf are single-file formats — accumulate into temp files
 # then write at the end.
 AIDER_TMP="$(mktemp)"
@@ -527,6 +552,7 @@ run_conversions() {
         openclaw)    convert_openclaw    "$file" ;;
         qwen)        convert_qwen        "$file" ;;
         kimi)        convert_kimi        "$file" ;;
+        hermes)      convert_hermes      "$file" ;;
         aider)       accumulate_aider    "$file" ;;
         windsurf)    accumulate_windsurf "$file" ;;
       esac
@@ -557,7 +583,7 @@ main() {
     esac
   done
 
-  local valid_tools=("antigravity" "gemini-cli" "opencode" "cursor" "aider" "windsurf" "openclaw" "qwen" "kimi" "codex" "all")
+  local valid_tools=("antigravity" "gemini-cli" "opencode" "cursor" "aider" "windsurf" "openclaw" "qwen" "kimi" "codex" "hermes" "all")
   local valid=false
   for t in "${valid_tools[@]}"; do [[ "$t" == "$tool" ]] && valid=true && break; done
   if ! $valid; then
@@ -576,7 +602,7 @@ main() {
 
   local tools_to_run=()
   if [[ "$tool" == "all" ]]; then
-    tools_to_run=("antigravity" "gemini-cli" "opencode" "cursor" "aider" "windsurf" "openclaw" "qwen" "kimi" "codex")
+    tools_to_run=("antigravity" "gemini-cli" "opencode" "cursor" "aider" "windsurf" "openclaw" "qwen" "kimi" "codex" "hermes")
   else
     tools_to_run=("$tool")
   fi
@@ -587,7 +613,7 @@ main() {
 
   if $use_parallel && [[ "$tool" == "all" ]]; then
     # Tools that write to separate dirs can run in parallel; buffer output so each tool's output stays together
-    local parallel_tools=(antigravity gemini-cli opencode cursor openclaw qwen codex)
+    local parallel_tools=(antigravity gemini-cli opencode cursor openclaw qwen codex hermes)
     local parallel_out_dir
     parallel_out_dir="$(mktemp -d)"
     info "Converting: ${#parallel_tools[@]}/${n_tools} tools in parallel (output buffered per tool)..."
