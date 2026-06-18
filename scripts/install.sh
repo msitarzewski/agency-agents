@@ -23,6 +23,7 @@
 #   openclaw     -- Copy workspaces to ~/.openclaw/agency-agents/
 #   qwen         -- Copy SubAgents to ~/.qwen/agents/ (user-wide) or .qwen/agents/ (project)
 #   codex        -- Copy custom agent TOML files to ~/.codex/agents/
+#   pi           -- Copy skills to ~/.pi/agent/skills/
 #   all          -- Install for all detected tools (default)
 #
 # Selection (compose freely; empty = everything):
@@ -46,7 +47,8 @@
 #   --help                Show this help
 #
 # Env: CLAUDE_CONFIG_DIR, COPILOT_AGENT_DIR, CURSOR_RULES_DIR, GEMINI_AGENTS_DIR,
-#      OPENCODE_AGENTS_DIR, OPENCLAW_DIR, QWEN_AGENTS_DIR, CODEX_AGENTS_DIR
+#      OPENCODE_AGENTS_DIR, OPENCLAW_DIR, QWEN_AGENTS_DIR, CODEX_AGENTS_DIR,
+#      PI_SKILLS_DIR
 #      override default install paths (checked before hardcoded defaults).
 #
 # --- USAGE-END ---  (sentinel for usage(); do not remove)
@@ -125,7 +127,7 @@ INTEGRATIONS="$REPO_ROOT/integrations"
 # shellcheck source=lib.sh
 . "$SCRIPT_DIR/lib.sh"
 
-ALL_TOOLS=(claude-code copilot antigravity gemini-cli opencode openclaw cursor aider windsurf qwen kimi codex)
+ALL_TOOLS=(claude-code copilot antigravity gemini-cli opencode openclaw cursor aider windsurf qwen kimi codex pi)
 
 # Standard agent category directories (keep sorted, sync with convert.sh / lint-agents.sh)
 AGENT_DIRS=(
@@ -255,6 +257,7 @@ resolve_dest() {
     openclaw)    var="OPENCLAW_DIR" ;;
     qwen)        var="QWEN_AGENTS_DIR" ;;
     codex)       var="CODEX_AGENTS_DIR" ;;
+    pi)          var="PI_SKILLS_DIR" ;;
   esac
   if [[ -n "$var" && -n "${!var:-}" ]]; then printf '%s' "${!var}"; else printf '%s' "$def"; fi
 }
@@ -266,7 +269,7 @@ resolve_tool_path() {
     claude-code) bin="claude" ;; copilot) bin="code" ;; gemini-cli) bin="gemini" ;;
     opencode) bin="opencode" ;; openclaw) bin="openclaw" ;; cursor) bin="cursor" ;;
     aider) bin="aider" ;; windsurf) bin="windsurf" ;; qwen) bin="qwen" ;;
-    kimi) bin="kimi" ;; codex) bin="codex" ;; antigravity) bin="" ;;
+    kimi) bin="kimi" ;; codex) bin="codex" ;; antigravity) bin="" ;; pi) bin="pi" ;;
   esac
   [[ -n "$bin" ]] && command -v "$bin" 2>/dev/null
 }
@@ -363,6 +366,7 @@ detect_windsurf()     { command -v windsurf >/dev/null 2>&1 || [[ -d "${HOME}/.c
 detect_qwen()         { command -v qwen >/dev/null 2>&1 || [[ -d "${HOME}/.qwen" ]]; }
 detect_kimi()         { command -v kimi >/dev/null 2>&1; }
 detect_codex()        { command -v codex >/dev/null 2>&1 || [[ -d "${HOME}/.codex" ]]; }
+detect_pi()           { command -v pi >/dev/null 2>&1 || [[ -d "${HOME}/.pi" ]]; }
 
 is_detected() {
   case "$1" in
@@ -378,6 +382,7 @@ is_detected() {
     qwen)        detect_qwen        ;;
     kimi)        detect_kimi        ;;
     codex)       detect_codex       ;;
+    pi)          detect_pi          ;;
     *)           return 1 ;;
   esac
 }
@@ -397,6 +402,7 @@ tool_label() {
     qwen)        printf "%-14s  %s" "Qwen Code"    "(~/.qwen/agents)"        ;;
     kimi)        printf "%-14s  %s" "Kimi Code"    "(~/.config/kimi/agents)" ;;
     codex)       printf "%-14s  %s" "Codex"        "(~/.codex/agents)"       ;;
+    pi)          printf "%-14s  %s" "Pi"           "(~/.pi/agent/skills)"    ;;
   esac
 }
 
@@ -520,7 +526,7 @@ tool_simple_name() {
     claude-code) echo "Claude Code";; copilot) echo "Copilot";; antigravity) echo "Antigravity";;
     gemini-cli) echo "Gemini CLI";; opencode) echo "OpenCode";; openclaw) echo "OpenClaw";;
     cursor) echo "Cursor";; aider) echo "Aider";; windsurf) echo "Windsurf";;
-    qwen) echo "Qwen Code";; kimi) echo "Kimi Code";; codex) echo "Codex";; *) echo "$1";;
+    qwen) echo "Qwen Code";; kimi) echo "Kimi Code";; codex) echo "Codex";; pi) echo "Pi";; *) echo "$1";;
   esac
 }
 
@@ -897,6 +903,23 @@ install_codex() {
   ok "Codex: $count agents -> $dest"
 }
 
+install_pi() {
+  local src="$INTEGRATIONS/pi"
+  local dest; dest="$(resolve_dest pi "${HOME}/.pi/agent/skills")"
+  local count=0
+  [[ -d "$src" ]] || { err "integrations/pi missing. Run convert.sh first."; return 1; }
+  mkdir -p "$dest"
+  local d
+  while IFS= read -r -d '' d; do
+    local name; name="$(basename "$d")"
+    slug_allowed "$name" || continue
+    mkdir -p "$dest/$name"
+    install_file "$d/SKILL.md" "$dest/$name/SKILL.md"
+    incr count
+  done < <(find "$src" -mindepth 1 -maxdepth 1 -type d -print0)
+  ok "Pi: $count skills -> $dest"
+}
+
 install_tool() {
   ensure_converted "$1"
   case "$1" in
@@ -912,6 +935,7 @@ install_tool() {
     qwen)        install_qwen        ;;
     kimi)        install_kimi        ;;
     codex)       install_codex       ;;
+    pi)          install_pi          ;;
   esac
 }
 
