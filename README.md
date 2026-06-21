@@ -335,6 +335,20 @@ Building worlds, systems, and experiences across every major engine.
 | 🎯 [Roblox Experience Designer](game-development/roblox-studio/roblox-experience-designer.md) | Engagement loops, monetization, D1/D7 retention, onboarding flow | Designing Roblox game loops, Game Passes, daily rewards, player retention |
 | 👗 [Roblox Avatar Creator](game-development/roblox-studio/roblox-avatar-creator.md) | UGC pipeline, accessory rigging, Creator Marketplace submission | Roblox UGC items, HumanoidDescription customization, in-experience avatar shops |
 
+#### Microstudio OS (Solo Studio Operator)
+
+> An AI Executive Producer network that helps a **solo / 1–3 person commercial Steam dev operate like a small studio** — market research, scope discipline, store positioning, build audits and playtest synthesis, all human-gated. See the [product brief](strategy/microstudio-os-indie-coo.md). **Not** an AI game generator.
+
+| Agent | Specialty | When to Use |
+|-------|-----------|-------------|
+| 🎛️ [Studio Operator](game-development/microstudio-os/studio-operator.md) | Orchestration, weekly studio report, routing, human-gated cadence | Running the studio around the game, the Monday operating report, coordinating the agents below |
+| 🧪 [Concept Lab](game-development/microstudio-os/concept-lab.md) | Hook, core loop, comparables, solo-feasibility score, vertical slice, feature cutline | Pressure-testing a game idea before building the wrong game at the wrong scope |
+| ⚖️ [Scope Governor](game-development/microstudio-os/scope-governor.md) | Must/Should/Could/Kill, solo-risk forecast, scope-creep defense | Keeping a solo project shippable, costing new ideas before adopting them |
+| 🛰️ [Market Scout](game-development/microstudio-os/market-scout.md) | Steam comparables, tags, price bands, capsule patterns, review mining | Grounding every decision in real, named comparable games |
+| 🎯 [Steam Page Operator](game-development/microstudio-os/steam-page-operator.md) | Capsule/description/tags/screenshot/trailer audit, wishlist plan | Auditing and drafting a Steam page for wishlist conversion |
+| 🔍 [Build Auditor](game-development/microstudio-os/build-auditor.md) | Readability, onboarding, UI hierarchy, market-promise consistency | Getting objective feedback on a build/video between playtests |
+| 🧷 [Playtest Synthesizer](game-development/microstudio-os/playtest-synthesizer.md) | Behavior vs. claim vs. inference vs. action, multi-source feedback | Turning a firehose of playtest/Discord/review feedback into prioritized signal |
+
 ### 📚 Academic Division
 
 Scholarly rigor for world-building, storytelling, and narrative design.
@@ -849,7 +863,7 @@ MIT License - Use freely, commercially or personally. Attribution appreciated bu
 
 ## 🙏 Acknowledgments
 
-What started as a Reddit thread about AI agent specialization has grown into something remarkable — **147 agents across 12 divisions**, supported by a community of contributors from around the world. Every agent in this repo exists because someone cared enough to write it, test it, and share it.
+What started as a Reddit thread about AI agent specialization has grown into something remarkable — **154 agents across 12 divisions**, supported by a community of contributors from around the world. Every agent in this repo exists because someone cared enough to write it, test it, and share it.
 
 To everyone who has opened a PR, filed an issue, started a Discussion, or simply tried an agent and told us what worked — thank you. You're the reason The Agency keeps getting better.
 
