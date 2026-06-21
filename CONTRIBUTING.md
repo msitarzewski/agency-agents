@@ -31,20 +31,34 @@ This project and everyone participating in it is governed by our Code of Conduct
 Have an idea for a specialized agent? Great! Here's how to add one:
 
 1. **Fork the repository**
-2. **Choose the appropriate category** (or propose a new one):
-   - `engineering/` - Software development specialists
+2. **Choose the appropriate division** (one of the 16 — or propose a new one):
+   - `academic/` - Research, scholarship, and domain-expert specialists
    - `design/` - UX/UI and creative specialists
+   - `engineering/` - Software development specialists
    - `finance/` - Financial planning, accounting, and investment specialists
    - `game-development/` - Game design and development specialists
+   - `gis/` - Geospatial, mapping, and spatial-analysis specialists
    - `marketing/` - Growth and marketing specialists
    - `paid-media/` - Paid acquisition and media specialists
    - `product/` - Product management specialists
    - `project-management/` - PM and coordination specialists
-   - `testing/` - QA and testing specialists
+   - `sales/` - Sales, revenue, and deal specialists
    - `security/` - Security architecture, AppSec, pentest, threat intel, and incident response
-   - `support/` - Operations and support specialists
    - `spatial-computing/` - AR/VR/XR specialists
    - `specialized/` - Unique specialists that don't fit elsewhere
+   - `support/` - Operations and support specialists
+   - `testing/` - QA and testing specialists
+
+   > **Divisions are defined by `divisions.json`** (repo root) — the single source of
+   > truth for the division set, validated in CI by `scripts/check-divisions.sh`.
+   > **Proposing a new division** means: create the directory, add an entry to
+   > `divisions.json` (label/icon/color), and add it to `AGENT_DIRS` in both
+   > `scripts/convert.sh` and `scripts/lint-agents.sh`. The check fails the build
+   > unless all of these agree and the directory contains at least one agent file.
+   >
+   > Note: `strategy/` (NEXUS playbooks/runbooks — no agent frontmatter) and
+   > `integrations/` (generated per-tool output from `convert.sh`) are **not**
+   > divisions and must never be added to the division lists.
 
 3. **Create your agent file** following the template below
 4. **Test your agent** in real scenarios
