@@ -528,9 +528,21 @@ HEREDOC
 
 # --- Main loop ---
 
+# Remove a tool's previously-generated output before regenerating, so renamed or
+# deleted agents don't leave orphan files behind (convert.sh overwrites in place
+# but never pruned stale output). Preserves the committed README.md — the only
+# tracked file under integrations/<tool>/ for conversion targets.
+clean_tool_output() {
+  local dir="$OUT_DIR/$1"
+  [[ -d "$dir" ]] || return 0
+  find "$dir" -mindepth 1 -maxdepth 1 ! -name 'README.md' -exec rm -rf {} +
+}
+
 run_conversions() {
   local tool="$1"
   local count=0
+
+  clean_tool_output "$tool"
 
   for dir in "${AGENT_DIRS[@]}"; do
     local dirpath="$REPO_ROOT/$dir"
