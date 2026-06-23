@@ -24,6 +24,7 @@
 #   qwen         -- Copy SubAgents to ~/.qwen/agents/ (user-wide) or .qwen/agents/ (project)
 #   codex        -- Copy custom agent TOML files to ~/.codex/agents/
 #   hermes       -- Copy SKILL files to ~/.hermes/skills/
+#   osaurus      -- Copy skills to ~/.osaurus/skills/
 #   all          -- Install for all detected tools (default)
 #
 # Selection (compose freely; empty = everything):
@@ -47,7 +48,8 @@
 #   --help                Show this help
 #
 # Env: CLAUDE_CONFIG_DIR, COPILOT_AGENT_DIR, CURSOR_RULES_DIR, GEMINI_AGENTS_DIR,
-#      OPENCODE_AGENTS_DIR, OPENCLAW_DIR, QWEN_AGENTS_DIR, CODEX_AGENTS_DIR
+#      OPENCODE_AGENTS_DIR, OPENCLAW_DIR, QWEN_AGENTS_DIR, CODEX_AGENTS_DIR,
+#      OSAURUS_SKILLS_DIR
 #      override default install paths (checked before hardcoded defaults).
 #
 # --- USAGE-END ---  (sentinel for usage(); do not remove)
@@ -127,8 +129,13 @@ INTEGRATIONS="$REPO_ROOT/integrations"
 . "$SCRIPT_DIR/lib.sh"
 
 ALL_TOOLS=(claude-code copilot antigravity gemini-cli opencode openclaw cursor aider windsurf qwen kimi codex hermes)
+ALL_TOOLS=(claude-code copilot antigravity gemini-cli opencode openclaw cursor aider windsurf qwen kimi codex osaurus)
 
-# Standard agent category directories (keep sorted, sync with convert.sh / lint-agents.sh)
+# Directories scanned for installable agents. Intentionally includes strategy/
+# (its frontmatter-less NEXUS docs are filtered out by is_agent_file at scan time);
+# the selectable division list below is this set minus strategy. This is NOT the
+# same set as AGENT_DIRS in convert.sh / lint-agents.sh, which exclude strategy
+# entirely — see divisions.json (the source of truth) and scripts/check-divisions.sh.
 AGENT_DIRS=(
   academic design engineering finance game-development gis marketing paid-media product project-management
   sales security spatial-computing specialized strategy support testing
@@ -258,6 +265,7 @@ resolve_dest() {
     qwen)        var="QWEN_AGENTS_DIR" ;;
     codex)       var="CODEX_AGENTS_DIR" ;;
     hermes)      install_hermes      ;;
+    osaurus)     var="OSAURUS_SKILLS_DIR" ;;
   esac
   if [[ -n "$var" && -n "${!var:-}" ]]; then printf '%s' "${!var}"; else printf '%s' "$def"; fi
 }
@@ -271,6 +279,8 @@ resolve_tool_path() {
     aider) bin="aider" ;; windsurf) bin="windsurf" ;; qwen) bin="qwen" ;;
     kimi) bin="kimi" ;; codex) bin="codex" ;;
     hermes)      install_hermes      ;; antigravity) bin="" ;;
+    kimi) bin="kimi" ;; codex) bin="codex" ;; antigravity) bin="" ;;
+    osaurus) bin="osaurus" ;;
   esac
   [[ -n "$bin" ]] && command -v "$bin" 2>/dev/null
 }
@@ -367,6 +377,7 @@ detect_windsurf()     { command -v windsurf >/dev/null 2>&1 || [[ -d "${HOME}/.c
 detect_qwen()         { command -v qwen >/dev/null 2>&1 || [[ -d "${HOME}/.qwen" ]]; }
 detect_kimi()         { command -v kimi >/dev/null 2>&1; }
 detect_codex()        { command -v codex >/dev/null 2>&1 || [[ -d "${HOME}/.codex" ]]; }
+detect_osaurus()      { command -v osaurus >/dev/null 2>&1 || [[ -d "${HOME}/.osaurus" ]]; }
 
 is_detected() {
   case "$1" in
@@ -383,6 +394,7 @@ is_detected() {
     kimi)        detect_kimi        ;;
     codex)       detect_codex       ;;
     hermes)      install_hermes      ;;
+    osaurus)     detect_osaurus     ;;
     *)           return 1 ;;
   esac
 }
@@ -403,6 +415,7 @@ tool_label() {
     kimi)        printf "%-14s  %s" "Kimi Code"    "(~/.config/kimi/agents)" ;;
     codex)       printf "%-14s  %s" "Codex"        "(~/.codex/agents)"       ;;
     hermes)      install_hermes      ;;
+    osaurus)     printf "%-14s  %s" "Osaurus"      "(~/.osaurus/skills)"     ;;
   esac
 }
 
@@ -528,6 +541,7 @@ tool_simple_name() {
     cursor) echo "Cursor";; aider) echo "Aider";; windsurf) echo "Windsurf";;
     qwen) echo "Qwen Code";; kimi) echo "Kimi Code";; codex) echo "Codex";;
     hermes)      install_hermes      ;; *) echo "$1";;
+    qwen) echo "Qwen Code";; kimi) echo "Kimi Code";; codex) echo "Codex";; osaurus) echo "Osaurus";; *) echo "$1";;
   esac
 }
 
@@ -724,6 +738,23 @@ install_antigravity() {
     incr count
   done < <(find "$src" -mindepth 1 -maxdepth 1 -type d -print0)
   ok "Antigravity: $count skills -> $dest"
+}
+
+install_osaurus() {
+  local src="$INTEGRATIONS/osaurus"
+  local dest; dest="$(resolve_dest osaurus "${HOME}/.osaurus/skills")"
+  local count=0
+  [[ -d "$src" ]] || { err "integrations/osaurus missing. Run convert.sh first."; return 1; }
+  mkdir -p "$dest"
+  local d
+  while IFS= read -r -d '' d; do
+    local name; name="$(basename "$d")"
+    slug_allowed "$name" || continue
+    mkdir -p "$dest/$name"
+    install_file "$d/SKILL.md" "$dest/$name/SKILL.md"
+    incr count
+  done < <(find "$src" -mindepth 1 -maxdepth 1 -type d -print0)
+  ok "Osaurus: $count skills -> $dest"
 }
 
 install_gemini_cli() {
@@ -944,6 +975,7 @@ install_tool() {
     kimi)        install_kimi        ;;
     codex)       install_codex       ;;
     hermes)      install_hermes      ;;
+    osaurus)     install_osaurus     ;;
   esac
 }
 
