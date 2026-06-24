@@ -1,0 +1,40 @@
+# Eclipse Digital house team -- the curated, customized agent set.
+# One agent per line (human name or slug; case-insensitive). Blank lines and # comments ignored.
+#
+# Install into Claude Code:
+#   ./scripts/install.sh --tool claude-code --agents-file eclipse/eclipse-house-team.agents
+#
+# This file is the reproducible source of truth for what we install. Keep it in sync with the
+# agents that carry the "Eclipse Digital House Standards" section.
+
+# --- Web development ---
+CMS Developer
+WordPress Shopping Cart Engineer
+Drupal Shopping Cart Engineer
+Shopify Developer
+Backend Architect
+
+# --- Fractional CTO / tech leadership ---
+Software Architect
+
+# --- Web design & graphics ---
+UI Designer
+Brand Guardian
+Image Prompt Engineer
+
+# --- Video editing ---
+Short-Video Editing Coach
+
+# --- SEO / AEO ---
+SEO Specialist
+AEO Foundations Architect
+
+# --- Social media ---
+Social Media Strategist
+
+# --- Ads / media buying ---
+PPC Campaign Strategist
+Paid Social Strategist
+
+# --- AI automation & audits ---
+Automation Governance Architect
