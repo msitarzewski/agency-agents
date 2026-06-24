@@ -12,19 +12,15 @@ set -euo pipefail
 
 # Keep in sync with AGENT_DIRS in scripts/convert.sh
 AGENT_DIRS=(
-  academic
   design
   engineering
   finance
-  game-development
-  gis
   marketing
   paid-media
   product
   project-management
   sales
   security
-  spatial-computing
   specialized
   support
   testing

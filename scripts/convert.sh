@@ -74,8 +74,8 @@ ANTIGRAVITY_DATE_ADDED="2026-03-08"
 . "$SCRIPT_DIR/lib.sh"
 
 AGENT_DIRS=(
-  academic design engineering finance game-development gis marketing paid-media product project-management
-  sales security spatial-computing specialized support testing
+  design engineering finance marketing paid-media product project-management
+  sales security specialized support testing
 )
 
 # --- Usage ---
