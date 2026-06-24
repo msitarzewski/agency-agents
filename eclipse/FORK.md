@@ -1,4 +1,4 @@
-# Eclipse Digital — Fork Strategy
+# Eclipse Digital Fork Strategy
 
 This repository is Eclipse Digital's internal fork of an upstream agent library. This document
 records how we manage the fork so it stays useful instead of drifting with 200+ files of upstream

@@ -1,4 +1,4 @@
-# CLAUDE.md — Eclipse Digital fork
+# CLAUDE.md (Eclipse Digital fork)
 
 This repository is Eclipse Digital's internal fork of an agent library. We have curated it down
 to a **house team** of agents that match our services and customized them with Eclipse context.

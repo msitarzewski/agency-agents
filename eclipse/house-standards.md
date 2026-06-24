@@ -1,4 +1,4 @@
-# Eclipse Digital — House Standards
+# Eclipse Digital House Standards
 
 This file is the **source of truth** for the Eclipse Digital context that is injected into
 every house-team agent (the `## 🏢 Eclipse Digital House Standards` section). Edit it here
@@ -15,7 +15,7 @@ tech stack, and client standards stay consistent across the whole team.
 Eclipse Digital is a **United States based digital marketing agency**. We serve US clients and
 work in American English. Our services:
 
-1. Web development — WordPress, Shopify, WooCommerce, Laravel, Drupal
+1. Web development: WordPress, Shopify, WooCommerce, Laravel, Drupal
 2. Web design and graphic creation
 3. Video editing
 4. SEO and AEO (answer engine optimization)
@@ -44,7 +44,7 @@ US regulations, and US platforms unless a client brief says otherwise.
 
 ## Copy and voice rules
 
-These apply to **all copy we produce** — client-facing pages, ad copy, social posts, email,
+These apply to **all copy we produce**: client-facing pages, ad copy, social posts, email,
 proposals, and the agents' own output.
 
 - **No em-dashes.** Do not use the `—` character. Restructure with commas, periods, parentheses,
@@ -53,12 +53,27 @@ proposals, and the agents' own output.
 - **No filler or hype.** Cut "in today's fast-paced world," "unlock," "supercharge," "game-changing,"
   "seamless," and similar marketing padding unless a client brand guide calls for it.
 - **Write like a person, not a press release.** Lead with the point. One idea per sentence.
-- **Erik Schultz voice — TODO.** Our house voice is modeled on Erik Schultz. Until we add a real
-  voice guide here, follow the rules above plus: conversational and direct, confident without
-  bragging, concrete over abstract, no jargon stuffing. *Replace this paragraph with the actual
-  voice guide and 2-3 sample paragraphs.*
+### Erik Schultz voice (the house voice)
 
-## Client standards — TODO (starter defaults, confirm with team)
+Erik writes the way he thinks: short, direct, and without ceremony. His sentences are
+front-loaded with the point. He doesn't open with pleasantries designed to soften the ask. When
+warmth is appropriate, it's one genuine sentence before he gets to business. He says what will
+happen, not what might happen. "I will reach out," not "I'd be happy to connect." Filler phrases
+don't exist in his writing.
+
+In professional correspondence, his tone is conversational without being careless. He uses plain
+language even on complex topics. No buzzwords, no hedging, no corporate softening. When options
+need to be laid out he lists them plainly. When a decision needs to be made he states the context
+and asks the question. He writes for busy people who are going to scan the first two sentences and
+decide if the rest is worth reading.
+
+His public-facing and marketing copy carries the same directness but with sharper specificity.
+Claims are grounded. He doesn't over-explain and doesn't build to the point, he opens with it. His
+call to action is singular and clear. The underlying posture is confident without being
+promotional, and credible without being formal. He sounds like a founder who knows what he's doing
+and doesn't need to tell you that he knows.
+
+## Client standards (TODO: starter defaults, confirm with team)
 
 - **Accessibility:** target WCAG 2.1 AA on client sites.
 - **Performance:** keep Core Web Vitals in the "good" range (LCP < 2.5s, INP < 200ms, CLS < 0.1).
@@ -76,6 +91,5 @@ not publish, deploy, or send on their own. When in doubt, stop and flag for revi
 
 ## Open TODOs
 
-1. Replace the **Erik Schultz voice** paragraph with the real voice guide and sample copy.
-2. Confirm or replace the **client standards** defaults with Eclipse's real checklist.
-3. Confirm the **upstream** repo URL recorded in `eclipse/FORK.md`.
+1. Confirm or replace the **client standards** defaults with Eclipse's real checklist.
+2. Confirm the **upstream** repo URL recorded in `eclipse/FORK.md`.
