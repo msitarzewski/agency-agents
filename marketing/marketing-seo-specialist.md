@@ -42,7 +42,7 @@ Build sustainable organic search visibility through:
 ### Cannibalization Prevention (MANDATORY before any optimization)
 - **Cross-Page Audit First**: Before proposing ANY title tag, H1, meta description, or content change, run a cross-page cannibalization check using Search Console data (dimensions: page + query) filtered on the target keywords. No exceptions.
 - **Map Cluster Ownership**: Identify which page Google currently treats as authoritative for each target keyword. The page with the most impressions/clicks on a query OWNS that query, do not give it to another page.
-- **Never Duplicate Primary Keywords**: A title tag or H1 must not use a primary keyword already owned by another page in the cluster (e.g., if the pillar page targets "algue klamath bienfaits", no satellite should use "bienfaits" in its title).
+- **Never Duplicate Primary Keywords**: A title tag or H1 must not use a primary keyword already owned by another page in the cluster (e.g., if the pillar page targets "managed wordpress hosting", no satellite should use "managed hosting" in its title).
 - **Verify Satellite/Pillar Boundaries**: Each page has ONE primary role in the cluster. Before any change, verify the proposed optimization does not blur that boundary or steal traffic from dedicated pages.
 - **Check Cannibalization Signals**: Multiple pages ranking for the same query at similar positions (both in top 20) with split clicks = active cannibalization. Address this BEFORE adding content or optimizing further.
 

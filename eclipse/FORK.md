@@ -34,12 +34,20 @@ When you delete an entire division directory, you must also update `divisions.js
 
 ## Remotes
 
+Upstream is **`https://github.com/msitarzewski/agency-agents.git`**. This is the root of the
+GitHub fork network (our repo's `source`), it is actively maintained, and it is where real
+upstream changes land. An earlier draft of this file named `jnMetaCode/agency-agents`, but that
+repo is itself a stale fork of `msitarzewski` and is not our upstream. The remote is configured in
+this repo with pushes to upstream disabled so we cannot push to it by accident.
+
 ```bash
-# origin = our fork (default push target)
+# origin   = our fork (default push target)
+# upstream = msitarzewski/agency-agents (fetch only; push DISABLED)
 git remote -v
 
-# Add upstream once (confirm the URL; the i18n variants point to jnMetaCode/agency-agents)
-git remote add upstream https://github.com/jnMetaCode/agency-agents.git
+# If a fresh clone is missing it, add it once:
+git remote add upstream https://github.com/msitarzewski/agency-agents.git
+git remote set-url --push upstream DISABLED
 ```
 
 ## Cherry-pick workflow (occasional)
@@ -74,7 +82,11 @@ deploy, or send. This is non-negotiable during the pilot and after.
 We are piloting in **Claude Code** on internal, non-client work first. Install the house team with:
 
 ```bash
-./scripts/install.sh --tool claude-code --agents-file eclipse/eclipse-house-team.agents
+./scripts/install-house.sh
 ```
+
+This wrapper defaults to Claude Code and only ever installs the house-team manifest. Do not use a
+bare `./scripts/install.sh` during the pilot: with no `--agents-file` it installs every agent on
+disk, including the uncustomized bench agents that carry no Eclipse context and no draft policy.
 
 Evaluate whether the agents improve output before rolling out more widely or to client work.

@@ -5,8 +5,8 @@ every house-team agent (the `## 🏢 Eclipse Digital House Standards` section). 
 first, then propagate changes to the agents. Keeping one canonical copy means our brand voice,
 tech stack, and client standards stay consistent across the whole team.
 
-> Status: starter version. Items marked **TODO** need input from the team before they are
-> treated as final (see the bottom of this file).
+> Status: in use. The starter TODOs are resolved. Review the client-standards checklist with the
+> team periodically and raise the bar as our practices mature.
 
 ---
 
@@ -73,13 +73,59 @@ call to action is singular and clear. The underlying posture is confident withou
 promotional, and credible without being formal. He sounds like a founder who knows what he's doing
 and doesn't need to tell you that he knows.
 
-## Client standards (TODO: starter defaults, confirm with team)
+## Client standards
 
-- **Accessibility:** target WCAG 2.1 AA on client sites.
-- **Performance:** keep Core Web Vitals in the "good" range (LCP < 2.5s, INP < 200ms, CLS < 0.1).
-- **Change safety:** no production change without a staging copy and a fresh backup.
-- **SEO hygiene:** preserve URLs/redirects on migrations, keep metadata and structured data intact.
-- *Replace these with Eclipse's real client checklist when available.*
+These are the default standards every client site and deliverable should meet. A client brief or
+contract can raise the bar, but never silently lower it: if a project ships below one of these,
+call it out for human review first.
+
+### Accessibility
+
+- Target **WCAG 2.1 AA** on all client sites.
+- All images carry meaningful alt text (decorative images get empty alt).
+- Color contrast meets AA (4.5:1 for body text, 3:1 for large text and UI components).
+- Every interactive element is keyboard reachable and operable, with a visible focus state.
+- Forms have associated labels and clear, programmatic error messaging.
+- Use semantic HTML and correct heading order; reserve ARIA for cases native HTML cannot cover.
+
+### Performance
+
+- Keep Core Web Vitals in the "good" range: **LCP < 2.5s, INP < 200ms, CLS < 0.1** (field data,
+  mobile, 75th percentile).
+- Serve images in modern formats (WebP/AVIF), sized and lazy-loaded below the fold.
+- Defer non-critical JavaScript; avoid render-blocking resources above the fold.
+- Use caching and a CDN; on WordPress, use the Wordify caching layer rather than stacking plugins.
+
+### Security and privacy
+
+- Force HTTPS sitewide; redirect HTTP and keep certificates valid.
+- Keep platform core, themes, and plugins on supported, patched versions.
+- Secrets (API keys, gateway credentials) live in environment config, never in committed code or
+  the database in plaintext.
+- US data-privacy baseline: a working cookie consent mechanism, a current privacy policy, and
+  CCPA/CPRA handling where applicable. Confirm per-client obligations before launch.
+
+### Quality assurance and browser support
+
+- Test on current Chrome, Safari, Firefox, and Edge, plus iOS Safari and Android Chrome.
+- Verify responsive behavior at mobile, tablet, and desktop widths.
+- No console errors, no broken links, and no mixed-content warnings at launch.
+- Proofread all copy against the house voice and copy rules above before handoff.
+
+### Change safety
+
+- No production change without a staging copy and a fresh backup (see the Wordify staging
+  workflow above). Never edit a production site directly.
+- Make changes on staging, verify against this checklist, then push to production.
+- Have a rollback path (the backup) before any risky change goes live.
+
+### SEO hygiene
+
+- Preserve URLs on migrations; add 301 redirects for any URL that must change.
+- Keep title tags, meta descriptions, canonical tags, and structured data intact through changes.
+- Maintain a valid XML sitemap and a correct robots.txt; do not ship a site that blocks indexing
+  by accident (check for a leftover "Discourage search engines" / noindex setting before launch).
+- Preserve or migrate analytics and tracking so measurement is not lost at launch.
 
 ## Draft and review policy
 
@@ -91,5 +137,5 @@ not publish, deploy, or send on their own. When in doubt, stop and flag for revi
 
 ## Open TODOs
 
-1. Confirm or replace the **client standards** defaults with Eclipse's real checklist.
-2. Confirm the **upstream** repo URL recorded in `eclipse/FORK.md`.
+_None outstanding. Review the **Client standards** checklist with the team periodically and raise
+the bar as our practices mature._

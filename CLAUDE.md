@@ -8,7 +8,9 @@ to a **house team** of agents that match our services and customized them with E
 - **Source of truth:** `eclipse/house-standards.md` holds our brand voice, tech stack, client
   standards, and the draft/review policy. Read it before producing any client-facing copy.
 - **House team manifest:** `eclipse/eclipse-house-team.agents` lists the curated agents. Install
-  with `./scripts/install.sh --tool claude-code --agents-file eclipse/eclipse-house-team.agents`.
+  with `./scripts/install-house.sh` (the safe wrapper; defaults to Claude Code and only ever
+  installs the manifest). A bare `./scripts/install.sh` installs every agent on disk, including
+  the uncustomized bench, so prefer the wrapper.
 - **Fork strategy:** see `eclipse/FORK.md`. Our curated set is the source of truth. We cherry-pick
   upstream changes selectively, we do not bulk-merge upstream.
 
