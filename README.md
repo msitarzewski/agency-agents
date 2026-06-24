@@ -47,7 +47,7 @@ Each agent file contains:
 
 Browse the agents below and copy/adapt the ones you need!
 
-### Option 3: Use with Other Tools (GitHub Copilot, Antigravity, Gemini CLI, OpenCode, OpenClaw, Cursor, Aider, Windsurf, Kimi Code, Codex)
+### Option 3: Use with Other Tools (GitHub Copilot, Antigravity, Gemini CLI, OpenCode, OpenClaw, Cursor, Aider, Windsurf, Kimi Code, Codex, Kiro CLI)
 
 ```bash
 # Step 1 -- generate integration files for all supported tools
@@ -67,6 +67,7 @@ Browse the agents below and copy/adapt the ones you need!
 ./scripts/install.sh --tool windsurf
 ./scripts/install.sh --tool kimi
 ./scripts/install.sh --tool codex
+./scripts/install.sh --tool kiro
 ```
 
 **Install only the teams you need** (not everyone wants all 16 divisions):
@@ -652,6 +653,7 @@ The Agency works natively with Claude Code, and ships conversion + install scrip
 - **[Qwen Code](https://github.com/QwenLM/qwen-code)** — `.md` SubAgent files → `~/.qwen/agents/`
 - **[Kimi Code](https://github.com/MoonshotAI/kimi-cli)** — YAML agent specs → `~/.config/kimi/agents/`
 - **[Codex](https://developers.openai.com/codex/overview)** — TOML custom agents → `~/.codex/agents/`
+- **[Kiro CLI](https://kiro.dev)** — JSON agent files → `~/.kiro/agents/`
 
 ---
 
@@ -690,8 +692,9 @@ The installer scans your system for installed tools, shows a checkbox UI, and le
   [ ] 10)  [ ]  Qwen Code       (~/.qwen/agents)
   [ ] 11)  [ ]  Kimi Code       (~/.config/kimi/agents)
   [ ] 12)  [ ]  Codex           (~/.codex/agents)
+  [ ] 13)  [ ]  Kiro CLI        (~/.kiro/agents)
 
-  [1-12] toggle   [a] all   [n] none   [d] detected
+  [1-13] toggle   [a] all   [n] none   [d] detected
   [Enter] install   [q] quit
 ```
 
@@ -702,6 +705,7 @@ The installer scans your system for installed tools, shows a checkbox UI, and le
 ./scripts/install.sh --tool openclaw
 ./scripts/install.sh --tool antigravity
 ./scripts/install.sh --tool codex
+./scripts/install.sh --tool kiro
 ```
 
 **Non-interactive (CI/scripts):**
@@ -948,6 +952,31 @@ Use the Frontend Developer agent to review this component.
 See [integrations/codex/README.md](integrations/codex/README.md) for details.
 </details>
 
+<details>
+<summary><strong>Kiro CLI</strong></summary>
+
+Each agent is converted into a Kiro CLI agent JSON file and installed to `~/.kiro/agents/`.
+
+```bash
+./scripts/convert.sh --tool kiro
+./scripts/install.sh --tool kiro
+```
+
+**Usage with Kiro CLI:**
+```bash
+# List installed agents
+kiro-cli agent list
+
+# Switch to an agent in chat
+/agent swap frontend-developer
+
+# Or set as default
+kiro-cli agent set-default frontend-developer
+```
+
+See [integrations/kiro/README.md](integrations/kiro/README.md) for details.
+</details>
+
 ---
 
 ### Regenerating After Changes
@@ -967,7 +996,7 @@ When you add new agents or edit existing ones, regenerate all integration files:
 
 - [ ] Interactive agent selector web tool
 - [x] Multi-agent workflow examples -- see [examples/](examples/)
-- [x] Multi-tool integration scripts (Claude Code, GitHub Copilot, Antigravity, Gemini CLI, OpenCode, OpenClaw, Cursor, Aider, Windsurf, Qwen Code, Kimi Code, Codex)
+- [x] Multi-tool integration scripts (Claude Code, GitHub Copilot, Antigravity, Gemini CLI, OpenCode, OpenClaw, Cursor, Aider, Windsurf, Qwen Code, Kimi Code, Codex, Kiro CLI)
 - [ ] Video tutorials on agent design
 - [ ] Community agent marketplace
 - [ ] Agent "personality quiz" for project matching
