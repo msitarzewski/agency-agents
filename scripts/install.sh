@@ -835,7 +835,7 @@ hermes_external_dir_configured() {
     /^skills:/ { in_skills = 1; next }
     in_skills && /^[A-Za-z0-9_.-]+:/ && $0 !~ /^  / { in_skills = 0; in_ext = 0 }
     in_skills && /^  external_dirs:/ { in_ext = 1; next }
-    in_ext && /^    -.*agency-agents/ { found = 1; exit }
+    in_ext && /^[[:space:]]*-[[:space:]]*.*agency-agents/ { found = 1; exit }
     in_ext && /^  [A-Za-z0-9_.-]+:/ { in_ext = 0 }
     END { exit(found ? 0 : 1) }
   ' "$config" 2>/dev/null
@@ -852,11 +852,11 @@ hermes_insert_external_dir() {
     /^skills:/ { in_skills = 1; print; next }
     in_skills && /^[A-Za-z0-9_.-]+:/ && $0 !~ /^  / {
       if (in_ext && !inserted) {
-        print "    - " entry
+        print "  - " entry
         inserted = 1
       } else if (!has_ext && !inserted) {
         print "  external_dirs:"
-        print "    - " entry
+        print "  - " entry
         inserted = 1
       }
       in_skills = 0
@@ -870,7 +870,7 @@ hermes_insert_external_dir() {
       # Hermes often ships external_dirs: [] — replace empty inline list with block list
       if ($0 ~ /external_dirs:[[:space:]]*\[[[:space:]]*\]/) {
         print "  external_dirs:"
-        print "    - " entry
+        print "  - " entry
         inserted = 1
         next
       }
@@ -881,14 +881,14 @@ hermes_insert_external_dir() {
       print
       next
     }
-    in_ext && /^    -/ {
+    in_ext && /^[[:space:]]*-/ {
       if ($0 ~ /agency-agents/) { inserted = 1 }
       print
       next
     }
     in_ext && /^  [A-Za-z0-9_.-]+:/ {
       if (!inserted) {
-        print "    - " entry
+        print "  - " entry
         inserted = 1
       }
       in_ext = 0
@@ -897,7 +897,7 @@ hermes_insert_external_dir() {
     }
     in_ext && /^[^[:space:]]/ {
       if (!inserted) {
-        print "    - " entry
+        print "  - " entry
         inserted = 1
       }
       in_ext = 0
@@ -908,22 +908,27 @@ hermes_insert_external_dir() {
     END {
       if (in_skills && !has_ext && !inserted) {
         print "  external_dirs:"
-        print "    - " entry
+        print "  - " entry
         inserted = 1
       }
       if (in_ext && !inserted) {
-        print "    - " entry
+        print "  - " entry
       }
     }
   ' "$config" > "$tmp" && mv "$tmp" "$config"
 }
 
+hermes_home_dir() {
+  printf '%s\n' "${HERMES_HOME:-${HOME}/.hermes}"
+}
+
 ensure_hermes_external_dir() {
-  local config="${HOME}/.hermes/config.yaml"
-  local entry='~/.hermes/agency-agents'
+  local hermes_home; hermes_home="$(hermes_home_dir)"
+  local config="${hermes_home}/config.yaml"
+  local entry="${hermes_home}/agency-agents"
   local backup
 
-  mkdir -p "${HOME}/.hermes"
+  mkdir -p "$hermes_home"
 
   if [[ -f "$config" ]] && hermes_external_dir_configured "$config"; then
     return 0
@@ -939,10 +944,10 @@ ensure_hermes_external_dir() {
   fi
 
   if [[ ! -f "$config" ]]; then
-    cat > "$config" <<'EOF'
+    cat > "$config" <<EOF
 skills:
   external_dirs:
-    - ~/.hermes/agency-agents
+    - ${entry}
 EOF
     ok "Hermes: created config.yaml with skills.external_dirs"
     return 0
@@ -952,7 +957,7 @@ EOF
     warn "Hermes: no skills: section in $config — add manually (do not paste at EOF):"
     warn "  skills:"
     warn "    external_dirs:"
-    warn "      - ~/.hermes/agency-agents"
+    warn "      - $entry"
     return 1
   fi
 
@@ -967,13 +972,14 @@ EOF
   mv "$backup" "$config"
   err "Hermes: failed to update $config safely. Backup kept at $backup"
   warn "Hermes: add manually under skills.external_dirs:"
-  warn "    - ~/.hermes/agency-agents"
+  warn "    - $entry"
   return 1
 }
 
 install_hermes() {
   local src="$INTEGRATIONS/hermes"
-  local dest="${HOME}/.hermes/agency-agents"
+  local hermes_home; hermes_home="$(hermes_home_dir)"
+  local dest="${hermes_home}/agency-agents"
   local count=0
   [[ -d "$src" ]] || { err "integrations/hermes missing. Run convert.sh first."; return 1; }
   mkdir -p "$dest"
