@@ -24,6 +24,7 @@
 #   hermes       -- Copy workspaces to ~/.hermes/agency-agents/ + skills.external_dirs
 #   qwen         -- Copy SubAgents to ~/.qwen/agents/ (user-wide) or .qwen/agents/ (project)
 #   codex        -- Copy custom agent TOML files to ~/.codex/agents/
+#   osaurus      -- Copy skills to ~/.osaurus/skills/
 #   all          -- Install for all detected tools (default)
 #
 # Selection (compose freely; empty = everything):
@@ -47,7 +48,8 @@
 #   --help                Show this help
 #
 # Env: CLAUDE_CONFIG_DIR, COPILOT_AGENT_DIR, CURSOR_RULES_DIR, GEMINI_AGENTS_DIR,
-#      OPENCODE_AGENTS_DIR, OPENCLAW_DIR, QWEN_AGENTS_DIR, CODEX_AGENTS_DIR
+#      OPENCODE_AGENTS_DIR, OPENCLAW_DIR, QWEN_AGENTS_DIR, CODEX_AGENTS_DIR,
+#      OSAURUS_SKILLS_DIR
 #      override default install paths (checked before hardcoded defaults).
 #
 # --- USAGE-END ---  (sentinel for usage(); do not remove)
@@ -122,12 +124,16 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 REPO_ROOT="$(cd "$SCRIPT_DIR/.." && pwd)"
 INTEGRATIONS="$REPO_ROOT/integrations"
 
-ALL_TOOLS=(claude-code copilot antigravity gemini-cli opencode openclaw hermes cursor aider windsurf qwen kimi codex)
+ALL_TOOLS=(claude-code copilot antigravity gemini-cli opencode openclaw hermes cursor aider windsurf qwen kimi codex osaurus)
 # Shared helpers (get_field, agent_slug, slugify, incr, ANSI + TUI primitives)
 # shellcheck source=lib.sh
 . "$SCRIPT_DIR/lib.sh"
 
-# Standard agent category directories (keep sorted, sync with convert.sh / lint-agents.sh)
+# Directories scanned for installable agents. Intentionally includes strategy/
+# (its frontmatter-less NEXUS docs are filtered out by is_agent_file at scan time);
+# the selectable division list below is this set minus strategy. This is NOT the
+# same set as AGENT_DIRS in convert.sh / lint-agents.sh, which exclude strategy
+# entirely — see divisions.json (the source of truth) and scripts/check-divisions.sh.
 AGENT_DIRS=(
   academic design engineering finance game-development gis marketing paid-media product project-management
   sales security spatial-computing specialized strategy support testing
@@ -255,6 +261,7 @@ resolve_dest() {
     openclaw)    var="OPENCLAW_DIR" ;;
     qwen)        var="QWEN_AGENTS_DIR" ;;
     codex)       var="CODEX_AGENTS_DIR" ;;
+    osaurus)     var="OSAURUS_SKILLS_DIR" ;;
   esac
   if [[ -n "$var" && -n "${!var:-}" ]]; then printf '%s' "${!var}"; else printf '%s' "$def"; fi
 }
@@ -267,6 +274,7 @@ resolve_tool_path() {
     opencode) bin="opencode" ;; openclaw) bin="openclaw" ;; cursor) bin="cursor" ;;
     aider) bin="aider" ;; windsurf) bin="windsurf" ;; qwen) bin="qwen" ;;
     kimi) bin="kimi" ;; codex) bin="codex" ;; antigravity) bin="" ;;
+    osaurus) bin="osaurus" ;;
   esac
   [[ -n "$bin" ]] && command -v "$bin" 2>/dev/null
 }
@@ -364,6 +372,7 @@ detect_windsurf()     { command -v windsurf >/dev/null 2>&1 || [[ -d "${HOME}/.c
 detect_qwen()         { command -v qwen >/dev/null 2>&1 || [[ -d "${HOME}/.qwen" ]]; }
 detect_kimi()         { command -v kimi >/dev/null 2>&1; }
 detect_codex()        { command -v codex >/dev/null 2>&1 || [[ -d "${HOME}/.codex" ]]; }
+detect_osaurus()      { command -v osaurus >/dev/null 2>&1 || [[ -d "${HOME}/.osaurus" ]]; }
 
 is_detected() {
   case "$1" in
@@ -380,6 +389,7 @@ is_detected() {
     qwen)        detect_qwen        ;;
     kimi)        detect_kimi        ;;
     codex)       detect_codex       ;;
+    osaurus)     detect_osaurus     ;;
     *)           return 1 ;;
   esac
 }
@@ -400,6 +410,7 @@ tool_label() {
     qwen)        printf "%-14s  %s" "Qwen Code"    "(~/.qwen/agents)"        ;;
     kimi)        printf "%-14s  %s" "Kimi Code"    "(~/.config/kimi/agents)" ;;
     codex)       printf "%-14s  %s" "Codex"        "(~/.codex/agents)"       ;;
+    osaurus)     printf "%-14s  %s" "Osaurus"      "(~/.osaurus/skills)"     ;;
   esac
 }
 
@@ -523,7 +534,7 @@ tool_simple_name() {
     claude-code) echo "Claude Code";; copilot) echo "Copilot";; antigravity) echo "Antigravity";;
     gemini-cli) echo "Gemini CLI";; opencode) echo "OpenCode";; openclaw) echo "OpenClaw";;
     cursor) echo "Cursor";; aider) echo "Aider";; windsurf) echo "Windsurf";;
-    qwen) echo "Qwen Code";; kimi) echo "Kimi Code";; codex) echo "Codex";; *) echo "$1";;
+    qwen) echo "Qwen Code";; kimi) echo "Kimi Code";; codex) echo "Codex";; osaurus) echo "Osaurus";; *) echo "$1";;
   esac
 }
 
@@ -720,6 +731,23 @@ install_antigravity() {
     incr count
   done < <(find "$src" -mindepth 1 -maxdepth 1 -type d -print0)
   ok "Antigravity: $count skills -> $dest"
+}
+
+install_osaurus() {
+  local src="$INTEGRATIONS/osaurus"
+  local dest; dest="$(resolve_dest osaurus "${HOME}/.osaurus/skills")"
+  local count=0
+  [[ -d "$src" ]] || { err "integrations/osaurus missing. Run convert.sh first."; return 1; }
+  mkdir -p "$dest"
+  local d
+  while IFS= read -r -d '' d; do
+    local name; name="$(basename "$d")"
+    slug_allowed "$name" || continue
+    mkdir -p "$dest/$name"
+    install_file "$d/SKILL.md" "$dest/$name/SKILL.md"
+    incr count
+  done < <(find "$src" -mindepth 1 -maxdepth 1 -type d -print0)
+  ok "Osaurus: $count skills -> $dest"
 }
 
 install_gemini_cli() {
@@ -1091,6 +1119,7 @@ install_tool() {
     qwen)        install_qwen        ;;
     kimi)        install_kimi        ;;
     codex)       install_codex       ;;
+    osaurus)     install_osaurus     ;;
   esac
 }
 

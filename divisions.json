@@ -1,0 +1,21 @@
+{
+  "_note": "Source of truth for the agent division set. Each division (a top-level agent directory) maps to a display label, a Lucide icon name (PascalCase), and a brand color (hex). Consumed by the Agency Agents app and any other catalog tooling. scripts/check-divisions.sh (CI: check-divisions.yml) fails the build if this list disagrees with the directories on disk, the AGENT_DIRS arrays in scripts/convert.sh and scripts/lint-agents.sh, or the path filters in lint-agents.yml. To add a division: create its directory, add an entry here, then run scripts/check-divisions.sh and update wherever it points. NOT every top-level directory is a division: integrations/ holds per-tool conversion OUTPUTS written by scripts/convert.sh (not source agents); strategy/ holds playbooks and runbooks with no agent frontmatter; both — plus examples/ and scripts/ — are excluded via NON_DIVISION_DIRS in check-divisions.sh. A division must contain at least one frontmatter agent file.",
+  "divisions": {
+    "academic": { "label": "Academic", "icon": "GraduationCap", "color": "#8B5CF6" },
+    "design": { "label": "Design", "icon": "PenTool", "color": "#EC4899" },
+    "engineering": { "label": "Engineering", "icon": "Code", "color": "#3B82F6" },
+    "finance": { "label": "Finance", "icon": "DollarSign", "color": "#22C55E" },
+    "game-development": { "label": "Game Development", "icon": "Gamepad2", "color": "#A855F7" },
+    "gis": { "label": "GIS", "icon": "Map", "color": "#14B8A6" },
+    "marketing": { "label": "Marketing", "icon": "Megaphone", "color": "#F97316" },
+    "paid-media": { "label": "Paid Media", "icon": "Target", "color": "#EAB308" },
+    "product": { "label": "Product", "icon": "Box", "color": "#D946EF" },
+    "project-management": { "label": "Project Management", "icon": "ClipboardList", "color": "#0EA5E9" },
+    "sales": { "label": "Sales", "icon": "TrendingUp", "color": "#10B981" },
+    "security": { "label": "Security", "icon": "ShieldCheck", "color": "#EF4444" },
+    "spatial-computing": { "label": "Spatial Computing", "icon": "Boxes", "color": "#06B6D4" },
+    "specialized": { "label": "Specialized", "icon": "Sparkles", "color": "#6366F1" },
+    "support": { "label": "Support", "icon": "LifeBuoy", "color": "#84CC16" },
+    "testing": { "label": "Testing", "icon": "FlaskConical", "color": "#F59E0B" }
+  }
+}
