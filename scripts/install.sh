@@ -823,7 +823,10 @@ hermes_insert_external_dir() {
     BEGIN { in_skills = 0; in_ext = 0; inserted = 0; has_ext = 0 }
     /^skills:/ { in_skills = 1; print; next }
     in_skills && /^[A-Za-z0-9_.-]+:/ && $0 !~ /^  / {
-      if (!has_ext && !inserted) {
+      if (in_ext && !inserted) {
+        print "    - " entry
+        inserted = 1
+      } else if (!has_ext && !inserted) {
         print "  external_dirs:"
         print "    - " entry
         inserted = 1
