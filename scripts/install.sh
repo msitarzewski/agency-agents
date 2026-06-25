@@ -21,6 +21,7 @@
 #   aider        -- Copy CONVENTIONS.md to current directory
 #   windsurf     -- Copy .windsurfrules to current directory
 #   openclaw     -- Copy workspaces to ~/.openclaw/agency-agents/
+#   hermes       -- Copy skills to ~/.hermes/skills/agency-agents/
 #   qwen         -- Copy SubAgents to ~/.qwen/agents/ (user-wide) or .qwen/agents/ (project)
 #   codex        -- Copy custom agent TOML files to ~/.codex/agents/
 #   osaurus      -- Copy skills to ~/.osaurus/skills/
@@ -127,7 +128,7 @@ INTEGRATIONS="$REPO_ROOT/integrations"
 # shellcheck source=lib.sh
 . "$SCRIPT_DIR/lib.sh"
 
-ALL_TOOLS=(claude-code copilot antigravity gemini-cli opencode openclaw cursor aider windsurf qwen kimi codex osaurus)
+ALL_TOOLS=(claude-code copilot antigravity gemini-cli opencode openclaw hermes cursor aider windsurf qwen kimi codex osaurus)
 
 # Directories scanned for installable agents. Intentionally includes strategy/
 # (its frontmatter-less NEXUS docs are filtered out by is_agent_file at scan time);
@@ -259,6 +260,7 @@ resolve_dest() {
     gemini-cli)  var="GEMINI_AGENTS_DIR" ;;
     opencode)    var="OPENCODE_AGENTS_DIR" ;;
     openclaw)    var="OPENCLAW_DIR" ;;
+    hermes)      var="HERMES_SKILLS_DIR" ;;
     qwen)        var="QWEN_AGENTS_DIR" ;;
     codex)       var="CODEX_AGENTS_DIR" ;;
     osaurus)     var="OSAURUS_SKILLS_DIR" ;;
@@ -271,7 +273,7 @@ resolve_tool_path() {
   local bin=""
   case "$1" in
     claude-code) bin="claude" ;; copilot) bin="code" ;; gemini-cli) bin="gemini" ;;
-    opencode) bin="opencode" ;; openclaw) bin="openclaw" ;; cursor) bin="cursor" ;;
+    opencode) bin="opencode" ;; openclaw) bin="openclaw" ;; hermes) bin="hermes" ;; cursor) bin="cursor" ;;
     aider) bin="aider" ;; windsurf) bin="windsurf" ;; qwen) bin="qwen" ;;
     kimi) bin="kimi" ;; codex) bin="codex" ;; antigravity) bin="" ;;
     osaurus) bin="osaurus" ;;
@@ -367,6 +369,7 @@ detect_cursor()       { command -v cursor >/dev/null 2>&1 || [[ -d "${HOME}/.cur
 detect_opencode()     { command -v opencode >/dev/null 2>&1 || [[ -d "${HOME}/.config/opencode" ]]; }
 detect_aider()        { command -v aider >/dev/null 2>&1; }
 detect_openclaw()     { command -v openclaw >/dev/null 2>&1 || [[ -d "${HOME}/.openclaw" ]]; }
+detect_hermes()       { command -v hermes >/dev/null 2>&1 || [[ -d "${HOME}/.hermes/skills" ]]; }
 detect_windsurf()     { command -v windsurf >/dev/null 2>&1 || [[ -d "${HOME}/.codeium" ]]; }
 detect_qwen()         { command -v qwen >/dev/null 2>&1 || [[ -d "${HOME}/.qwen" ]]; }
 detect_kimi()         { command -v kimi >/dev/null 2>&1; }
@@ -381,6 +384,7 @@ is_detected() {
     gemini-cli)  detect_gemini_cli  ;;
     opencode)    detect_opencode    ;;
     openclaw)    detect_openclaw    ;;
+    hermes)      detect_hermes      ;;
     cursor)      detect_cursor      ;;
     aider)       detect_aider       ;;
     windsurf)    detect_windsurf    ;;
@@ -400,7 +404,8 @@ tool_label() {
     antigravity) printf "%-14s  %s" "Antigravity"  "(~/.gemini/antigravity)" ;;
     gemini-cli)  printf "%-14s  %s" "Gemini CLI"   "(~/.gemini/agents)"      ;;
     opencode)    printf "%-14s  %s" "OpenCode"     "(opencode.ai)"           ;;
-    openclaw)    printf "%-14s  %s" "OpenClaw"     "(~/.openclaw/agency-agents)" ;;
+    openclaw)    printf "%-14s  %s" "OpenClaw"     " (~/.openclaw/agency-agents)" ;;
+    hermes)      printf "%-14s  %s" "Hermes"       " (~/.hermes/skills/agency-agents)" ;;
     cursor)      printf "%-14s  %s" "Cursor"       "(.cursor/rules)"         ;;
     aider)       printf "%-14s  %s" "Aider"        "(CONVENTIONS.md)"        ;;
     windsurf)    printf "%-14s  %s" "Windsurf"     "(.windsurfrules)"        ;;
@@ -529,7 +534,8 @@ screen_tools() {
 tool_simple_name() {
   case "$1" in
     claude-code) echo "Claude Code";; copilot) echo "Copilot";; antigravity) echo "Antigravity";;
-    gemini-cli) echo "Gemini CLI";; opencode) echo "OpenCode";; openclaw) echo "OpenClaw";;
+    gemini-cli) echo "Gemini CLI";; opencode) echo "OpenCode";; openclaw)    echo "OpenClaw";;
+ hermes)      echo "Hermes Agent";;
     cursor) echo "Cursor";; aider) echo "Aider";; windsurf) echo "Windsurf";;
     qwen) echo "Qwen Code";; kimi) echo "Kimi Code";; codex) echo "Codex";; osaurus) echo "Osaurus";; *) echo "$1";;
   esac
@@ -823,6 +829,28 @@ install_openclaw() {
   fi
 }
 
+install_hermes() {
+  local src="$INTEGRATIONS/hermes"
+  local dest; dest="$(resolve_dest hermes "${HOME}/.hermes/skills/agency-agents")"
+  local count=0
+  [[ -d "$src" ]] || { err "integrations/hermes missing. Run convert.sh --tool hermes first."; return 1; }
+  mkdir -p "$dest"
+  # Hermes skills are SKILL.md per subdirectory — same layout as install
+  local d
+  while IFS= read -r -d '' d; do
+    local name; name="$(basename "$d")"
+    [[ -f "$d/SKILL.md" ]] || continue
+    mkdir -p "$dest/$name"
+    install_file "$d/SKILL.md" "$dest/$name/SKILL.md"
+    incr count
+  done < <(find "$src" -mindepth 2 -maxdepth 2 -type d -print0)
+  if (( count == 0 )); then
+    err "integrations/hermes contains no generated skills. Run ./scripts/convert.sh --tool hermes first."
+    return 1
+  fi
+  ok "Hermes: $count skills -> $dest"
+}
+
 install_cursor() {
   local src="$INTEGRATIONS/cursor/rules"
   local dest; dest="$(resolve_dest cursor "${PWD}/.cursor/rules")"
@@ -934,6 +962,7 @@ install_tool() {
     gemini-cli)  install_gemini_cli  ;;
     opencode)    install_opencode    ;;
     openclaw)    install_openclaw    ;;
+    hermes)      install_hermes      ;;
     cursor)      install_cursor      ;;
     aider)       install_aider       ;;
     windsurf)    install_windsurf    ;;

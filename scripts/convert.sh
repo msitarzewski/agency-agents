@@ -17,6 +17,7 @@
 #   aider        — Single CONVENTIONS.md for Aider
 #   windsurf     — Single .windsurfrules for Windsurf
 #   openclaw     — OpenClaw workspaces (integrations/openclaw/<agent>/SOUL.md)
+#   hermes       — Hermes Agent skills (integrations/hermes/<category>/<agent>/SKILL.md)
 #   qwen         — Qwen Code SubAgent files (~/.qwen/agents/*.md)
 #   kimi         — Kimi Code CLI agent files (~/.config/kimi/agents/)
 #   codex        — Codex custom agent TOML files (~/.codex/agents/*.toml)
@@ -302,6 +303,50 @@ ${body}
 HEREDOC
 }
 
+convert_hermes() {
+  local file="$1"
+  local name description color emoji vibe slug body outdir
+
+  name="$(get_field "name" "$file")"
+  description="$(get_field "description" "$file")"
+  color="$(get_field "color" "$file")"
+  emoji="$(get_field "emoji" "$file")"
+  vibe="$(get_field "vibe" "$file")"
+  slug="$(slugify "$name")"
+  body="$(get_body "$file")"
+
+  # Use the parent directory as category (engineering, marketing, etc.)
+  local dir_name
+  dir_name="$(basename "$(dirname "$file")")"
+  [[ -z "$dir_name" || "$dir_name" == "." ]] && dir_name="custom"
+
+  outdir="$OUT_DIR/hermes/${dir_name}/${slug}"
+  mkdir -p "$outdir"
+
+  # Hermes Agent SKILL.md format — same YAML frontmatter pattern Hermes uses
+  # for its skill system. Each agent lives in its own directory under
+  # integrations/hermes/<category>/<slug>/SKILL.md, just like Hermes expects.
+  cat > "${outdir}/SKILL.md" <<HERMESEOF
+---
+name: ${slug}
+description: "${description}"
+version: 1.0.0
+author: agency-agents
+tags: [${dir_name}, agent, ${slug}]
+---
+
+# ${emoji} ${name}
+
+*${vibe}*
+
+---
+
+${body}
+HERMESEOF
+
+  info "hermes: ${dir_name}/${slug}"
+}
+
 convert_openclaw() {
   local file="$1"
   local name description slug outdir body
@@ -571,6 +616,7 @@ run_conversions() {
         opencode)    convert_opencode    "$file" ;;
         cursor)      convert_cursor      "$file" ;;
         openclaw)    convert_openclaw    "$file" ;;
+        hermes)      convert_hermes      "$file" ;;
         qwen)        convert_qwen        "$file" ;;
         kimi)        convert_kimi        "$file" ;;
         osaurus)     convert_osaurus     "$file" ;;
@@ -604,7 +650,7 @@ main() {
     esac
   done
 
-  local valid_tools=("antigravity" "gemini-cli" "opencode" "cursor" "aider" "windsurf" "openclaw" "qwen" "kimi" "codex" "osaurus" "all")
+  local valid_tools=("antigravity" "gemini-cli" "opencode" "cursor" "aider" "windsurf" "openclaw" "hermes" "qwen" "kimi" "codex" "osaurus" "all")
   local valid=false
   for t in "${valid_tools[@]}"; do [[ "$t" == "$tool" ]] && valid=true && break; done
   if ! $valid; then
@@ -623,7 +669,7 @@ main() {
 
   local tools_to_run=()
   if [[ "$tool" == "all" ]]; then
-    tools_to_run=("antigravity" "gemini-cli" "opencode" "cursor" "aider" "windsurf" "openclaw" "qwen" "kimi" "codex" "osaurus")
+    tools_to_run=("antigravity" "gemini-cli" "opencode" "cursor" "aider" "windsurf" "openclaw" "hermes" "qwen" "kimi" "codex" "osaurus")
   else
     tools_to_run=("$tool")
   fi
@@ -634,7 +680,7 @@ main() {
 
   if $use_parallel && [[ "$tool" == "all" ]]; then
     # Tools that write to separate dirs can run in parallel; buffer output so each tool's output stays together
-    local parallel_tools=(antigravity gemini-cli opencode cursor openclaw qwen codex osaurus)
+    local parallel_tools=(antigravity gemini-cli opencode cursor openclaw hermes qwen codex osaurus)
     local parallel_out_dir
     parallel_out_dir="$(mktemp -d)"
     info "Converting: ${#parallel_tools[@]}/${n_tools} tools in parallel (output buffered per tool)..."

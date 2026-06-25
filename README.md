@@ -47,7 +47,7 @@ Each agent file contains:
 
 Browse the agents below and copy/adapt the ones you need!
 
-### Option 3: Use with Other Tools (GitHub Copilot, Antigravity, Gemini CLI, OpenCode, OpenClaw, Cursor, Aider, Windsurf, Kimi Code, Codex)
+### Option 3: Use with Other Tools (GitHub Copilot, Antigravity, Gemini CLI, OpenCode, OpenClaw, Hermes, Cursor, Aider, Windsurf, Kimi Code, Codex)
 
 ```bash
 # Step 1 -- generate integration files for all supported tools
@@ -62,6 +62,7 @@ Browse the agents below and copy/adapt the ones you need!
 ./scripts/install.sh --tool opencode
 ./scripts/install.sh --tool copilot
 ./scripts/install.sh --tool openclaw
+./scripts/install.sh --tool hermes
 ./scripts/install.sh --tool cursor
 ./scripts/install.sh --tool aider
 ./scripts/install.sh --tool windsurf
@@ -649,6 +650,7 @@ The Agency works natively with Claude Code, and ships conversion + install scrip
 - **[Aider](https://aider.chat)** — single `CONVENTIONS.md` → `./CONVENTIONS.md`
 - **[Windsurf](https://codeium.com/windsurf)** — single `.windsurfrules` → `./.windsurfrules`
 - **[OpenClaw](https://github.com/openclaw/openclaw)** — `SOUL.md` + `AGENTS.md` + `IDENTITY.md` per agent
+- **[Hermes Agent](https://github.com/NousResearch/hermes-agent)** — `SKILL.md` per agent → `~/.hermes/skills/agency-agents/`
 - **[Qwen Code](https://github.com/QwenLM/qwen-code)** — `.md` SubAgent files → `~/.qwen/agents/`
 - **[Kimi Code](https://github.com/MoonshotAI/kimi-cli)** — YAML agent specs → `~/.config/kimi/agents/`
 - **[Codex](https://developers.openai.com/codex/overview)** — TOML custom agents → `~/.codex/agents/`
@@ -684,14 +686,15 @@ The installer scans your system for installed tools, shows a checkbox UI, and le
   [ ]  4)  [ ]  Gemini CLI      (~/.gemini/agents)
   [ ]  5)  [ ]  OpenCode        (opencode.ai)
   [ ]  6)  [ ]  OpenClaw        (~/.openclaw/agency-agents)
-  [x]  7)  [*]  Cursor          (.cursor/rules)
-  [ ]  8)  [ ]  Aider           (CONVENTIONS.md)
-  [ ]  9)  [ ]  Windsurf        (.windsurfrules)
-  [ ] 10)  [ ]  Qwen Code       (~/.qwen/agents)
-  [ ] 11)  [ ]  Kimi Code       (~/.config/kimi/agents)
-  [ ] 12)  [ ]  Codex           (~/.codex/agents)
+  [ ]  7)  [ ]  Hermes          (~/.hermes/skills/agency-agents)
+  [x]  8)  [*]  Cursor          (.cursor/rules)
+  [ ]  9)  [ ]  Aider           (CONVENTIONS.md)
+  [ ] 10)  [ ]  Windsurf        (.windsurfrules)
+  [ ] 11)  [ ]  Qwen Code       (~/.qwen/agents)
+  [ ] 12)  [ ]  Kimi Code       (~/.config/kimi/agents)
+  [ ] 13)  [ ]  Codex           (~/.codex/agents)
 
-  [1-12] toggle   [a] all   [n] none   [d] detected
+  [1-13] toggle   [a] all   [n] none   [d] detected
   [Enter] install   [q] quit
 ```
 
@@ -880,6 +883,22 @@ If the `openclaw` CLI is available, the installer registers each workspace autom
 Run `openclaw gateway restart` after installation so the new agents are activated.
 
 See [integrations/openclaw/README.md](integrations/openclaw/README.md) for details.
+
+</details>
+
+<details>
+<summary><strong>Hermes Agent</strong></summary>
+
+Each agent becomes a standalone skill with `SKILL.md` in `~/.hermes/skills/agency-agents/`.
+
+```bash
+./scripts/convert.sh --tool hermes
+./scripts/install.sh --tool hermes
+```
+
+Hermes skills are self-contained — no registration step needed. Load any agent in-session with `/skill <agent-name>` or preload it at startup with `hermes --skills <agent-name>`.
+
+See [integrations/hermes/README.md](integrations/hermes/README.md) for details.
 
 </details>
 
