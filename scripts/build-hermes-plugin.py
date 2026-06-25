@@ -403,6 +403,33 @@ def readme(agent_count: int) -> str:
         - `agency_agents_load` — compose one specialist prompt for the current task.
         - `agency_agents_delegate` — delegate through Hermes `delegate_task` when available.
 
+        ## Specialist usage instruction for Hermes
+
+        When a Hermes project needs Agency specialists, explicitly ask Hermes to use
+        the `{PLUGIN_NAME}` plugin/router and load only the specialists needed for
+        the current phase. Do not ask Hermes to install or preload the full Agency
+        roster as skills.
+
+        Recommended project instruction:
+
+        ```text
+        Use the agency-agents-router plugin. Search the Agency roster for the right
+        specialists, then load or delegate only the specific agents needed for each
+        part of the project. For multi-discipline projects, use multiple selected
+        specialists across the project, but keep routing lazy: do not preload the
+        full Agency roster and do not add agency-agents to skills.external_dirs.
+        ```
+
+        Example:
+
+        ```text
+        For this Data Swami build, use the agency-agents-router plugin to pick
+        relevant Agency specialists. Search first, then delegate to selected agents
+        such as frontend, backend, UX, QA, data engineering, and product strategy as
+        needed. Load/delegate each specialist on demand rather than loading all
+        Agency agents at startup.
+        ```
+
         ## Install
 
         ```bash
