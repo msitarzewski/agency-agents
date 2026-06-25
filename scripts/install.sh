@@ -24,6 +24,7 @@
 #   qwen         -- Copy SubAgents to ~/.qwen/agents/ (user-wide) or .qwen/agents/ (project)
 #   codex        -- Copy custom agent TOML files to ~/.codex/agents/
 #   osaurus      -- Copy skills to ~/.osaurus/skills/
+#   hermes       -- Copy lazy-router plugin to ~/.hermes/plugins/ and enable it
 #   all          -- Install for all detected tools (default)
 #
 # Selection (compose freely; empty = everything):
@@ -48,7 +49,7 @@
 #
 # Env: CLAUDE_CONFIG_DIR, COPILOT_AGENT_DIR, CURSOR_RULES_DIR, GEMINI_AGENTS_DIR,
 #      OPENCODE_AGENTS_DIR, OPENCLAW_DIR, QWEN_AGENTS_DIR, CODEX_AGENTS_DIR,
-#      OSAURUS_SKILLS_DIR
+#      OSAURUS_SKILLS_DIR, HERMES_HOME, HERMES_PLUGIN_DIR
 #      override default install paths (checked before hardcoded defaults).
 #
 # --- USAGE-END ---  (sentinel for usage(); do not remove)
@@ -127,7 +128,7 @@ INTEGRATIONS="$REPO_ROOT/integrations"
 # shellcheck source=lib.sh
 . "$SCRIPT_DIR/lib.sh"
 
-ALL_TOOLS=(claude-code copilot antigravity gemini-cli opencode openclaw cursor aider windsurf qwen kimi codex osaurus)
+ALL_TOOLS=(claude-code copilot antigravity gemini-cli opencode openclaw cursor aider windsurf qwen kimi codex osaurus hermes)
 
 # Directories scanned for installable agents. Intentionally includes strategy/
 # (its frontmatter-less NEXUS docs are filtered out by is_agent_file at scan time);
@@ -262,6 +263,7 @@ resolve_dest() {
     qwen)        var="QWEN_AGENTS_DIR" ;;
     codex)       var="CODEX_AGENTS_DIR" ;;
     osaurus)     var="OSAURUS_SKILLS_DIR" ;;
+    hermes)      var="HERMES_PLUGIN_DIR" ;;
   esac
   if [[ -n "$var" && -n "${!var:-}" ]]; then printf '%s' "${!var}"; else printf '%s' "$def"; fi
 }
@@ -274,7 +276,7 @@ resolve_tool_path() {
     opencode) bin="opencode" ;; openclaw) bin="openclaw" ;; cursor) bin="cursor" ;;
     aider) bin="aider" ;; windsurf) bin="windsurf" ;; qwen) bin="qwen" ;;
     kimi) bin="kimi" ;; codex) bin="codex" ;; antigravity) bin="" ;;
-    osaurus) bin="osaurus" ;;
+    osaurus) bin="osaurus" ;; hermes) bin="hermes" ;;
   esac
   [[ -n "$bin" ]] && command -v "$bin" 2>/dev/null
 }
@@ -372,6 +374,7 @@ detect_qwen()         { command -v qwen >/dev/null 2>&1 || [[ -d "${HOME}/.qwen"
 detect_kimi()         { command -v kimi >/dev/null 2>&1; }
 detect_codex()        { command -v codex >/dev/null 2>&1 || [[ -d "${HOME}/.codex" ]]; }
 detect_osaurus()      { command -v osaurus >/dev/null 2>&1 || [[ -d "${HOME}/.osaurus" ]]; }
+detect_hermes()       { command -v hermes >/dev/null 2>&1 || [[ -d "${HERMES_HOME:-${HOME}/.hermes}" ]]; }
 
 is_detected() {
   case "$1" in
@@ -388,6 +391,7 @@ is_detected() {
     kimi)        detect_kimi        ;;
     codex)       detect_codex       ;;
     osaurus)     detect_osaurus     ;;
+    hermes)      detect_hermes      ;;
     *)           return 1 ;;
   esac
 }
@@ -408,6 +412,7 @@ tool_label() {
     kimi)        printf "%-14s  %s" "Kimi Code"    "(~/.config/kimi/agents)" ;;
     codex)       printf "%-14s  %s" "Codex"        "(~/.codex/agents)"       ;;
     osaurus)     printf "%-14s  %s" "Osaurus"      "(~/.osaurus/skills)"     ;;
+    hermes)      printf "%-14s  %s" "Hermes"       "(~/.hermes/plugins)"     ;;
   esac
 }
 
@@ -925,6 +930,133 @@ install_codex() {
   ok "Codex: $count agents -> $dest"
 }
 
+hermes_home_dir() {
+  printf '%s\n' "${HERMES_HOME:-${HOME}/.hermes}"
+}
+
+ensure_hermes_plugin_enabled() {
+  local hermes_home config plugin backup
+  hermes_home="$(hermes_home_dir)"
+  config="${hermes_home}/config.yaml"
+  plugin="agency-agents-router"
+  mkdir -p "$hermes_home"
+  backup="${config}.bak.agency-agents-plugin.$$"
+  [[ -f "$config" ]] && cp "$config" "$backup"
+  python3 - "$config" "$plugin" <<'PY'
+from pathlib import Path
+import sys
+
+path = Path(sys.argv[1])
+plugin = sys.argv[2]
+text = path.read_text() if path.exists() else ""
+lines = text.splitlines()
+
+# Already enabled?
+in_plugins = False
+in_enabled = False
+for line in lines:
+    if line.startswith("plugins:"):
+        in_plugins = True
+        in_enabled = False
+        continue
+    if in_plugins and line and not line.startswith((" ", "\t")):
+        in_plugins = False
+        in_enabled = False
+    stripped_line = line.strip()
+    if in_plugins and stripped_line == "enabled:":
+        in_enabled = True
+        continue
+    if in_plugins and stripped_line.startswith("enabled:") and "[]" in stripped_line:
+        in_enabled = False
+        continue
+    if in_enabled:
+        stripped = line.strip()
+        if stripped.startswith("-"):
+            value = stripped[1:].strip().strip('"\'')
+            if value == plugin:
+                sys.exit(0)
+        elif line.startswith("  ") and stripped.endswith(":"):
+            in_enabled = False
+
+if not lines:
+    lines = ["plugins:", "  enabled:", f"  - {plugin}"]
+elif not any(line.startswith("plugins:") for line in lines):
+    if lines and lines[-1].strip():
+        lines.append("")
+    lines.extend(["plugins:", "  enabled:", f"  - {plugin}"])
+else:
+    out = []
+    in_plugins = False
+    inserted = False
+    saw_enabled = False
+    for idx, line in enumerate(lines):
+        if line.startswith("plugins:"):
+            in_plugins = True
+            out.append(line)
+            continue
+        if in_plugins and line and not line.startswith((" ", "\t")):
+            if not saw_enabled and not inserted:
+                out.extend(["  enabled:", f"  - {plugin}"])
+                inserted = True
+            in_plugins = False
+            out.append(line)
+            continue
+        if in_plugins and line.strip().startswith("enabled:") and "[]" in line:
+            saw_enabled = True
+            out.extend(["  enabled:", f"  - {plugin}"])
+            inserted = True
+            continue
+        if in_plugins and line.strip() == "enabled:":
+            saw_enabled = True
+            out.append(line)
+            # Insert before the next sibling key or top-level key; if the list is
+            # empty this still creates a valid block.
+            out.append(f"  - {plugin}")
+            inserted = True
+            continue
+        out.append(line)
+    if in_plugins and not saw_enabled and not inserted:
+        out.extend(["  enabled:", f"  - {plugin}"])
+    lines = out
+path.write_text("\n".join(lines) + "\n")
+PY
+  if [[ -f "$backup" ]]; then
+    ok "Hermes: enabled plugin $plugin in $config (backup: $backup)"
+  else
+    ok "Hermes: created config.yaml with plugins.enabled: $plugin"
+  fi
+}
+
+install_hermes() {
+  local src="$INTEGRATIONS/hermes/agency-agents-router"
+  local hermes_home; hermes_home="$(hermes_home_dir)"
+  local dest; dest="$(resolve_dest hermes "${hermes_home}/plugins/agency-agents-router")"
+  [[ -f "$src/plugin.yaml" && -f "$src/__init__.py" && -f "$src/data/agents.json" ]] || {
+    err "integrations/hermes/agency-agents-router missing. Run ./scripts/convert.sh --tool hermes first."
+    return 1
+  }
+  mkdir -p "$(dirname "$dest")"
+  rm -rf "$dest"
+  if $USE_LINK; then
+    ln -s "$src" "$dest"
+  else
+    cp -R "$src" "$dest"
+  fi
+  ensure_hermes_plugin_enabled || warn "Hermes: plugin installed but config.yaml was not updated."
+  local count
+  count="$(python3 - "$src/data/agents.json" <<'PY'
+from pathlib import Path
+import json, sys
+print(len(json.loads(Path(sys.argv[1]).read_text())))
+PY
+)"
+  ok "Hermes: lazy-router plugin ($count agents on disk) -> $dest"
+  warn "Hermes: restart sessions/gateway so the new plugin toolset is discovered."
+  if $SELECTION_ACTIVE; then
+    warn "Hermes: selection flags ignored; router keeps the full roster on disk and loads agents lazily."
+  fi
+}
+
 install_tool() {
   ensure_converted "$1"
   case "$1" in
@@ -941,6 +1073,7 @@ install_tool() {
     kimi)        install_kimi        ;;
     codex)       install_codex       ;;
     osaurus)     install_osaurus     ;;
+    hermes)      install_hermes      ;;
   esac
 }
 

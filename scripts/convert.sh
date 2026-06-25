@@ -21,6 +21,7 @@
 #   kimi         — Kimi Code CLI agent files (~/.config/kimi/agents/)
 #   codex        — Codex custom agent TOML files (~/.codex/agents/*.toml)
 #   osaurus      — Osaurus skill files (~/.osaurus/skills/<name>/SKILL.md)
+#   hermes       — Hermes lazy-router plugin (one plugin + on-disk agent index)
 #   all          — All tools (default)
 #
 # Output is written to integrations/<tool>/ relative to the repo root.
@@ -548,6 +549,12 @@ run_conversions() {
   local tool="$1"
   local count=0
 
+  if [[ "$tool" == "hermes" ]]; then
+    clean_tool_output "$tool"
+    python3 "$SCRIPT_DIR/build-hermes-plugin.py" --repo-root "$REPO_ROOT" --out "$OUT_DIR/hermes"
+    return
+  fi
+
   clean_tool_output "$tool"
 
   for dir in "${AGENT_DIRS[@]}"; do
@@ -604,7 +611,7 @@ main() {
     esac
   done
 
-  local valid_tools=("antigravity" "gemini-cli" "opencode" "cursor" "aider" "windsurf" "openclaw" "qwen" "kimi" "codex" "osaurus" "all")
+  local valid_tools=("antigravity" "gemini-cli" "opencode" "cursor" "aider" "windsurf" "openclaw" "qwen" "kimi" "codex" "osaurus" "hermes" "all")
   local valid=false
   for t in "${valid_tools[@]}"; do [[ "$t" == "$tool" ]] && valid=true && break; done
   if ! $valid; then
@@ -623,7 +630,7 @@ main() {
 
   local tools_to_run=()
   if [[ "$tool" == "all" ]]; then
-    tools_to_run=("antigravity" "gemini-cli" "opencode" "cursor" "aider" "windsurf" "openclaw" "qwen" "kimi" "codex" "osaurus")
+    tools_to_run=("antigravity" "gemini-cli" "opencode" "cursor" "aider" "windsurf" "openclaw" "qwen" "kimi" "codex" "osaurus" "hermes")
   else
     tools_to_run=("$tool")
   fi
@@ -634,7 +641,7 @@ main() {
 
   if $use_parallel && [[ "$tool" == "all" ]]; then
     # Tools that write to separate dirs can run in parallel; buffer output so each tool's output stays together
-    local parallel_tools=(antigravity gemini-cli opencode cursor openclaw qwen codex osaurus)
+    local parallel_tools=(antigravity gemini-cli opencode cursor openclaw qwen codex osaurus hermes)
     local parallel_out_dir
     parallel_out_dir="$(mktemp -d)"
     info "Converting: ${#parallel_tools[@]}/${n_tools} tools in parallel (output buffered per tool)..."
