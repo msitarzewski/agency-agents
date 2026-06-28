@@ -21,7 +21,7 @@
 #   kimi         — Kimi Code CLI agent files (~/.config/kimi/agents/)
 #   codex        — Codex custom agent TOML files (~/.codex/agents/*.toml)
 #   osaurus      — Osaurus skill files (~/.osaurus/skills/<name>/SKILL.md)
-#   hermes       — Hermes lazy-router plugin (one plugin + on-disk agent index)
+#   zcode        — ZCode skills (.zcode/skills/<name>/SKILL.md or ~/.agents/skills/<name>/SKILL.md)
 #   all          — All tools (default)
 #
 # Output is written to integrations/<tool>/ relative to the repo root.
@@ -111,6 +111,33 @@ toml_escape_string() {
 }
 
 # --- Per-tool converters ---
+
+convert_zcode() {
+  local file="$1"
+  local name description slug outdir outfile body
+
+  name="$(get_field "name" "$file")"
+  description="$(get_field "description" "$file")"
+  slug="$(slugify "$name")"
+  body="$(get_body "$file")"
+
+  # ZCode skill format: directory per skill with SKILL.md
+  # Installs into ~/.agents/skills/<name>/SKILL.md or ~/.zcode/skills/<name>/SKILL.md
+  outdir="$OUT_DIR/zcode/skills/$slug"
+  outfile="$outdir/SKILL.md"
+  mkdir -p "$outdir"
+
+  # ZCode SKILL.md format: YAML frontmatter with name + description
+  # Description is the primary triggering signal for ZCode's skill system
+  cat > "$outfile" <<HEREDOC
+---
+name: ${slug}
+description: ${description}
+---
+
+${body}
+HEREDOC
+}
 
 convert_antigravity() {
   local file="$1"
@@ -549,12 +576,6 @@ run_conversions() {
   local tool="$1"
   local count=0
 
-  if [[ "$tool" == "hermes" ]]; then
-    clean_tool_output "$tool"
-    python3 "$SCRIPT_DIR/build-hermes-plugin.py" --repo-root "$REPO_ROOT" --out "$OUT_DIR/hermes"
-    return
-  fi
-
   clean_tool_output "$tool"
 
   for dir in "${AGENT_DIRS[@]}"; do
@@ -581,6 +602,7 @@ run_conversions() {
         qwen)        convert_qwen        "$file" ;;
         kimi)        convert_kimi        "$file" ;;
         osaurus)     convert_osaurus     "$file" ;;
+        zcode)       convert_zcode       "$file" ;;
         aider)       accumulate_aider    "$file" ;;
         windsurf)    accumulate_windsurf "$file" ;;
       esac
@@ -611,7 +633,7 @@ main() {
     esac
   done
 
-  local valid_tools=("antigravity" "gemini-cli" "opencode" "cursor" "aider" "windsurf" "openclaw" "qwen" "kimi" "codex" "osaurus" "hermes" "all")
+  local valid_tools=("antigravity" "gemini-cli" "opencode" "cursor" "aider" "windsurf" "openclaw" "qwen" "kimi" "codex" "osaurus" "zcode" "all")
   local valid=false
   for t in "${valid_tools[@]}"; do [[ "$t" == "$tool" ]] && valid=true && break; done
   if ! $valid; then
@@ -630,7 +652,7 @@ main() {
 
   local tools_to_run=()
   if [[ "$tool" == "all" ]]; then
-    tools_to_run=("antigravity" "gemini-cli" "opencode" "cursor" "aider" "windsurf" "openclaw" "qwen" "kimi" "codex" "osaurus" "hermes")
+    tools_to_run=("antigravity" "gemini-cli" "opencode" "cursor" "aider" "windsurf" "openclaw" "qwen" "kimi" "codex" "osaurus" "zcode")
   else
     tools_to_run=("$tool")
   fi
@@ -641,7 +663,7 @@ main() {
 
   if $use_parallel && [[ "$tool" == "all" ]]; then
     # Tools that write to separate dirs can run in parallel; buffer output so each tool's output stays together
-    local parallel_tools=(antigravity gemini-cli opencode cursor openclaw qwen codex osaurus hermes)
+    local parallel_tools=(antigravity gemini-cli opencode cursor openclaw qwen codex osaurus zcode)
     local parallel_out_dir
     parallel_out_dir="$(mktemp -d)"
     info "Converting: ${#parallel_tools[@]}/${n_tools} tools in parallel (output buffered per tool)..."
