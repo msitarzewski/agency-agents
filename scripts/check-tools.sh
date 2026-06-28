@@ -6,7 +6,8 @@
 # disagree with it:
 #   1. ALL_TOOLS in scripts/install.sh        (exact set — every installable tool)
 #   2. valid_tools in scripts/convert.sh      (every converter tool must exist in tools.json)
-#   3. Every tools.json entry has id, label, kebab, format, and dest
+#   3. Every tools.json entry has id, label, kebab, format, installKind, dest
+#      (installKind is one of: per-agent | roster | plugin)
 #
 # Add a tool: add an entry to tools.json, a convert_<tool> (or reuse a `format`)
 # in convert.sh, and an install_<tool> in install.sh, then run this script — it
@@ -65,9 +66,15 @@ notin="$(comm -13 <(echo "$canon") <(echo "$conv"))"
 while IFS= read -r t; do
   [[ -n "$t" ]] || continue
   line="$(grep -E "^    \"$t\"[[:space:]]*:" "$JSON")"
-  for field in id label kebab format dest; do
+  for field in id label kebab format installKind dest; do
     echo "$line" | grep -qE "\"$field\":" || fail "tool '$t' in $JSON is missing \"$field\""
   done
+  # installKind is the install MECHANISM (upstream truth), not app state: it must
+  # be one of the known kinds so every consumer can branch on it deterministically.
+  if echo "$line" | grep -qE '"installKind":'; then
+    echo "$line" | grep -qE '"installKind":[[:space:]]*"(per-agent|roster|plugin)"' \
+      || fail "tool '$t' in $JSON has an invalid installKind (must be per-agent|roster|plugin)"
+  fi
 done < <(echo "$canon")
 
 # --- result ----------------------------------------------------------------
