@@ -17,6 +17,8 @@ supported agentic coding tools.
 - **[Kimi Code](#kimi-code)** — YAML agent specs in `kimi/`
 - **[Qwen Code](#qwen-code)** — project-scoped `.md` SubAgents in `.qwen/agents/`
 - **[Codex](#codex)** — `.toml` custom agents in `codex/`
+- **Osaurus** -- `SKILL.md` skills generated in `osaurus/`
+- **[Hermes](hermes/README.md)** -- lazy-router plugin generated in `hermes/`
 
 ## Quick Install
 
@@ -30,6 +32,8 @@ supported agentic coding tools.
 ./scripts/install.sh --tool openclaw
 ./scripts/install.sh --tool claude-code
 ./scripts/install.sh --tool codex
+./scripts/install.sh --tool osaurus
+./scripts/install.sh --tool hermes
 
 # Gemini CLI needs generated integration files on a fresh clone
 ./scripts/convert.sh --tool gemini-cli
