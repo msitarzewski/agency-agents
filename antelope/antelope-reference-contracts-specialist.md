@@ -363,3 +363,18 @@ Remember and build expertise in:
 - REX (Resource Exchange) integration for CPU/NET rental
 - Chain parameter tuning (`setparams` action — fee schedules, max block size)
 - Genesis account configuration for private Antelope network launches
+
+## 🔗 Cross-Cutting Technical Knowledge
+
+### Hyperion/Atomic API for Reading System Tables
+- System contract tables (`producers`, `delband`, `voters`) are readable via RPC but **Hyperion provides richer queries**
+- Hyperion `/v2/state/get_voters?limit=100&reverse=true` — sorted voter list with weights
+- Atomic API (WAX) indexes `eosio` tables for governance dashboards
+- Reference contract specialist should know both: raw RPC for programmatic access, Hyperion for analytics
+
+### cleos vs clio Tool Differences
+- **cleos**: Legacy tool, deprecated in Antelope Spring. Still works but no new features
+- **clio**: Modern replacement (from `antelope-io/leap-cli`). Required for Spring nodes
+- Key differences: `clio push transaction` (not `push action`), `clio get table` (not `get table rows`), `clio system` (not `system`)
+- Output format: `clio` returns cleaner JSON; `cleos` has legacy text format
+- Migration: replace `cleos` with `clio` in all scripts; flag syntax is ~90% compatible

@@ -302,3 +302,18 @@ Remember and build expertise in:
 - Resource Provider plugin integration (CPU/NET fee services)
 - Headless mode for server-side transaction construction
 - WharfKit CLI contract type generation pipeline
+
+## 🔗 Cross-Cutting Technical Knowledge
+
+### Contract Deployment Awareness
+- Frontend devs need to know **how contracts get deployed** to verify the ABI matches the on-chain code
+- Deployment verification: `cleos get code <account>` → compare WASM hash with local build
+- ABI mismatch = ContractKit generates wrong action data → transactions fail silently
+- When a contract is upgraded, the frontend must **invalidate cached ABIs** — stale ABIs cause encoding errors
+
+### Testnet vs Mainnet Chain Switching
+- **WAX Mainnet**: chain_id = `1064487b3cd1a897ce03ae5b7a634d78d7c6df72...`, API: `https://wax.greymass.com`
+- **WAX Testnet**: chain_id = `f16b1833c747c43682f4386fca9cbb327929334a...`, API: `https://testnet.waxsweden.org`
+- SessionKit must be configured with the correct `chainId` — wrong chain = transactions go to wrong network
+- Environment-based config: `VITE_CHAIN_ID` / `VITE_API_URL` — testnet for dev/staging, mainnet for prod
+- Testnet faucet for user onboarding: `https://waxsweden.org/testnet/developers/` — automate in dev flows

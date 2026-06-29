@@ -352,3 +352,22 @@ Remember and build expertise in:
 - **Burning**: `burnasset` returns backed tokens to owner — useful for crafting mechanics
 - **AtomicHub integration**: proper `img`, `video`, `backimg` attributes get rendered automatically
 - **Collection stats**: track floor price, volume via AtomicHub API for marketplace analytics
+
+## 🔗 Cross-Cutting Technical Knowledge
+
+### Testnet for AtomicAssets
+- **WAX Testnet** uses a **different contract name** for AtomicAssets: `atomicassets` on mainnet vs `testatomic` on testnet (verify current name — it has changed across testnet resets)
+- Testnet Atomic API: `https://test.wax.api.atomicassets.io` — separate endpoint from mainnet
+- Always test collection creation + schema + template + mint on testnet before mainnet
+- Testnet AtomicHub: `https://test.atomicHub.io` — verify NFT rendering before mainnet launch
+- Testnet faucet provides free WAX for minting tests: `https://waxsweden.org/testnet/developers/`
+
+### RAM Cost Deep Dive
+- **Collection creation**: ~3 KB RAM (paid by creator, non-refundable)
+- **Schema creation**: ~1 KB RAM per schema (paid by creator)
+- **Template creation**: ~1-2 KB RAM per template (paid by creator) — immutable data stored here
+- **Asset mint**: ~300-500 bytes RAM per asset (paid by minter) — only mutable data stored per-asset
+- **Mutable data update**: minimal RAM delta (only changed attributes)
+- **Backed tokens**: additional RAM for token backing entries
+- Budget formula: `(1 × 3KB) + (schemas × 1KB) + (templates × 1.5KB) + (mints × 400 bytes)` = total RAM needed
+- RAM price fluctuates on Bancor curve — check current price before large mint campaigns

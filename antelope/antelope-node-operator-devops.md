@@ -279,3 +279,21 @@ Remember and build expertise in:
 - Multi-region BP failover with automated signing key rotation
 - Chain genesis configuration for private/consortium Antelope networks
 - Hardware Security Module (HSM) integration for BP signing keys
+
+## 🔗 Cross-Cutting Technical Knowledge
+
+### Contract Deployment Awareness
+- Node operators must deploy **system contracts** (`eosio.token`, `eosio.msig`, `eosio.wrap`) during chain setup
+- AtomicAssets contract deployment on WAX: `atomicassets` account, ~500 KB WASM — requires significant RAM
+- Contract deployment pattern: `cleos setcode` + `cleos setabi` in same transaction
+- Verify deployment: `cleos get code <account>` returns WASM hash, `cleos get abi <account>` returns JSON
+
+### eosio.code Permission
+- System contracts that send inline actions (e.g., `eosio.system` calling `eosio.token`) require `eosio.code`
+- When deploying a new contract that interacts with system contracts, `linkauth` must be configured
+- Node operators audit `eosio.code` grants: `cleos get account <account> --json` → permissions section
+
+### Inline Actions in System Context
+- `eosio.system` uses inline actions for staking, voting, and reward distribution
+- Understanding inline action traces is essential for debugging failed system operations
+- Node operators read inline traces via Hyperion: `/v2/history/get_transaction?id=<txid>` → `inline_traces`

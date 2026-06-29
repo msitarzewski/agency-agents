@@ -312,3 +312,17 @@ Remember and build expertise in:
 - Deploying local copies of AtomicAssets for NFT integration testing without WAX testnet
 - Configuring `state_history_plugin` for local Hyperion-compatible history
 - Running two local nodeos instances to simulate cross-chain messaging
+
+## 🔗 Cross-Cutting Technical Knowledge
+
+### Contract Deployment
+- **setcode + setabi must be atomic**: deploy both in same session or contract is bricked
+  ```bash
+  cleos setcode <account> /path/to/contract.wasm
+  cleos setabi  <account> /path/to/contract.abi
+  ```
+  If setabi fails, re-run setcode with same WASM before retrying
+- Verify deployment: `cleos get code <account>` returns WASM hash, `cleos get abi <account>` returns ABI JSON
+- Permission setup: `cleos set account permission <account> active <account>@eosio.code` for contracts that send inline actions
+- After deployment, always test with a simple action call before integrating with frontend
+- **System contract deployment**: deploy `eosio.token` before any token tests — create token, issue supply, open balances

@@ -301,3 +301,19 @@ Remember and build expertise in:
 - Wrapped token bridges (lock-and-mint cross-chain)
 - Governance token with on-chain voting weight snapshots
 - Merkle-tree airdrop contracts for gas-efficient distribution
+
+## 🔗 Cross-Cutting Technical Knowledge
+
+### Randomness for Fair Launches & Lotteries
+- **Commit-reveal pattern**: hash(secret) on-chain → reveal secret → mix with block hash → deterministic outcome
+- **WAX RNG oracle** (`orng.wax`): request → callback pattern, costs ~0.01 WAX per request, 1-2 block latency
+- **Never use `tapos_block_prefix` alone** — miners/validators can manipulate it. Always mix with user entropy
+- For token launches: use commit-reveal for fair ordering (prevent front-running)
+- For lottery mechanisms: combine multiple entropy sources (user secret + block hash + oracle)
+
+### Inline Actions for DeFi Composability
+- DeFi protocols need **flash loan-like patterns**: borrow → execute → repay in same transaction
+- Pattern: `on_notify` receives token → execute strategy → inline action to repay + fee
+- Requires `eosio.code` permission on the token contract
+- Example: AMM swap contract calls `eosio.token::transfer` inline to move tokens between pools
+- Security: always verify `get_first_receiver()` in `on_notify` — fake token notifications are the #1 DeFi exploit

@@ -313,3 +313,18 @@ Remember and build expertise in:
 - Cross-contract NFT utility (interoperable attributes between game contracts)
 - Migrating from SimpleAssets to a custom NFT standard without losing existing holders
 - NFT rental protocols for sharing gameplay-enabling assets
+
+## 🔗 Cross-Cutting Technical Knowledge
+
+### RAM Cost Management
+- **SimpleAssets**: Each NFT stores full metadata as key-value pairs — RAM cost scales with attribute count (~500 bytes–2 KB per NFT)
+- **Custom NFT contracts**: RAM paid by contract owner for table rows; design schemas to minimize per-row footprint
+- **AtomicAssets** (WAX): Templates share immutable data — massive RAM savings vs per-NFT storage
+- Budget RAM before collection launch: `mint_count × avg_bytes_per_nft × current_RAM_price`
+- RAM is non-refundable on SimpleAssets; custom contracts can refund on erase
+
+### eosio.code Permission for Contract-to-NFT Interactions
+- When a game contract mints/transfers NFTs on behalf of users, it needs `eosio.code` permission on the NFT contract
+- Pattern: `linkauth` from NFT contract → game contract with `eosio.code`
+- Without this, the game contract cannot call `simpleassets::transfer` or `mintasset` inline
+- Security: scope `eosio.code` to the specific game contract account, never wildcard

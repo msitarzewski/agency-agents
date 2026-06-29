@@ -248,3 +248,18 @@ Remember and build expertise in:
 - Permission graph analysis — mapping all `eosio.code` grants
 - Automated static analysis script generation for CDT contracts
 - Post-incident forensic analysis of exploited contracts
+
+## 🔗 Cross-Cutting Technical Knowledge
+
+### WASM-Level Vulnerabilities
+- **CDT compiler bugs**: optimizer can eliminate bounds checks in specific patterns — audit the WASM, not just the C++
+- **Undefined behavior in C++ → WASM**: signed integer overflow, null dereference, out-of-bounds access — all undefined in C++ but deterministic in WASM
+- **WASM memory model**: linear memory with no ASLR — buffer overflows are exploitable if they cross table row boundaries
+- **Tooling**: use `wasm2wat` to inspect generated WASM for unexpected instructions; `wasm-objdump` for section analysis
+- **CDT version-specific bugs**: each CDT release has known issues — maintain a checklist per version
+
+### Testnet for Attack Simulation
+- **Never simulate attacks on mainnet** — use WAX testnet (`waxsweden.org`) or local Docker nodeos
+- Testnet mirrors mainnet contract behavior: same WASM VM, same resource model, same action semantics
+- Attack simulation pattern: deploy vulnerable contract → execute exploit → verify impact → document → fix → re-test
+- WAX testnet faucet provides free resources for attack simulation without real cost

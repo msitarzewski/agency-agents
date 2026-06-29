@@ -358,3 +358,30 @@ Remember and build expertise in:
 - WebSocket streaming for real-time transaction notifications
 - State History Plugin consumer for custom indexing pipelines
 - Transaction cosigning service for gasless UX patterns
+
+## 🔗 Cross-Cutting Technical Knowledge
+
+### Testnet Integration
+- Backend services must support **chain switching** via environment config: same code targets local Docker → WAX testnet → WAX mainnet
+- Testnet accounts use different prefixes (e.g., `test.` on some chains); handle both formats
+- WAX testnet faucet: `https://waxsweden.org/testnet/developers/` — automate account funding in CI
+
+### Inline Actions for Composability
+- Backend services may need to **compose multi-contract transactions** (e.g., transfer token + log event in same tx)
+- Inline actions require the contract to have `eosio.code` permission on itself
+- Pattern: build action array → single `transact()` call → atomic success or full rollback
+
+### ABI Awareness
+- Backend must parse contract ABIs to **decode action data** from transaction traces
+- ABI changes on contract upgrade require backend cache invalidation — monitor `setabi` events
+- Use `@wharfkit/contract` ContractKit for type-safe ABI-driven action building
+
+### RAM Model
+- Backend-initiated table writes (e.g., logging tables) consume RAM paid by the service account
+- Budget RAM for persistent storage: ~200 bytes/row for simple tables
+- For high-volume logging, consider off-chain storage with on-chain hash anchoring
+
+### Randomness Patterns
+- Backend may serve as **commit-reveal coordinator**: generate server-side entropy, hash on-chain, reveal later
+- Never use server-side randomness alone for on-chain outcomes — always mix with on-chain entropy (tapos block prefix)
+- For WAX: backend can call `orng.wax` oracle via inline action from a contract, not directly

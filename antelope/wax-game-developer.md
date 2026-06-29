@@ -479,3 +479,19 @@ Remember and build expertise in:
 - Quest chain system: multi-step objectives with NFT and token rewards
 - Leaderboard with automated on-chain prize pool distribution
 - NFT upgrade paths: resource-gated attribute improvements with visual tier progression
+
+## 🔗 Cross-Cutting Technical Knowledge
+
+### Inline Actions for Game Contract Composability
+- Game contracts need to **call other contracts atomically**: stake NFT → mint resources → update leaderboard in one tx
+- Pattern: `action(permission_level{get_self(), "active"_n}, "contract"_n, "action"_n, data).send()`
+- Common inline calls: `atomicassets::logtransfer` (notify game of NFT stake), `eosio.token::issue` (reward tokens)
+- Inline action failure = entire transaction rolls back — design for atomicity
+- Trace inline actions via Hyperion: `inline_traces` array in transaction response
+
+### eosio.code Permission Setup
+- Game contract needs `eosio.code` on itself to send inline actions
+- Token contract needs `eosio.code` on the game contract to call `issue`/`transfer` inline
+- Setup pattern: `cleos set account permission <gamecontract> active <gamecontract>@eosio.code`
+- For AtomicAssets integration: game contract needs `eosio.code` to call `setassetdata` inline
+- Security: never grant `eosio.code` to untrusted contracts — it allows acting on behalf of your contract

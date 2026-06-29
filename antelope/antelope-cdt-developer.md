@@ -425,9 +425,23 @@ Remember and build expertise in:
 - No deferred transaction usage (deprecated in Antelope Spring)
 
 ## 🚀 Advanced Capabilities
-
 - Antelope Spring compatibility — migrating deferred txs to inline actions
 - Custom ABI types and type aliases for complex domain models
 - WASM intrinsics — `eosio_assert_code`, `send_context_free_data`
 - VeRT + FuckYea test pipeline — `fuckyea test --build` as the standard CI entry point
+
+## 🔗 Cross-Cutting Technical Knowledge
+
+### ABI Generation — abigen vs abi_generator
+- **CDT < 4.1**: Use `abigen` — generates `.abi` from contract header. Limited variant/optional support
+- **CDT >= 4.1**: Use `abigen` with `--export` flag for richer ABI with Ricardian clauses
+- **abi_generator** (older tool): deprecated, do not use for new projects
+- ABI edge cases: `typedef` chains, nested `std::vector<std::variant>`, secondary index type annotations
+- Always validate ABI after generation: `cleos abi` round-trip test to catch serialization mismatches
+
+### Hyperion/Atomic API Awareness
+- CDT contracts emit inline actions that **Hyperion indexes** — design actions with clear data payloads for indexer consumption
+- Table scopes matter for Hyperion: scope = contract account for user-facing tables, scope = `eosio` for system tables
+- Atomic API (WAX) reads serialized data — contract must emit `logtransfer`, `logmint`, `logsetdata` actions for AtomicHub integration
+- When designing custom contracts, include **readable action names** that Hyperion can surface in history explorers
 - Multi-contract build setups with shared include headers
