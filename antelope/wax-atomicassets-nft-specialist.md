@@ -371,3 +371,16 @@ Remember and build expertise in:
 - **Backed tokens**: additional RAM for token backing entries
 - Budget formula: `(1 × 3KB) + (schemas × 1KB) + (templates × 1.5KB) + (mints × 400 bytes)` = total RAM needed
 - RAM price fluctuates on Bancor curve — check current price before large mint campaigns
+
+### eosio.code for Contract-to-AtomicAssets Interactions
+- When a game or mint contract calls `atomicassets::mintasset` inline, it needs `eosio.code` permission on the AtomicAssets contract
+- Pattern: `cleos push action atomicassets addcolauth '{"collection_name":"mycollection","account_to_add":"gamecontract"}'`
+- `authorized_minter` and `authorized_editor` are collection-level permissions — separate from `eosio.code`
+- Without `eosio.code`, inline calls from other contracts fail with `missing authority`
+- For batch minting contracts: ensure the contract has both `eosio.code` on itself AND `authorized_minter` on the collection
+
+### Inline Actions with AtomicAssets
+- Game contracts use inline actions to **react to NFT transfers**: `on_notify("atomicassets::transfer")` → stake/unstake logic
+- Minting via inline action: game contract calls `atomicassets::mintasset` directly in its own action
+- `setassetdata` via inline: game contract updates mutable NFT attributes (level, XP) after gameplay events
+- Inline action traces appear in transaction responses — frontend can parse `inline_traces` for multi-step feedback

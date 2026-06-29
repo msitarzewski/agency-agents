@@ -378,3 +378,10 @@ Remember and build expertise in:
 - Key differences: `clio push transaction` (not `push action`), `clio get table` (not `get table rows`), `clio system` (not `system`)
 - Output format: `clio` returns cleaner JSON; `cleos` has legacy text format
 - Migration: replace `cleos` with `clio` in all scripts; flag syntax is ~90% compatible
+
+### Testnet Workflow for Reference Contracts
+- Reference contracts behave identically on testnet — same actions, same tables, same permission model
+- Use WAX testnet (`waxsweden.org`) to test governance flows (BP voting, staking, REX) without real value at risk
+- Testnet system accounts (`eosio.token`, `eosio.msig`) are pre-deployed — skip genesis steps
+- **4-stage pipeline applies to system-level work too**: VeRT → local Docker → WAX testnet → mainnet
+- Reference contract changes (e.g., custom `eosio.system` modifications) must be tested on local Docker first — testnet uses the standard system contract

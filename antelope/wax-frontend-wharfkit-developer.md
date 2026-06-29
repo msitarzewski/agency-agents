@@ -381,3 +381,37 @@ Remember and build expertise in:
 - AtomicAssets API read integration for NFT display alongside chain table reads
 - Real-time resource gauge UI using `get_account` polling
 - WharfKit ContractKit for fully typed contract action calls
+
+## 🔗 Cross-Cutting Technical Knowledge
+
+### Contract Deployment Awareness
+- Frontend devs need to know **how contracts get deployed** to verify the ABI matches the on-chain code
+- Deployment verification: `cleos get code <account>` → compare WASM hash with local build
+- ABI mismatch = ContractKit generates wrong action data → transactions fail silently
+- When a contract is upgraded, the frontend must **invalidate cached ABIs** — stale ABIs cause encoding errors
+
+### Testnet vs Mainnet Chain Switching
+- **WAX Mainnet**: chain_id = `1064487b3cd1a897ce03ae5b7a634d78d7c6df72...`, API: `https://wax.greymass.com`
+- **WAX Testnet**: chain_id = `f16b1833c747c43682f4386fca9cbb327929334a...`, API: `https://testnet.waxsweden.org`
+- SessionKit must be configured with the correct `chainId` — wrong chain = transactions go to wrong network
+- Environment-based config: `VITE_CHAIN_ID` / `VITE_API_URL` — testnet for dev/staging, mainnet for prod
+- Testnet faucet for user onboarding: `https://waxsweden.org/testnet/developers/` — automate in dev flows
+
+### eosio.code Permission Awareness
+- When a dApp's smart contract calls another contract (e.g., game contract calling `eosio.token::issue`), the **calling contract needs `eosio.code` on itself**
+- Frontend devs should verify `eosio.code` is set up when integrating with contracts that use inline actions
+- Check: `cleos get account <contract> --json` → look for `eosio.code` in active permission accounts
+- Missing `eosio.code` = contract's inline actions fail with `missing authority of <contract>`
+
+### Resource Model for Frontend
+- **WAX Cloud Wallet users often have zero CPU/NET** — integrate Resource Provider plugin (`@wharfkit/transact-plugin-resource-provider`)
+- Resource Provider pays CPU/NET on behalf of users — essential for casual gamers
+- Display resource gauges in UI: poll `get_account` → show CPU/NET bars with color-coded warnings
+- RAM is paid by contract deployers, not users — frontend doesn't manage RAM directly
+- If transactions fail with "transaction net usage is too high", the user needs more CPU/NET or Resource Provider
+
+### Inline Actions — What the Frontend Sees
+- Inline actions appear as `inline_traces` in transaction responses — frontend can parse these for multi-step feedback
+- Example: a "stake NFT" transaction may contain inline actions for `atomicassets::transfer` + token issuance
+- Use `result.processed.action_traces` to show users what happened beyond the top-level action
+- Failed inline actions = entire tx rolls back — frontend should show the specific inline failure

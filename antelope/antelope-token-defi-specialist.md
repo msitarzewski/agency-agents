@@ -317,3 +317,18 @@ Remember and build expertise in:
 - Requires `eosio.code` permission on the token contract
 - Example: AMM swap contract calls `eosio.token::transfer` inline to move tokens between pools
 - Security: always verify `get_first_receiver()` in `on_notify` — fake token notifications are the #1 DeFi exploit
+
+### Resource Management for DeFi
+- **Token contracts consume RAM** for account balance rows — each `open` action creates a row (~128 bytes)
+- Staking contracts store per-user rows: staked amount, reward accumulator, timestamp — budget ~200 bytes/user
+- AMM pools use singletons (single row) — minimal RAM but high read frequency
+- **CPU/NET costs scale with inline actions**: a swap that touches 2 pools + issues LP tokens = 4 actions = 4x CPU
+- Design for resource efficiency: batch operations, minimize inline action depth, avoid unbounded loops
+
+### 4-Stage Testnet Pipeline
+- **Stage 1 — VeRT unit tests**: Test token math, staking calculations, AMM formulas in-process (milliseconds)
+- **Stage 2 — Local Docker nodeos**: Deploy contracts to `waxteam/waxdev`, test multi-contract integration
+- **Stage 3 — WAX public testnet**: Test with real WAX RNG oracle, real token economics, real resource constraints
+- **Stage 4 — WAX mainnet**: Production deployment with security audit complete
+- **Never skip stages**: VeRT catches math bugs, Docker catches integration bugs, testnet catches economic bugs
+- Each stage is cheaper than fixing the next stage — a mainnet exploit costs orders of magnitude more than testnet iteration
