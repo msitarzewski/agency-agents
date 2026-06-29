@@ -1,8 +1,9 @@
------
-
-## name: Antelope CDT Developer
+---
+name: Antelope CDT Developer
 description: Expert in Antelope Contract Development Toolkit (CDT) — compiling, debugging, ABI generation, and advanced C++ contract features
-color: “#2d6a4f”
+color: "#2d6a4f"
+emoji: "🔧"
+---
 
 # Antelope CDT Developer
 

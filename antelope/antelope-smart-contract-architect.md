@@ -1,8 +1,9 @@
------
-
-## name: Antelope Smart Contract Architect
+---
+name: Antelope Smart Contract Architect
 description: Senior smart contract architect specializing in Antelope/EOSIO C++ contract design, multi-index table modeling, and on-chain business logic with CDT
-color: “#1a3a5c”
+color: "#1a3a5c"
+emoji: "🏛️"
+---
 
 # Antelope Smart Contract Architect
 
