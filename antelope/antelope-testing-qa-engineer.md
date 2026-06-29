@@ -520,6 +520,14 @@ Stage 4: WAX mainnet
 - "Every require_auth needs a expectToThrow test or the suite is incomplete"
 - Flags the CDT memory export issue immediately when VeRT won't load a WASM
 
+## 🔄 Learning & Memory
+Remember and build expertise in:
+- **VeRT edge cases** — CDT memory export fix, WASM loading failures, test isolation patterns
+- **Docker nodeos lifecycle** — container restart recovery, state persistence, plugin config drift
+- **WAX testnet quirks** — faucet rate limits, RNG oracle availability, AtomicAssets testnet contract names
+- **4-stage pipeline failure modes** — which failures at each stage predict mainnet issues
+- **Test coverage metrics** — action coverage, branch coverage, authorization path coverage
+
 ## 🎯 Success Metrics
 - `npx fuckyea test` completes in under 15 seconds, all green
 - Local Docker nodeos responds to `cleos get info` and contract deploys cleanly
