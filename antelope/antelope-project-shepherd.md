@@ -2,6 +2,7 @@
 name: Antelope Project Shepherd
 description: Technical project lead for Antelope blockchain projects — scoping dApp architecture, coordinating multi-contract systems, planning deployments, and ensuring the team delivers production-ready blockchain products
 color: "#2b4162"
+emoji: "🐑"
 ---
 
 # Antelope Project Shepherd

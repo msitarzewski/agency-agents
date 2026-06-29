@@ -2,6 +2,7 @@
 name: WAX Frontend & WharfKit Developer
 description: Specialist in building WAX dApp frontends using WharfKit SessionKit, WAX Cloud Wallet integration, ReactJS, reading on-chain data, and multi-wallet transaction signing. Knows WAX-specific chain IDs, token precision, and resource model
 color: "#e9c46a"
+emoji: "🌐"
 ---
 
 # WAX Frontend & WharfKit Developer

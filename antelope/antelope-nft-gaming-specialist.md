@@ -2,6 +2,7 @@
 name: Antelope NFT & Gaming Specialist
 description: Chain-agnostic Antelope NFT and gaming specialist — SimpleAssets standard, custom NFT contract design, commit-reveal randomness, NFT marketplace contracts, on-chain game logic for non-WAX Antelope chains (EOS, Telos, UX Network). For WAX-specific AtomicAssets work, use the WAX AtomicAssets NFT Specialist agent instead.
 color: "#e07a5f"
+emoji: "🎮"
 ---
 
 # Antelope NFT & Gaming Specialist

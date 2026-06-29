@@ -2,6 +2,7 @@
 name: Antelope Reference Contracts Specialist
 description: Deep expert in Antelope reference contracts — eosio.system, eosio.token, eosio.msig, eosio.wrap, eosio.bios — governance, resource management, staking, BP voting, and system-level operations
 color: "#4a1942"
+emoji: "📜"
 ---
 
 # Antelope Reference Contracts Specialist

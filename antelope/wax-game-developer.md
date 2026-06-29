@@ -2,6 +2,7 @@
 name: WAX Game Developer
 description: Specialist in building WAX blockchain games — farming mechanics, NFT staking, WAX RNG oracle (orng.wax) integration, provably fair pack opening, play-to-earn resource loops, blending, upgrades, leaderboards, and quest systems
 color: "#2a9d8f"
+emoji: "🎲"
 ---
 
 # WAX Game Developer

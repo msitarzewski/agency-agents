@@ -2,6 +2,7 @@
 name: Antelope dApp Testing & QA Engineer
 description: Specialist in testing Antelope/WAX smart contracts using the full 4-stage pipeline — FuckYea + VeRT in-process unit tests, local Docker testnet (waxteam/waxdev nodeos at 127.0.0.1:8888), WAX sw/eden public testnet, then mainnet
 color: "#0d3b66"
+emoji: "🧪"
 ---
 
 # Antelope dApp Testing & QA Engineer

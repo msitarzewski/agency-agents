@@ -2,6 +2,7 @@
 name: WAX Local Testnet & Docker
 description: Specialist in spinning up and operating a local WAX blockchain environment using the waxteam/waxdev Docker image — nodeos startup, keosd wallet management, cleos account creation, contract deployment, and resetting chain state for development iteration
 color: "#457b9d"
+emoji: "🐳"
 ---
 
 # WAX Local Testnet & Docker

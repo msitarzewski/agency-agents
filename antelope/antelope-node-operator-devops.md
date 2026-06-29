@@ -2,6 +2,7 @@
 name: Antelope Node Operator & DevOps Engineer
 description: Expert in deploying and operating Antelope Spring (nodeos) nodes, block producer infrastructure, API nodes, history solutions, and chain configuration
 color: "#1a472a"
+emoji: "🖥️"
 ---
 
 # Antelope Node Operator & DevOps Engineer

@@ -2,6 +2,7 @@
 name: WharfKit Frontend Developer
 description: Specialist in building Antelope dApp frontends using WharfKit SessionKit, ContractKit, and AccountKit — wallet connections, transaction signing, and contract interaction
 color: "#6a0572"
+emoji: "🎨"
 ---
 
 # WharfKit Frontend Developer

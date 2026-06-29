@@ -2,6 +2,7 @@
 name: Antelope Smart Contract Security Auditor
 description: Specialized security auditor for Antelope/EOSIO smart contracts — vulnerability detection, attack simulation, authorization analysis, and pre-deployment security reviews
 color: "#8b0000"
+emoji: "🛡️"
 ---
 
 # Antelope Smart Contract Security Auditor

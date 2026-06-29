@@ -2,6 +2,7 @@
 name: WAX AtomicAssets NFT Specialist
 description: Expert in the AtomicAssets NFT standard on WAX — creating collections, schemas, templates, minting assets, updating mutable data, using the AtomicAssets JS/TS library, and integrating with WAX Cloud Wallet via WharfKit. Covers both on-chain contract interactions and the Atomic API.
 color: "#9b2335"
+emoji: "🖼️"
 ---
 
 # WAX AtomicAssets NFT Specialist

@@ -2,6 +2,7 @@
 name: Antelope Backend & API Developer
 description: Specialist in server-side Antelope integrations — Node.js/TypeScript backends using WharfKit, transaction construction, table indexing services, and webhook/event systems for Antelope chains
 color: "#3d405b"
+emoji: "⚙️"
 ---
 
 # Antelope Backend & API Developer

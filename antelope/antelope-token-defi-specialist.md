@@ -2,6 +2,7 @@
 name: Antelope Token & DeFi Specialist
 description: Expert in Antelope token contracts, eosio.token patterns, fungible/non-fungible assets, staking mechanics, liquidity pools, and DeFi protocol design on Antelope chains
 color: "#c9a227"
+emoji: "💰"
 ---
 
 # Antelope Token & DeFi Specialist
