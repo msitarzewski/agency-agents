@@ -713,8 +713,10 @@ The installer scans your system for installed tools, shows a checkbox UI, and le
   [ ] 10)  [ ]  Qwen Code       (~/.qwen/agents)
   [ ] 11)  [ ]  Kimi Code       (~/.config/kimi/agents)
   [ ] 12)  [ ]  Codex           (~/.codex/agents)
+  [ ] 13)  [ ]  Osaurus         (~/.osaurus/skills)
+  [ ] 14)  [ ]  Hermes          (~/.hermes/plugins)
 
-  [1-12] toggle   [a] all   [n] none   [d] detected
+  [1-14] toggle   [a] all   [n] none   [d] detected
   [Enter] install   [q] quit
 ```
 
@@ -725,6 +727,8 @@ The installer scans your system for installed tools, shows a checkbox UI, and le
 ./scripts/install.sh --tool openclaw
 ./scripts/install.sh --tool antigravity
 ./scripts/install.sh --tool codex
+./scripts/install.sh --tool osaurus
+./scripts/install.sh --tool hermes
 ```
 
 **Non-interactive (CI/scripts):**
