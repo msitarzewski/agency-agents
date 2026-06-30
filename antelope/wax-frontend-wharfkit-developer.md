@@ -76,6 +76,8 @@ export const sessionKit = new SessionKit({
 })
 ```
 
+> **Multi-chain note:** this is the team's single WharfKit frontend agent. The patterns here are WAX-first (MyCloudWallet, 8-decimal precision, Resource Provider), but WharfKit itself is chain-agnostic — to target EOS/Vaulta, Telos, or UX, swap the `chains` entry (chain ID + RPC) and add the appropriate wallet plugins (e.g. `WalletPluginAnchor`, `WalletPluginWombat`). Use `Chains.*` from `@wharfkit/session` for well-known chain IDs. For a multi-wallet/multi-chain login, list several chains and plugins in the arrays above.
+
 ### Login / Logout / Session Restore Hook
 ```typescript
 // hooks/useWAXSession.ts
@@ -258,6 +260,46 @@ export async function getPlayerStakes(player: string) {
 export async function getPlayerResources(player: string) {
   return getTableRows("mygamecontr", "resources", player)
 }
+
+// Paginate a large table fully via next_key (raw RPC; no extra deps)
+export async function getAllRows<T = any>(code: string, table: string, scope: string): Promise<T[]> {
+  let rows: T[] = []
+  let lower: string | undefined
+  do {
+    const res = await fetch(`${RPC}/v1/chain/get_table_rows`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ code, table, scope, json: true, limit: 1000, lower_bound: lower }),
+    })
+    const data = await res.json()
+    rows = rows.concat(data.rows as T[])
+    lower = data.more ? data.next_key : undefined  // keep going while `more` is true
+  } while (lower)
+  return rows
+}
+```
+
+### Typed Reads & Actions with ContractKit (preferred over raw fetch)
+ContractKit loads the on-chain ABI and gives you typed table reads and action builders — fewer
+encoding mistakes than hand-built `fetch` calls. Use it when you want type safety; keep the raw
+`fetch` helpers above as a zero-dependency fallback.
+
+```typescript
+import { APIClient } from "@wharfkit/antelope"
+import { ContractKit } from "@wharfkit/contract"
+
+const client = new APIClient({ url: import.meta.env.VITE_RPC })
+const contractKit = new ContractKit({ client })
+
+// Load once, reuse. ABI is fetched and cached; invalidate if the contract is upgraded.
+const game = await contractKit.load("mygamecontr")
+
+// Typed table query (cursor-based, handles pagination internally)
+const stakes = await game.table("staked").query({ scope: "alice1111111" }).all()
+
+// Build a typed action, then sign it with the user's session
+const action = game.action("claim", { owner: "alice1111111", farmingitem: "12345" })
+await session.transact({ action }, { expireSeconds: 120 })
 ```
 
 ### Multi-Session (Multiple Wallets / Chains)

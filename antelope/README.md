@@ -14,7 +14,6 @@ antelope/
 │  # ── Core / Engineering (chain-agnostic + WAX-compatible) ──────────────
 ├── antelope-smart-contract-architect.md
 ├── antelope-cdt-developer.md
-├── antelope-wharfkit-frontend-developer.md
 ├── antelope-security-auditor.md
 ├── antelope-token-defi-specialist.md
 ├── antelope-node-operator-devops.md
@@ -27,7 +26,7 @@ antelope/
 │
 │  # ── WAX-specific ─────────────────────────────────────────────────────
 ├── wax-local-testnet-docker.md              ← Stage 2: local Docker chain environment
-├── wax-frontend-wharfkit-developer.md
+├── wax-frontend-wharfkit-developer.md       ← the single WharfKit frontend agent (WAX-first, multi-chain capable)
 ├── wax-atomicassets-nft-specialist.md
 ├── wax-game-developer.md                     ← farming/staking/blending + WAX RNG flow
 ├── wax-rng-oracle-specialist.md             ← orng.wax deep dive + RNG v3.x capacity
@@ -36,13 +35,12 @@ antelope/
 
 ---
 
-## 🔧 Engineering Team (12 Agents)
+## 🔧 Engineering Team (11 Agents)
 
 | Agent | Role | Key Tools |
 |---|---|---|
 | **Smart Contract Architect** | C++ contract design, multi-index tables, auth patterns | CDT, eosio.hpp |
 | **CDT Developer** | Compilation, WASM optimization, ABI, build tooling | cdt-cpp, CMake, FuckYea build |
-| **WharfKit Frontend Developer** | dApp frontends, SessionKit, ContractKit, AccountKit (multi-chain) | WharfKit, React, TypeScript |
 | **Security Auditor** | Vulns, fake notifications, auth bypass, RAM drain | Manual review + adversarial tests |
 | **Token & DeFi Specialist** | eosio.token, staking, AMM, vesting | C++, lazy reward math |
 | **Node Operator & DevOps** | Production nodeos config, BP infra, snapshots, monitoring | Docker Compose, Prometheus |
@@ -60,7 +58,7 @@ antelope/
 | Agent | Role | Key Tools |
 |---|---|---|
 | **WAX Local Testnet & Docker** | Stage 2 local chain: nodeos startup, keosd, accounts, deploy, reset | `waxteam/waxdev`, cleos, keosd |
-| **WAX Frontend & WharfKit Developer** | React dApps, MyCloudWallet first, session management | WharfKit, WalletPluginCloudWallet |
+| **WAX Frontend & WharfKit Developer** | The team's single WharfKit frontend (WAX-first, multi-chain capable): React dApps, MyCloudWallet first, SessionKit/ContractKit, session management | WharfKit, WalletPluginCloudWallet |
 | **WAX AtomicAssets NFT Specialist** | Collections, schemas, templates, minting, mutable data | atomicassets contract, AtomicAssets API |
 | **WAX Game Developer** | Farming, NFT staking, WAX RNG flow, blending, quests, economy | orng.wax, atomicassets.hpp, ReactJS |
 | **WAX RNG Oracle Specialist** | orng.wax deep dive, unbiased extraction, callback security, RNG v3.x staking/capacity | orng.wax, Signidice/RSA, Hyperion |
@@ -141,7 +139,7 @@ Antelope NFT & Gaming Specialist → SimpleAssets or custom NFT + commit-reveal 
 Smart Contract Architect         → table design
 CDT Developer                    → compile + fuckyea test
 Testing & QA Engineer            → VeRT → local nodeos → Jungle4 testnet
-WharfKit Frontend Developer      → multi-chain SessionKit + Anchor wallet
+WAX Frontend & WharfKit Developer → multi-chain capable: SessionKit + Anchor wallet (swap chain id/RPC for EOS/Vaulta/Telos/UX)
 ```
 
 ### Production Node / Block Producer
