@@ -25,6 +25,7 @@
 #   codex        -- Copy custom agent TOML files to ~/.codex/agents/
 #   osaurus      -- Copy skills to ~/.osaurus/skills/
 #   hermes       -- Copy lazy-router plugin to ~/.hermes/plugins/ and enable it
+#   grok         -- Copy skills to ~/.grok/skills/
 #   all          -- Install for all detected tools (default)
 #
 # Selection (compose freely; empty = everything):
@@ -49,7 +50,7 @@
 #
 # Env: CLAUDE_CONFIG_DIR, COPILOT_AGENT_DIR, CURSOR_RULES_DIR, GEMINI_AGENTS_DIR,
 #      OPENCODE_AGENTS_DIR, OPENCLAW_DIR, QWEN_AGENTS_DIR, CODEX_AGENTS_DIR,
-#      OSAURUS_SKILLS_DIR, HERMES_HOME, HERMES_PLUGIN_DIR
+#      OSAURUS_SKILLS_DIR, HERMES_HOME, HERMES_PLUGIN_DIR, GROK_SKILLS_DIR
 #      override default install paths (checked before hardcoded defaults).
 #
 # --- USAGE-END ---  (sentinel for usage(); do not remove)
@@ -128,7 +129,7 @@ INTEGRATIONS="$REPO_ROOT/integrations"
 # shellcheck source=lib.sh
 . "$SCRIPT_DIR/lib.sh"
 
-ALL_TOOLS=(claude-code copilot antigravity gemini-cli opencode openclaw cursor aider windsurf qwen kimi codex osaurus hermes)
+ALL_TOOLS=(claude-code copilot antigravity gemini-cli opencode openclaw cursor aider windsurf qwen kimi codex osaurus hermes grok)
 
 # Directories scanned for installable agents. Intentionally includes strategy/
 # (its frontmatter-less NEXUS docs are filtered out by is_agent_file at scan time);
@@ -264,6 +265,7 @@ resolve_dest() {
     codex)       var="CODEX_AGENTS_DIR" ;;
     osaurus)     var="OSAURUS_SKILLS_DIR" ;;
     hermes)      var="HERMES_PLUGIN_DIR" ;;
+    grok)        var="GROK_SKILLS_DIR" ;;
   esac
   if [[ -n "$var" && -n "${!var:-}" ]]; then printf '%s' "${!var}"; else printf '%s' "$def"; fi
 }
@@ -276,7 +278,7 @@ resolve_tool_path() {
     opencode) bin="opencode" ;; openclaw) bin="openclaw" ;; cursor) bin="cursor" ;;
     aider) bin="aider" ;; windsurf) bin="windsurf" ;; qwen) bin="qwen" ;;
     kimi) bin="kimi" ;; codex) bin="codex" ;; antigravity) bin="" ;;
-    osaurus) bin="osaurus" ;; hermes) bin="hermes" ;;
+    osaurus) bin="osaurus" ;; hermes) bin="hermes" ;; grok) bin="grok" ;;
   esac
   [[ -n "$bin" ]] && command -v "$bin" 2>/dev/null
 }
@@ -375,6 +377,7 @@ detect_kimi()         { command -v kimi >/dev/null 2>&1; }
 detect_codex()        { command -v codex >/dev/null 2>&1 || [[ -d "${HOME}/.codex" ]]; }
 detect_osaurus()      { command -v osaurus >/dev/null 2>&1 || [[ -d "${HOME}/.osaurus" ]]; }
 detect_hermes()       { command -v hermes >/dev/null 2>&1 || [[ -d "${HERMES_HOME:-${HOME}/.hermes}" ]]; }
+detect_grok()         { command -v grok >/dev/null 2>&1 || [[ -d "${HOME}/.grok" ]]; }
 
 is_detected() {
   case "$1" in
@@ -392,6 +395,7 @@ is_detected() {
     codex)       detect_codex       ;;
     osaurus)     detect_osaurus     ;;
     hermes)      detect_hermes      ;;
+    grok)        detect_grok        ;;
     *)           return 1 ;;
   esac
 }
@@ -413,6 +417,7 @@ tool_label() {
     codex)       printf "%-14s  %s" "Codex"        "(~/.codex/agents)"       ;;
     osaurus)     printf "%-14s  %s" "Osaurus"      "(~/.osaurus/skills)"     ;;
     hermes)      printf "%-14s  %s" "Hermes"       "(~/.hermes/plugins)"     ;;
+    grok)        printf "%-14s  %s" "Grok"         "(~/.grok/skills)"        ;;
   esac
 }
 
@@ -536,7 +541,7 @@ tool_simple_name() {
     claude-code) echo "Claude Code";; copilot) echo "Copilot";; antigravity) echo "Antigravity";;
     gemini-cli) echo "Gemini CLI";; opencode) echo "OpenCode";; openclaw) echo "OpenClaw";;
     cursor) echo "Cursor";; aider) echo "Aider";; windsurf) echo "Windsurf";;
-    qwen) echo "Qwen Code";; kimi) echo "Kimi Code";; codex) echo "Codex";; osaurus) echo "Osaurus";; *) echo "$1";;
+    qwen) echo "Qwen Code";; kimi) echo "Kimi Code";; codex) echo "Codex";; osaurus) echo "Osaurus";; grok) echo "Grok";; *) echo "$1";;
   esac
 }
 
@@ -750,6 +755,24 @@ install_osaurus() {
     incr count
   done < <(find "$src" -mindepth 1 -maxdepth 1 -type d -print0)
   ok "Osaurus: $count skills -> $dest"
+}
+
+install_grok() {
+  local src="$INTEGRATIONS/grok"
+  local dest; dest="$(resolve_dest grok "${HOME}/.grok/skills")"
+  local count=0
+  [[ -d "$src" ]] || { err "integrations/grok missing. Run convert.sh first."; return 1; }
+  mkdir -p "$dest"
+  local d
+  while IFS= read -r -d '' d; do
+    local name; name="$(basename "$d")"
+    slug_allowed "$name" || continue
+    mkdir -p "$dest/$name"
+    install_file "$d/SKILL.md" "$dest/$name/SKILL.md"
+    incr count
+  done < <(find "$src" -mindepth 1 -maxdepth 1 -type d -print0)
+  ok "Grok: $count skills -> $dest"
+  warn "Grok: restart your Grok CLI session if it was already running."
 }
 
 install_gemini_cli() {
@@ -1074,6 +1097,7 @@ install_tool() {
     codex)       install_codex       ;;
     osaurus)     install_osaurus     ;;
     hermes)      install_hermes      ;;
+    grok)        install_grok        ;;
   esac
 }
 
