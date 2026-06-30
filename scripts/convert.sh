@@ -22,6 +22,7 @@
 #   codex        — Codex custom agent TOML files (~/.codex/agents/*.toml)
 #   osaurus      — Osaurus skill files (~/.osaurus/skills/<name>/SKILL.md)
 #   hermes       — Hermes lazy-router plugin (one plugin + on-disk agent index)
+#   grok         — Grok skills (~/.grok/skills/<name>/SKILL.md)
 #   all          — All tools (default)
 #
 # Output is written to integrations/<tool>/ relative to the repo root.
@@ -156,6 +157,29 @@ convert_osaurus() {
   # named for the skill containing a SKILL.md with name + description frontmatter
   # and the persona as the instruction body. Installs into ~/.osaurus/skills/.
   # Kept to the standard fields so it stays compatible with any Agent-Skills host.
+  cat > "$outfile" <<HEREDOC
+---
+name: ${slug}
+description: ${description}
+---
+${body}
+HEREDOC
+}
+
+convert_grok() {
+  local file="$1"
+  local name description slug outdir outfile body
+
+  name="$(get_field "name" "$file")"
+  description="$(get_field "description" "$file")"
+  slug="agency-$(slugify "$name")"
+  body="$(get_body "$file")"
+
+  outdir="$OUT_DIR/grok/$slug"
+  outfile="$outdir/SKILL.md"
+  mkdir -p "$outdir"
+
+  # Grok Build discovers local skills from .grok/skills/ and ~/.grok/skills/.
   cat > "$outfile" <<HEREDOC
 ---
 name: ${slug}
@@ -581,6 +605,7 @@ run_conversions() {
         qwen)        convert_qwen        "$file" ;;
         kimi)        convert_kimi        "$file" ;;
         osaurus)     convert_osaurus     "$file" ;;
+        grok)        convert_grok        "$file" ;;
         aider)       accumulate_aider    "$file" ;;
         windsurf)    accumulate_windsurf "$file" ;;
       esac
@@ -611,7 +636,7 @@ main() {
     esac
   done
 
-  local valid_tools=("antigravity" "gemini-cli" "opencode" "cursor" "aider" "windsurf" "openclaw" "qwen" "kimi" "codex" "osaurus" "hermes" "all")
+  local valid_tools=("antigravity" "gemini-cli" "opencode" "cursor" "aider" "windsurf" "openclaw" "qwen" "kimi" "codex" "osaurus" "hermes" "grok" "all")
   local valid=false
   for t in "${valid_tools[@]}"; do [[ "$t" == "$tool" ]] && valid=true && break; done
   if ! $valid; then
@@ -630,7 +655,7 @@ main() {
 
   local tools_to_run=()
   if [[ "$tool" == "all" ]]; then
-    tools_to_run=("antigravity" "gemini-cli" "opencode" "cursor" "aider" "windsurf" "openclaw" "qwen" "kimi" "codex" "osaurus" "hermes")
+    tools_to_run=("antigravity" "gemini-cli" "opencode" "cursor" "aider" "windsurf" "openclaw" "qwen" "kimi" "codex" "osaurus" "hermes" "grok")
   else
     tools_to_run=("$tool")
   fi
@@ -641,7 +666,7 @@ main() {
 
   if $use_parallel && [[ "$tool" == "all" ]]; then
     # Tools that write to separate dirs can run in parallel; buffer output so each tool's output stays together
-    local parallel_tools=(antigravity gemini-cli opencode cursor openclaw qwen codex osaurus hermes)
+    local parallel_tools=(antigravity gemini-cli opencode cursor openclaw qwen codex osaurus hermes grok)
     local parallel_out_dir
     parallel_out_dir="$(mktemp -d)"
     info "Converting: ${#parallel_tools[@]}/${n_tools} tools in parallel (output buffered per tool)..."
@@ -653,7 +678,7 @@ main() {
       [[ -f "$parallel_out_dir/$t" ]] && cat "$parallel_out_dir/$t"
     done
     rm -rf "$parallel_out_dir"
-    local idx=8
+    local idx=$((${#parallel_tools[@]} + 1))
     for t in aider windsurf; do
       progress_bar "$idx" "$n_tools"
       printf "\n"

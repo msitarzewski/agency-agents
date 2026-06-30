@@ -33,7 +33,7 @@ Born from a Reddit thread and months of iteration, **The Agency** is a growing c
 
 ### Option 1: Install the app (Recommended)
 
-The fastest way in — no clone, no terminal. [**Agency Agents**](https://agencyagents.app) is a native desktop app (macOS · Linux · Windows) that browses the whole roster and installs agents into Claude Code, Cursor, Codex, Gemini CLI, OpenCode, Qwen, and Osaurus for you, then keeps them up to date.
+The fastest way in — no clone, no terminal. [**Agency Agents**](https://agencyagents.app) is a native desktop app (macOS · Linux · Windows) that browses the whole roster and installs agents into Claude Code, Cursor, Codex, Gemini CLI, Grok, OpenCode, Qwen, and Osaurus for you, then keeps them up to date.
 
 **[⬇ Download the latest release](https://github.com/msitarzewski/agency-agents-app/releases/latest)** — or on a Mac:
 
@@ -66,7 +66,7 @@ Each agent file contains:
 
 Browse the agents below and copy/adapt the ones you need!
 
-### Option 4: Use with Other Tools (GitHub Copilot, Antigravity, Gemini CLI, OpenCode, OpenClaw, Cursor, Aider, Windsurf, Kimi Code, Codex, Osaurus, Hermes)
+### Option 4: Use with Other Tools (GitHub Copilot, Antigravity, Gemini CLI, Grok, OpenCode, OpenClaw, Cursor, Aider, Windsurf, Kimi Code, Codex, Osaurus, Hermes)
 
 ```bash
 # Step 1 -- generate integration files for all supported tools
@@ -88,6 +88,7 @@ Browse the agents below and copy/adapt the ones you need!
 ./scripts/install.sh --tool codex
 ./scripts/install.sh --tool osaurus
 ./scripts/install.sh --tool hermes
+./scripts/install.sh --tool grok
 ```
 
 **Install only the teams you need** (not everyone wants all 16 divisions):
@@ -665,6 +666,7 @@ The Agency works natively with Claude Code, and ships conversion + install scrip
 - **[GitHub Copilot](https://github.com/copilot)** — native `.md` agents, no conversion needed → `~/.github/agents/` + `~/.copilot/agents/`
 - **[Antigravity](https://github.com/google-gemini/antigravity)** — `SKILL.md` per agent → `~/.gemini/antigravity/skills/`
 - **[Gemini CLI](https://github.com/google-gemini/gemini-cli)** -- `.md` agent files -> `~/.gemini/agents/`
+- **[Grok](https://docs.x.ai/build/overview)** -- `SKILL.md` skills -> `~/.grok/skills/`
 - **[OpenCode](https://opencode.ai)** — `.md` agent files → `.opencode/agents/`
 - **[Cursor](https://cursor.sh)** — `.mdc` rule files → `.cursor/rules/`
 - **[Aider](https://aider.chat)** — single `CONVENTIONS.md` → `./CONVENTIONS.md`
@@ -713,8 +715,11 @@ The installer scans your system for installed tools, shows a checkbox UI, and le
   [ ] 10)  [ ]  Qwen Code       (~/.qwen/agents)
   [ ] 11)  [ ]  Kimi Code       (~/.config/kimi/agents)
   [ ] 12)  [ ]  Codex           (~/.codex/agents)
+  [ ] 13)  [ ]  Osaurus         (~/.osaurus/skills)
+  [ ] 14)  [ ]  Hermes          (~/.hermes/plugins)
+  [ ] 15)  [ ]  Grok            (~/.grok/skills)
 
-  [1-12] toggle   [a] all   [n] none   [d] detected
+  [1-15] toggle   [a] all   [n] none   [d] detected
   [Enter] install   [q] quit
 ```
 
@@ -725,6 +730,7 @@ The installer scans your system for installed tools, shows a checkbox UI, and le
 ./scripts/install.sh --tool openclaw
 ./scripts/install.sh --tool antigravity
 ./scripts/install.sh --tool codex
+./scripts/install.sh --tool grok
 ```
 
 **Non-interactive (CI/scripts):**
@@ -809,6 +815,27 @@ On a fresh clone, generate the Gemini agent files before running the installer.
 ```
 
 See [integrations/gemini-cli/README.md](integrations/gemini-cli/README.md) for details.
+</details>
+
+<details>
+<summary><strong>Grok</strong></summary>
+
+Installs as Grok skills in `~/.grok/skills/`. This is a local Grok CLI
+integration and does not require an xAI API key.
+
+```bash
+./scripts/convert.sh --tool grok
+./scripts/install.sh --tool grok
+```
+
+For a project-local install:
+
+```bash
+cd /your/project
+/path/to/agency-agents/scripts/install.sh --tool grok --path .grok/skills
+```
+
+See [integrations/grok/README.md](integrations/grok/README.md) for details.
 </details>
 
 <details>
@@ -982,6 +1009,7 @@ When you add new agents or edit existing ones, regenerate all integration files:
 ./scripts/convert.sh --parallel         # regenerate all in parallel (faster)
 ./scripts/convert.sh --tool codex       # regenerate just one tool
 ./scripts/convert.sh --tool cursor      # regenerate just one tool
+./scripts/convert.sh --tool grok        # regenerate just one tool
 ```
 
 ---
@@ -990,7 +1018,7 @@ When you add new agents or edit existing ones, regenerate all integration files:
 
 - [ ] Interactive agent selector web tool
 - [x] Multi-agent workflow examples -- see [examples/](examples/)
-- [x] Multi-tool integration scripts (Claude Code, GitHub Copilot, Antigravity, Gemini CLI, OpenCode, OpenClaw, Cursor, Aider, Windsurf, Qwen Code, Kimi Code, Codex, Osaurus, Hermes)
+- [x] Multi-tool integration scripts (Claude Code, GitHub Copilot, Antigravity, Gemini CLI, Grok, OpenCode, OpenClaw, Cursor, Aider, Windsurf, Qwen Code, Kimi Code, Codex, Osaurus, Hermes)
 - [ ] Video tutorials on agent design
 - [ ] Community agent marketplace
 - [ ] Agent "personality quiz" for project matching

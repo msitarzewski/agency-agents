@@ -9,6 +9,7 @@ supported agentic coding tools.
 - **[GitHub Copilot](#github-copilot)** — `.md` agents, use the repo directly
 - **[Antigravity](#antigravity)** — `SKILL.md` per agent in `antigravity/`
 - **[Gemini CLI](#gemini-cli)** — `.md` agent files in `gemini-cli/agents/`
+- **[Grok](#grok)** — `SKILL.md` skills generated in `grok/`
 - **[OpenCode](#opencode)** — `.md` agent files in `opencode/`
 - **[OpenClaw](#openclaw)** — `SOUL.md` + `AGENTS.md` + `IDENTITY.md` workspaces
 - **[Cursor](#cursor)** — `.mdc` rule files in `cursor/`
@@ -34,6 +35,7 @@ supported agentic coding tools.
 ./scripts/install.sh --tool codex
 ./scripts/install.sh --tool osaurus
 ./scripts/install.sh --tool hermes
+./scripts/install.sh --tool grok
 
 # Gemini CLI needs generated integration files on a fresh clone
 ./scripts/convert.sh --tool gemini-cli
@@ -42,6 +44,10 @@ supported agentic coding tools.
 # Qwen Code also needs generated SubAgent files on a fresh clone
 ./scripts/convert.sh --tool qwen
 ./scripts/install.sh --tool qwen
+
+# Grok needs generated skills on a fresh clone
+./scripts/convert.sh --tool grok
+./scripts/install.sh --tool grok
 ```
 
 If you install OpenClaw and the gateway is already running, restart it after installation:
@@ -50,10 +56,9 @@ If you install OpenClaw and the gateway is already running, restart it after ins
 openclaw gateway restart
 ```
 
-For project-scoped tools such as OpenCode, Cursor, Aider, Windsurf, and Qwen
-Code, run
-the installer from your target project root as shown in the tool-specific
-sections below.
+For project-scoped tools such as OpenCode, Cursor, Aider, Windsurf, Qwen Code,
+and project-local Grok installs, run the installer from your target project root
+as shown in the tool-specific sections below.
 
 ## Regenerating Integration Files
 
@@ -119,6 +124,35 @@ Because the agent files are generated artifacts, run
 ```
 
 See [gemini-cli/README.md](gemini-cli/README.md) for details.
+
+---
+
+## Grok
+
+Each agent becomes a Grok skill containing `SKILL.md`. The default install path
+is `~/.grok/skills/`, and project-local installs can target `.grok/skills/`.
+This integration only writes local skill files and does not use the xAI API.
+
+From a fresh clone, generate the Grok files first:
+
+```bash
+./scripts/convert.sh --tool grok
+```
+
+Then install user-wide:
+
+```bash
+./scripts/install.sh --tool grok
+```
+
+Or install into a project:
+
+```bash
+cd /your/project
+/path/to/agency-agents/scripts/install.sh --tool grok --path .grok/skills
+```
+
+See [grok/README.md](grok/README.md) for details.
 
 ---
 

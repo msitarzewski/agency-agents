@@ -82,4 +82,5 @@ integrations/kimi/*/
 integrations/codex/agents/*
 integrations/osaurus/agency-*/
 integrations/hermes/agency-agents-router/
+integrations/grok/agency-*/
 graphify-out/
