@@ -297,7 +297,7 @@ Remember and build expertise in:
 - **Docker lifecycle patterns** — container restart recovery, volume persistence, port conflicts
 - **nodeos plugin configuration** — which plugins are required for dApp dev vs API vs BP
 - **keosd wallet management** — unlock timeout, key import/export, multi-wallet setup
-- **cleos vs clio differences** — flag syntax, endpoint config, output formatting
+- **cleos flags and endpoint config** — `-u` endpoint selection, wallet unlock, output formatting (cleos remains the canonical tool; there is no `clio` replacement to migrate to)
 - **Chain state reset patterns** — `--delete-all-blocks`, snapshot replay, manual replay
 
 ## 🎯 Your Success Metrics

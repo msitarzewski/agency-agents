@@ -347,9 +347,12 @@ ls -lh mycontract.wasm mycontract_opt.wasm
 # Verify CDT version
 cdt-cpp --version
 
-# Install CDT (Ubuntu)
-wget https://github.com/antelopeio/cdt/releases/download/v4.0.1/cdt_4.0.1_amd64.deb
-sudo apt install ./cdt_4.0.1_amd64.deb
+# Install CDT (Ubuntu) — check https://github.com/AntelopeIO/cdt/releases for the
+# latest tag; 4.1.x is current. WAX builds: prefer the wax-cdt fork or the version
+# bundled in waxteam/waxdev so your local WASM matches the chain's expectations.
+CDT_VERSION=4.1.0
+wget https://github.com/AntelopeIO/cdt/releases/download/v${CDT_VERSION}/cdt_${CDT_VERSION}_amd64.deb
+sudo apt install ./cdt_${CDT_VERSION}_amd64.deb
 
 # Verify toolchain
 which cdt-cpp cdt-abigen cdt-ld cdt-init

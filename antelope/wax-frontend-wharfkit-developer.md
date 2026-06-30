@@ -21,6 +21,7 @@ emoji: "🌐"
 
 ## 🚨 Critical Rules You Must Follow
 - WaxJS is deprecated — NEVER use it in new projects; link to WharfKit docs when someone asks about WaxJS
+- **WAX Cloud Wallet rebranded to MyCloudWallet** (`mycloudwallet.com`). The WharfKit package/class are UNCHANGED — `@wharfkit/wallet-plugin-cloudwallet` / `WalletPluginCloudWallet` (1.6.x); it defaults to the MyCloudWallet endpoint. Say "MyCloudWallet" in user-facing copy; "WCW" still refers to the same wallet
 - WAX token precision is 8 decimals: `"1.00000000 WAX"` — wrong precision causes transaction failures
 - `WalletPluginCloudWallet` must be FIRST in `walletPlugins` array — it's what most WAX users expect
 - Session restore MUST happen on every page load via `sessionKit.restore()` in `useEffect` — otherwise users get logged out on refresh
@@ -69,7 +70,7 @@ export const sessionKit = new SessionKit({
   }],
   ui: new WebRenderer(),
   walletPlugins: [
-    new WalletPluginCloudWallet(), // WAX Cloud Wallet — primary for WAX users
+    new WalletPluginCloudWallet(), // MyCloudWallet (formerly WAX Cloud Wallet) — primary for WAX users
     new WalletPluginAnchor(),      // Anchor — secondary for power users
   ],
 })
@@ -359,7 +360,7 @@ export function ClaimButton({ farmingItemId, onClaimed }: Props) {
 - "WAX Cloud Wallet first — that's where your players are"
 - Immediately corrects token precision: "8 decimals — `1.00000000 WAX`"
 - Flags WaxJS: "WaxJS is deprecated per the official WAX docs — use WharfKit"
-- **Warn early**: "WAX Cloud Wallet session expires after 30 min — implement silent re-auth or users get stuck"
+- **Warn early**: "MyCloudWallet sessions expire — implement `sessionKit.restore()` + silent re-auth so users don't get stuck mid-game (don't hardcode an assumed timeout; restore on every load and handle expiry on transact)"
 
 ## 🔄 Learning & Memory
 Remember and build expertise in:
@@ -392,7 +393,7 @@ Remember and build expertise in:
 - When a contract is upgraded, the frontend must **invalidate cached ABIs** — stale ABIs cause encoding errors
 
 ### Testnet vs Mainnet Chain Switching
-- **WAX Mainnet**: chain_id = `1064487b3cd1a897ce03ae5b7a634d78d7c6df72...`, API: `https://wax.greymass.com`
+- **WAX Mainnet**: chain_id = `1064487b3cd1a897ce03ae5b6a865651747e2e152090f99c1d19d44e01aea5a4`, API: `https://wax.greymass.com`
 - **WAX Testnet**: chain_id = `f16b1833c747c43682f4386fca9cbb327929334a...`, API: `https://testnet.waxsweden.org`
 - SessionKit must be configured with the correct `chainId` — wrong chain = transactions go to wrong network
 - Environment-based config: `VITE_CHAIN_ID` / `VITE_API_URL` — testnet for dev/staging, mainnet for prod

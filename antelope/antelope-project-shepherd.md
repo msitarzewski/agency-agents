@@ -78,7 +78,7 @@ User → [governancectr::propose] → requires token balance check via inline re
 
 ## Deployment Environments
 1. **Local** — Docker nodeos, dev keys, contracts-console enabled
-2. **Jungle4 Testnet** — Real network conditions, test tokens
+2. **Public testnet** — Real network conditions, test tokens. **WAX → `testnet.waxsweden.org`** (required for orng.wax RNG + AtomicAssets). Jungle4 is the EOS/Vaulta testnet — use it only for non-WAX targets
 3. **Mainnet** — Multi-sig upgrade auth, formal audit required
 ```
 

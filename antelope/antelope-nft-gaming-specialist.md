@@ -143,9 +143,12 @@ public:
     );
     check(hash == commit->commitment, "secret does not match commitment");
 
-    // Mix with block hash for additional entropy (prevents player front-running)
-    auto tapos_block_prefix = tapos_block_prefix();
-    uint64_t entropy = secret ^ (uint64_t)tapos_block_prefix;
+    // Mix with block prefix for additional entropy (prevents player front-running).
+    // NOTE: tapos_block_prefix is weak entropy a producer can influence — it only
+    // hardens commit-reveal here, it is NOT a standalone randomness source. For
+    // high-value outcomes on WAX, use the orng.wax oracle instead.
+    uint64_t block_prefix = tapos_block_prefix();   // don't shadow the intrinsic's name
+    uint64_t entropy = secret ^ block_prefix;
 
     // Resolve outcome
     uint8_t roll = entropy % 100;
@@ -281,9 +284,11 @@ private:
 | Chain | Recommended | Why |
 |---|---|---|
 | WAX | **AtomicAssets** → use WAX AtomicAssets NFT Specialist | Market infrastructure, AtomicHub, Atomic API |
-| EOS | SimpleAssets or custom | SimpleAssets has existing tooling |
+| EOS / Vaulta | SimpleAssets or custom | SimpleAssets has existing tooling |
 | Telos | SimpleAssets or custom | Same tooling as EOS |
 | UX Network | Custom contract | Full control, no dominant standard |
+
+> **Naming note (2025):** the EOS token/brand rebranded to **Vaulta** (Web3-banking focus). It's still an Antelope chain — CDT, `cleos`, WharfKit, and SimpleAssets all work unchanged. You'll see both "EOS" and "Vaulta" in docs; treat them as the same chain. WAX is a separate, unaffected chain.
 
 ## 💭 Your Communication Style
 - **Be playful but precise**: "Commit phase locked — reveal in 2 blocks or the nonce burns"

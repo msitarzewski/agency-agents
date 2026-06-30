@@ -6,31 +6,37 @@ A complete team of specialized AI agents for Antelope/WAX blockchain development
 
 ## 📁 Directory Structure
 
+All agents live flat in this `antelope/` directory. They split into a chain-agnostic
+**core/engineering** group (works on EOS/Vaulta, WAX, Telos, UX) and a **WAX-specific** group.
+
 ```
-antelope-agents/
-├── engineering/          ← Core Antelope agents (chain-agnostic + WAX-compatible)
-│   ├── antelope-smart-contract-architect.md
-│   ├── antelope-cdt-developer.md
-│   ├── antelope-wharfkit-frontend-developer.md
-│   ├── antelope-security-auditor.md
-│   ├── antelope-token-defi-specialist.md
-│   ├── antelope-node-operator-devops.md
-│   ├── antelope-backend-api-developer.md
-│   ├── antelope-reference-contracts-specialist.md
-│   ├── antelope-testing-qa-engineer.md
-│   ├── antelope-nft-gaming-specialist.md   ← non-WAX chains: SimpleAssets, commit-reveal
-│   └── antelope-project-shepherd.md
+antelope/
+│  # ── Core / Engineering (chain-agnostic + WAX-compatible) ──────────────
+├── antelope-smart-contract-architect.md
+├── antelope-cdt-developer.md
+├── antelope-wharfkit-frontend-developer.md
+├── antelope-security-auditor.md
+├── antelope-token-defi-specialist.md
+├── antelope-node-operator-devops.md
+├── antelope-backend-api-developer.md
+├── antelope-reference-contracts-specialist.md
+├── antelope-testing-qa-engineer.md
+├── antelope-nft-gaming-specialist.md        ← non-WAX chains: SimpleAssets, commit-reveal
+├── antelope-game-economy-designer.md        ← faucet/sink + tokenomics modeling
+├── antelope-project-shepherd.md
 │
-└── wax/                  ← WAX-specific agents
-    ├── wax-local-testnet-docker.md         ← Stage 2: local Docker chain environment
-    ├── wax-frontend-wharfkit-developer.md
-    ├── wax-atomicassets-nft-specialist.md
-    └── wax-game-developer.md               ← includes full WAX RNG implementation
+│  # ── WAX-specific ─────────────────────────────────────────────────────
+├── wax-local-testnet-docker.md              ← Stage 2: local Docker chain environment
+├── wax-frontend-wharfkit-developer.md
+├── wax-atomicassets-nft-specialist.md
+├── wax-game-developer.md                     ← farming/staking/blending + WAX RNG flow
+├── wax-rng-oracle-specialist.md             ← orng.wax deep dive + RNG v3.x capacity
+└── wax-onboarding-resource-provider.md      ← WCW onboarding + CPU/NET resource provider
 ```
 
 ---
 
-## 🔧 Engineering Team (11 Agents)
+## 🔧 Engineering Team (12 Agents)
 
 | Agent | Role | Key Tools |
 |---|---|---|
@@ -44,18 +50,21 @@ antelope-agents/
 | **Reference Contracts Specialist** | System contracts, msig, permissions, resources | cleos, eosio.system |
 | **Testing & QA Engineer** | Full 4-stage test pipeline (VeRT → local → testnet → mainnet) | FuckYea, VeRT, cleos |
 | **NFT & Gaming Specialist** | Non-WAX NFTs: SimpleAssets, custom contracts, commit-reveal RNG | C++, EOS/Telos/UX |
+| **Game Economy & Tokenomics Designer** | Faucet/sink modeling, emission schedules, NFT supply/rarity, anti-bot economy | Simulation, sink design |
 | **Project Shepherd** | Architecture, sprint planning, launch checklists | ADRs, multi-sig runbooks |
 
 ---
 
-## 🟠 WAX Team (4 Agents)
+## 🟠 WAX Team (6 Agents)
 
 | Agent | Role | Key Tools |
 |---|---|---|
 | **WAX Local Testnet & Docker** | Stage 2 local chain: nodeos startup, keosd, accounts, deploy, reset | `waxteam/waxdev`, cleos, keosd |
-| **WAX Frontend & WharfKit Developer** | React dApps, WAX Cloud Wallet first, session management | WharfKit, WalletPluginCloudWallet |
+| **WAX Frontend & WharfKit Developer** | React dApps, MyCloudWallet first, session management | WharfKit, WalletPluginCloudWallet |
 | **WAX AtomicAssets NFT Specialist** | Collections, schemas, templates, minting, mutable data | atomicassets contract, AtomicAssets API |
-| **WAX Game Developer** | Farming, NFT staking, WAX RNG (orng.wax), blending, quests, economy | orng.wax, atomicassets.hpp, ReactJS |
+| **WAX Game Developer** | Farming, NFT staking, WAX RNG flow, blending, quests, economy | orng.wax, atomicassets.hpp, ReactJS |
+| **WAX RNG Oracle Specialist** | orng.wax deep dive, unbiased extraction, callback security, RNG v3.x staking/capacity | orng.wax, Signidice/RSA, Hyperion |
+| **WAX Onboarding & Resource-Provider Specialist** | WCW onboarding, CPU/NET/RAM for casual gamers, fee delegation | WCW, Resource Provider plugin, PowerUp |
 
 ---
 
@@ -104,7 +113,9 @@ Gate:    Stages 1–3 ✅ + security audit ✅ + multi-sig ✅
 
 ### WAX NFT Farming Game (with RNG pack opening)
 ```
-WAX Game Developer          → farming loop, staking, blending, WAX RNG full implementation
+Game Economy & Tokenomics   → faucet/sink model + emission schedule BEFORE contracts
+WAX Game Developer          → farming loop, staking, blending, RNG request/callback wiring
+WAX RNG Oracle Specialist   → orng.wax integration, unbiased rolls, callback security, capacity
 WAX AtomicAssets Specialist → collection/schema/template/mint
 Smart Contract Architect    → table design, authorization model
 CDT Developer               → compile with FuckYea build inside waxteam/waxdev
@@ -112,6 +123,7 @@ WAX Local Testnet & Docker  → Stage 2: local chain, account setup, contract de
 Security Auditor            → auth checks, fake on_notify, RNG callback review
 Testing & QA Engineer       → VeRT → local nodeos → WAX testnet (RNG) → mainnet
 WAX Frontend Developer      → React + WCW + Anchor
+WAX Onboarding & Resources  → WCW onboarding, Resource Provider so zero-CPU players can play
 Project Shepherd            → sprint planning, launch checklist
 ```
 
@@ -147,7 +159,7 @@ Project Shepherd            → launch runbook, multi-sig upgrade procedures
 2. **Local nodeos second** — `waxteam/waxdev` before any public network
 3. **WAX RNG needs testnet+** — `orng.wax` not available in VeRT or local nodeos
 4. **8-decimal WAX precision** — `1.00000000 WAX` always
-5. **WAX Cloud Wallet first** — primary wallet plugin for WAX users
+5. **MyCloudWallet first** — primary wallet for WAX users (formerly "WAX Cloud Wallet"; WharfKit plugin is still `@wharfkit/wallet-plugin-cloudwallet` / `WalletPluginCloudWallet`)
 6. **eosio dev key = LOCAL ONLY** — the same key for every developer on earth; never ship it
 7. **Add-code for inline actions** — `cleos set account permission <account> active --add-code`
 8. **AtomicAssets schema is permanent** — fields cannot be deleted after creation
@@ -163,6 +175,6 @@ Project Shepherd            → launch runbook, multi-sig upgrade procedures
 | Chain ID | `1064487b3cd1a897ce03ae5b6a865651747e2e152090f99c1d19d44e01aea5a4` | `f16b1833c747c43682f4386fca9cbb327929334a762755ebec17f6f23c9b8a12` | — |
 | Explorer | https://waxblock.io | https://local.bloks.io/?nodeUrl=testnet.waxsweden.org | — |
 | Testnet accounts | — | https://waxsweden.org/testnet/ | `cleos create account eosio ...` |
-| AtomicAssets API | `https://wax.api.atomicassets.io` | `https://testatomic.3dkrender.com` | ❌ deploy locally |
+| AtomicAssets API | `https://wax.api.atomicassets.io` | `https://test.wax.api.atomicassets.io` | ❌ deploy locally |
 | WAX RNG | ✅ `orng.wax` | ✅ `orng.wax` | ❌ not available |
 | Public API list | https://validate.eosnation.io/wax/reports/endpoints.html | — | — |

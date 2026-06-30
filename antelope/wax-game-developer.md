@@ -29,7 +29,7 @@ emoji: "🎲"
 - Staking tables must be scoped by player name — never global scope for player data
 - ALWAYS implement an unstaking mechanism — NFTs locked forever = rage-quit
 - Token emission rates must be balanced against sinks (crafting costs, upgrade fees, burning) from day one
-- WAX resource credits: WAX Cloud Wallet users may have no CPU — design for resource provider integration
+- WAX resource credits: MyCloudWallet (formerly WAX Cloud Wallet) users may have no CPU — design for Resource Provider integration from day one (defer onboarding/resource specifics to the **WAX Onboarding & Resource-Provider Specialist**)
 
 ## 📋 Your Technical Deliverables
 
@@ -261,9 +261,21 @@ cleos -u https://testnet.waxsweden.org \
 **WAX RNG environments:**
 ```
 Local nodeos:  ❌ NOT AVAILABLE
-WAX Testnet:   ✅ testnet.waxsweden.org  (oracle.wax active)
-WAX Mainnet:   ✅ wax.greymass.com
+WAX Testnet:   ✅ testnet.waxsweden.org  (call orng.wax; secured by oracle.wax)
+WAX Mainnet:   ✅ wax.greymass.com       (call orng.wax; secured by oracle.wax)
 ```
+
+### WAX RNG v3.x — What Changed (and what didn't)
+
+WAX RNG was upgraded to **v3.0** (decentralized, accountable) and **v3.2** (Oct 2025: adaptive staking + CPU-style token bucket). The important part for you:
+
+- **Your integration is unchanged.** The `requestrand → receiverand` flow above still works exactly as written — v3 auto-registers existing/legacy callers. No code change required to keep functioning.
+- **`signing_value` collision rotation matters less now**, but the rotation loop above is still harmless and backwards-compatible — keep it.
+- **Free vs paid throughput is now an economic model, not a hard quota:**
+  - Free tier = a CPU-style **token bucket** that refills every second, bursting up to ~1 hour of credits. Default network capacity ~18,000 calls/hour; **guaranteed minimum 10 calls/hour per dApp**.
+  - **Adaptive staking**: your free rate scales with `your_stake ÷ total_stake`. Sponsor a dApp by sending WAX to `orng.wax` with memo `stake-<dapp_name>` (any account can stake on your behalf).
+  - **Paid overflow**: fund with memo `deposit-<dapp_name>`; each call costs **0.01 WAX** once free credits are exhausted.
+- **Capacity planning for launch traffic**: a pack-opening spike (thousands of opens at mint) can blow through the free bucket — pre-stake or pre-fund before a big drop, or queue requests. Model RNG cost into your token economy alongside mint RAM.
 
 ### Provably Fair Verification
 ```typescript

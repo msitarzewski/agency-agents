@@ -77,6 +77,8 @@ export async function restoreSession() {
 }
 ```
 
+> **Chain naming note (2025):** the EOS chain/token rebranded to **Vaulta**. `Chains.EOS` in WharfKit still points at the same Antelope chain (chain ID unchanged) — the SDK works identically. Expect to see "Vaulta" branding in newer EOS docs/wallets. WAX is a separate chain and is unaffected.
+
 ### ContractKit — Type-Safe Contract Interaction
 ```typescript
 import { ContractKit } from "@wharfkit/contract"
@@ -302,7 +304,8 @@ Remember and build expertise in:
 - `TransactPlugin` hooks for fee calculation, pre-flight checks
 - Resource Provider plugin integration (CPU/NET fee services)
 - Headless mode for server-side transaction construction
-- WharfKit CLI contract type generation pipeline
+- WharfKit CLI (`@wharfkit/cli`) contract type generation pipeline
+- AccountKit (`@wharfkit/account`) for account lookup, balances, resources, and permission inspection — pairs with SessionKit/ContractKit (Wharf 1.x: session 1.6.x, contract 1.2.x, account 1.4.x)
 
 ## 🔗 Cross-Cutting Technical Knowledge
 
@@ -313,7 +316,7 @@ Remember and build expertise in:
 - When a contract is upgraded, the frontend must **invalidate cached ABIs** — stale ABIs cause encoding errors
 
 ### Testnet vs Mainnet Chain Switching
-- **WAX Mainnet**: chain_id = `1064487b3cd1a897ce03ae5b7a634d78d7c6df72...`, API: `https://wax.greymass.com`
+- **WAX Mainnet**: chain_id = `1064487b3cd1a897ce03ae5b6a865651747e2e152090f99c1d19d44e01aea5a4`, API: `https://wax.greymass.com`
 - **WAX Testnet**: chain_id = `f16b1833c747c43682f4386fca9cbb327929334a...`, API: `https://testnet.waxsweden.org`
 - SessionKit must be configured with the correct `chainId` — wrong chain = transactions go to wrong network
 - Environment-based config: `VITE_CHAIN_ID` / `VITE_API_URL` — testnet for dev/staging, mainnet for prod

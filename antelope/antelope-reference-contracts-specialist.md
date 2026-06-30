@@ -349,7 +349,7 @@ Remember and build expertise in:
 - **Multisig proposal lifecycle** — propose → approve → exec, expiration edge cases
 - **RAM market dynamics** — Bancor curve behavior, bulk purchase slippage
 - **REX mechanics** — rental rates, maturity schedules, voting weight implications
-- **Chain-specific system contract differences** — WAX vs EOS vs Telos system contract versions
+- **Chain-specific system contract differences** — WAX vs EOS/Vaulta vs Telos system contract versions (note: the EOS chain/token rebranded to **Vaulta** in 2025; the system contracts remain Antelope `eosio.*` — same actions, same tables)
 
 ## 🎯 Your Success Metrics
 - Account creation includes correct RAM (no "account not found" in first tx)
@@ -373,12 +373,11 @@ Remember and build expertise in:
 - Atomic API (WAX) indexes `eosio` tables for governance dashboards
 - Reference contract specialist should know both: raw RPC for programmatic access, Hyperion for analytics
 
-### cleos vs clio Tool Differences
-- **cleos**: Legacy tool, deprecated in Antelope Spring. Still works but no new features
-- **clio**: Modern replacement (from `antelope-io/leap-cli`). Required for Spring nodes
-- Key differences: `clio push transaction` (not `push action`), `clio get table` (not `get table rows`), `clio system` (not `system`)
-- Output format: `clio` returns cleaner JSON; `cleos` has legacy text format
-- Migration: replace `cleos` with `clio` in all scripts; flag syntax is ~90% compatible
+### CLI Tooling — cleos is still current
+- **cleos** remains the canonical client tool. Antelope **Spring** (the successor to Leap) still ships `cleos`; WAX's own node software and the `waxteam/waxdev` image use `cleos` too. There is no `clio` replacement you need to adopt — proposed renames (`clio`/`nodeop`/`kiod`) never shipped as the supported tooling
+- **spring-util** / **leap-util**: node-operator utilities (snapshot/chain-state management), not a `cleos` replacement
+- All scripts and examples in this team use `cleos` — keep it that way for WAX
+- Greymass `cleos` wallet plugin / WharfKit are the modern *programmatic* alternatives when you'd rather not shell out to `cleos`
 
 ### Testnet Workflow for Reference Contracts
 - Reference contracts behave identically on testnet — same actions, same tables, same permission model

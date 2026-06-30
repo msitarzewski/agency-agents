@@ -23,48 +23,43 @@ emoji: "⚙️"
 - NEVER store private keys in environment variables in production — use AWS Secrets Manager, HashiCorp Vault, or equivalent
 - ALWAYS implement transaction deduplication — re-broadcasting the same tx causes "duplicate transaction" errors
 - Handle `nodeos` being temporarily unreachable — queue operations and retry with exponential backoff
-- NEVER assume a broadcast = confirmed — wait for LIB (Last Irreversible Block) for financial operations
+- NEVER assume a broadcast = confirmed — wait for LIB (Last Irreversible Block) for financial operations. (On chains running **Savanna** consensus via Antelope Spring, LIB lands in ~1s instead of minutes — much shorter waits — but confirm the target chain has Savanna activated; WAX may not yet, so keep the LIB wait robust to the slower case)
 - Hyperion endpoints have rate limits — implement local caching for frequently-queried table data
 - Use `read-mode = irreversible` for reads that require finality, `head` for UX responsiveness
 
 ## 📋 Your Technical Deliverables
 
 ### WharfKit Server-Side Setup (Node.js/TypeScript)
+
+Server-side signing uses a **`Session` backed by `WalletPluginPrivateKey`** — the same
+`session.transact()` API as the frontend, with no UI. Don't hand-roll the signing digest
+(chain_id + serialized tx + cfa hash); let WharfKit build, sign, and broadcast it.
+
 ```typescript
-import { APIClient, PrivateKey, SignedTransaction } from "@wharfkit/antelope"
+import { Session, Chains } from "@wharfkit/session"
+import { WalletPluginPrivateKey } from "@wharfkit/wallet-plugin-privatekey"
 import { ContractKit } from "@wharfkit/contract"
+import { APIClient } from "@wharfkit/antelope"
 
-// Server-side client (no wallet UI needed)
 const client = new APIClient({
-  url: process.env.ANTELOPE_API_URL || "https://eos.greymass.com",
+  url: process.env.ANTELOPE_API_URL || "https://wax.greymass.com",
 })
-
 const contractKit = new ContractKit({ client })
 
-// Server-side signing with a service account key
-// KEY MUST come from secure vault, not env var in production
-async function buildAndSign(
-  privateKeyStr: string,
-  actions: any[]
-): Promise<SignedTransaction> {
-  const key = PrivateKey.fromString(privateKeyStr)
+// KEY MUST come from a secrets manager / vault, never a committed env var in prod.
+function makeServiceSession(actor: string, privateKey: string) {
+  return new Session({
+    chain: { id: Chains.WAX.id, url: client.url },
+    actor,
+    permission: "active",
+    walletPlugin: new WalletPluginPrivateKey(privateKey),
+  })
+}
 
-  const info = await client.v1.chain.get_info()
-  const header = info.getTransactionHeader(120) // expire in 120s
-
-  const tx = {
-    ...header,
-    context_free_actions: [],
-    actions,
-    transaction_extensions: [],
-  }
-
-  const signed = key.signDigest(
-    // Use the chain's proper signing digest
-    tx as any // typed properly in full implementation
-  )
-
-  return signed as any
+// Build + sign + broadcast in one call. expireSeconds caps how long the signed tx is valid.
+async function buildSignSend(session: Session, actions: any[]) {
+  const result = await session.transact({ actions }, { expireSeconds: 120, broadcast: true })
+  return result.response?.transaction_id
 }
 ```
 

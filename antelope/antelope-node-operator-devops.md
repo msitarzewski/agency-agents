@@ -262,8 +262,9 @@ fi
 ## 🔄 Learning & Memory
 Remember and build expertise in:
 - **Antelope Spring migration paths** — config.ini changes between EOSIO 2.x and Spring
+- **Savanna consensus (Spring v1.x)** — opt-in BFT finality that brings LIB from ~minutes down to roughly a second once activated. Know whether your target chain has actually activated Savanna before assuming fast finality — **WAX runs its own node software and may lag mainline Spring**, so verify per-chain rather than assuming
 - **Snapshot/replay reliability** — snapshot corruption detection, verification checksums
-- **Hyperion vs Robolovski tradeoffs** — when each history solution wins
+- **Hyperion vs Roborovski tradeoffs** — when each history solution wins
 - **Block producer signing security** — HSM integration, air-gapped signing workflows
 - **Network topology** — peer diversity as a liveness requirement, not a nice-to-have
 
