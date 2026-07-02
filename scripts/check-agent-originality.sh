@@ -23,8 +23,8 @@
 #   ORIGINALITY_FAIL   default 40  — at/above this %, treated as a duplicate (exit 1)
 #   ORIGINALITY_WARN   default 20  — at/above this %, surfaced as a warning (no fail)
 #
-# Calibration: across the existing 184-agent library the worst same-pair
-# similarity is ~1.5% (median 0%). Anything in the double digits is a strong
+# Calibration: across the existing 233-agent library the worst same-pair
+# similarity is ~1.9% (median 0%). Anything in the double digits is a strong
 # anomaly; the defaults leave a wide safety margin against false positives.
 
 set -euo pipefail
@@ -47,9 +47,9 @@ REPO_ROOT = os.environ["REPO_ROOT"]
 FAIL = float(os.environ["ORIGINALITY_FAIL"])
 WARN = float(os.environ["ORIGINALITY_WARN"])
 
-AGENT_DIRS = ("academic design engineering finance game-development marketing "
-              "paid-media product project-management sales spatial-computing "
-              "specialized strategy support testing").split()
+AGENT_DIRS = ("academic design engineering finance game-development gis marketing "
+              "paid-media product project-management sales security spatial-computing "
+              "specialized support testing").split()
 
 # Proper nouns we neutralize so a find-replace re-skin (swap the country/platform
 # and little else) still scores as a near-duplicate. Extend as new markets appear.
@@ -156,7 +156,7 @@ for p in candidates:
 
 print()
 print(f"Thresholds: WARN >= {WARN:.0f}%, FAIL >= {FAIL:.0f}%  "
-      f"(existing-library baseline max ~1.5%)")
+      f"(existing-library baseline max ~1.9%)")
 
 if fails:
     print()
