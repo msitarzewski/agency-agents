@@ -18,6 +18,7 @@ AGENT_DIRS=(
   finance
   game-development
   gis
+  healthcare
   marketing
   paid-media
   product
