@@ -7,8 +7,9 @@
 #   1. The actual top-level agent directories on disk
 #   2. AGENT_DIRS in scripts/convert.sh
 #   3. AGENT_DIRS in scripts/lint-agents.sh
-#   4. The path filters in .github/workflows/lint-agents.yml
-#   5. Every divisions.json entry has label, icon, and color
+#   4. AGENT_DIRS in scripts/check-agent-originality.sh (a Python list)
+#   5. The path filters in .github/workflows/lint-agents.yml
+#   6. Every divisions.json entry has label, icon, and color
 #
 # Add a division: create its directory, add an entry to divisions.json, then
 # this script tells you every other place that must be updated. No deps beyond
@@ -65,6 +66,15 @@ agent_dirs_array() {
     | tr ' \t' '\n\n' | grep -E '^[a-z0-9-]+$' | sort -u
 }
 
+# Contents of a Python `AGENT_DIRS = ("a b c ...").split()` string list, one per
+# line. check-agent-originality.sh keeps its own copy of the division set as a
+# Python list (not a bash array), so it needs its own extractor — the bash
+# agent_dirs_array() above cannot see it, which is exactly how it silently drifted.
+python_agent_dirs() {
+  awk '/AGENT_DIRS[[:space:]]*=[[:space:]]*\(/{f=1} f{print; if(/\)\.split\(\)/)exit}' "$1" \
+    | grep -oE '[a-z0-9-]+' | grep -vxE 'split' | sort -u
+}
+
 # Compare canonical vs a candidate set; report both directions.
 compare() {
   local label="$1" candidate="$2" canon
@@ -87,6 +97,7 @@ compare() {
 compare "the agent directories on disk" "$(actual_dirs)"
 compare "scripts/convert.sh AGENT_DIRS" "$(agent_dirs_array scripts/convert.sh)"
 compare "scripts/lint-agents.sh AGENT_DIRS" "$(agent_dirs_array scripts/lint-agents.sh)"
+compare "scripts/check-agent-originality.sh AGENT_DIRS" "$(python_agent_dirs scripts/check-agent-originality.sh)"
 
 # Workflow path filters: every canonical division must appear as `<div>/` in
 # the lint workflow, or new divisions silently skip CI.
