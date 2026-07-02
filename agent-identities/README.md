@@ -5,6 +5,7 @@ roster. Each source agent receives:
 
 - a stable display name for avatar-style UI use
 - a role glyph classification
+- a lightweight fictional persona
 - deterministic pixel-glyph avatar metadata
 
 Generated PNG avatars are intentionally not committed. Run the generator to
@@ -19,9 +20,20 @@ already ignored by this repository.
 
 ## Files
 
-- `glyph-v3.json` maps every agent source file to its identity metadata.
+- `glyph-v3.json` maps every agent source file to its identity metadata,
+  including agent type, specialty, display name, generated avatar path, and
+  persona fields.
 - `scripts/generate-agent-glyphs.mjs` renders 128x128 transparent PNG avatars
   and a contact sheet from the manifest.
+
+## Persona Fields
+
+Each agent entry includes a `persona` object with:
+
+- `background`: short professional background for identity cards
+- `memory`: a grounded work or life memory
+- `hobbies`: three ordinary interests
+- `selfIntroduction`: one first-person profile sentence
 
 ## Design Intent
 
