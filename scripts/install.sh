@@ -25,6 +25,7 @@
 #   codex        -- Copy custom agent TOML files to ~/.codex/agents/
 #   osaurus      -- Copy skills to ~/.osaurus/skills/
 #   hermes       -- Copy lazy-router plugin to ~/.hermes/plugins/ and enable it
+#   vibe         -- Copy agents and prompts to ~/.vibe/agents/ and ~/.vibe/prompts/
 #   all          -- Install for all detected tools (default)
 #
 # Selection (compose freely; empty = everything):
@@ -49,7 +50,7 @@
 #
 # Env: CLAUDE_CONFIG_DIR, COPILOT_AGENT_DIR, CURSOR_RULES_DIR, GEMINI_AGENTS_DIR,
 #      OPENCODE_AGENTS_DIR, OPENCLAW_DIR, QWEN_AGENTS_DIR, CODEX_AGENTS_DIR,
-#      OSAURUS_SKILLS_DIR, HERMES_HOME, HERMES_PLUGIN_DIR
+#      OSAURUS_SKILLS_DIR, HERMES_HOME, HERMES_PLUGIN_DIR, VIBE_HOME
 #      override default install paths (checked before hardcoded defaults).
 #
 # --- USAGE-END ---  (sentinel for usage(); do not remove)
@@ -128,7 +129,7 @@ INTEGRATIONS="$REPO_ROOT/integrations"
 # shellcheck source=lib.sh
 . "$SCRIPT_DIR/lib.sh"
 
-ALL_TOOLS=(claude-code copilot antigravity gemini-cli opencode openclaw cursor aider windsurf qwen kimi codex osaurus hermes)
+ALL_TOOLS=(claude-code copilot antigravity gemini-cli opencode openclaw cursor aider windsurf qwen kimi codex osaurus hermes vibe)
 
 # Directories scanned for installable agents. Intentionally includes strategy/
 # (its frontmatter-less NEXUS docs are filtered out by is_agent_file at scan time);
@@ -264,6 +265,7 @@ resolve_dest() {
     codex)       var="CODEX_AGENTS_DIR" ;;
     osaurus)     var="OSAURUS_SKILLS_DIR" ;;
     hermes)      var="HERMES_PLUGIN_DIR" ;;
+    vibe)        var="VIBE_HOME" ;;
   esac
   if [[ -n "$var" && -n "${!var:-}" ]]; then printf '%s' "${!var}"; else printf '%s' "$def"; fi
 }
@@ -276,7 +278,7 @@ resolve_tool_path() {
     opencode) bin="opencode" ;; openclaw) bin="openclaw" ;; cursor) bin="cursor" ;;
     aider) bin="aider" ;; windsurf) bin="windsurf" ;; qwen) bin="qwen" ;;
     kimi) bin="kimi" ;; codex) bin="codex" ;; antigravity) bin="" ;;
-    osaurus) bin="osaurus" ;; hermes) bin="hermes" ;;
+    osaurus) bin="osaurus" ;; hermes) bin="hermes" ;; vibe) bin="vibe" ;;
   esac
   [[ -n "$bin" ]] && command -v "$bin" 2>/dev/null
 }
@@ -375,6 +377,7 @@ detect_kimi()         { command -v kimi >/dev/null 2>&1; }
 detect_codex()        { command -v codex >/dev/null 2>&1 || [[ -d "${HOME}/.codex" ]]; }
 detect_osaurus()      { command -v osaurus >/dev/null 2>&1 || [[ -d "${HOME}/.osaurus" ]]; }
 detect_hermes()       { command -v hermes >/dev/null 2>&1 || [[ -d "${HERMES_HOME:-${HOME}/.hermes}" ]]; }
+detect_vibe()         { command -v vibe >/dev/null 2>&1 || [[ -d "${VIBE_HOME:-${HOME}/.vibe}" ]]; }
 
 is_detected() {
   case "$1" in
@@ -392,6 +395,7 @@ is_detected() {
     codex)       detect_codex       ;;
     osaurus)     detect_osaurus     ;;
     hermes)      detect_hermes      ;;
+    vibe)        detect_vibe        ;;
     *)           return 1 ;;
   esac
 }
@@ -413,6 +417,7 @@ tool_label() {
     codex)       printf "%-14s  %s" "Codex"        "(~/.codex/agents)"       ;;
     osaurus)     printf "%-14s  %s" "Osaurus"      "(~/.osaurus/skills)"     ;;
     hermes)      printf "%-14s  %s" "Hermes"       "(~/.hermes/plugins)"     ;;
+    vibe)        printf "%-14s  %s" "Mistral Vibe" "(~/.vibe/agents)"        ;;
   esac
 }
 
@@ -930,6 +935,39 @@ install_codex() {
   ok "Codex: $count agents -> $dest"
 }
 
+install_vibe() {
+  local src_agents="$INTEGRATIONS/vibe/agents"
+  local src_prompts="$INTEGRATIONS/vibe/prompts"
+  local dest; dest="$(resolve_dest vibe "${HOME}/.vibe")"
+  local count=0
+  
+  [[ -d "$src_agents" && -d "$src_prompts" ]] || { err "integrations/vibe missing. Run convert.sh first."; return 1; }
+  
+  mkdir -p "$dest/agents" "$dest/prompts"
+  
+  local agent_file prompt_file slug
+  
+  while IFS= read -r -d '' agent_file; do
+    slug="$(basename "$agent_file" .toml)"
+    slug_allowed "$slug" || continue
+    
+    # Find the corresponding prompt file
+    prompt_file="$src_prompts/$slug.md"
+    
+    [[ -f "$prompt_file" ]] || continue
+    
+    install_file "$agent_file" "$dest/agents/"
+    install_file "$prompt_file" "$dest/prompts/"
+    incr count
+  done < <(find "$src_agents" -maxdepth 1 -name "*.toml" -print0)
+  
+  ok "Mistral Vibe: $count agents -> $dest/agents/ and $dest/prompts/"
+}
+
+vibe_home_dir() {
+  printf '%s\n' "${VIBE_HOME:-${HOME}/.vibe}"
+}
+
 hermes_home_dir() {
   printf '%s\n' "${HERMES_HOME:-${HOME}/.hermes}"
 }
@@ -1074,6 +1112,7 @@ install_tool() {
     codex)       install_codex       ;;
     osaurus)     install_osaurus     ;;
     hermes)      install_hermes      ;;
+    vibe)        install_vibe        ;;
   esac
 }
 

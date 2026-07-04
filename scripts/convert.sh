@@ -457,6 +457,40 @@ ${body}
 HEREDOC
 }
 
+convert_vibe() {
+  local file="$1"
+  local name description slug outdir agent_file prompt_file body
+
+  name="$(get_field "name" "$file")"
+  description="$(get_field "description" "$file")"
+  slug="$(slugify "$name")"
+  body="$(get_body "$file")"
+
+  # Mistral Vibe uses two files per agent:
+  # 1. A TOML configuration file in ~/.vibe/agents/<slug>.toml
+  # 2. A markdown prompt file in ~/.vibe/prompts/<slug>.md
+
+  outdir="$OUT_DIR/vibe"
+  agent_file="$outdir/agents/${slug}.toml"
+  prompt_file="$outdir/prompts/${slug}.md"
+  mkdir -p "$outdir/agents" "$outdir/prompts"
+
+  # Write the TOML agent configuration
+  cat > "$agent_file" <<HEREDOC
+agent_type = "agent"
+system_prompt_id = "${slug}"
+HEREDOC
+
+  # Write the markdown prompt file
+  cat > "$prompt_file" <<HEREDOC
+# ${name}
+
+${description}
+
+${body}
+HEREDOC
+}
+
 # Aider and Windsurf are single-file formats — accumulate into temp files
 # then write at the end.
 AIDER_TMP="$(mktemp)"
@@ -575,6 +609,7 @@ run_conversions() {
         qwen)        convert_qwen        "$file" ;;
         kimi)        convert_kimi        "$file" ;;
         osaurus)     convert_osaurus     "$file" ;;
+        vibe)        convert_vibe        "$file" ;;
         aider)       accumulate_aider    "$file" ;;
         windsurf)    accumulate_windsurf "$file" ;;
       esac
@@ -605,7 +640,7 @@ main() {
     esac
   done
 
-  local valid_tools=("antigravity" "gemini-cli" "opencode" "cursor" "aider" "windsurf" "openclaw" "qwen" "kimi" "codex" "osaurus" "hermes" "all")
+  local valid_tools=("antigravity" "gemini-cli" "opencode" "cursor" "aider" "windsurf" "openclaw" "qwen" "kimi" "codex" "osaurus" "hermes" "vibe" "all")
   local valid=false
   for t in "${valid_tools[@]}"; do [[ "$t" == "$tool" ]] && valid=true && break; done
   if ! $valid; then
@@ -624,7 +659,7 @@ main() {
 
   local tools_to_run=()
   if [[ "$tool" == "all" ]]; then
-    tools_to_run=("antigravity" "gemini-cli" "opencode" "cursor" "aider" "windsurf" "openclaw" "qwen" "kimi" "codex" "osaurus" "hermes")
+    tools_to_run=("antigravity" "gemini-cli" "opencode" "cursor" "aider" "windsurf" "openclaw" "qwen" "kimi" "codex" "osaurus" "hermes" "vibe")
   else
     tools_to_run=("$tool")
   fi
@@ -635,7 +670,7 @@ main() {
 
   if $use_parallel && [[ "$tool" == "all" ]]; then
     # Tools that write to separate dirs can run in parallel; buffer output so each tool's output stays together
-    local parallel_tools=(antigravity gemini-cli opencode cursor openclaw qwen codex osaurus hermes)
+    local parallel_tools=(antigravity gemini-cli opencode cursor openclaw qwen codex osaurus hermes vibe)
     local parallel_out_dir
     parallel_out_dir="$(mktemp -d)"
     info "Converting: ${#parallel_tools[@]}/${n_tools} tools in parallel (output buffered per tool)..."

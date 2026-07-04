@@ -66,7 +66,7 @@ Each agent file contains:
 
 Browse the agents below and copy/adapt the ones you need!
 
-### Option 4: Use with Other Tools (GitHub Copilot, Antigravity, Gemini CLI, OpenCode, OpenClaw, Cursor, Aider, Windsurf, Kimi Code, Codex, Osaurus, Hermes)
+### Option 4: Use with Other Tools (GitHub Copilot, Antigravity, Gemini CLI, OpenCode, OpenClaw, Cursor, Aider, Windsurf, Kimi Code, Codex, Osaurus, Hermes, Mistral Vibe)
 
 ```bash
 # Step 1 -- generate integration files for all supported tools
@@ -88,6 +88,7 @@ Browse the agents below and copy/adapt the ones you need!
 ./scripts/install.sh --tool codex
 ./scripts/install.sh --tool osaurus
 ./scripts/install.sh --tool hermes
+./scripts/install.sh --tool vibe
 ```
 
 **Install only the teams you need** (not everyone wants all 16 divisions):
