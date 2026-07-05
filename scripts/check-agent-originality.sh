@@ -23,7 +23,7 @@
 #   ORIGINALITY_FAIL   default 40  — at/above this %, treated as a duplicate (exit 1)
 #   ORIGINALITY_WARN   default 20  — at/above this %, surfaced as a warning (no fail)
 #
-# Calibration: across the existing 184-agent library the worst same-pair
+# Calibration: across the existing agent library the worst same-pair
 # similarity is ~1.5% (median 0%). Anything in the double digits is a strong
 # anomaly; the defaults leave a wide safety margin against false positives.
 

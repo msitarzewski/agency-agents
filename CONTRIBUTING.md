@@ -31,23 +31,11 @@ This project and everyone participating in it is governed by our Code of Conduct
 Have an idea for a specialized agent? Great! Here's how to add one:
 
 1. **Fork the repository**
-2. **Choose the appropriate division** (one of the 16 — or propose a new one):
-   - `academic/` - Research, scholarship, and domain-expert specialists
-   - `design/` - UX/UI and creative specialists
-   - `engineering/` - Software development specialists
-   - `finance/` - Financial planning, accounting, and investment specialists
-   - `game-development/` - Game design and development specialists
-   - `gis/` - Geospatial, mapping, and spatial-analysis specialists
-   - `marketing/` - Growth and marketing specialists
-   - `paid-media/` - Paid acquisition and media specialists
-   - `product/` - Product management specialists
-   - `project-management/` - PM and coordination specialists
-   - `sales/` - Sales, revenue, and deal specialists
-   - `security/` - Security architecture, AppSec, pentest, threat intel, and incident response
-   - `spatial-computing/` - AR/VR/XR specialists
-   - `specialized/` - Unique specialists that don't fit elsewhere
-   - `support/` - Operations and support specialists
-   - `testing/` - QA and testing specialists
+2. **Choose the appropriate division** — or propose a new one. Divisions are the
+   top-level agent directories (e.g. `engineering/`, `security/`, `gis/`, `marketing/`,
+   `finance/`…); browse them to find where your agent fits. The authoritative list —
+   with labels, icons, and colors — is [`divisions.json`](divisions.json) at the repo
+   root, so it's always current.
 
    > **Divisions are defined by `divisions.json`** (repo root) — the single source of
    > truth for the division set, validated in CI by `scripts/check-divisions.sh`.
@@ -238,6 +226,23 @@ quickstart guide wearing an agent costume does not.
 
 **Codex Compatibility**: Codex custom agents are generated as standalone TOML files. The Codex integration keeps a minimal 1:1 mapping: `name` and `description` are copied from frontmatter, and the Markdown body becomes `developer_instructions`. Source-only metadata such as `color`, `emoji`, `vibe`, and other unsupported frontmatter fields are omitted.
 
+### Adding a Tool Integration
+
+Want agency-agents to install into a new tool (a CLI, editor, or agent runtime)? First, **[open a Discussion](https://github.com/msitarzewski/agency-agents/discussions)** — new integration platforms are a "discuss first" change (see the PR Process below). Once there's alignment, a clean integration is small — usually **~5 files, never the converted output itself.** The just-merged Mistral Vibe integration is a good worked example to copy.
+
+`tools.json` at the repo root is the single source of truth for the tool set, and `scripts/check-tools.sh` (CI) fails the build if any of the pieces below disagree. Run it — it names every place that must match.
+
+**The checklist:**
+
+1. **`tools.json`** — add an entry with `id`, `label`, `kebab`, `format`, `installKind`, `dest`, plus detect/version/scope and display fields. **Reuse an existing `format`** if your tool's rendered files are byte-identical to another's (e.g. tools that consume `SKILL.md` share `"format": "skill-md"` — no new renderer needed). Set `installKind` to `per-agent`, `roster`, or `plugin`. Set `icon` to `null` unless the [app](https://github.com/msitarzewski/agency-agents-app) ships a brand SVG for it.
+2. **`scripts/convert.sh`** — add a `convert_<tool>()` (or reuse a shared `format` renderer) and wire it into the tool list + `--help`.
+3. **`scripts/install.sh`** — add an `install_<tool>()` and register it in `ALL_TOOLS` + detection/labeling + `--help`.
+4. **`.gitignore`** — add a rule for your tool's generated output under `integrations/<tool>/`. **This step is required and easy to miss.** Converted agent/skill files are generated locally by `convert.sh` and are **never committed** (see "Things we'll always close" below) — only `integrations/<tool>/README.md` is tracked. Match an existing per-tool entry.
+5. **`integrations/<tool>/README.md`** — a short doc for the integration (every tool has one; it's the only committed file in the tool's directory).
+6. **Run `./scripts/check-tools.sh`** — it must pass. It cross-checks `tools.json` against `install.sh` and `convert.sh` and flags anything missing.
+
+If your PR commits the converted output (the generated `integrations/<tool>/*` files), CI and review will ask you to remove it and add the `.gitignore` rule instead.
+
 ### What Makes a Great Agent?
 
 **Great agents have**:
@@ -279,7 +284,7 @@ For anything beyond that, here's how we keep things smooth:
 We love ambitious ideas — a [Discussion](https://github.com/msitarzewski/agency-agents/discussions) just gives the community a chance to align on approach before code gets written. It saves everyone time, especially yours.
 
 #### Things we'll always close
-- **Committed build output**: Generated files (`_site/`, compiled assets, converted agent files) should never be checked in. Users run `convert.sh` locally; all output is gitignored.
+- **Committed build output**: Generated files (`_site/`, compiled assets, converted agent files) should never be checked in. Users run `convert.sh` locally; its output is gitignored. When adding a new tool, adding that `.gitignore` rule is your step — see [Adding a Tool Integration](#adding-a-tool-integration).
 - **PRs that bulk-modify existing agents** without a prior discussion — even well-intentioned reformatting can create merge conflicts for other contributors.
 - **Near-duplicate "re-skins"**: New agents that are find-replace copies of an existing one (e.g. swapping a country or platform name) rather than genuinely new specialists. Run `scripts/check-agent-originality.sh` before submitting — CI runs it automatically.
 

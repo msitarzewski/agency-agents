@@ -91,7 +91,7 @@ Browse the agents below and copy/adapt the ones you need!
 ./scripts/install.sh --tool vibe
 ```
 
-**Install only the teams you need** (not everyone wants all 16 divisions):
+**Install only the teams you need** (not everyone wants every division):
 
 ```bash
 ./scripts/install.sh                                    # interactive wizard: pick tools + teams
@@ -649,7 +649,7 @@ Each agent is designed with:
 
 ## 📊 Stats
 
-- 🎭 **232 Specialized Agents** across 16 divisions
+- 🎭 **230+ Specialized Agents** across every division
 - 📝 **10,000+ lines** of personality, process, and code examples
 - ⏱️ **Months of iteration** from real-world usage
 - 🌟 **Battle-tested** in production environments
@@ -1037,7 +1037,7 @@ MIT License - Use freely, commercially or personally. Attribution appreciated bu
 
 ## 🙏 Acknowledgments
 
-What started as a Reddit thread about AI agent specialization has grown into something remarkable — **232 agents across 16 divisions**, supported by a community of contributors from around the world. Every agent in this repo exists because someone cared enough to write it, test it, and share it.
+What started as a Reddit thread about AI agent specialization has grown into something remarkable — **230+ agents across every division**, supported by a community of contributors from around the world. Every agent in this repo exists because someone cared enough to write it, test it, and share it.
 
 To everyone who has opened a PR, filed an issue, started a Discussion, or simply tried an agent and told us what worked — thank you. You're the reason The Agency keeps getting better.
 
