@@ -22,6 +22,7 @@
 #   codex        — Codex custom agent TOML files (~/.codex/agents/*.toml)
 #   osaurus      — Osaurus skill files (~/.osaurus/skills/<name>/SKILL.md)
 #   hermes       — Hermes lazy-router plugin (one plugin + on-disk agent index)
+#   vibe         — Mistral Vibe agent TOML + prompt files (~/.vibe/agents/*.toml + ~/.vibe/prompts/*.md)
 #   all          — All tools (default)
 #
 # Output is written to integrations/<tool>/ relative to the repo root.
