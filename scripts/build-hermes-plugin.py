@@ -15,26 +15,17 @@ import shutil
 import textwrap
 from pathlib import Path
 
-AGENT_DIRS = [
-    "academic",
-    "design",
-    "engineering",
-    "finance",
-    "game-development",
-    "gis",
-    "marketing",
-    "paid-media",
-    "product",
-    "project-management",
-    "sales",
-    "security",
-    "spatial-computing",
-    "specialized",
-    "support",
-    "testing",
-]
-
 PLUGIN_NAME = "agency-agents-router"
+
+
+def division_dirs(repo_root: Path) -> list[str]:
+    # divisions.json (repo root) is the single source of truth for the division
+    # set. Read it rather than hardcoding a copy here: a hardcoded list silently
+    # drops new divisions from the Hermes roster (e.g. healthcare) the moment the
+    # catalog grows. check-divisions.sh guards divisions.json against the tracked
+    # dirs, so deriving from it keeps this plugin in sync by construction.
+    data = json.loads((repo_root / "divisions.json").read_text(encoding="utf-8"))
+    return sorted(data["divisions"].keys())
 
 
 def slugify(value: str) -> str:
@@ -78,7 +69,7 @@ def parse_agent(path: Path, repo_root: Path) -> dict[str, str] | None:
 
 def collect_agents(repo_root: Path) -> list[dict[str, str]]:
     agents: list[dict[str, str]] = []
-    for dirname in AGENT_DIRS:
+    for dirname in division_dirs(repo_root):
         base = repo_root / dirname
         if not base.is_dir():
             continue
@@ -151,6 +142,21 @@ def _agent_lookup(identifier: str) -> dict[str, Any] | None:
         if agent["slug"] == slug or agent["name"].lower() == needle:
             return agent
     return None
+
+
+def _identifier(args: dict[str, Any]) -> str:
+    # Accept either "agent" or "slug": agency_agents_search returns results keyed
+    # by "slug", so callers naturally chain search -> load/inspect/delegate with
+    # slug=. Both name the same thing (a slug or exact display name).
+    return str(args.get("agent") or args.get("slug") or "").strip()
+
+
+def _not_found(identifier: str) -> dict[str, Any]:
+    return {
+        "success": False,
+        "error": "agent not found" if identifier else "agent or slug is required",
+        "agent": identifier or None,
+    }
 
 
 def _score(agent: dict[str, Any], query_tokens: set[str], query_text: str) -> float:
@@ -236,9 +242,10 @@ READ_SCHEMA = {
     "type": "object",
     "properties": {
         "agent": {"type": "string", "description": "Agent slug or exact display name."},
+        "slug": {"type": "string", "description": "Alias for agent. Pass the slug from agency_agents_search results."},
         "include_body": {"type": "boolean", "description": "Include full specialist instructions."},
     },
-    "required": ["agent"],
+    "required": [],
 }
 
 PROMPT_DESCRIPTION = (
@@ -249,9 +256,10 @@ PROMPT_SCHEMA = {
     "type": "object",
     "properties": {
         "agent": {"type": "string", "description": "Agent slug or exact display name."},
+        "slug": {"type": "string", "description": "Alias for agent. Pass the slug from agency_agents_search results."},
         "task": {"type": "string", "description": "The user's task to pair with the specialist context."},
     },
-    "required": ["agent"],
+    "required": [],
 }
 
 DELEGATE_DESCRIPTION = (
@@ -263,6 +271,7 @@ DELEGATE_SCHEMA = {
     "type": "object",
     "properties": {
         "agent": {"type": "string", "description": "Agent slug or exact display name."},
+        "slug": {"type": "string", "description": "Alias for agent. Pass the slug from agency_agents_search results."},
         "task": {"type": "string", "description": "Concrete task for the specialist."},
         "toolsets": {
             "type": "array",
@@ -270,7 +279,7 @@ DELEGATE_SCHEMA = {
             "description": "Optional Hermes toolsets for the delegated worker, e.g. ['terminal','file'].",
         },
     },
-    "required": ["agent", "task"],
+    "required": ["task"],
 }
 
 
@@ -304,9 +313,10 @@ def register(ctx):
 
     def read(args: dict[str, Any], **kwargs) -> str:
         del kwargs
-        agent = _agent_lookup(str(args.get("agent", "")))
+        identifier = _identifier(args)
+        agent = _agent_lookup(identifier)
         if not agent:
-            return _json({"success": False, "error": "agent not found", "agent": args.get("agent")})
+            return _json(_not_found(identifier))
         payload = {"success": True, "agent": _summary(agent)}
         if bool(args.get("include_body", False)):
             payload["body"] = agent.get("body", "")
@@ -314,9 +324,10 @@ def register(ctx):
 
     def prompt(args: dict[str, Any], **kwargs) -> str:
         del kwargs
-        agent = _agent_lookup(str(args.get("agent", "")))
+        identifier = _identifier(args)
+        agent = _agent_lookup(identifier)
         if not agent:
-            return _json({"success": False, "error": "agent not found", "agent": args.get("agent")})
+            return _json(_not_found(identifier))
         return _json({
             "success": True,
             "agent": _summary(agent),
@@ -325,10 +336,11 @@ def register(ctx):
 
     def delegate(args: dict[str, Any], **kwargs) -> str:
         del kwargs
-        agent = _agent_lookup(str(args.get("agent", "")))
+        identifier = _identifier(args)
+        agent = _agent_lookup(identifier)
         task = str(args.get("task", "")).strip()
         if not agent:
-            return _json({"success": False, "error": "agent not found", "agent": args.get("agent")})
+            return _json(_not_found(identifier))
         if not task:
             return _json({"success": False, "error": "task is required"})
         composed = _specialist_prompt(agent, task)
