@@ -131,25 +131,31 @@ INTEGRATIONS="$REPO_ROOT/integrations"
 
 ALL_TOOLS=(claude-code copilot antigravity gemini-cli opencode openclaw cursor aider windsurf qwen kimi codex osaurus hermes vibe)
 
-# Directories scanned for installable agents. Intentionally includes strategy/
-# (its frontmatter-less NEXUS docs are filtered out by is_agent_file at scan time);
-# the selectable division list below is this set minus strategy. This is NOT the
-# same set as AGENT_DIRS in convert.sh / lint-agents.sh, which exclude strategy
-# entirely — see divisions.json (the source of truth) and scripts/check-divisions.sh.
-AGENT_DIRS=(
-  academic design engineering finance game-development gis marketing paid-media product project-management
-  sales security spatial-computing specialized strategy support testing
-)
+# The division set is derived from divisions.json (the single source of truth)
+# so the installer can never drift from the catalog — a hardcoded copy silently
+# dropped healthcare (#655/#668) and can't be seen by check-divisions.sh. Same
+# no-jq awk/grep/sed parse as scripts/check-divisions.sh (macOS + Linux).
+divisions_from_json() {
+  local json="$REPO_ROOT/divisions.json"
+  [[ -f "$json" ]] || { err "divisions.json not found at $json"; exit 1; }
+  awk '/"divisions"[[:space:]]*:[[:space:]]*\{/{f=1; next} f' "$json" \
+    | grep -oE '"[a-z0-9-]+"[[:space:]]*:[[:space:]]*\{' \
+    | sed -E 's/"([a-z0-9-]+)".*/\1/'
+}
+
+# Selectable divisions = exactly the divisions.json entries.
+ALL_DIVISIONS=()
+while IFS= read -r _div; do [[ -n "$_div" ]] && ALL_DIVISIONS+=("$_div"); done < <(divisions_from_json)
+[[ ${#ALL_DIVISIONS[@]} -gt 0 ]] || { err "no divisions parsed from divisions.json"; exit 1; }
+
+# Directories scanned for installable agents = the divisions plus strategy/.
+# strategy/ holds frontmatter-less NEXUS docs (filtered out by is_agent_file at
+# scan time), so it is scanned but selectable only via ALL_DIVISIONS above.
+AGENT_DIRS=("${ALL_DIVISIONS[@]}" strategy)
 
 # ---------------------------------------------------------------------------
 # Selection engine (team / agent / agents-file filtering)
 # ---------------------------------------------------------------------------
-# Selectable divisions = AGENT_DIRS minus strategy/ (NEXUS docs, not agents).
-ALL_DIVISIONS=(
-  academic design engineering finance game-development gis marketing paid-media
-  product project-management sales security spatial-computing specialized support testing
-)
-
 FILTER_DIVISIONS=()      # --division
 FILTER_AGENTS=()         # --agent
 AGENTS_FILE=""           # --agents-file
