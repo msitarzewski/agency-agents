@@ -1183,14 +1183,21 @@ main() {
 
   check_integrations
 
-  # Validate explicit tool
+  # Validate explicit tool(s). --tool accepts a comma-separated list (like
+  # --division / --agent), e.g. --tool claude-code,cursor.
+  local _tool_list=()
   if [[ "$tool" != "all" ]]; then
-    local valid=false t
-    for t in "${ALL_TOOLS[@]}"; do [[ "$t" == "$tool" ]] && valid=true && break; done
-    if ! $valid; then
-      err "Unknown tool '$tool'. Valid: ${ALL_TOOLS[*]}"
-      exit 1
-    fi
+    local _t
+    IFS=',' read -ra _tool_list <<< "$tool"
+    local _cleaned=()
+    for _t in "${_tool_list[@]}"; do
+      _t="$(printf '%s' "$_t" | xargs)"; [[ -z "$_t" ]] && continue
+      local valid=false _vt
+      for _vt in "${ALL_TOOLS[@]}"; do [[ "$_vt" == "$_t" ]] && valid=true && break; done
+      $valid || { err "Unknown tool '$_t'. Valid: ${ALL_TOOLS[*]}"; exit 1; }
+      _cleaned+=("$_t")
+    done
+    _tool_list=("${_cleaned[@]}")
   fi
 
   # Decide whether to show interactive UI
@@ -1207,7 +1214,7 @@ main() {
     : # wizard committed SELECTED_TOOLS + FILTER_DIVISIONS
 
   elif [[ "$tool" != "all" ]]; then
-    SELECTED_TOOLS=("$tool")
+    SELECTED_TOOLS=("${_tool_list[@]}")
 
   else
     # Non-interactive (or no TTY): auto-detect
