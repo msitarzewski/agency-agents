@@ -17,6 +17,7 @@ supported agentic coding tools.
 - **[Kimi Code](#kimi-code)** — YAML agent specs in `kimi/`
 - **[Qwen Code](#qwen-code)** — project-scoped `.md` SubAgents in `.qwen/agents/`
 - **[Codex](#codex)** — `.toml` custom agents in `codex/`
+- **[Mistral Vibe](vibe/README.md)** — `.toml` agents + prompt files generated in `vibe/`
 - **Osaurus** -- `SKILL.md` skills generated in `osaurus/`
 - **[Hermes](hermes/README.md)** -- lazy-router plugin generated in `hermes/`
 
@@ -95,7 +96,7 @@ See [github-copilot/README.md](github-copilot/README.md) for details.
 
 ## Antigravity
 
-Skills are installed to `~/.gemini/antigravity/skills/`. Each agent becomes
+Skills are installed to `~/.gemini/config/skills/`. Each agent becomes
 a separate skill prefixed with `agency-` to avoid naming conflicts.
 
 ```bash
