@@ -1069,11 +1069,23 @@ install_hermes() {
   local src="$INTEGRATIONS/hermes/agency-agents-router"
   local hermes_home; hermes_home="$(hermes_home_dir)"
   local dest; dest="$(resolve_dest hermes "${hermes_home}/plugins/agency-agents-router")"
+  # HERMES_PLUGIN_DIR is ambiguous: its name invites setting it to the plugins
+  # parent (~/.hermes/plugins) rather than the full plugin path. Always target
+  # the agency-agents-router subdir so we never rm -rf a shared plugins dir that
+  # holds other plugins.
+  if [[ "$(basename "$dest")" != "agency-agents-router" ]]; then
+    dest="${dest%/}/agency-agents-router"
+  fi
   [[ -f "$src/plugin.yaml" && -f "$src/__init__.py" && -f "$src/data/agents.json" ]] || {
     err "integrations/hermes/agency-agents-router missing. Run ./scripts/convert.sh --tool hermes first."
     return 1
   }
   mkdir -p "$(dirname "$dest")"
+  # Safety net: only ever remove our own plugin directory, never a parent.
+  if [[ "$(basename "$dest")" != "agency-agents-router" ]]; then
+    err "Hermes: refusing to remove '$dest' — expected an agency-agents-router directory."
+    return 1
+  fi
   rm -rf "$dest"
   if $USE_LINK; then
     ln -s "$src" "$dest"
