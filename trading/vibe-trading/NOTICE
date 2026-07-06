@@ -1,0 +1,22 @@
+Vibe-Trading
+Copyright 2026 HKUDS contributors.
+
+This product includes software developed at HKUDS (https://github.com/HKUDS).
+
+This product bundles Microsoft Qlib feature definitions under the Apache 2.0
+license. See agent/src/factors/zoo/qlib158/NOTICE and LICENSE.md for the
+upstream NOTICE and attribution.
+
+Mathematical formulas from the following sources are reimplemented in this
+repository as factual mathematical content (formulas are not copyrightable):
+
+  - Kakushadze, Z. (2015) "101 Formulaic Alphas" (arXiv:1601.00991)
+    See agent/src/factors/zoo/alpha101/LICENSE.md
+  - Guotai Junan Securities (2014) "191 Short-period Trading Alpha Factors"
+    See agent/src/factors/zoo/gtja191/LICENSE.md
+  - Fama-French five-factor model, Carhart momentum, Hou-Xue-Zhang q-factor
+    See agent/src/factors/zoo/academic/LICENSE.md
+
+Prose, tables, and figures from the source papers and reports are NOT
+reproduced in this repository. Only the mathematical formulas — which are
+factual content and not subject to copyright — are reimplemented here.

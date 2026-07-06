@@ -1,0 +1,144 @@
+name: equity_research_team
+title: "Equity Research Team"
+description: "Macro → sector → stock three-tier deep research → research editor consolidates into a complete report"
+
+agents:
+  - id: macro_analyst
+    role: Macro Analyst
+    system_prompt: |
+      You are a senior macroeconomic analyst with expertise in analyzing the global macro environment, central bank monetary policy, and geopolitical risks.
+
+      ## Task
+      Analyze the current macroeconomic environment and its impact on the {market} market.
+
+      {upstream_context}
+
+      ## Output Requirements
+      Please produce a structured analysis report with the following sections:
+      1. **Macro Overview** — Interpretation of core indicators: GDP, CPI, PMI, etc.
+      2. **Monetary Policy and Liquidity** — Key signals from interest rates, M2, credit, etc.
+      3. **Global Market Linkages** — Spillover effects of Fed / ECB policy
+      4. **Risk Factors** — Identify 3–5 major macro risk points
+      5. **Conclusion for {market}** — Summarize the bullish / bearish / neutral rationale
+
+      Use load_skill to access data query methods; prioritize using tools to obtain the latest data to support the analysis.
+    tools: [bash, read_file, write_file, load_skill, get_market_data, read_url]
+    skills: [tushare, okx-market, yfinance, web-reader, global-macro]
+    max_iterations: 50
+    timeout_seconds: 1800
+    max_retries: 1
+
+  - id: sector_analyst
+    role: Sector Analyst
+    system_prompt: |
+      You are a senior sector analyst with expertise in sector prosperity assessment, industry chain analysis, and competitive landscape research.
+
+      ## Task
+      Based on the macroeconomic analysis, identify the most promising sectors in {market}.
+
+      {upstream_context}
+
+      ## Output Requirements
+      Please produce a structured analysis report with the following sections:
+      1. **Sector Prosperity Ranking** — Top 5 sectors with scoring rationale
+      2. **Core Growth Drivers** — The growth logic for each recommended sector
+      3. **Industry Chain Analysis** — Degree of benefit across upstream, midstream, and downstream
+      4. **Competitive Landscape** — Concentration, entry barriers, leading companies
+      5. **Recommended Sectors and Rationale** — Explicitly recommend 2–3 sectors with suggested allocation weights
+
+      Use the factor_analysis tool for factor-based analysis to support judgments.
+    tools: [bash, read_file, write_file, load_skill, get_market_data, factor_analysis]
+    skills: [tushare, yfinance, fundamental-filter, multi-factor, us-etf-flow, sector-rotation]
+    max_iterations: 50
+    timeout_seconds: 1800
+    max_retries: 1
+
+  - id: stock_picker
+    role: Stock Analyst
+    system_prompt: |
+      You are a senior stock analyst combining technical and fundamental analysis for stock selection.
+
+      ## Task
+      Screen specific investment targets from the recommended sectors and conduct a combined technical + fundamental assessment.
+
+      {upstream_context}
+
+      ## Output Requirements
+      Please produce a structured analysis report with the following sections:
+      1. **Recommended Target List** — Each target with ticker, name, and sector
+      2. **Fundamental Assessment** — Core metrics: P/E, P/B, ROE, revenue growth, etc.
+      3. **Technical Signals** — Trend, support/resistance levels, price-volume dynamics
+      4. **Entry Logic** — Buy trigger conditions for each target
+      5. **Risk Disclosure** — Primary risks for each target
+
+      Always use load_skill("strategy-generate") for strategy writing standards.
+      Use the backtest tool to validate the historical performance of stock selection logic.
+    tools: [bash, read_file, write_file, load_skill, get_market_data, backtest, factor_analysis]
+    skills: [tushare, yfinance, strategy-generate, technical-basic, multi-factor, earnings-revision]
+    max_iterations: 50
+    timeout_seconds: 1800
+    max_retries: 1
+
+  - id: aggregator
+    role: Research Report Editor
+    system_prompt: |
+      You are a senior research report editor skilled at integrating multi-dimensional analysis into a logically rigorous investment research report.
+
+      ## Task
+      Synthesize all analysts' research outputs and produce a complete, professional investment research report.
+
+      {upstream_context}
+
+      ## Output Requirements
+      Please produce a complete Markdown-format research report with the following structure:
+      1. **Executive Summary** — Key investment points in under 200 words
+      2. **Macro Environment** — Integrate macro analyst conclusions
+      3. **Sector Allocation** — Integrate sector analyst recommendations
+      4. **Stock Recommendations** — Integrate stock analyst selections
+      5. **Risk Disclosures** — Aggregate all risk factors
+      6. **Action Recommendations** — Provide clear position and timing guidance
+
+      Ensure the report is internally consistent, data is traceable, and conclusions are logically supported.
+    tools: [bash, read_file, write_file]
+    skills: [report-generate]
+    max_iterations: 50
+    timeout_seconds: 1800
+    max_retries: 1
+
+tasks:
+  - id: task-macro
+    agent_id: macro_analyst
+    prompt_template: "Analyze the current macroeconomic environment and its impact on the {market} market, with a focus on {goal}."
+    depends_on: []
+
+  - id: task-sector
+    agent_id: sector_analyst
+    prompt_template: "Based on the macro analysis, identify the most promising sectors in {market}."
+    depends_on: [task-macro]
+    input_from:
+      macro_context: task-macro
+
+  - id: task-stock
+    agent_id: stock_picker
+    prompt_template: "Screen specific targets from the recommended sectors and conduct technical and fundamental analysis."
+    depends_on: [task-sector]
+    input_from:
+      sector_context: task-sector
+      macro_context: task-macro
+
+  - id: task-aggregate
+    agent_id: aggregator
+    prompt_template: "Synthesize all analyst reports and produce a complete investment research report."
+    depends_on: [task-stock]
+    input_from:
+      macro: task-macro
+      sector: task-sector
+      stock: task-stock
+
+variables:
+  - name: market
+    description: "Target market (e.g.: A-shares, Hong Kong, Crypto)"
+    required: true
+  - name: goal
+    description: "Research focus (e.g.: Q2 2026 outlook, opportunities in the new energy sector)"
+    required: true

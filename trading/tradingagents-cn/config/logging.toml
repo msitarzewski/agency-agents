@@ -1,0 +1,121 @@
+# TradingAgents-CN 日志配置文件
+# 支持不同环境的日志配置
+
+[logging]
+# 全局日志级别：DEBUG, INFO, WARNING, ERROR, CRITICAL
+level = "INFO"
+
+# 日志格式配置
+[logging.format]
+console = "%(asctime)s | %(name)-20s | %(levelname)-8s | %(message)s"
+file = "%(asctime)s | %(name)-20s | %(levelname)-8s | %(module)s:%(funcName)s:%(lineno)d | %(message)s"
+structured = "json"
+file_json = true  # 启用文件日志 JSON 输出（webapi.log 与 worker.log）
+
+
+# 处理器配置
+[logging.handlers]
+
+# 控制台处理器
+[logging.handlers.console]
+enabled = true
+colored = true  # 是否启用彩色输出
+level = "INFO"
+
+# 文件处理器
+[logging.handlers.file]
+enabled = true
+level = "DEBUG"
+max_size = "10MB"
+backup_count = 5
+directory = "./logs"
+
+# 错误日志处理器（只记录WARNING及以上级别）
+[logging.handlers.error]
+enabled = true
+level = "WARNING"  # 只记录WARNING, ERROR, CRITICAL
+max_size = "10MB"
+backup_count = 5
+directory = "./logs"
+filename = "error.log"
+
+# 结构化日志处理器（JSON格式）
+[logging.handlers.structured]
+enabled = false  # 默认关闭，生产环境可启用
+level = "INFO"
+directory = "./logs"
+
+# 特定日志器配置
+[logging.loggers]
+
+# 主应用日志
+[logging.loggers.tradingagents]
+level = "INFO"
+
+# Web界面日志
+[logging.loggers.web]
+level = "INFO"
+
+# 数据流日志
+[logging.loggers.dataflows]
+level = "INFO"
+
+# LLM适配器日志
+[logging.loggers.llm_adapters]
+level = "INFO"
+
+# 第三方库日志（通常设置为WARNING减少噪音）
+[logging.loggers.streamlit]
+level = "WARNING"
+
+[logging.loggers.urllib3]
+level = "WARNING"
+
+[logging.loggers.requests]
+level = "WARNING"
+
+[logging.loggers.matplotlib]
+level = "WARNING"
+
+[logging.loggers.pandas]
+level = "WARNING"
+
+# Docker环境配置
+[logging.docker]
+enabled = false  # 自动检测Docker环境
+stdout_only = true  # Docker环境只输出到stdout
+disable_file_logging = true  # Docker环境禁用文件日志
+
+# 开发环境配置
+[logging.development]
+enabled = false  # 开发模式
+debug_modules = ["tradingagents.graph", "tradingagents.llm_adapters"]  # 开发时详细日志的模块
+save_debug_files = true  # 保存调试文件
+
+# 生产环境配置
+[logging.production]
+enabled = false  # 生产模式
+structured_only = true  # 只使用结构化日志
+error_notification = true  # 错误通知
+max_log_size = "100MB"  # 生产环境更大的日志文件
+
+# 性能监控日志
+[logging.performance]
+enabled = true
+log_slow_operations = true
+slow_threshold_seconds = 5.0  # 超过5秒的操作记录为慢操作
+log_memory_usage = false  # 是否记录内存使用
+
+# 安全日志
+[logging.security]
+enabled = true
+log_api_calls = true  # 记录API调用
+log_token_usage = true  # 记录Token使用
+mask_sensitive_data = true  # 屏蔽敏感数据
+
+# 业务日志
+[logging.business]
+enabled = true
+log_analysis_events = true  # 记录分析事件
+log_user_actions = true  # 记录用户操作
+log_export_events = true  # 记录导出事件

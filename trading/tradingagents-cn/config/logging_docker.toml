@@ -1,0 +1,131 @@
+# Docker环境专用日志配置 - 完整修复版
+# 解决KeyError: 'file'错误
+
+[logging]
+level = "INFO"
+
+[logging.format]
+# 必须包含所有格式配置
+console = "%(asctime)s | %(levelname)-8s | %(name)s | %(message)s"
+file = "%(asctime)s | %(name)-20s | %(levelname)-8s | %(module)s:%(funcName)s:%(lineno)d | %(message)s"
+structured = "json"
+
+[logging.handlers]
+
+# 控制台输出
+[logging.handlers.console]
+enabled = true
+colored = false
+level = "INFO"
+
+# 文件输出 - 完整配置
+[logging.handlers.file]
+enabled = true
+level = "DEBUG"
+max_size = "100MB"
+backup_count = 5
+directory = "/app/logs"
+
+# 主日志文件（tradingagents.log）
+[logging.handlers.main]
+enabled = true
+level = "INFO"
+max_size = "100MB"
+backup_count = 5
+filename = "/app/logs/tradingagents.log"
+
+# WebAPI日志文件
+[logging.handlers.webapi]
+enabled = true
+level = "DEBUG"
+max_size = "100MB"
+backup_count = 5
+filename = "/app/logs/webapi.log"
+
+# Worker日志文件
+[logging.handlers.worker]
+enabled = true
+level = "DEBUG"
+max_size = "100MB"
+backup_count = 5
+filename = "/app/logs/worker.log"
+
+# 错误日志文件
+[logging.handlers.error]
+enabled = true
+level = "WARNING"
+max_size = "100MB"
+backup_count = 5
+filename = "/app/logs/error.log"
+
+# 结构化日志
+[logging.handlers.structured]
+enabled = true
+level = "INFO"
+directory = "/app/logs"
+
+[logging.loggers]
+[logging.loggers.tradingagents]
+level = "INFO"
+
+[logging.loggers.web]
+level = "INFO"
+
+[logging.loggers.components]
+level = "WARNING"
+
+[logging.loggers.dataflows]
+level = "INFO"
+
+[logging.loggers.llm_adapters]
+level = "INFO"
+
+[logging.loggers.streamlit]
+level = "WARNING"
+
+[logging.loggers.urllib3]
+level = "WARNING"
+
+[logging.loggers.requests]
+level = "WARNING"
+
+[logging.loggers.matplotlib]
+level = "WARNING"
+
+[logging.loggers.pandas]
+level = "WARNING"
+
+# Docker配置 - 修复版
+[logging.docker]
+enabled = true
+stdout_only = false  # 同时输出到文件和stdout
+disable_file_logging = false  # 启用文件日志
+
+[logging.development]
+enabled = false
+debug_modules = ["tradingagents.graph", "tradingagents.llm_adapters"]
+save_debug_files = true
+
+[logging.production]
+enabled = false
+structured_only = false
+error_notification = true
+max_log_size = "100MB"
+
+[logging.performance]
+enabled = true
+log_slow_operations = true
+slow_threshold_seconds = 10.0
+log_memory_usage = false
+
+[logging.security]
+enabled = true
+log_api_calls = true
+log_token_usage = true
+mask_sensitive_data = true
+
+[logging.business]
+enabled = true
+log_analysis_events = true
+log_user_actions = true
+log_export_events = true

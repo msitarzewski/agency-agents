@@ -1,0 +1,56 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    steps:
+      - uses: actions/checkout@v6
+
+      - uses: actions/setup-python@v6
+        with:
+          python-version: "3.11"
+          cache: pip
+
+      - name: Install dependencies
+        run: pip install -e ".[dev]"
+
+      - name: Syntax check
+        run: |
+          cd agent
+          python -m compileall -q cli
+          python -m py_compile api_server.py
+          python -m py_compile mcp_server.py
+          python -m py_compile src/agent/loop.py
+          python -m py_compile src/tools/__init__.py
+          python -m py_compile backtest/runner.py
+
+      - name: Run tests
+        # test_e2e_harness_v2.py is gated by VIBE_TRADING_RUN_LIVE_E2E
+        # (real-LLM only); list --ignore here so CI's intent is explicit and
+        # the suite never silently switches state on env presence.
+        run: pytest --ignore=agent/tests/e2e_backtest --ignore=agent/tests/test_e2e_harness_v2.py --cov=agent --cov-report=term-missing --cov-report=xml --tb=short -q
+
+      - uses: actions/setup-node@v6
+        with:
+          node-version: "20"
+          cache: npm
+          cache-dependency-path: frontend/package-lock.json
+
+      - name: Frontend build
+        run: |
+          cd frontend
+          npm ci
+          npm run build
+
+      - name: Frontend tests
+        run: |
+          cd frontend
+          npx vitest run --reporter=verbose

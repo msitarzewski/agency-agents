@@ -1,0 +1,39 @@
+{
+  "name": "Vibe-Trading",
+  "image": "mcr.microsoft.com/devcontainers/python:1-3.11-bookworm",
+  "features": {
+    "ghcr.io/devcontainers/features/node:1": {
+      "version": "20"
+    }
+  },
+  "forwardPorts": [
+    8899,
+    5899
+  ],
+  "portsAttributes": {
+    "8899": {
+      "label": "Vibe-Trading API",
+      "onAutoForward": "notify",
+      "visibility": "private"
+    },
+    "5899": {
+      "label": "Vibe-Trading Frontend",
+      "onAutoForward": "notify",
+      "visibility": "private"
+    }
+  },
+  "postCreateCommand": "python -m pip install --upgrade pip && python -m pip install -e . && cd frontend && npm install",
+  "customizations": {
+    "vscode": {
+      "extensions": [
+        "ms-python.python",
+        "ms-python.vscode-pylance",
+        "dbaeumer.vscode-eslint",
+        "esbenp.prettier-vscode"
+      ],
+      "settings": {
+        "python.defaultInterpreterPath": "/usr/local/bin/python"
+      }
+    }
+  }
+}

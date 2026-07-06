@@ -1,0 +1,25 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 360 48" fill="none">
+  <!-- P mark: stylized from grid/network nodes -->
+  <g>
+    <!-- Vertical stem of P -->
+    <rect x="4" y="4" width="6" height="40" rx="3" fill="#1a365d"/>
+    <!-- P bowl: arc of connected nodes -->
+    <circle cx="14" cy="10" r="2.5" fill="#0891b2"/>
+    <circle cx="24" cy="6" r="2.5" fill="#0891b2"/>
+    <circle cx="34" cy="8" r="2.5" fill="#0891b2"/>
+    <circle cx="38" cy="16" r="2.5" fill="#0891b2"/>
+    <circle cx="34" cy="24" r="2.5" fill="#0891b2"/>
+    <circle cx="24" cy="26" r="2.5" fill="#0891b2"/>
+    <circle cx="14" cy="24" r="2.5" fill="#0891b2"/>
+    <!-- Node connections forming the P bowl -->
+    <path d="M14 10 L24 6 L34 8 L38 16 L34 24 L24 26 L14 24" stroke="#0891b2" stroke-width="1.5" fill="none" stroke-linejoin="round"/>
+    <!-- Internal data grid lines -->
+    <line x1="24" y1="6" x2="24" y2="26" stroke="#22d3ee" stroke-width="0.8" opacity="0.5"/>
+    <line x1="14" y1="16" x2="38" y2="16" stroke="#22d3ee" stroke-width="0.8" opacity="0.5"/>
+    <!-- Corner accent node -->
+    <circle cx="24" cy="16" r="1.8" fill="#22d3ee"/>
+  </g>
+  <!-- Wordmark -->
+  <text x="52" y="34" font-family="Inter, system-ui, sans-serif" font-weight="700" font-size="22" fill="#1a365d" letter-spacing="-0.4">FIN-</text>
+  <text x="103" y="34" font-family="Inter, system-ui, sans-serif" font-weight="700" font-size="22" fill="#0891b2" letter-spacing="-0.4">ANYTHING</text>
+</svg>

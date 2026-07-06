@@ -1,0 +1,53 @@
+# Version control & CI
+.git/
+.github/
+
+# IDE & editor
+.claude/
+.vscode/
+.editorconfig
+
+# Python artifacts
+.venv/
+agent/.venv/
+__pycache__/
+*.pyc
+.pytest_cache/
+.ruff_cache/
+agent/vibe_trading.egg-info/
+agent/vibe_trading_ai.egg-info/
+agent/__pycache__/
+
+# Runtime data (generated at runtime, not in repo)
+data/
+agent/runs/
+agent/sessions/
+agent/.swarm/runs/
+agent/.ui_runtime/
+agent/.tasks/
+
+# Env files (mounted via docker-compose env_file)
+.env
+agent/.env
+
+# Frontend build (built inside Docker, don't copy local)
+frontend/dist/
+frontend/node_modules/
+frontend/tsconfig.tsbuildinfo
+
+# Tests & docs (not needed in production image)
+agent/tests/
+docs/
+assets/
+build/
+dist/
+
+# Project docs
+# NOTE: `*` never crosses `/` in Docker ignore matching, so `/*.md` (anchored)
+# excludes only ROOT-level markdown. Nested skill docs (agent/src/skills/**/*.md)
+# and agent/SKILL.md are intentionally NOT excluded — they ship in the image.
+CLAUDE.md
+CONTRIBUTING.md
+/*.md
+!README.md
+!LICENSE

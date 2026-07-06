@@ -1,0 +1,286 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+STATE_DIR="${VIBE_DEV_STATE_DIR:-$ROOT/.vibe-dev}"
+LOG_DIR="$STATE_DIR/logs"
+PID_DIR="$STATE_DIR/pids"
+
+BACKEND_HOST="${VIBE_BACKEND_HOST:-127.0.0.1}"
+BACKEND_PORT="${VIBE_BACKEND_PORT:-8899}"
+FRONTEND_HOST="${VIBE_FRONTEND_HOST:-127.0.0.1}"
+FRONTEND_PORT="${VIBE_FRONTEND_PORT:-5899}"
+if [[ -n "${PYTHON:-}" ]]; then
+  PYTHON_BIN="$PYTHON"
+elif [[ -x "$ROOT/.venv/bin/python" ]]; then
+  PYTHON_BIN="$ROOT/.venv/bin/python"
+elif [[ -x "$ROOT/agent/.venv/bin/python" ]]; then
+  PYTHON_BIN="$ROOT/agent/.venv/bin/python"
+else
+  PYTHON_BIN="python3"
+fi
+
+mkdir -p "$LOG_DIR" "$PID_DIR"
+
+usage() {
+  cat <<USAGE
+Usage: scripts/dev <command>
+
+Commands:
+  up                 Start backend and frontend dev servers
+  stop               Stop dev servers started by this script
+  restart [service]  Restart backend, frontend, or all services
+  status             Show process status and URLs
+  logs [service]     Tail logs for backend, frontend, or all
+  open               Open the frontend in the default browser
+  urls               Print local dev URLs
+
+Environment:
+  VIBE_BACKEND_PORT   Backend port (default: 8899)
+  VIBE_FRONTEND_PORT  Frontend port (default: 5899)
+  PYTHON              Python binary (default: local .venv, then python3)
+USAGE
+}
+
+pid_file() {
+  printf "%s/%s.pid" "$PID_DIR" "$1"
+}
+
+log_file() {
+  printf "%s/%s.log" "$LOG_DIR" "$1"
+}
+
+is_running() {
+  local service="$1"
+  local file
+  file="$(pid_file "$service")"
+  [[ -f "$file" ]] && kill -0 "$(cat "$file")" 2>/dev/null
+}
+
+start_service() {
+  local service="$1"
+  shift
+  if is_running "$service"; then
+    printf "%s already running (pid %s)\n" "$service" "$(cat "$(pid_file "$service")")"
+    return
+  fi
+
+  printf "starting %s...\n" "$service"
+  "$PYTHON_BIN" - "$(log_file "$service")" "$(pid_file "$service")" "$@" <<'PY'
+import subprocess
+import sys
+
+log_path = sys.argv[1]
+pid_path = sys.argv[2]
+cmd = sys.argv[3:]
+
+log = open(log_path, "ab", buffering=0)
+proc = subprocess.Popen(
+    cmd,
+    stdin=subprocess.DEVNULL,
+    stdout=log,
+    stderr=subprocess.STDOUT,
+    start_new_session=True,
+    close_fds=True,
+)
+with open(pid_path, "w", encoding="utf-8") as fh:
+    fh.write(str(proc.pid))
+PY
+  printf "%s pid %s, log %s\n" "$service" "$(cat "$(pid_file "$service")")" "$(log_file "$service")"
+}
+
+stop_service() {
+  local service="$1"
+  local file
+  file="$(pid_file "$service")"
+  if ! [[ -f "$file" ]]; then
+    printf "%s not started by scripts/dev\n" "$service"
+    return
+  fi
+
+  local pid
+  pid="$(cat "$file")"
+  if kill -0 "$pid" 2>/dev/null; then
+    printf "stopping %s (pid %s)...\n" "$service" "$pid"
+    kill -TERM "-$pid" 2>/dev/null || kill "$pid" 2>/dev/null || true
+    sleep 0.5
+    kill -KILL "-$pid" 2>/dev/null || kill -KILL "$pid" 2>/dev/null || true
+  fi
+  rm -f "$file"
+}
+
+url_ok() {
+  local url="$1"
+  if command -v curl >/dev/null 2>&1; then
+    curl -fsS --max-time 2 "$url" >/dev/null 2>&1
+  else
+    "$PYTHON_BIN" - "$url" >/dev/null 2>&1 <<'PY'
+import sys
+import urllib.request
+
+urllib.request.urlopen(sys.argv[1], timeout=2).read(1)
+PY
+  fi
+}
+
+wait_for_url() {
+  local service="$1"
+  local url="$2"
+  local attempts="${3:-30}"
+
+  printf "waiting for %s at %s" "$service" "$url"
+  for ((i = 1; i <= attempts; i++)); do
+    if url_ok "$url"; then
+      printf " ready\n"
+      return 0
+    fi
+    if ! is_running "$service"; then
+      printf "\n%s exited early; see %s\n" "$service" "$(log_file "$service")" >&2
+      return 1
+    fi
+    printf "."
+    sleep 1
+  done
+  printf "\n%s not ready after %ss; see %s\n" "$service" "$attempts" "$(log_file "$service")" >&2
+  return 1
+}
+
+service_url() {
+  case "$1" in
+    backend) printf "http://127.0.0.1:%s/health" "$BACKEND_PORT" ;;
+    frontend) printf "http://127.0.0.1:%s" "$FRONTEND_PORT" ;;
+    *) return 2 ;;
+  esac
+}
+
+start_backend() {
+  if ! is_running backend && url_ok "$(service_url backend)"; then
+    rm -f "$(pid_file backend)"
+    printf "backend already reachable at %s (external)\n" "$(service_url backend)"
+    return
+  fi
+  start_service backend env PYTHONPATH="$ROOT/agent" "$PYTHON_BIN" -c 'import cli, sys; raise SystemExit(cli.main(sys.argv[1:]))' serve \
+    --host "$BACKEND_HOST" \
+    --port "$BACKEND_PORT"
+}
+
+start_frontend() {
+  if ! is_running frontend && url_ok "$(service_url frontend)"; then
+    rm -f "$(pid_file frontend)"
+    printf "frontend already reachable at %s (external)\n" "$(service_url frontend)"
+    return
+  fi
+  start_service frontend bash -lc '
+    set -euo pipefail
+    cd "$1"
+    if ! [[ -d node_modules ]]; then
+      npm install
+    fi
+    export VITE_API_URL="${VITE_API_URL:-http://127.0.0.1:$4}"
+    exec npm run dev -- --host "$2" --port "$3"
+  ' bash "$ROOT/frontend" "$FRONTEND_HOST" "$FRONTEND_PORT" "$BACKEND_PORT"
+}
+
+cmd_up() {
+  start_backend
+  start_frontend
+  if ! wait_for_url backend "$(service_url backend)" 30 || \
+     ! wait_for_url frontend "$(service_url frontend)" 30; then
+    cmd_stop
+    exit 1
+  fi
+  cmd_urls
+}
+
+cmd_stop() {
+  stop_service frontend
+  stop_service backend
+}
+
+cmd_restart() {
+  local service="${1:-all}"
+  case "$service" in
+    backend)
+      stop_service backend
+      start_backend
+      wait_for_url backend "$(service_url backend)" 30
+      ;;
+    frontend)
+      stop_service frontend
+      start_frontend
+      wait_for_url frontend "$(service_url frontend)" 30
+      ;;
+    all)
+      cmd_stop
+      cmd_up
+      ;;
+    *)
+      printf "unknown service: %s\n" "$service" >&2
+      exit 2
+      ;;
+  esac
+}
+
+cmd_status() {
+  for service in backend frontend; do
+    if is_running "$service"; then
+      printf "%-8s running pid=%s log=%s\n" "$service" "$(cat "$(pid_file "$service")")" "$(log_file "$service")"
+    elif url_ok "$(service_url "$service")"; then
+      printf "%-8s reachable external url=%s\n" "$service" "$(service_url "$service")"
+    else
+      printf "%-8s stopped\n" "$service"
+    fi
+  done
+  cmd_urls
+}
+
+cmd_logs() {
+  local service="${1:-all}"
+  case "$service" in
+    backend|frontend)
+      touch "$(log_file "$service")"
+      tail -f "$(log_file "$service")"
+      ;;
+    all)
+      touch "$(log_file backend)" "$(log_file frontend)"
+      tail -f "$(log_file backend)" "$(log_file frontend)"
+      ;;
+    *)
+      printf "unknown service: %s\n" "$service" >&2
+      exit 2
+      ;;
+  esac
+}
+
+cmd_open() {
+  local url="http://127.0.0.1:$FRONTEND_PORT"
+  if command -v open >/dev/null 2>&1; then
+    open "$url"
+  else
+    printf "%s\n" "$url"
+  fi
+}
+
+cmd_urls() {
+  cat <<URLS
+Frontend: http://127.0.0.1:$FRONTEND_PORT
+Backend:  http://127.0.0.1:$BACKEND_PORT
+API docs: http://127.0.0.1:$BACKEND_PORT/docs
+URLS
+}
+
+case "${1:-}" in
+  up) cmd_up ;;
+  stop) cmd_stop ;;
+  restart) shift; cmd_restart "${1:-all}" ;;
+  status) cmd_status ;;
+  logs) shift; cmd_logs "${1:-all}" ;;
+  open) cmd_open ;;
+  urls) cmd_urls ;;
+  -h|--help|help|"") usage ;;
+  *)
+    printf "unknown command: %s\n\n" "$1" >&2
+    usage >&2
+    exit 2
+    ;;
+esac

@@ -1,0 +1,29 @@
+Vibe-Trading qlib158 zoo
+========================
+
+This subpackage adapts the Alpha158 feature catalogue from:
+
+    Microsoft Qlib — https://github.com/microsoft/qlib
+    Pinned commit: d5379c520f66a39953bad76234a7019a72796fd0
+    Pinned path:   qlib/contrib/data/handler.py (class Alpha158)
+                   qlib/contrib/data/loader.py  (class Alpha158DL)
+    License:       Apache License, Version 2.0
+    Copyright:     (c) Microsoft Corporation. All rights reserved.
+
+Per Apache-2.0 §4(d): the upstream microsoft/qlib repository does not ship
+a NOTICE file at its repository root (verified against the pinned commit
+above via `gh api repos/microsoft/qlib/contents`). There are therefore no
+upstream NOTICE attribution lines to reproduce here. This file exists to
+record that absence explicitly and to provide a stable attribution surface
+for downstream consumers per §4(d) ("If the Work includes a 'NOTICE' text
+file as part of its distribution …"). The Work as redistributed by us does
+not include such a file from the upstream; only the upstream LICENSE
+applies, copies of which are referenced from LICENSE.md.
+
+Modifications by Vibe-Trading
+-----------------------------
+
+The Python implementations in this directory are re-written from scratch on
+top of `src.factors.base` operators; no source code is copied from qlib.
+Per-file headers cite the upstream commit and path. See `LICENSE.md` for
+full attribution scope and the list of intentionally skipped fields.

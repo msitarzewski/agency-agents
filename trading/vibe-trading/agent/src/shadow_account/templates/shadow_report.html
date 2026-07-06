@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <title>Shadow Account Report - {{ profile.shadow_id }}</title>
+  <style>{{ css }}</style>
+</head>
+<body>
+  <header class="cover">
+    <p class="eyebrow">Shadow Account Report</p>
+    <h1>You vs Your Shadow</h1>
+    <p class="subtitle">{{ profile.shadow_id }} | {{ profile.created_at }}</p>
+    <div class="cover-delta">
+      <div class="delta-label">Delta PnL</div>
+      <div class="delta-value {{ 'positive' if delta_pnl > 0 else 'negative' }}">
+        {{ '%+.2f' | format(delta_pnl) }}
+      </div>
+      <div class="delta-caption">Shadow {{ '%.2f' | format(shadow_pnl) }} | Real {{ '%.2f' | format(real_pnl) }}</div>
+    </div>
+    <p class="disclaimer">Research use only - not investment advice. Data window: {{ profile.date_range[0] }} -> {{ profile.date_range[1] }}</p>
+  </header>
+
+  <section class="panel">
+    <h2>1. Your Shadow Profile</h2>
+    <p class="lede">{{ profile.profile_text }}</p>
+    <dl class="facts">
+      <dt>Profitable roundtrips</dt><dd>{{ profile.profitable_roundtrips }} / {{ profile.total_roundtrips }}</dd>
+      <dt>Primary market</dt><dd>{{ market_labels[profile.source_market] | default(profile.source_market) }}</dd>
+      <dt>Holding median / p75</dt><dd>{{ '%.1f' | format(profile.typical_holding_days[0]) }}d / {{ '%.1f' | format(profile.typical_holding_days[1]) }}d</dd>
+      <dt>Preferred markets</dt><dd>{% for m in profile.preferred_markets %}{{ market_labels[m] | default(m) }}{% if not loop.last %}, {% endif %}{% endfor %}</dd>
+    </dl>
+  </section>
+
+  <section class="panel">
+    <h2>2. Shadow Rules</h2>
+    <table class="rules">
+      <thead>
+        <tr><th>ID</th><th>Rule</th><th>Support</th><th>Coverage</th><th>Holding</th></tr>
+      </thead>
+      <tbody>
+      {% for rule in profile.rules %}
+        <tr>
+          <td class="mono">{{ rule.rule_id }}</td>
+          <td>{{ rule.human_text }}</td>
+          <td class="mono">{{ rule.support_count }}</td>
+          <td class="mono">{{ '%.0f%%' | format(rule.coverage_rate * 100) }}</td>
+          <td class="mono">{{ rule.holding_days_range[0] }}-{{ rule.holding_days_range[1] }}d</td>
+        </tr>
+      {% endfor %}
+      </tbody>
+    </table>
+  </section>
+
+  <section class="panel">
+    <h2>3. Shadow Backtest - Combined</h2>
+    {% if charts.equity_curve %}
+      <img class="chart" src="{{ charts.equity_curve }}" alt="equity curve"/>
+    {% endif %}
+    {% if combined_error %}
+      <p class="muted">Backtest warning: {{ combined_error }}</p>
+    {% endif %}
+    {% if combined_metrics %}
+      <table class="metrics">
+        {% for key, value in combined_metrics.items() %}
+          <tr><th>{{ key }}</th><td class="mono">{{ '%.4f' | format(value) }}</td></tr>
+        {% endfor %}
+      </table>
+    {% else %}
+      <p class="muted">Backtest produced no usable metrics (see warning above).</p>
+    {% endif %}
+  </section>
+
+  <section class="panel">
+    <h2>4. Shadow Backtest - By Market</h2>
+    {% if charts.per_market_bar %}
+      <img class="chart" src="{{ charts.per_market_bar }}" alt="per-market bar"/>
+    {% endif %}
+    <table class="metrics">
+      <thead>
+        <tr><th>Market</th><th>Sharpe</th><th>Annual</th><th>Max Drawdown</th></tr>
+      </thead>
+      <tbody>
+      {% for market, metrics in per_market_metrics.items() %}
+        <tr>
+          <td>{{ market_labels[market] | default(market) }}</td>
+          <td class="mono">{{ '%.2f' | format(metrics.get('sharpe', 0.0)) }}</td>
+          <td class="mono">{{ '%.2f%%' | format(metrics.get('annual_return', 0.0) * 100) }}</td>
+          <td class="mono">{{ '%.2f%%' | format(metrics.get('max_drawdown', 0.0) * 100) }}</td>
+        </tr>
+      {% endfor %}
+      </tbody>
+    </table>
+  </section>
+
+  <section class="panel gut-punch">
+    <h2>5. You vs Shadow - Delta Attribution</h2>
+    <p class="lede">Shadow PnL <strong class="{{ 'pos' if shadow_pnl > 0 else 'neg' if shadow_pnl < 0 else '' }}">{{ '%+.2f' | format(shadow_pnl) }}</strong>, your real PnL <strong class="{{ 'pos' if real_pnl > 0 else 'neg' if real_pnl < 0 else '' }}">{{ '%+.2f' | format(real_pnl) }}</strong>, delta <strong class="{{ 'pos' if delta_pnl > 0 else 'neg' if delta_pnl < 0 else '' }}">{{ '%+.2f' | format(delta_pnl) }}</strong>.</p>
+    {% if charts.attribution_waterfall %}
+      <img class="chart" src="{{ charts.attribution_waterfall }}" alt="attribution waterfall"/>
+    {% endif %}
+    <table class="metrics">
+      <tr><th>Noise trades</th><td class="mono {{ 'pos' if attribution.noise_trades_pnl > 0 else 'neg' if attribution.noise_trades_pnl < 0 else '' }}">{{ '%+.2f' | format(attribution.noise_trades_pnl) }}</td></tr>
+      <tr><th>Early exit (winners)</th><td class="mono {{ 'pos' if attribution.early_exit_pnl > 0 else 'neg' if attribution.early_exit_pnl < 0 else '' }}">{{ '%+.2f' | format(attribution.early_exit_pnl) }}</td></tr>
+      <tr><th>Late exit (losers)</th><td class="mono {{ 'pos' if attribution.late_exit_pnl > 0 else 'neg' if attribution.late_exit_pnl < 0 else '' }}">{{ '%+.2f' | format(attribution.late_exit_pnl) }}</td></tr>
+      <tr><th>Overtrading</th><td class="mono {{ 'pos' if attribution.overtrading_pnl > 0 else 'neg' if attribution.overtrading_pnl < 0 else '' }}">{{ '%+.2f' | format(attribution.overtrading_pnl) }}</td></tr>
+      <tr><th>Missed signals (residual)</th><td class="mono {{ 'pos' if attribution.missed_signals_pnl > 0 else 'neg' if attribution.missed_signals_pnl < 0 else '' }}">{{ '%+.2f' | format(attribution.missed_signals_pnl) }}</td></tr>
+    </table>
+  </section>
+
+  <section class="panel">
+    <h2>6. Counterfactual Top 5</h2>
+    {% if attribution.counterfactual_trades %}
+      <table class="rules">
+        <thead>
+          <tr><th>#</th><th>Symbol</th><th>Buy</th><th>Sell</th><th>Hold</th><th>Real PnL</th><th>Impact</th><th>Reason</th></tr>
+        </thead>
+        <tbody>
+        {% for t in attribution.counterfactual_trades %}
+          <tr>
+            <td class="mono">{{ loop.index }}</td>
+            <td>{{ t.symbol }}</td>
+            <td class="mono">{{ t.buy_dt[:10] }}</td>
+            <td class="mono">{{ t.sell_dt[:10] }}</td>
+            <td class="mono">{{ '%.1f' | format(t.hold_days) }}d</td>
+            <td class="mono {{ 'pos' if t.pnl > 0 else 'neg' if t.pnl < 0 else '' }}">{{ '%+.2f' | format(t.pnl) }}</td>
+            <td class="mono {{ 'pos' if t.impact > 0 else 'neg' if t.impact < 0 else '' }}">{{ '%+.2f' | format(t.impact) }}</td>
+            <td>{{ reason_labels.get(t.reason, t.reason) }}</td>
+          </tr>
+        {% endfor %}
+        </tbody>
+      </table>
+    {% else %}
+      <p class="muted">No material counterfactual trades - every roundtrip falls inside the shadow rules.</p>
+    {% endif %}
+  </section>
+
+  <section class="panel">
+    <h2>7. Today's Signal Scan</h2>
+    {% if today_signals %}
+      <table class="rules">
+        <thead>
+          <tr><th>Symbol</th><th>Market</th><th>Rule</th><th>Reason</th></tr>
+        </thead>
+        <tbody>
+        {% for s in today_signals %}
+          <tr>
+            <td class="mono">{{ s.symbol }}</td>
+            <td>{{ market_labels[s.market] | default(s.market) }}</td>
+            <td class="mono">{{ s.rule_id }}</td>
+            <td>{{ s.reason }}</td>
+          </tr>
+        {% endfor %}
+        </tbody>
+      </table>
+    {% else %}
+      <p class="muted">No shadow-matching symbols today (or scan skipped).</p>
+    {% endif %}
+    <p class="disclaimer">For research reference only - not a buy/sell recommendation.</p>
+  </section>
+
+  <section class="panel">
+    <h2>8. Confidence &amp; Caveats</h2>
+    <ul class="caveats">
+      <li>Sample size: {{ profile.profitable_roundtrips }} profitable roundtrips support {{ profile.rules | length }} rule(s).</li>
+      <li>Backtest assumptions: slippage/fees use engine defaults; cross-market annualization uses calendar days.</li>
+      <li>Style decay: rules reflect the user's historical window and may not hold in future regimes.</li>
+      <li>Red line: this report is research-only and never routes to any live trading system.</li>
+    </ul>
+  </section>
+</body>
+</html>

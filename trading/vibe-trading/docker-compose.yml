@@ -1,0 +1,52 @@
+services:
+  vibe-trading:
+    build: .
+    ports:
+      - "127.0.0.1:8899:8899"
+    env_file:
+      - agent/.env
+    environment:
+      - VIBE_TRADING_TRUST_DOCKER_LOOPBACK=1
+      # Ollama runs on the host; from inside the container "localhost" is the
+      # container itself, so default to reaching the host via host.docker.internal.
+      # Override by exporting OLLAMA_BASE_URL (or setting it in a top-level .env)
+      # when Ollama runs elsewhere or on a different port.
+      - OLLAMA_BASE_URL=${OLLAMA_BASE_URL:-http://host.docker.internal:11434}
+    extra_hosts:
+      # Maps host.docker.internal -> host gateway (needed on Linux; harmless on Docker Desktop).
+      # Requires Docker Engine >= 20.10 / Compose v2 (host-gateway support).
+      - "host.docker.internal:host-gateway"
+    volumes:
+      - vibe-runs:/app/agent/runs
+      - vibe-sessions:/app/agent/sessions
+      # User-level agent state: persistent memory, cross-session search index
+      # (sessions.db), user-created skills, shadow accounts, hypothesis
+      # registry, broker connector config, agent.json. Without this volume a
+      # rebuild/recreate wipes it all (#197).
+      - vibe-home:/home/vibe/.vibe-trading
+      - vibe-swarm-runs:/app/agent/.swarm/runs
+      - vibe-uploads:/app/agent/uploads
+    restart: unless-stopped
+
+  frontend:
+    image: node:20
+    working_dir: /app
+    ports:
+      - "5899:5899"
+    volumes:
+      - ./frontend:/app
+    environment:
+      - VITE_API_URL=http://vibe-trading:8899
+    command: sh -c "npm install && npm run dev -- --host --port 5899"
+    profiles:
+      - frontend
+    depends_on:
+      vibe-trading:
+        condition: service_started
+
+volumes:
+  vibe-runs:
+  vibe-sessions:
+  vibe-home:
+  vibe-swarm-runs:
+  vibe-uploads:

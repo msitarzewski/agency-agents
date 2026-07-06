@@ -1,0 +1,88 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    /* Light mode surfaces */
+    --background: 220 20% 98%;
+    --foreground: 220 20% 10%;
+    --card: 0 0% 100%;
+    --card-foreground: 220 20% 10%;
+
+    /* Brand accent */
+    --primary: 27 90% 52%;
+    --primary-foreground: 0 0% 100%;
+
+    --muted: 220 14% 92%;
+    --muted-foreground: 220 14% 46%;
+    --destructive: 0 84% 60%;
+    --destructive-foreground: 0 0% 100%;
+    --border: 220 14% 87%;
+    --radius: 0.5rem;
+
+    /* Semantic colors */
+    --success: 142 71% 45%;
+    --danger: 0 84% 60%;
+    --warning: 38 92% 50%;
+    --info: 217 91% 60%;
+
+    /* Chart tokens */
+    --chart-grid: 220 14% 90%;
+    --chart-text: 220 14% 46%;
+    --chart-axis: 220 14% 80%;
+    --chart-compare-a: #3b82f6;
+    --chart-compare-b: #f59e0b;
+  }
+
+  .dark {
+    /* Dark mode: 4-level surface system */
+    --background: 220 20% 5%;       /* bg-base */
+    --foreground: 220 10% 92%;
+    --card: 220 20% 8%;             /* surface-1 */
+    --card-foreground: 220 10% 92%;
+
+    --primary: 27 90% 52%;
+    --primary-foreground: 0 0% 100%;
+
+    --muted: 220 20% 13%;           /* surface-2 */
+    --muted-foreground: 220 10% 55%;
+    --destructive: 0 62% 50%;
+    --destructive-foreground: 0 0% 100%;
+    --border: 220 20% 18%;          /* surface-3 */
+
+    /* Semantic colors */
+    --success: 142 71% 45%;
+    --danger: 0 62% 50%;
+    --warning: 38 92% 50%;
+    --info: 217 91% 60%;
+
+    /* Chart tokens */
+    --chart-grid: 220 20% 12%;
+    --chart-text: 220 10% 42%;
+    --chart-axis: 220 20% 22%;
+    --chart-compare-a: #60a5fa;
+    --chart-compare-b: #fbbf24;
+  }
+
+  * { @apply border-border; }
+  body { @apply bg-background text-foreground; }
+
+  /* Prose table enhancements */
+  .prose table { border-collapse: collapse; width: 100%; }
+  .prose th, .prose td { border: 1px solid hsl(var(--border)); }
+  .prose tbody tr:nth-child(even) { background: hsl(var(--muted) / 0.3); }
+
+  /* Smooth scrollbar for webkit */
+  ::-webkit-scrollbar { width: 6px; height: 6px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+  ::-webkit-scrollbar-thumb { background: hsl(var(--border)); border-radius: 3px; }
+  ::-webkit-scrollbar-thumb:hover { background: hsl(var(--muted-foreground)); }
+}
+
+/* Streaming pulse-slide animation for the "running" bar */
+@keyframes pulse-slide {
+  0%   { transform: translateX(-100%); }
+  50%  { transform: translateX(200%); }
+  100% { transform: translateX(-100%); }
+}

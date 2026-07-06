@@ -1,0 +1,57 @@
+# 注意：此文件已弃用，请使用 pyproject.toml
+# 推荐安装方式：pip install -e .
+# 或使用 uv：uv pip install -e .
+
+typing-extensions
+openai>=1.0.0,<2.0.0
+langchain-openai>=0.1.0
+langchain-core>=0.3.0
+langchain-experimental
+pandas
+yfinance
+praw
+feedparser
+stockstats
+eodhd
+langgraph
+chromadb
+setuptools
+akshare>=1.17.86
+tushare
+baostock
+finnhub-python
+parsel
+requests
+curl-cffi>=0.6.0  # 模拟真实浏览器TLS指纹，绕过反爬虫检测
+tqdm
+pytz
+redis
+chainlit
+rich
+questionary
+langchain_anthropic
+langchain-google-genai>=2.1.12  # 修复 client_options 未定义错误
+google-genai>=0.1.0
+dashscope
+streamlit
+plotly
+psutil
+pymongo  # MongoDB数据库支持，用于Token使用记录存储
+motor>=3.3.0  # 异步MongoDB驱动，用于FastAPI后端
+markdown>=3.4.0  # Markdown处理，用于报告生成
+pypandoc>=1.11  # 文档格式转换，用于导出报告功能
+python-docx>=0.8.11  # Word文档处理，用于修复文本方向
+pdfkit>=1.0.0  # PDF生成工具，需要wkhtmltopdf
+python-dotenv>=1.0.0  # 环境变量管理，用于.env文件解析
+fastapi>=0.104.0  # FastAPI框架，用于后端API
+uvicorn[standard]>=0.24.0  # ASGI服务器，用于运行FastAPI
+pydantic>=2.0.0  # 数据验证，FastAPI依赖
+pydantic-settings>=2.0.0  # 设置管理，用于配置加载
+python-multipart>=0.0.6  # 文件上传支持
+PyJWT>=2.0.0  # JWT令牌处理
+bcrypt>=4.0.0  # 密码加密
+apscheduler>=3.10.0  # 任务调度器，用于定时任务
+aiofiles>=0.8.0  # 异步文件操作
+httpx>=0.24.0  # 异步HTTP客户端
+sse-starlette>=1.0.0  # Server-Sent Events支持
+concurrent-log-handler>=0.9.24  # Windows 友好的日志轮转处理器

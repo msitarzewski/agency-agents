@@ -1,0 +1,77 @@
+name: Bug Report
+description: Report a bug or unexpected behavior
+title: "[Bug] "
+labels: ["bug"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for reporting! Please fill out the sections below.
+
+  - type: textarea
+    id: description
+    attributes:
+      label: Description
+      description: What happened? What did you expect to happen?
+      placeholder: |
+        **What happened:**
+        The backtest command crashed with a KeyError.
+
+        **What I expected:**
+        The backtest should complete and show results.
+    validations:
+      required: true
+
+  - type: textarea
+    id: reproduce
+    attributes:
+      label: Steps to Reproduce
+      description: How can we reproduce this?
+      placeholder: |
+        1. Run `vibe-trading run -p "Backtest BTC-USDT MACD strategy"`
+        2. Wait for backtest to complete
+        3. See error
+    validations:
+      required: true
+
+  - type: textarea
+    id: logs
+    attributes:
+      label: Error Logs
+      description: Paste any error messages or stack traces
+      render: shell
+
+  - type: dropdown
+    id: interface
+    attributes:
+      label: Interface
+      description: How are you using Vibe-Trading?
+      options:
+        - CLI (vibe-trading)
+        - Web UI (vibe-trading serve)
+        - MCP Plugin
+        - Docker
+        - Python API
+    validations:
+      required: true
+
+  - type: input
+    id: provider
+    attributes:
+      label: LLM Provider
+      description: Which provider are you using?
+      placeholder: "e.g., openrouter, deepseek, ollama"
+
+  - type: input
+    id: version
+    attributes:
+      label: Version
+      description: "Run `pip show vibe-trading-ai` to check"
+      placeholder: "e.g., 0.1.5"
+
+  - type: input
+    id: environment
+    attributes:
+      label: Environment
+      description: OS and Python version
+      placeholder: "e.g., macOS 15 / Python 3.11"

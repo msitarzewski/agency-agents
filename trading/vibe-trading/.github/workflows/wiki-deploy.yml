@@ -1,0 +1,38 @@
+name: Deploy Wiki
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - "wiki/**"
+      - ".github/workflows/wiki-deploy.yml"
+
+concurrency:
+  group: wiki-deploy
+  cancel-in-progress: true
+
+jobs:
+  deploy:
+    name: Deploy to Cloudflare Pages
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      deployments: write
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+
+      - name: Deploy wiki
+        uses: cloudflare/wrangler-action@v3
+        with:
+          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          # Deploy from inside wiki/ (config mode) so wrangler reads
+          # wiki/wrangler.toml and compiles wiki/functions/ as Pages Functions.
+          # Deploying the dir positionally (`pages deploy wiki`) uploads the
+          # functions as static files and never compiles them.
+          workingDirectory: wiki
+          wranglerVersion: "4.98.0"
+          command: pages deploy --project-name=vibetrading-wiki --branch=main
+          gitHubToken: ${{ secrets.GITHUB_TOKEN }}

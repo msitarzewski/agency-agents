@@ -1,0 +1,98 @@
+[build-system]
+requires = ["setuptools>=61.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "tradingagents"
+version = "1.0.0-preview"
+description = "Add your description here"
+readme = "README.md"
+requires-python = ">=3.10"
+dependencies = [
+    # 后端API框架和服务器
+    "fastapi>=0.104.0",
+    "uvicorn[standard]>=0.24.0",
+    "pydantic>=2.0.0",
+    "pydantic-settings>=2.0.0",
+    "python-multipart>=0.0.6",
+
+    # 数据库和缓存
+    "motor>=3.3.0",
+    "pymongo>=4.0.0",
+    "redis>=6.2.0",
+
+    # 认证和安全
+    "PyJWT>=2.0.0",
+    "bcrypt>=4.0.0",
+
+    # 任务调度和异步
+    "apscheduler>=3.10.0",
+    "aiofiles>=0.8.0",
+
+    # HTTP客户端和SSE
+    "httpx>=0.24.0",
+    "sse-starlette>=1.0.0",
+
+    # 日志处理
+    "concurrent-log-handler>=0.9.24",  # Windows 友好的日志轮转处理器
+
+    # 数据源和金融数据
+    "akshare>=1.17.86",
+    "baostock>=0.8.8",
+    "eodhd>=1.0.32",
+    "finnhub-python>=2.4.23",
+    "tushare>=1.4.21",
+    "yfinance>=0.2.63",
+    "stockstats>=0.6.5",
+
+    # AI和LLM
+    "chainlit>=2.5.5",
+    "chromadb>=1.0.12",
+    "dashscope>=1.20.0",
+    "langchain-anthropic>=0.3.15",
+    "langchain-core>=0.3.0",
+    "langchain-experimental>=0.3.4",
+    "langchain-google-genai>=2.1.12",  # 修复 client_options 未定义错误
+    "langchain-openai>=0.3.23",
+    "langgraph>=0.4.8",
+    "openai>=1.0.0,<2.0.0",
+
+    # 数据处理和分析
+    "pandas>=2.3.0",
+    "plotly>=5.0.0",
+
+    # 网络爬虫和解析
+    "curl-cffi>=0.6.0",  # 模拟真实浏览器TLS指纹，绕过反爬虫检测
+    "feedparser>=6.0.11",
+    "parsel>=1.10.0",
+    "praw>=7.8.1",
+    "requests>=2.32.4",
+
+    # 文档和格式化
+    "markdown>=3.4.0",
+    "pypandoc>=1.11",
+    "python-docx>=0.8.11",  # Word文档处理，用于修复文本方向
+    "pdfkit>=1.0.0",  # PDF生成工具，需要wkhtmltopdf
+
+    # 工具和辅助
+    "psutil>=6.1.0",
+    "python-dotenv>=1.0.0",
+    "pytz>=2025.2",
+    "questionary>=2.1.0",
+    "rich>=14.0.0",
+    "setuptools>=80.9.0",
+    "streamlit>=1.28.0",
+    "toml>=0.10.2",
+    "tqdm>=4.67.1",
+    "typing-extensions>=4.14.0",
+]
+
+[project.optional-dependencies]
+qianfan = ["qianfan>=0.4.20"]
+
+[project.scripts]
+tradingagents = "main:main"
+
+[tool.setuptools.packages.find]
+include = ["tradingagents*"]
+exclude = ["tests*", "docs*", "scripts*", "data*", "logs*", "reports*", "results*", "eval_results*", "upstream_contribution*"]

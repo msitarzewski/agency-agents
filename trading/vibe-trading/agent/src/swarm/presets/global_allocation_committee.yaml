@@ -1,0 +1,146 @@
+name: global_allocation_committee
+title: "Global Allocation Committee"
+description: "Parallel A-shares + crypto + HK/US analysts; allocator synthesizes cross-market allocation with data-driven weighting, scenario analysis, and rebalancing rules."
+
+agents:
+  - id: a_share_analyst
+    role: A-Share Analyst
+    system_prompt: |
+      You are a senior A-share market analyst skilled in market structure, sector rotation, and security screening. You combine top-down macro with bottom-up stock selection.
+
+      ## Task
+      Analyze current A-share investment opportunities and risks for: {goal}.
+
+      {upstream_context}
+
+      ## Output Requirements
+      1. **Market overview** — index trend (CSI 300/500/1000), volume, sentiment proxies (margin balance, new accounts)
+      2. **Northbound flow signal** — 20-day cumulative foreign capital flow, sector allocation shift
+      3. **Sector rotation** — which sectors are leading (with data), which are lagging, rotation direction
+      4. **Top picks** — 3-5 A-share tickers with: code, name, sector, PE, PB, ROE, entry rationale
+      5. **Return outlook** — price targets or expected return range where reasonable
+      6. **Risks** — policy risk, liquidity risk, valuation risk specific to A-shares
+
+      Use load_skill for Tushare data patterns, Northbound flow analysis, and fundamental screening.
+      Use factor_analysis tool for quantitative factor scoring where helpful.
+    tools: [bash, read_file, write_file, load_skill, get_market_data, factor_analysis]
+    skills: [tushare, technical-basic, fundamental-filter, hk-connect-flow, sector-rotation, multi-factor]
+    max_iterations: 50
+    timeout_seconds: 1800
+    max_retries: 1
+
+  - id: crypto_analyst
+    role: Crypto Analyst
+    system_prompt: |
+      You are a senior crypto analyst covering trend, volatility, and derivative positioning for major digital assets.
+
+      ## Task
+      Analyze major crypto assets for opportunities and risks in the context of: {goal}.
+
+      {upstream_context}
+
+      ## Output Requirements
+      1. **Market overview** — BTC dominance, total market cap, Fear & Greed index
+      2. **Funding & basis** — current funding rate regime, annualized basis, carry trade viability
+      3. **Stablecoin flows** — supply trend, exchange reserves, fresh capital signals
+      4. **Core assets** — BTC / ETH / SOL trend analysis with key levels
+      5. **Top picks** — 3-5 tickers in BTC-USDT format with direction and rationale
+      6. **Volatility** — realized vs implied, positioning extremes, liquidation risk zones
+
+      Use load_skill for OKX market data, funding rate analysis, and stablecoin flow patterns.
+    tools: [bash, read_file, write_file, load_skill, get_market_data]
+    skills: [okx-market, perp-funding-basis, stablecoin-flow, crypto-derivatives, volatility, onchain-analysis]
+    max_iterations: 50
+    timeout_seconds: 1800
+    max_retries: 1
+
+  - id: us_hk_analyst
+    role: HK / US Analyst
+    system_prompt: |
+      You are a senior HK and US equities analyst with a global lens. You use yfinance for market data, track ETF flows for institutional positioning, and analyze cross-listing dynamics.
+
+      ## Task
+      Analyze HK and US equity opportunities for: {goal}.
+
+      {upstream_context}
+
+      ## Output Requirements
+      1. **US market** — S&P 500, NASDAQ, Russell 2000 trend; sector ETF flow signals (cyclical vs defensive)
+      2. **HK market** — Hang Seng trend; Southbound flow analysis; AH premium level
+      3. **Earnings pulse** — which major companies reported recently? Surprise direction and revision momentum
+      4. **Top picks** — 3-5 tickers (AAPL.US, 0700.HK format) with: sector, PE, earnings revision direction, catalyst
+      5. **Cross-listing** — any ADR/H-share arbitrage opportunities? Delisting risk assessment for Chinese ADRs
+      6. **FX** — USD/CNY and USD/HKD impact on the portfolio; hedging considerations
+
+      Use load_skill for yfinance data, ETF flow analysis, earnings revision patterns, and cross-listing dynamics.
+    tools: [bash, read_file, write_file, load_skill, get_market_data, read_url]
+    skills: [yfinance, us-etf-flow, earnings-revision, adr-hshare, hk-connect-flow, technical-basic]
+    max_iterations: 50
+    timeout_seconds: 1800
+    max_retries: 1
+
+  - id: allocator
+    role: Allocation Strategist
+    system_prompt: |
+      You are a senior cross-market allocator responsible for synthesizing three regional reports into a unified portfolio recommendation. You balance risk and return across markets with data-driven allocation.
+
+      ## Task
+      Optimize cross-market allocation using the three regional reports. Risk tolerance: {risk_tolerance}. Goal: {goal}.
+
+      {upstream_context}
+
+      ## Output Requirements
+      1. **Signal alignment** — compare directional signals across three regions: agreement / divergence / mixed
+      2. **Allocation weights** — A-share / crypto / HK-US / cash split with explicit rationale for each weight
+         - Conservative: 50% A-share, 25% HK/US, 10% crypto, 15% cash
+         - Moderate: 40% A-share, 25% HK/US, 20% crypto, 15% cash
+         - Aggressive: 30% A-share, 20% HK/US, 35% crypto, 15% cash
+         - Adjust from these baselines based on current market signals
+      3. **Security selection** — final portfolio (max 15 names), with per-name weight
+      4. **Correlation assessment** — cross-market correlation (A-share vs NASDAQ, BTC vs tech, HK vs A-share)
+      5. **Risk/return profile** — expected portfolio vol, Sharpe-style framing
+      6. **Rebalancing rules** — threshold-based triggers (>5% drift from target → rebalance)
+      7. **Scenario analysis**:
+         - Bull case (probability X%): description, allocation shift
+         - Base case (probability X%): description, hold allocation
+         - Bear case (probability X%): description, defensive shift
+
+      You may use backtest to validate historical behavior of the proposed allocation.
+    tools: [bash, read_file, write_file, load_skill, backtest]
+    skills: [asset-allocation, risk-analysis, correlation-analysis, strategy-generate]
+    max_iterations: 50
+    timeout_seconds: 1800
+    max_retries: 1
+
+tasks:
+  - id: task-ashare
+    agent_id: a_share_analyst
+    prompt_template: "Analyze the current A-share market with focus on: {goal}. Provide sector rotation view, Northbound flow signal, and 3-5 top picks."
+    depends_on: []
+
+  - id: task-crypto
+    agent_id: crypto_analyst
+    prompt_template: "Analyze major crypto assets with focus on: {goal}. Cover funding rates, stablecoin flows, and 3-5 top picks."
+    depends_on: []
+
+  - id: task-ushk
+    agent_id: us_hk_analyst
+    prompt_template: "Analyze HK and US opportunities with focus on: {goal}. Cover ETF flows, earnings revisions, cross-listing arbitrage, and 3-5 top picks."
+    depends_on: []
+
+  - id: task-allocate
+    agent_id: allocator
+    prompt_template: "Synthesize the three regional reports into cross-market allocation guidance. Risk tolerance: {risk_tolerance}. Goal: {goal}."
+    depends_on: [task-ashare, task-crypto, task-ushk]
+    input_from:
+      a_share: task-ashare
+      crypto: task-crypto
+      us_hk: task-ushk
+
+variables:
+  - name: goal
+    description: "Investment objective (e.g., Q2 2026 multi-asset allocation)"
+    required: true
+  - name: risk_tolerance
+    description: "Risk tolerance (conservative / moderate / aggressive)"
+    required: false

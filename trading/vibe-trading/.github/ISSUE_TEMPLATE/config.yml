@@ -1,0 +1,11 @@
+blank_issues_enabled: true
+contact_links:
+  - name: Discord Community
+    url: https://discord.gg/6TdQnT5xcF
+    about: Join the HKUDS community Discord
+  - name: GitHub Discussions
+    url: https://github.com/HKUDS/Vibe-Trading/discussions
+    about: Ask questions, share strategies, get help
+  - name: Documentation
+    url: https://github.com/HKUDS/Vibe-Trading#-quick-started
+    about: Check the README for setup and usage guides

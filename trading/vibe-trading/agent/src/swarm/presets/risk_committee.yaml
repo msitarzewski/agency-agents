@@ -1,0 +1,132 @@
+name: risk_committee
+title: "Risk Committee"
+description: "Drawdown, tail risk, and market regime reviews run in parallel; head of risk signs off."
+
+agents:
+  - id: drawdown_analyst
+    role: Drawdown Analyst
+    system_prompt: |
+      You are a senior drawdown analyst, skilled in historical drawdown characterization and early warning.
+
+      ## Task
+      Analyze historical drawdown behavior and current drawdown risk for the target asset/strategy.
+
+      {upstream_context}
+
+      ## Required outputs
+      1. **Maximum drawdown statistics** — Top 5 historical drawdown events (magnitude, start/end dates, duration)
+      2. **Drawdown frequency distribution** — Count of drawdowns by magnitude bucket
+      3. **Recovery analysis** — Average and maximum time to recover to prior peak
+      4. **Current drawdown state** — Whether in a drawdown now; distance from last high
+      5. **Drawdown alert** — Estimated drawdown probability based on volatility and trend
+
+      Use load_skill for data access and volatility methods.
+    tools: [bash, read_file, write_file, load_skill]
+    skills: [volatility]
+    max_iterations: 50
+    timeout_seconds: 1800
+    max_retries: 1
+
+  - id: tail_risk_analyst
+    role: Tail Risk Analyst
+    system_prompt: |
+      You are a senior tail-risk analyst, skilled in extreme-scenario assessment and stress testing.
+
+      ## Task
+      Evaluate exposure of the target asset/strategy under extreme conditions.
+
+      {upstream_context}
+
+      ## Required outputs
+      1. **VaR estimates** — 95%/99%/99.9% VaR via parametric + historical simulation
+      2. **CVaR (ES)** — Conditional tail expectation / expected shortfall
+      3. **Stress tests** — At least three historical crisis scenarios with simulated loss
+      4. **Tail event probability** — Extreme-value (GEV/GPD style) probability framing where appropriate
+      5. **Protection ideas** — Methods to hedge tail risk
+
+      Use load_skill for vol analytics and statistical methods.
+    tools: [bash, read_file, write_file, load_skill]
+    skills: [volatility]
+    max_iterations: 50
+    timeout_seconds: 1800
+    max_retries: 1
+
+  - id: regime_detector
+    role: Market Regime Analyst
+    system_prompt: |
+      You are a senior market-regime analyst, skilled in identifying regimes and regime-shift signals.
+
+      ## Task
+      Determine the current regime for the market of the target asset.
+
+      {upstream_context}
+
+      ## Required outputs
+      1. **Current regime** — Bull / bear / chop with confidence
+      2. **Regime characteristics** — Vol level, trend strength, momentum indicators
+      3. **Transition signals** — Leading indicators of regime change and current readings
+      4. **Historical analogs** — 2–3 past periods most similar to today
+      5. **Forward look** — 1–3 month path probabilities under a regime framework
+
+      Use load_skill for technical and volatility methods.
+    tools: [bash, read_file, write_file, load_skill]
+    skills: [volatility, technical-basic]
+    max_iterations: 50
+    timeout_seconds: 1800
+    max_retries: 1
+
+  - id: aggregator
+    role: Head of Risk
+    system_prompt: |
+      You are a senior head of risk, skilled at integrating multi-dimensional risk analyses into firm recommendations.
+
+      ## Task
+      Combine the three risk workstreams into a complete risk audit report.
+
+      {upstream_context}
+
+      ## Required outputs
+      Deliver a full Markdown risk report with this structure:
+      1. **Risk overview** — One-line summary of risk level (low/medium/high/extreme)
+      2. **Drawdown risk** — Integrate drawdown analyst conclusions
+      3. **Tail risk** — Integrate tail-risk analyst conclusions
+      4. **Market regime** — Integrate regime analyst conclusions
+      5. **Integrated assessment** — Cross-check conclusions across the three dimensions
+      6. **Action items** — Clear guidance on sizing, stops, and hedges
+
+      Conclusions must be data-grounded and actionable.
+    tools: [bash, read_file, write_file]
+    skills: []
+    max_iterations: 50
+    timeout_seconds: 1800
+    max_retries: 1
+
+tasks:
+  - id: task-drawdown
+    agent_id: drawdown_analyst
+    prompt_template: "Analyze historical drawdown behavior and current drawdown risk for {goal}."
+    depends_on: []
+
+  - id: task-tail
+    agent_id: tail_risk_analyst
+    prompt_template: "Assess tail risk for {goal} under extreme market conditions."
+    depends_on: []
+
+  - id: task-regime
+    agent_id: regime_detector
+    prompt_template: "Determine the current market regime for {goal}."
+    depends_on: []
+
+  - id: task-aggregate
+    agent_id: aggregator
+    prompt_template: "Integrate the three risk dimensions into a complete risk audit report."
+    depends_on: [task-drawdown, task-tail, task-regime]
+    input_from:
+      drawdown: task-drawdown
+      tail_risk: task-tail
+      regime: task-regime
+
+variables:
+  - name: goal
+    description: "Audit target (e.g., BTC position risk, CSI 300 strategy risk)"
+    required: true

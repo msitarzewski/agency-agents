@@ -1,0 +1,92 @@
+.venv/
+agent/.venv/
+__pycache__/
+.pytest_cache/
+*.pyc
+
+# Coverage reports
+.coverage
+coverage.xml
+
+# Node dependencies (root level)
+node_modules/
+
+# Backtest output artifacts
+results/
+
+.env
+agent/.env
+
+.claude/*
+!.claude/hooks.json
+CLAUDE.md
+.vscode/
+learn-claude-code-main/
+agent/sessions/
+agent/runs/
+agent/.ui_runtime/
+agent/.tasks/
+agent/uploads/
+agent/tests/*_result.json
+.ruff_cache/
+frontend/dist/
+frontend/tsconfig.tsbuildinfo
+wiki/node_modules/
+wiki/dist/
+wiki/.astro/
+wiki/.vite/
+wiki/.wrangler/
+.wrangler/
+wiki/.cache/
+.vibe-dev/
+.vibe-record/
+.cache/
+.remotion/
+
+# DuckDB data cache
+data/*.duckdb
+data/*.duckdb.wal
+data/.duckdb_tmp/
+data/parquet/
+data/backup/
+
+# Internal docs (plans, specs)
+docs/
+!wiki/docs/
+!wiki/docs/**
+docs/screenshots/agent-run.png
+docs/screenshots/boot.png
+data/minutes/
+data/overnight*.log
+data/*.log
+data/test_write.txt
+agent/.pytest_tmp/
+agent/vibe_trading.egg-info/
+agent/vibe_trading_ai.egg-info/
+agent/tests/e2e_backtest/
+dist/
+build/
+
+# Local demo videos (too large for git; link to external host instead)
+assets/*.mp4
+
+# Local demo / promo production workspace
+demo/
+
+# Manual E2E smoke tests — require live API keys (OpenRouter / yfinance),
+# would break CI if committed. Kept local; run explicitly when validating
+# a release.
+agent/tests/e2e_*.py
+agent/tests/test_e2e_*.py
+
+# Local working notes
+NOTES.md
+
+# Agent tool aliases (auto-generated mirror of CLAUDE.md)
+AGENTS.md
+
+.DS_Store
+
+# Alpha Zoo wiki artifacts (generated, not source)
+wiki/alpha-library/manifest.json
+wiki/alpha-library/content/

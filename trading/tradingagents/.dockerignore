@@ -1,0 +1,15 @@
+.git
+.venv
+.env
+.claude
+.idea
+.vscode
+.DS_Store
+__pycache__
+*.egg-info
+build
+dist
+results
+eval_results
+Dockerfile
+docker-compose.yml

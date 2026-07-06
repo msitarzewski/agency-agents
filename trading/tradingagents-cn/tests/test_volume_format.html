@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>测试成交量格式化</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            padding: 20px;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        .test-case {
+            margin: 20px 0;
+            padding: 15px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+        }
+        .success {
+            background-color: #f0f9ff;
+            border-color: #0ea5e9;
+        }
+        .error {
+            background-color: #fef2f2;
+            border-color: #ef4444;
+        }
+        h1 {
+            color: #333;
+        }
+        h2 {
+            color: #666;
+            font-size: 18px;
+        }
+        .label {
+            font-weight: bold;
+            color: #555;
+        }
+        .value {
+            color: #0ea5e9;
+            font-size: 16px;
+        }
+    </style>
+</head>
+<body>
+    <h1>🧪 测试成交量格式化</h1>
+    
+    <div id="results"></div>
+
+    <script>
+        // 原来的格式化函数（错误的）
+        function fmtVolumeOld(v) {
+            const n = Number(v);
+            if (!Number.isFinite(n)) return '-';
+            if (n >= 1e8) return (n/1e8).toFixed(2) + '亿手';
+            if (n >= 1e4) return (n/1e4).toFixed(2) + '万手';
+            return n.toFixed(0);
+        }
+
+        // 新的格式化函数（正确的）
+        function fmtVolumeNew(v) {
+            const n = Number(v);
+            if (!Number.isFinite(n)) return '-';
+            
+            // 🔥 数据库存储的是"股"，需要除以100转换为"手"
+            const lots = n / 100;
+            
+            if (lots >= 1e8) return (lots/1e8).toFixed(2) + '亿手';
+            if (lots >= 1e4) return (lots/1e4).toFixed(2) + '万手';
+            return lots.toFixed(0) + '手';
+        }
+
+        // 测试用例
+        const testCases = [
+            {
+                name: '宁德时代（300750）',
+                volume: 23939074,  // 数据库中的值（股）
+                expected: '23.94万手',  // 东方财富显示
+            },
+            {
+                name: '小成交量',
+                volume: 100000,  // 10万股
+                expected: '1000手',
+            },
+            {
+                name: '中等成交量',
+                volume: 50000000,  // 5000万股
+                expected: '50.00万手',
+            },
+            {
+                name: '大成交量',
+                volume: 10000000000,  // 100亿股
+                expected: '1.00亿手',
+            },
+        ];
+
+        // 运行测试
+        const resultsDiv = document.getElementById('results');
+        
+        testCases.forEach(testCase => {
+            const oldResult = fmtVolumeOld(testCase.volume);
+            const newResult = fmtVolumeNew(testCase.volume);
+            const isCorrect = newResult === testCase.expected;
+            
+            const div = document.createElement('div');
+            div.className = `test-case ${isCorrect ? 'success' : 'error'}`;
+            div.innerHTML = `
+                <h2>${testCase.name}</h2>
+                <p><span class="label">原始值（股）：</span>${testCase.volume.toLocaleString()}</p>
+                <p><span class="label">期望结果：</span><span class="value">${testCase.expected}</span></p>
+                <p><span class="label">旧函数结果：</span><span style="color: #ef4444;">${oldResult}</span> ❌</p>
+                <p><span class="label">新函数结果：</span><span class="value">${newResult}</span> ${isCorrect ? '✅' : '❌'}</p>
+            `;
+            resultsDiv.appendChild(div);
+        });
+    </script>
+</body>
+</html>
+

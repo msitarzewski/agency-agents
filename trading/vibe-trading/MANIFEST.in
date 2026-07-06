@@ -1,0 +1,30 @@
+include LICENSE
+include NOTICE
+include README.md
+include README_zh.md
+include README_ja.md
+include README_ko.md
+include README_ar.md
+include pyproject.toml
+include Dockerfile
+include docker-compose.yml
+
+# Developer entry-point template
+include agent/.env.example
+
+# Alpha Zoo factor metadata and per-zoo LICENSE / NOTICE files
+recursive-include agent/src/factors *.yaml *.md
+
+# Tests shipped so dev installs can run `pytest` against the package.
+# Files prefixed with `_` are local debug scripts kept untracked — keep
+# them out of the sdist even if present in the working tree.
+recursive-include agent/tests *.py
+recursive-exclude agent/tests _*.py
+
+# Strip generated / VCS / editor noise
+global-exclude __pycache__
+global-exclude *.py[cod]
+global-exclude *.so
+global-exclude .DS_Store
+global-exclude .pytest_cache
+global-exclude *.egg-info

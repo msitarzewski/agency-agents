@@ -1,0 +1,155 @@
+[project]
+name = "vibe-trading-ai"
+version = "0.1.10"
+description = "Natural-language finance research AI agent with backtesting"
+requires-python = ">=3.11"
+license = "MIT"
+readme = "README.md"
+authors = [
+    {name = "HKUDS", email = "hkuds@connect.hku.hk"},
+]
+keywords = ["finance", "trading", "backtesting", "agent", "swarm", "quantitative"]
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Intended Audience :: Financial and Insurance Industry",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Topic :: Office/Business :: Financial :: Investment",
+]
+dependencies = [
+    "rich>=13.0.0",
+    "pyyaml>=6.0.0",
+    "langchain>=1.0.0,<2",
+    "langchain-core>=1.0.0,<2",
+    "langchain-openai>=1.0.0,<2",
+    "langgraph>=1.0.10,<1.1",
+    "langgraph-checkpoint>=2.1.0,<5",
+    "python-dotenv>=1.0.0",
+    "httpx>=0.28.0",
+    "defusedxml>=0.7.1",
+    "oauth-cli-kit>=0.1.3",
+    "pandas>=2.0.0",
+    "openpyxl>=3.1.0",
+    "python-docx>=1.1.0",
+    "python-pptx>=0.6.23",
+    "pypdfium2>=4.0.0",
+    "Pillow>=10.0.0",
+    "numpy>=1.24.0",
+    "scipy>=1.10.0",
+    "duckdb>=1.2.0",
+    "scikit-learn>=1.3.0",
+    "joblib>=1.3.0",
+    "smartmoneyconcepts>=0.0.1",
+    "tushare>=1.2.89",
+    "requests>=2.31.0",
+    "yfinance>=0.2.30",
+    "akshare>=1.12.0",
+    "ccxt>=4.0.0",
+    "fastapi>=0.104.0",
+    "uvicorn[standard]>=0.24.0",
+    "pydantic>=2.0.0",
+    "python-multipart>=0.0.18",
+    "sse-starlette>=1.6.0",
+    "fastmcp>=2.14.0",
+    "ddgs>=6.0.0",
+    "jinja2>=3.1.0",
+    "matplotlib>=3.7.0",
+    "weasyprint>=60.0",
+    "prompt_toolkit>=3.0.0",
+]
+
+[project.urls]
+Homepage = "https://vibetrading.wiki/"
+Documentation = "https://vibetrading.wiki/docs/"
+Repository = "https://github.com/HKUDS/Vibe-Trading"
+Issues = "https://github.com/HKUDS/Vibe-Trading/issues"
+
+[project.scripts]
+vibe-trading = "cli:main"
+vibe-trading-mcp = "mcp_server:main"
+
+[tool.setuptools]
+package-dir = {"" = "agent"}
+py-modules = ["api_server", "mcp_server"]
+
+[tool.setuptools.packages.find]
+where = ["agent"]
+include = ["src*", "backtest*", "cli*"]
+
+[tool.setuptools.package-data]
+"src" = [
+    "skills/**/*.md",
+    "skills/**/*.yaml",
+    "skills/**/*.json",
+    "skills/**/*.py",
+    "providers/*.json",
+    "swarm/presets/*.yaml",
+    "shadow_account/templates/*.j2",
+    "shadow_account/templates/*.html",
+    "shadow_account/templates/*.css",
+]
+"backtest" = ["*.py"]
+"src.factors" = ["zoo/**/*.yaml", "zoo/**/*.md", "zoo/**/NOTICE"]
+
+[project.optional-dependencies]
+ibkr = [
+    "ib_async>=2.0",
+]
+deepseek = [
+    "langchain-deepseek>=1.0.0,<2",
+]
+ashare = [
+    # Free, no-auth A-share source over BaoStock's TCP protocol; bypasses the
+    # HTTP CDN IP blocks that affect eastmoney-backed sources. The Tencent
+    # A-share loader needs no extra dependency (stdlib HTTP only).
+    "baostock>=0.8.8",
+]
+harmonic = [
+    "pyharmonics>=1.5.0",
+]
+dev = [
+    "pytest>=7.0",
+    "pytest-cov>=4.0",
+    "pytest-socket>=0.7.0",
+]
+
+[tool.pytest.ini_options]
+testpaths = ["agent/tests"]
+pythonpath = ["agent"]
+markers = [
+    "unit: Unit tests (fast, no network)",
+    "integration: Integration tests (may need network)",
+]
+
+[tool.ruff]
+target-version = "py311"
+line-length = 120
+src = ["agent"]
+
+[tool.coverage.run]
+source = ["agent"]
+omit = [
+    "agent/tests/*",
+    "agent/tests/**/*",
+    "agent/**/__init__.py",
+]
+
+[tool.coverage.report]
+show_missing = true
+skip_empty = true
+fail_under = 0
+exclude_also = [
+    "if __name__ == .__main__.",
+    "raise NotImplementedError",
+    "\\.\\.\\.",
+]
+
+[tool.ruff.lint]
+select = ["E", "F", "W"]
+ignore = ["E501"]
+
+[tool.ruff.lint.per-file-ignores]
+# Alpha zoo files import the full src.factors.base surface verbatim
+# to match research-paper formulas. F401 (unused-import) is noise here;
+# F841 (unused-local-variable) stays active to catch real formula bugs.
+"agent/src/factors/zoo/**/*.py" = ["F401"]

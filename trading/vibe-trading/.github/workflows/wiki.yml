@@ -1,0 +1,52 @@
+name: Wiki
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "wiki/**"
+      - ".github/workflows/wiki.yml"
+  pull_request:
+    branches: [main]
+    paths:
+      - "wiki/**"
+      - ".github/workflows/wiki.yml"
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+
+    steps:
+      - uses: actions/checkout@v6
+
+      - uses: actions/setup-node@v6
+        with:
+          node-version: "20"
+
+      - uses: actions/setup-python@v6
+        with:
+          python-version: "3.11"
+
+      - name: Check JavaScript syntax
+        run: |
+          node --check wiki/main.js
+          node --check wiki/theme.js
+          node --check wiki/docs/content.js
+          node --check wiki/docs/main.js
+
+      - name: Check locale JSON
+        run: python -m json.tool wiki/locales/en.json >/dev/null
+
+      - name: Check static site files
+        run: |
+          test -f wiki/index.html
+          test -f wiki/home/index.html
+          test -f wiki/docs/index.html
+          test -f wiki/tutorials/index.html
+          test -f wiki/alpha-library/index.html
+          test -f wiki/research-lab/index.html
+          test -f wiki/_redirects
+          test -f wiki/_headers
+          test -f wiki/assets/icon.png
+          ! grep -R "localhost\\|nanobot" wiki --exclude=README.md

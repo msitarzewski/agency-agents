@@ -1,0 +1,139 @@
+[
+  {
+    "name": "openrouter",
+    "label": "OpenRouter",
+    "api_key_env": "OPENROUTER_API_KEY",
+    "base_url_env": "OPENROUTER_BASE_URL",
+    "default_model": "deepseek/deepseek-v4-pro",
+    "default_base_url": "https://openrouter.ai/api/v1",
+    "api_key_required": true
+  },
+  {
+    "name": "openai",
+    "label": "OpenAI",
+    "api_key_env": "OPENAI_API_KEY",
+    "base_url_env": "OPENAI_BASE_URL",
+    "default_model": "gpt-5.5",
+    "default_base_url": "https://api.openai.com/v1",
+    "api_key_required": true
+  },
+  {
+    "name": "openai-codex",
+    "label": "OpenAI Codex (ChatGPT OAuth)",
+    "api_key_env": null,
+    "base_url_env": "OPENAI_CODEX_BASE_URL",
+    "default_model": "openai-codex/gpt-5.3-codex",
+    "default_base_url": "https://chatgpt.com/backend-api/codex/responses",
+    "api_key_required": false,
+    "auth_type": "oauth",
+    "login_command": "vibe-trading provider login openai-codex"
+  },
+  {
+    "name": "deepseek",
+    "label": "DeepSeek",
+    "api_key_env": "DEEPSEEK_API_KEY",
+    "base_url_env": "DEEPSEEK_BASE_URL",
+    "default_model": "deepseek-v4-pro",
+    "default_base_url": "https://api.deepseek.com/v1",
+    "api_key_required": true
+  },
+  {
+    "name": "gemini",
+    "label": "Gemini",
+    "api_key_env": "GEMINI_API_KEY",
+    "base_url_env": "GEMINI_BASE_URL",
+    "default_model": "gemini-3.5-flash",
+    "default_base_url": "https://generativelanguage.googleapis.com/v1beta/openai/",
+    "api_key_required": true
+  },
+  {
+    "name": "groq",
+    "label": "Groq",
+    "api_key_env": "GROQ_API_KEY",
+    "base_url_env": "GROQ_BASE_URL",
+    "default_model": "meta-llama/llama-4-maverick-17b-128e-instruct",
+    "default_base_url": "https://api.groq.com/openai/v1",
+    "api_key_required": true
+  },
+  {
+    "name": "dashscope",
+    "label": "DashScope / Qwen",
+    "api_key_env": "DASHSCOPE_API_KEY",
+    "base_url_env": "DASHSCOPE_BASE_URL",
+    "default_model": "qwen-plus-latest",
+    "default_base_url": "https://dashscope.aliyuncs.com/compatible-mode/v1",
+    "api_key_required": true
+  },
+  {
+    "name": "qwen",
+    "label": "Qwen",
+    "api_key_env": "DASHSCOPE_API_KEY",
+    "base_url_env": "DASHSCOPE_BASE_URL",
+    "default_model": "qwen-plus-latest",
+    "default_base_url": "https://dashscope.aliyuncs.com/compatible-mode/v1",
+    "api_key_required": true
+  },
+  {
+    "name": "zhipu",
+    "label": "Zhipu",
+    "api_key_env": "ZHIPU_API_KEY",
+    "base_url_env": "ZHIPU_BASE_URL",
+    "default_model": "glm-5.1",
+    "default_base_url": "https://open.bigmodel.cn/api/paas/v4",
+    "api_key_required": true
+  },
+  {
+    "name": "glm",
+    "label": "GLM (Zhipu)",
+    "api_key_env": "ZHIPU_API_KEY",
+    "base_url_env": "ZHIPU_BASE_URL",
+    "default_model": "glm-5.1",
+    "default_base_url": "https://open.bigmodel.cn/api/paas/v4",
+    "api_key_required": true
+  },
+  {
+    "name": "moonshot",
+    "label": "Moonshot / Kimi",
+    "api_key_env": "MOONSHOT_API_KEY",
+    "base_url_env": "MOONSHOT_BASE_URL",
+    "default_model": "kimi-k2.6",
+    "default_base_url": "https://api.moonshot.ai/v1",
+    "api_key_required": true
+  },
+  {
+    "name": "minimax",
+    "label": "MiniMax",
+    "api_key_env": "MINIMAX_API_KEY",
+    "base_url_env": "MINIMAX_BASE_URL",
+    "default_model": "MiniMax-M3",
+    "default_base_url": "https://api.minimax.io/v1",
+    "api_key_required": true
+  },
+  {
+    "name": "mimo",
+    "label": "Xiaomi MIMO",
+    "api_key_env": "MIMO_API_KEY",
+    "base_url_env": "MIMO_BASE_URL",
+    "default_model": "MiMo-72B-A27B",
+    "default_base_url": "https://api.xiaomimimo.com/v1",
+    "api_key_required": true
+  },
+  {
+    "name": "zai",
+    "label": "Z.ai",
+    "api_key_env": "ZAI_API_KEY",
+    "base_url_env": "ZAI_BASE_URL",
+    "default_model": "glm-5.1",
+    "default_base_url": "https://api.z.ai/api/coding/paas/v4",
+    "api_key_required": true
+  },
+  {
+    "name": "ollama",
+    "label": "Ollama",
+    "api_key_env": null,
+    "base_url_env": "OLLAMA_BASE_URL",
+    "default_model": "qwen2.5:32b",
+    "default_base_url": "http://localhost:11434",
+    "api_key_required": false
+  }
+]

@@ -1,0 +1,58 @@
+# Core LLM & Orchestration
+rich>=13.0.0
+pyyaml>=6.0.0
+langchain>=1.0.0,<2
+langchain-core>=1.0.0,<2
+langchain-openai>=1.0.0,<2
+# optional: pip install "vibe-trading-ai[deepseek]" — native DeepSeek adapter (langchain-deepseek)
+langgraph>=1.0.10,<1.1
+langgraph-checkpoint>=2.1.0,<5
+python-dotenv>=1.0.0
+httpx>=0.28.0
+oauth-cli-kit>=0.1.3
+
+# Data & Computation
+pandas>=2.0.0
+numpy>=1.24.0
+scipy>=1.10.0
+duckdb>=1.2.0
+
+# Document Readers (doc_reader_tool)
+openpyxl>=3.1.0
+python-docx>=1.1.0
+python-pptx>=0.6.23
+pypdfium2>=4.0.0
+Pillow>=10.0.0
+
+# ML Strategy
+scikit-learn>=1.3.0
+joblib>=1.3.0
+
+# Signal Skills
+smartmoneyconcepts>=0.0.1
+# optional: pip install "vibe-trading-ai[harmonic]" for the pyharmonics-backed harmonic pattern detector
+
+# Data Providers
+tushare>=1.2.89
+requests>=2.31.0
+yfinance>=0.2.30
+akshare>=1.12.0
+ccxt>=4.0.0
+
+# REST API & SSE
+fastapi>=0.104.0
+uvicorn[standard]>=0.24.0
+pydantic>=2.0.0
+python-multipart>=0.0.18
+sse-starlette>=1.6.0
+
+# MCP Server
+fastmcp>=2.14.0
+
+# Web Search
+ddgs>=6.0.0
+
+# Shadow Account HTML/PDF Report
+jinja2>=3.1.0
+matplotlib>=3.7.0
+weasyprint>=60.0
