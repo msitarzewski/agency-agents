@@ -82,7 +82,8 @@ python main.py            # A-share / HK markets
 ├── trading/
 │   ├── vibe-trading/          # personal trading agent platform (MIT)
 │   ├── tradingagents/         # multi-agent trading research framework (Apache-2.0)
-│   └── tradingagents-cn/      # China-market edition, Apache-2.0 core only
+│   ├── tradingagents-cn/      # China-market edition, Apache-2.0 core only
+│   └── bridge/                # HTTP bridge exposing the research engines to the product layer
 ├── docs/
 │   ├── ARCHITECTURE.md        # how the pieces fit together
 │   └── MONETIZATION.md        # revenue strategy for the unified platform

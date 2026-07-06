@@ -1,0 +1,4 @@
+# Bridge-only dependencies — install these INTO the engine's virtualenv,
+# on top of that engine's own requirements.
+fastapi>=0.110
+uvicorn>=0.29

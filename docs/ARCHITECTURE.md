@@ -36,6 +36,8 @@ Personas installed into your AI coding tool that act as the platform's *staff* w
 ### B. One product, two brains
 Expose both research engines behind Vibe-Trading's API/MCP surface: US requests route to `tradingagents`, A-share/HK requests to `tradingagents-cn`'s core library. Vibe-Trading's loader registry already covers both regions' market data, so the engines share one data plane.
 
+**Implemented:** [`trading/bridge/`](../trading/bridge/README.md) runs one small HTTP service per engine (`research_bridge.py --engine … --port …`) and returns the decision plus the full reasoning trail; `client.py` is a stdlib-only client that routes by market and works from inside any of the platform's virtualenvs, including a Vibe-Trading session.
+
 ### C. MCP-first composition
 Vibe-Trading ships an MCP server; the roster installs into MCP-capable clients (Claude Code, Cursor, …). A finance persona in your editor can therefore *directly drive* the trading platform — run backtests, compare alphas, pull fund-flow data — without custom glue.
 
