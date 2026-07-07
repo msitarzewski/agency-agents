@@ -86,8 +86,10 @@ export { expect };
 
 ```typescript
 // tests/framework/pages/checkout.ts — behavior, not selectors, is the API.
+import { type Page, expect } from '@playwright/test';
+
 export class CheckoutPage {
-  constructor(private page: import('@playwright/test').Page) {}
+  constructor(private page: Page) {}
 
   async loginAs(user: { email: string; token: string }) {
     await this.page.context().addCookies([
@@ -121,22 +123,32 @@ test('user completes checkout for an in-stock item', async ({ checkout }) => {
 
 ### 2. Flaky-Test Detector (turn a red build into a triage list)
 ```python
-# scripts/flaky_report.py — parse JUnit XML across recent CI runs and rank
-# tests by intermittency. A test that both passes and fails on the same commit
-# is flaky by definition; those go to quarantine, not the ignore pile.
+# scripts/flaky_report.py — rank tests by intermittency across repeated runs of
+# ONE commit (e.g. the same PR re-run N times). A test that both passes and fails
+# across that fixed-commit set is flaky by definition; those go to quarantine,
+# not the ignore pile. Point it at re-runs of a single commit — mixing commits
+# would flag a since-fixed regression as flaky.
 import sys, glob, xml.etree.ElementTree as ET
 from collections import defaultdict
 
-results = defaultdict(lambda: {"pass": 0, "fail": 0})
+if len(sys.argv) != 2:
+    sys.exit("usage: flaky_report.py <dir-of-junit-xml-from-repeated-runs-of-one-commit>")
+
+results = defaultdict(lambda: {"pass": 0, "fail": 0, "skip": 0})
 for path in glob.glob(f"{sys.argv[1]}/**/*.xml", recursive=True):
     for case in ET.parse(path).iter("testcase"):
         name = f'{case.get("classname")}::{case.get("name")}'
-        failed = any(c.tag in ("failure", "error") for c in case)
-        results[name]["fail" if failed else "pass"] += 1
+        tags = {c.tag for c in case}
+        if tags & {"failure", "error"}:
+            results[name]["fail"] += 1
+        elif "skipped" in tags:
+            results[name]["skip"] += 1  # neither pass nor fail — keep it out of the rate
+        else:
+            results[name]["pass"] += 1
 
 flaky = {n: v for n, v in results.items() if v["pass"] and v["fail"]}
 for name, v in sorted(flaky.items(), key=lambda kv: -kv[1]["fail"]):
-    rate = v["fail"] / (v["pass"] + v["fail"])
+    rate = v["fail"] / (v["pass"] + v["fail"])  # skips excluded from the denominator
     print(f'{rate:6.1%}  {name}  (pass {v["pass"]} / fail {v["fail"]})')
 
 if flaky:
@@ -156,9 +168,9 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - run: npm ci
-      - run: npm run test:unit -- --coverage
-      - name: Enforce coverage floor
-        run: npx nyc check-coverage --lines 80 --branches 75
+      # c8 collects V8 coverage AND enforces the floor in one step, so the gate
+      # fails the job when a threshold isn't met — it can't pass vacuously.
+      - run: npx c8 --check-coverage --lines 80 --branches 75 npm run test:unit
 
   e2e:
     runs-on: ubuntu-latest
@@ -169,12 +181,14 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - run: npm ci && npx playwright install --with-deps
-      - run: npx playwright test --shard=${{ matrix.shard }}/4
+      # retain-on-failure writes a trace (screenshots included) for each failing
+      # test, so the uploaded artifact actually contains the failure evidence.
+      - run: npx playwright test --shard=${{ matrix.shard }}/4 --trace=retain-on-failure
       - uses: actions/upload-artifact@v4
         if: failure()
         with:
           name: traces-${{ matrix.shard }}
-          path: test-results/ # traces + screenshots for every failure
+          path: test-results/ # Playwright traces (with screenshots) for every failure
 ```
 
 ## 🔄 Your Workflow Process
