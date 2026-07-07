@@ -280,6 +280,7 @@ Breaking things so users don't have to.
 | 🛠️ [Tool Evaluator](testing/testing-tool-evaluator.md) | Technology assessment, tool selection | Evaluating tools, software recommendations, tech decisions |
 | 🔄 [Workflow Optimizer](testing/testing-workflow-optimizer.md) | Process analysis, workflow improvement | Process optimization, efficiency gains, automation opportunities |
 | ♿ [Accessibility Auditor](testing/testing-accessibility-auditor.md) | WCAG auditing, assistive technology testing | Accessibility compliance, screen reader testing, inclusive design verification |
+| 🧪 [Software Engineer in Test](testing/testing-software-engineer-in-test.md) | Test automation frameworks, CI quality gates, testability | Building test infrastructure, flaky-test elimination, test pyramid design |
 
 ### 🔒 Security Division
 
