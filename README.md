@@ -668,7 +668,7 @@ The Agency works natively with Claude Code, and ships conversion + install scrip
 
 - **[Claude Code](https://claude.ai/code)** — native `.md` agents, no conversion needed → `~/.claude/agents/`
 - **[GitHub Copilot](https://github.com/copilot)** — native `.md` agents, no conversion needed → `~/.github/agents/` + `~/.copilot/agents/`
-- **[Antigravity](https://github.com/google-gemini/antigravity)** — `SKILL.md` per agent → `~/.gemini/antigravity/skills/`
+- **[Antigravity](https://github.com/google-gemini/antigravity)** — `SKILL.md` per agent → `~/.gemini/config/skills/`
 - **[Gemini CLI](https://github.com/google-gemini/gemini-cli)** -- `.md` agent files -> `~/.gemini/agents/`
 - **[OpenCode](https://opencode.ai)** — `.md` agent files → `.opencode/agents/`
 - **[Cursor](https://cursor.sh)** — `.mdc` rule files → `.cursor/rules/`
@@ -792,7 +792,7 @@ See [integrations/github-copilot/README.md](integrations/github-copilot/README.m
 <details>
 <summary><strong>Antigravity (Gemini)</strong></summary>
 
-Each agent becomes a skill in `~/.gemini/antigravity/skills/agency-<slug>/`.
+Each agent becomes a skill in `~/.gemini/config/skills/agency-<slug>/`.
 
 ```bash
 ./scripts/install.sh --tool antigravity
