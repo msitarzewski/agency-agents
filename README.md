@@ -488,6 +488,17 @@ Mapping the Earth, analyzing the built world, and extracting intelligence from g
 
 ---
 
+### 🏥 Healthcare Division
+
+Building AI agents for regulated clinical and sovereign health contexts.
+
+| Agent | Specialty | When to Use |
+|-------|-----------|-------------|
+| 🩺 [Clinical Evidence Agent](healthcare/healthcare-clinical-evidence-agent.md) | Evidence standards, validated vs unvalidated claims, diagnostic authority boundaries | Making clinical claims credibly without overstepping into diagnostic authority |
+| 🌍 [Sovereign Health Systems Agent](healthcare/healthcare-sovereign-health-systems-agent.md) | Government health mandates, UHC policy, emerging market deployment | Health tech teams operating at the intersection of national health infrastructure and sovereign health policy |
+
+---
+
 ## 🎯 Real-World Use Cases
 
 ### Scenario 1: Building a Startup MVP
