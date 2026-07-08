@@ -995,6 +995,27 @@ plugin = sys.argv[2]
 text = path.read_text() if path.exists() else ""
 lines = text.splitlines()
 
+# Detect the indentation Hermes uses for list items under `enabled:`.
+# Hermes writes config.yaml with `enabled:` at 2 spaces and its `- item`
+# entries at 4 spaces. If we insert at the wrong indent (e.g. 2 spaces), a
+# following existing entry gets nested as a child and YAML collapses both into
+# a single scalar ("agency-agents-router - ponytail"), silently disabling
+# every plugin. Default to 4 spaces to match Hermes' actual format.
+child_indent = 4
+_enabled_start = None
+for _i, _line in enumerate(lines):
+    if _line.strip() == "enabled:":
+        _enabled_start = _i
+        break
+if _enabled_start is not None:
+    for _line in lines[_enabled_start + 1:]:
+        if _line.strip().startswith(("- ", "-")) and _line.lstrip().startswith("-"):
+            child_indent = len(_line) - len(_line.lstrip(" "))
+            break
+        if _line and not _line[0].isspace():
+            break
+item_prefix = " " * child_indent + "- "
+
 # Already enabled?
 in_plugins = False
 in_enabled = False
@@ -1023,11 +1044,11 @@ for line in lines:
             in_enabled = False
 
 if not lines:
-    lines = ["plugins:", "  enabled:", f"  - {plugin}"]
+    lines = ["plugins:", "  enabled:", (item_prefix + plugin)]
 elif not any(line.startswith("plugins:") for line in lines):
     if lines and lines[-1].strip():
         lines.append("")
-    lines.extend(["plugins:", "  enabled:", f"  - {plugin}"])
+    lines.extend(["plugins:", "  enabled:", (item_prefix + plugin)])
 else:
     out = []
     in_plugins = False
@@ -1040,14 +1061,14 @@ else:
             continue
         if in_plugins and line and not line.startswith((" ", "\t")):
             if not saw_enabled and not inserted:
-                out.extend(["  enabled:", f"  - {plugin}"])
+                out.extend(["  enabled:", (item_prefix + plugin)])
                 inserted = True
             in_plugins = False
             out.append(line)
             continue
         if in_plugins and line.strip().startswith("enabled:") and "[]" in line:
             saw_enabled = True
-            out.extend(["  enabled:", f"  - {plugin}"])
+            out.extend(["  enabled:", (item_prefix + plugin)])
             inserted = True
             continue
         if in_plugins and line.strip() == "enabled:":
@@ -1055,12 +1076,12 @@ else:
             out.append(line)
             # Insert before the next sibling key or top-level key; if the list is
             # empty this still creates a valid block.
-            out.append(f"  - {plugin}")
+            out.append((item_prefix + plugin))
             inserted = True
             continue
         out.append(line)
     if in_plugins and not saw_enabled and not inserted:
-        out.extend(["  enabled:", f"  - {plugin}"])
+        out.extend(["  enabled:", (item_prefix + plugin)])
     lines = out
 path.write_text("\n".join(lines) + "\n")
 PY
