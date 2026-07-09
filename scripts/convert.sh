@@ -18,6 +18,7 @@
 #   windsurf     — Single .windsurfrules for Windsurf
 #   openclaw     — OpenClaw workspaces (integrations/openclaw/<agent>/SOUL.md)
 #   qwen         — Qwen Code SubAgent files (~/.qwen/agents/*.md)
+#   zcode        — ZCode agent files (.zcode/agents/*.md · ~/.config/zcode/agents/*.md)
 #   kimi         — Kimi Code CLI agent files (~/.config/kimi/agents/)
 #   codex        — Codex custom agent TOML files (~/.codex/agents/*.toml)
 #   osaurus      — Osaurus skill files (~/.osaurus/skills/<name>/SKILL.md)
@@ -425,6 +426,43 @@ HEREDOC
   fi
 }
 
+convert_zcode() {
+  local file="$1"
+  local name description tools slug outfile body
+
+  name="$(get_field "name" "$file")"
+  description="$(get_field "description" "$file")"
+  tools="$(get_field "tools" "$file")"
+  slug="$(slugify "$name")"
+  body="$(get_body "$file")"
+
+  outfile="$OUT_DIR/zcode/agents/${slug}.md"
+  mkdir -p "$(dirname "$outfile")"
+
+  # ZCode agent format (Z.ai GLM harness): .md with YAML frontmatter in
+  # .zcode/agents/ (project) or ~/.config/zcode/agents/ (global). name and
+  # description required; tools optional (only if present in source). Byte-
+  # identical to the qwen-md shape, which the Agency Agents app renders natively.
+  if [[ -n "$tools" ]]; then
+    cat > "$outfile" <<HEREDOC
+---
+name: ${slug}
+description: ${description}
+tools: ${tools}
+---
+${body}
+HEREDOC
+  else
+    cat > "$outfile" <<HEREDOC
+---
+name: ${slug}
+description: ${description}
+---
+${body}
+HEREDOC
+  fi
+}
+
 convert_kimi() {
   local file="$1"
   local name description slug outdir agent_file body
@@ -608,6 +646,7 @@ run_conversions() {
         cursor)      convert_cursor      "$file" ;;
         openclaw)    convert_openclaw    "$file" ;;
         qwen)        convert_qwen        "$file" ;;
+        zcode)       convert_zcode       "$file" ;;
         kimi)        convert_kimi        "$file" ;;
         osaurus)     convert_osaurus     "$file" ;;
         vibe)        convert_vibe        "$file" ;;
@@ -641,7 +680,7 @@ main() {
     esac
   done
 
-  local valid_tools=("antigravity" "gemini-cli" "opencode" "cursor" "aider" "windsurf" "openclaw" "qwen" "kimi" "codex" "osaurus" "hermes" "vibe" "all")
+  local valid_tools=("antigravity" "gemini-cli" "opencode" "cursor" "aider" "windsurf" "openclaw" "qwen" "zcode" "kimi" "codex" "osaurus" "hermes" "vibe" "all")
   local valid=false
   for t in "${valid_tools[@]}"; do [[ "$t" == "$tool" ]] && valid=true && break; done
   if ! $valid; then
@@ -660,7 +699,7 @@ main() {
 
   local tools_to_run=()
   if [[ "$tool" == "all" ]]; then
-    tools_to_run=("antigravity" "gemini-cli" "opencode" "cursor" "aider" "windsurf" "openclaw" "qwen" "kimi" "codex" "osaurus" "hermes" "vibe")
+    tools_to_run=("antigravity" "gemini-cli" "opencode" "cursor" "aider" "windsurf" "openclaw" "qwen" "zcode" "kimi" "codex" "osaurus" "hermes" "vibe")
   else
     tools_to_run=("$tool")
   fi
@@ -671,7 +710,7 @@ main() {
 
   if $use_parallel && [[ "$tool" == "all" ]]; then
     # Tools that write to separate dirs can run in parallel; buffer output so each tool's output stays together
-    local parallel_tools=(antigravity gemini-cli opencode cursor openclaw qwen codex osaurus hermes vibe)
+    local parallel_tools=(antigravity gemini-cli opencode cursor openclaw qwen zcode codex osaurus hermes vibe)
     local parallel_out_dir
     parallel_out_dir="$(mktemp -d)"
     info "Converting: ${#parallel_tools[@]}/${n_tools} tools in parallel (output buffered per tool)..."

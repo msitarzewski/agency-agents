@@ -22,6 +22,7 @@
 #   windsurf     -- Copy .windsurfrules to current directory
 #   openclaw     -- Copy workspaces to ~/.openclaw/agency-agents/
 #   qwen         -- Copy SubAgents to ~/.qwen/agents/ (user-wide) or .qwen/agents/ (project)
+#   zcode        -- Copy agents to ~/.config/zcode/agents/ (global) or .zcode/agents/ (project)
 #   codex        -- Copy custom agent TOML files to ~/.codex/agents/
 #   osaurus      -- Copy skills to ~/.osaurus/skills/
 #   hermes       -- Copy lazy-router plugin to ~/.hermes/plugins/ and enable it
@@ -129,7 +130,7 @@ INTEGRATIONS="$REPO_ROOT/integrations"
 # shellcheck source=lib.sh
 . "$SCRIPT_DIR/lib.sh"
 
-ALL_TOOLS=(claude-code copilot antigravity gemini-cli opencode openclaw cursor aider windsurf qwen kimi codex osaurus hermes vibe)
+ALL_TOOLS=(claude-code copilot antigravity gemini-cli opencode openclaw cursor aider windsurf qwen zcode kimi codex osaurus hermes vibe)
 
 # The division set is derived from divisions.json (the single source of truth)
 # so the installer can never drift from the catalog — a hardcoded copy silently
@@ -268,6 +269,7 @@ resolve_dest() {
     opencode)    var="OPENCODE_AGENTS_DIR" ;;
     openclaw)    var="OPENCLAW_DIR" ;;
     qwen)        var="QWEN_AGENTS_DIR" ;;
+    zcode)       var="ZCODE_AGENTS_DIR" ;;
     codex)       var="CODEX_AGENTS_DIR" ;;
     osaurus)     var="OSAURUS_SKILLS_DIR" ;;
     hermes)      var="HERMES_PLUGIN_DIR" ;;
@@ -283,6 +285,7 @@ resolve_tool_path() {
     claude-code) bin="claude" ;; copilot) bin="code" ;; gemini-cli) bin="gemini" ;;
     opencode) bin="opencode" ;; openclaw) bin="openclaw" ;; cursor) bin="cursor" ;;
     aider) bin="aider" ;; windsurf) bin="windsurf" ;; qwen) bin="qwen" ;;
+    zcode) bin="zcode" ;;
     kimi) bin="kimi" ;; codex) bin="codex" ;; antigravity) bin="" ;;
     osaurus) bin="osaurus" ;; hermes) bin="hermes" ;; vibe) bin="vibe" ;;
   esac
@@ -379,6 +382,7 @@ detect_aider()        { command -v aider >/dev/null 2>&1; }
 detect_openclaw()     { command -v openclaw >/dev/null 2>&1 || [[ -d "${HOME}/.openclaw" ]]; }
 detect_windsurf()     { command -v windsurf >/dev/null 2>&1 || [[ -d "${HOME}/.codeium" ]]; }
 detect_qwen()         { command -v qwen >/dev/null 2>&1 || [[ -d "${HOME}/.qwen" ]]; }
+detect_zcode()        { command -v zcode >/dev/null 2>&1 || [[ -d "${HOME}/.zcode" ]] || [[ -d "${HOME}/.config/zcode" ]]; }
 detect_kimi()         { command -v kimi >/dev/null 2>&1; }
 detect_codex()        { command -v codex >/dev/null 2>&1 || [[ -d "${HOME}/.codex" ]]; }
 detect_osaurus()      { command -v osaurus >/dev/null 2>&1 || [[ -d "${HOME}/.osaurus" ]]; }
@@ -397,6 +401,7 @@ is_detected() {
     aider)       detect_aider       ;;
     windsurf)    detect_windsurf    ;;
     qwen)        detect_qwen        ;;
+    zcode)       detect_zcode       ;;
     kimi)        detect_kimi        ;;
     codex)       detect_codex       ;;
     osaurus)     detect_osaurus     ;;
@@ -419,6 +424,7 @@ tool_label() {
     aider)       printf "%-14s  %s" "Aider"        "(CONVENTIONS.md)"        ;;
     windsurf)    printf "%-14s  %s" "Windsurf"     "(.windsurfrules)"        ;;
     qwen)        printf "%-14s  %s" "Qwen Code"    "(~/.qwen/agents)"        ;;
+    zcode)       printf "%-14s  %s" "ZCode"        "(~/.config/zcode/agents)" ;;
     kimi)        printf "%-14s  %s" "Kimi Code"    "(~/.config/kimi/agents)" ;;
     codex)       printf "%-14s  %s" "Codex"        "(~/.codex/agents)"       ;;
     osaurus)     printf "%-14s  %s" "Osaurus"      "(~/.osaurus/skills)"     ;;
@@ -547,7 +553,7 @@ tool_simple_name() {
     claude-code) echo "Claude Code";; copilot) echo "Copilot";; antigravity) echo "Antigravity";;
     gemini-cli) echo "Gemini CLI";; opencode) echo "OpenCode";; openclaw) echo "OpenClaw";;
     cursor) echo "Cursor";; aider) echo "Aider";; windsurf) echo "Windsurf";;
-    qwen) echo "Qwen Code";; kimi) echo "Kimi Code";; codex) echo "Codex";; osaurus) echo "Osaurus";; *) echo "$1";;
+    qwen) echo "Qwen Code";; zcode) echo "ZCode";; kimi) echo "Kimi Code";; codex) echo "Codex";; osaurus) echo "Osaurus";; *) echo "$1";;
   esac
 }
 
@@ -903,6 +909,26 @@ install_qwen() {
   warn "Tip: Run '/agents manage' in Qwen Code to refresh, or restart session"
 }
 
+install_zcode() {
+  local src="$INTEGRATIONS/zcode/agents"
+  local dest; dest="$(resolve_dest zcode "${HOME}/.config/zcode/agents")"
+  local count=0
+
+  [[ -d "$src" ]] || { err "integrations/zcode missing. Run convert.sh first."; return 1; }
+
+  mkdir -p "$dest"
+
+  local f
+  while IFS= read -r -d '' f; do
+    slug_allowed "$(basename "$f" .md)" || continue
+    install_file "$f" "$dest/"
+    incr count
+  done < <(find "$src" -maxdepth 1 -name "*.md" -print0)
+
+  ok "ZCode: installed $count agents to $dest"
+  warn "ZCode: set ZCODE_AGENTS_DIR=.zcode/agents (in a project) to install there instead."
+}
+
 install_kimi() {
   local src="$INTEGRATIONS/kimi"
   local dest; dest="$(resolve_dest kimi "${HOME}/.config/kimi/agents")"
@@ -1126,6 +1152,7 @@ install_tool() {
     aider)       install_aider       ;;
     windsurf)    install_windsurf    ;;
     qwen)        install_qwen        ;;
+    zcode)       install_zcode       ;;
     kimi)        install_kimi        ;;
     codex)       install_codex       ;;
     osaurus)     install_osaurus     ;;
