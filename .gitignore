@@ -84,4 +84,5 @@ integrations/osaurus/agency-*/
 integrations/hermes/agency-agents-router/
 integrations/vibe/agents/
 integrations/vibe/prompts/
+integrations/zcode/agents/
 graphify-out/
