@@ -24,6 +24,6 @@ Run the installer from your target directory:
 cd /your/project && /path/to/agency-agents/scripts/install.sh --tool zcode
 ```
 
-Agents install to `~/.config/zcode/agents/<slug>.md` (user scope). Use
-`--division` / `--agent` to install a subset, or set `ZCODE_AGENTS_DIR` to
-override the destination.
+Agents install to `~/.zcode/agents/<slug>.md` (user scope) — the directory
+ZCode reads subagents from. Use `--division` / `--agent` to install a subset,
+or set `ZCODE_AGENTS_DIR` to override the destination.
