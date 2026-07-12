@@ -989,79 +989,155 @@ ensure_hermes_plugin_enabled() {
   python3 - "$config" "$plugin" <<'PY'
 from pathlib import Path
 import sys
+import re
 
 path = Path(sys.argv[1])
 plugin = sys.argv[2]
 text = path.read_text() if path.exists() else ""
 lines = text.splitlines()
+plugin_strip = plugin.strip()
 
-# Already enabled?
-in_plugins = False
-in_enabled = False
-for line in lines:
+# Locate the plugins block boundaries, the indent of the enabled: key, and
+# the indent of any existing list items beneath it. Tracking these explicitly
+# avoids the previous bug where the script hardcoded "  " and broke any
+# config that used a different list-item indent (Hermes' default is 4 spaces).
+plugin_start = None
+end_line = None
+enabled_indent = ""
+item_indent = ""
+has_enabled = False
+enabled_empty = False
+for i, line in enumerate(lines):
     if line.startswith("plugins:"):
-        in_plugins = True
-        in_enabled = False
-        continue
-    if in_plugins and line and not line.startswith((" ", "\t")):
-        in_plugins = False
-        in_enabled = False
-    stripped_line = line.strip()
-    if in_plugins and stripped_line == "enabled:":
-        in_enabled = True
-        continue
-    if in_plugins and stripped_line.startswith("enabled:") and "[]" in stripped_line:
-        in_enabled = False
-        continue
-    if in_enabled:
-        stripped = line.strip()
-        if stripped.startswith("-"):
-            value = stripped[1:].strip().strip('"\'')
-            if value == plugin:
-                sys.exit(0)
-        elif line.startswith("  ") and stripped.endswith(":"):
-            in_enabled = False
+        plugin_start = i
+        j = i + 1
+        broke = False
+        while j < len(lines):
+            jl = lines[j]
+            if jl and not jl.startswith((" ", "\t")):
+                broke = True
+                break
+            stripped = jl.strip()
+            if stripped.startswith("enabled:") and not enabled_indent:
+                has_enabled = True
+                enabled_indent = jl[: len(jl) - len(stripped)]
+                if "[]" in stripped:
+                    enabled_empty = True
+            elif stripped.startswith("-") and has_enabled and not item_indent:
+                item_indent = jl[: len(jl) - len(stripped)]
+            j += 1
+        # If the inner loop ran off the end of the file (no sibling key to
+        # break on), end_line must still point one past the last scanned line
+        # so subsequent inserts land at the right place.
+        end_line = j if broke else len(lines)
+        break
 
-if not lines:
-    lines = ["plugins:", "  enabled:", f"  - {plugin}"]
-elif not any(line.startswith("plugins:") for line in lines):
+# Detect both "plugin already enabled" and the corrupted-scalar failure mode.
+# The previous bug emitted a 2-space-indent entry under a 4-space-indented
+# list, which PyYAML parses as a plain scalar string:
+#   plugins.enabled: ['agency-agents-router - basic - chronos - ponytail']
+# The file on disk still has literal "- " markers glued together — we repair
+# it by splitting the line back into one item per line.
+corrupted_lines = []
+has_plugin_already = False
+if has_enabled and not enabled_empty:
+    for idx in range(plugin_start + 1, end_line):
+        l = lines[idx]
+        stripped = l.strip()
+        if not stripped.startswith("-"):
+            continue
+        # Count "- " occurrences in the full stripped line. A healthy item
+        # has exactly one (the leading "- " marker); a corrupted glued line
+        # has more. We can't use whitespace-strict matching because words
+        # like "agency-agents-router" contain dashes.
+        if stripped.count("- ") > 1:
+            corrupted_lines.append(idx)
+        else:
+            value = stripped[1:].strip().strip('"\'')
+            if value == plugin_strip:
+                has_plugin_already = True
+
+# Repair corrupted lines (reverse order so indices stay valid as we splice).
+for idx in sorted(corrupted_lines, reverse=True):
+    l = lines[idx]
+    stripped = l.strip()
+    if not item_indent:
+        item_indent = l[: len(l) - len(stripped)] or (enabled_indent + "  ")
+    content = stripped[1:].strip()
+    parts = re.split(r"\s+-\s+", content)
+    new_lines = [f"{item_indent}- {parts[0]}"]
+    for p in parts[1:]:
+        new_lines.append(f"{item_indent}- {p}")
+    lines[idx : idx + 1] = new_lines
+    end_line += len(new_lines) - 1
+    # Re-evaluate plugin presence after the rewrite.
+    has_plugin_already = False
+    for nl in lines[plugin_start + 1 : end_line]:
+        if nl.strip().startswith("-") and nl[len(item_indent):].strip() == f"- {plugin_strip}":
+            has_plugin_already = True
+            break
+
+# Idempotent fast path.
+if has_plugin_already:
+    path.write_text("\n".join(lines) + "\n")
+    sys.exit(0)
+
+new_item_line = f"{item_indent or (enabled_indent + '  ')}- {plugin}"
+
+# Case 1: no plugins: block at all.
+if plugin_start is None:
     if lines and lines[-1].strip():
         lines.append("")
-    lines.extend(["plugins:", "  enabled:", f"  - {plugin}"])
-else:
-    out = []
-    in_plugins = False
-    inserted = False
-    saw_enabled = False
-    for idx, line in enumerate(lines):
-        if line.startswith("plugins:"):
-            in_plugins = True
-            out.append(line)
-            continue
-        if in_plugins and line and not line.startswith((" ", "\t")):
-            if not saw_enabled and not inserted:
-                out.extend(["  enabled:", f"  - {plugin}"])
-                inserted = True
-            in_plugins = False
-            out.append(line)
-            continue
-        if in_plugins and line.strip().startswith("enabled:") and "[]" in line:
-            saw_enabled = True
-            out.extend(["  enabled:", f"  - {plugin}"])
-            inserted = True
-            continue
-        if in_plugins and line.strip() == "enabled:":
-            saw_enabled = True
-            out.append(line)
-            # Insert before the next sibling key or top-level key; if the list is
-            # empty this still creates a valid block.
-            out.append(f"  - {plugin}")
-            inserted = True
-            continue
-        out.append(line)
-    if in_plugins and not saw_enabled and not inserted:
-        out.extend(["  enabled:", f"  - {plugin}"])
-    lines = out
+    lines.append("plugins:")
+    lines.append(f"{enabled_indent or '  '}enabled:")
+    lines.append(new_item_line)
+    path.write_text("\n".join(lines) + "\n")
+    sys.exit(0)
+
+# Case 2: enabled: [] (inline empty) — replace with a block-style list.
+if enabled_empty:
+    new_block = [
+        f"{enabled_indent}enabled:",
+        new_item_line,
+    ]
+    lines[plugin_start + 1 : plugin_start + 2] = new_block
+    path.write_text("\n".join(lines) + "\n")
+    sys.exit(0)
+
+# Case 3: enabled: block exists but has no items yet.
+if has_enabled and not item_indent and not enabled_empty:
+    for idx in range(plugin_start + 1, end_line):
+        if lines[idx].strip() == "enabled:":
+            lines.insert(idx + 1, new_item_line)
+            break
+    path.write_text("\n".join(lines) + "\n")
+    sys.exit(0)
+
+# Case 4: enabled: block with existing items — append at the end of the list
+# at the matching indent. Also normalize any sibling items whose indent
+# doesn't match (e.g. the original 2-space bug entry) so the file is left
+# consistent.
+insert_at = None
+for idx in range(end_line - 1, plugin_start, -1):
+    l = lines[idx]
+    stripped = l.strip()
+    if stripped.startswith("-"):
+        if l != item_indent + stripped:
+            lines[idx] = item_indent + stripped
+        insert_at = idx + 1
+        break
+# Fallback: no item line found in the scan (shouldn't happen if has_enabled
+# is True, but stay correct). Insert directly under the enabled: key.
+if insert_at is None and has_enabled:
+    for idx in range(plugin_start + 1, end_line):
+        if lines[idx].strip() == "enabled:":
+            insert_at = idx + 1
+            break
+if insert_at is None:
+    # Couldn't locate a sensible insertion point; bail without writing to
+    # avoid corrupting the file further.
+    sys.exit(1)
+lines.insert(insert_at, new_item_line)
 path.write_text("\n".join(lines) + "\n")
 PY
   if [[ -f "$backup" ]]; then
