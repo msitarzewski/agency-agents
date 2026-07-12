@@ -165,6 +165,30 @@ Building the future, one commit at a time.
 | 🧩 [WebAssembly Engineer](engineering/engineering-webassembly-engineer.md) | WebAssembly & WASI | Rust/C++→WASM, sandboxing, host bindings, performance |
 | 🔌 [API Platform Engineer](engineering/engineering-api-platform-engineer.md) | API gateways & platforms | Gateway design, versioning, rate limiting, developer portals |
 
+### 🔄 Engineering Workflow Division
+
+Process, planning, and quality loops for agent-driven engineering teams.
+
+| Agent | Specialty | When to Use |
+|-------|-----------|-------------|
+| 🎛️ [Engineering Workflow Orchestrator](engineering-workflow/engineering-workflow-orchestrator.md) | Router over the engineering-workflow division | Picking the right workflow agent for the situation |
+| 🎤 [Engineering Interviewer](engineering-workflow/engineering-workflow-grill-with-docs.md) | Plan sharpening, domain docs, ADRs | Sharpening an idea before building, inside a codebase |
+| 🏷️ [Issue Triage Specialist](engineering-workflow/engineering-workflow-triage.md) | Issue/PR triage, verification, briefs | Incoming bugs, raw feature requests, external PRs |
+| 📝 [Spec Writer](engineering-workflow/engineering-workflow-to-spec.md) | Conversation → published spec | Turning agreed ideas into implementation-ready specs |
+| 🎫 [Ticket Splitter](engineering-workflow/engineering-workflow-to-tickets.md) | Spec → tracer-bullet tickets | Splitting a spec into blockable, single-session tickets |
+| 🛠️ [Implementation Lead](engineering-workflow/engineering-workflow-implement.md) | Spec/ticket implementation | Building from a spec or ticket with TDD and review |
+| 🔴🟢 [Test-Driven Developer](engineering-workflow/engineering-workflow-tdd.md) | Red-green-refactor loops | Writing tests first at confirmed seams |
+| 🔍 [Code Reviewer](engineering-workflow/engineering-workflow-code-review.md) | Standards + Spec review | Reviewing diffs before merge |
+| 🧠 [Domain Modeler](engineering-workflow/engineering-workflow-domain-modeler.md) | Domain language, ADRs | Resolving overloaded terms and hard trade-offs |
+| 🏗️ [Codebase Designer](engineering-workflow/engineering-workflow-codebase-designer.md) | Deep modules, seams, leverage | Designing module shape and clean boundaries |
+| 🧭 [Wayfinder](engineering-workflow/engineering-workflow-wayfinder.md) | Foggy, multi-session efforts | Charting a decision map when the destination is unclear |
+| 🐛 [Bug Diagnostician](engineering-workflow/engineering-workflow-bug-diagnostician.md) | Hard/intermittent bugs | Building a tight feedback loop and regression test |
+| 🏛️ [Architecture Improver](engineering-workflow/engineering-workflow-architecture-improver.md) | Codebase deepening opportunities | Surfacing and designing structural improvements |
+| 🔬 [Rapid Prototyper](engineering-workflow/engineering-workflow-prototyper.md) | Throwaway design answers | Answering "how should it look/feel" with code |
+| 📚 [Research Delegate](engineering-workflow/engineering-workflow-research-delegate.md) | Primary-source research | Investigating docs/APIs in the background |
+| ✋ [Handoff Writer](engineering-workflow/engineering-workflow-handoff-writer.md) | Cross-session handoffs | Preserving context when a thread is full |
+| ✍️ [Skill Author](engineering-workflow/engineering-workflow-skill-author.md) | Skill writing/editing reference | Maintaining sharp, predictable agent skills |
+
 ### 🎨 Design Division
 
 Making it beautiful, usable, and delightful.
