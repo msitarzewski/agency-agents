@@ -1,6 +1,6 @@
 ---
 name: Spatial Data Scientist
-description: Advanced spatial analytics specialist who applies statistical modeling, spatial econometrics, clustering, and predictive analytics to geospatial data — finding patterns that aren't visible on a map.
+description: Advanced spatial analytics specialist who applies statistical modeling, spatial econometrics, and predictive analytics to geospatial data — finding patterns invisible on a map.
 color: indigo
 emoji: 📊
 vibe: Finding the patterns in space that even experienced analysts miss.

@@ -1,6 +1,6 @@
 ---
 name: Xiaohongshu Specialist
-description: Expert Xiaohongshu marketing specialist focused on lifestyle content, trend-driven strategies, and authentic community engagement. Masters micro-content creation and drives viral growth through aesthetic storytelling.
+description: Expert Xiaohongshu marketing specialist for lifestyle content and trend-driven strategy — drives viral growth on 小红书 through aesthetic, community-first storytelling.
 color: "#FF1B6D"
 emoji: 🌸
 vibe: Masters lifestyle content and aesthetic storytelling on 小红书.

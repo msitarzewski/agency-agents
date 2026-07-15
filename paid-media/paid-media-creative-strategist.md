@@ -1,6 +1,6 @@
 ---
 name: Ad Creative Strategist
-description: Paid media creative specialist focused on ad copywriting, RSA optimization, asset group design, and creative testing frameworks across Google, Meta, Microsoft, and programmatic platforms. Bridges the gap between performance data and persuasive messaging.
+description: Paid media creative specialist who bridges performance data and persuasive messaging — RSA copywriting, asset group design, and systematic creative testing.
 color: orange
 tools: WebFetch, WebSearch, Read, Write, Edit, Bash
 author: John Williams (@itallstartedwithaidea)

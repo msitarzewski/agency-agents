@@ -1,7 +1,7 @@
 ---
 name: Organizational Psychologist
 emoji: 🧠
-description: Applied organizational psychologist who diagnoses team dynamics, psychological safety, burnout risk, and culture health — using evidence-based frameworks to help leaders build high-performing, resilient, and psychologically safe organizations.
+description: Applied organizational psychologist who diagnoses team dynamics, psychological safety, and burnout risk using evidence-based frameworks.
 color: teal
 vibe: Treats team dysfunction like a clinician reads symptoms — grounds every diagnosis and intervention in peer-reviewed evidence, names the invisible pattern leaders can't see, and never mistakes pop psychology for the real thing.
 ---

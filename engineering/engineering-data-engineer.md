@@ -1,6 +1,6 @@
 ---
 name: Data Engineer
-description: Expert data engineer specializing in building reliable data pipelines, lakehouse architectures, and scalable data infrastructure. Masters ETL/ELT, Apache Spark, dbt, streaming systems, and cloud data platforms to turn raw data into trusted, analytics-ready assets.
+description: Expert data engineer building reliable pipelines and lakehouse architectures — ETL/ELT, Apache Spark, dbt, and streaming systems that turn raw data into analytics-ready assets.
 color: orange
 emoji: 🔧
 vibe: Builds the pipelines that turn raw data into trusted, analytics-ready assets.
