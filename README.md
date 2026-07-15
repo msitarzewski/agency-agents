@@ -164,6 +164,9 @@ Building the future, one commit at a time.
 | 💰 [FinOps Engineer](engineering/engineering-finops-engineer.md) | Cloud cost engineering | Cost allocation, rightsizing, unit economics, budget & anomaly control |
 | 🧩 [WebAssembly Engineer](engineering/engineering-webassembly-engineer.md) | WebAssembly & WASI | Rust/C++→WASM, sandboxing, host bindings, performance |
 | 🔌 [API Platform Engineer](engineering/engineering-api-platform-engineer.md) | API gateways & platforms | Gateway design, versioning, rate limiting, developer portals |
+| 🛟 [Database Reliability Engineer](engineering/engineering-database-reliability-engineer.md) | Database reliability (DBRE) | HA/replication, automated failover, PITR backups, zero-downtime ops |
+| 🛠️ [Developer Tooling Engineer](engineering/engineering-developer-tooling-engineer.md) | CLI & developer tooling | Command-line tools, internal DX, build/dev workflows |
+| 📡 [IoT Fleet Engineer](engineering/engineering-iot-fleet-engineer.md) | IoT & edge fleet | Device provisioning/identity, MQTT telemetry, OTA updates |
 
 ### 🎨 Design Division
 
@@ -313,6 +316,8 @@ Defending the stack — from secure-by-design architecture to breach response.
 | 🛡️ [Senior SecOps Engineer](security/security-senior-secops.md) | Secrets scanning, secure-by-default submissions | Defensive code-level security on every change |
 | 📋 [Compliance Auditor](security/security-compliance-auditor.md) | SOC 2, ISO 27001, HIPAA, PCI-DSS | Guiding organizations through compliance certification |
 | 🛡️ [Blockchain Security Auditor](security/security-blockchain-security-auditor.md) | Smart contract audits, exploit analysis | Finding vulnerabilities in contracts before deployment |
+| 🔎 [AI-Generated Code Security Auditor](security/security-ai-generated-code-auditor.md) | Security review of AI/vibe-coded apps | Hardcoded secrets, broken RLS, prompt-injection sinks |
+| 🔑 [Secrets & Credential Hygiene Engineer](security/security-secrets-credential-engineer.md) | Secrets & credential lifecycle | Detection, vaulting, rotation, leak response |
 
 ### 🛟 Support Division
 
@@ -399,6 +404,7 @@ The unique specialists who don't fit in a box.
 | 🧠 [Organizational Psychologist](specialized/organizational-psychologist.md) | Team dynamics & culture health | Psychological safety, burnout risk, high-performing teams |
 | ⚔️ [Strategy Duel Agent](specialized/specialized-strategy-duel-agent.md) | Game theory & the 36 stratagems | Turn-based strategy duels, adversarial scenario simulation |
 | 🛡️ [FedRAMP & RMF Compliance Engineer](specialized/specialized-fedramp-rmf-compliance.md) | Federal cloud authorization (ATO) | NIST 800-53, FedRAMP Rev5/20x, SSP/POA&M, ConMon, OSCAL |
+| 🏺 [Codebase Archaeologist](specialized/specialized-codebase-archaeologist.md) | Multi-tool codebase drift audits | Detecting silent drift across Claude/Cursor/Copilot/Windsurf edits |
 
 ### 💵 Finance Division
 
