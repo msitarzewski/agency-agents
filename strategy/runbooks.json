@@ -1,0 +1,175 @@
+{
+  "_note": "Machine-readable rosters for the NEXUS scenario runbooks in strategy/runbooks/. Consumed by the Agency Agents app to turn a runbook into a one-click team deploy: it reads the roster, maps each slug to a catalog agent, and installs the set. `agents[]` entries are SLUGS — the agent .md filename stem (the corpus id), e.g. engineering/engineering-frontend-developer.md -> \"engineering-frontend-developer\"; specialized/agents-orchestrator.md -> \"agents-orchestrator\" (note: the stem is NOT always division-prefixed, and display names are prefixed/drift — so rosters reference slugs, which are rename-proof and testable). `mode` is the NEXUS activation mode (Full | Sprint | Micro) that sizes the team; `roster` groups preserve the runbook's phase structure via `activation`. `doc` is the prose runbook the app renders. Keep this in sync with the markdown in strategy/runbooks/; every slug must resolve to a real agent file (scripts/check-runbooks.sh can guard this, mirroring check-divisions.sh). strategy/ holds orchestration doctrine, not installable agents — it is NOT a division (see divisions.json).",
+  "runbooks": [
+    {
+      "slug": "startup-mvp",
+      "title": "Startup MVP Build",
+      "mode": "NEXUS-Sprint",
+      "duration": "4-6 weeks",
+      "summary": "Idea to live product with real users, fast — without skipping QA.",
+      "doc": "strategy/runbooks/scenario-startup-mvp.md",
+      "roster": [
+        {
+          "group": "Core Team",
+          "activation": "always",
+          "agents": [
+            "agents-orchestrator",
+            "project-manager-senior",
+            "product-sprint-prioritizer",
+            "design-ux-architect",
+            "engineering-frontend-developer",
+            "engineering-backend-architect",
+            "engineering-devops-automator",
+            "testing-evidence-collector",
+            "testing-reality-checker"
+          ]
+        },
+        {
+          "group": "Growth Team",
+          "activation": "week 3+",
+          "agents": [
+            "marketing-growth-hacker",
+            "marketing-content-creator",
+            "marketing-social-media-strategist"
+          ]
+        },
+        {
+          "group": "Support Team",
+          "activation": "as needed",
+          "agents": [
+            "design-brand-guardian",
+            "support-analytics-reporter",
+            "engineering-rapid-prototyper",
+            "engineering-ai-engineer",
+            "testing-performance-benchmarker",
+            "support-infrastructure-maintainer"
+          ]
+        }
+      ]
+    },
+    {
+      "slug": "enterprise-feature",
+      "title": "Enterprise Feature Development",
+      "mode": "NEXUS-Sprint",
+      "duration": "6-12 weeks",
+      "summary": "Ship a major feature into an existing enterprise product with non-negotiable compliance, security, and quality gates, and multi-stakeholder alignment.",
+      "doc": "strategy/runbooks/scenario-enterprise-feature.md",
+      "roster": [
+        {
+          "group": "Core Team",
+          "activation": "always",
+          "agents": [
+            "agents-orchestrator",
+            "project-management-project-shepherd",
+            "project-manager-senior",
+            "product-sprint-prioritizer",
+            "design-ux-architect",
+            "design-ux-researcher",
+            "design-ui-designer",
+            "engineering-frontend-developer",
+            "engineering-backend-architect",
+            "engineering-senior-developer",
+            "engineering-devops-automator",
+            "testing-evidence-collector",
+            "testing-api-tester",
+            "testing-reality-checker",
+            "testing-performance-benchmarker"
+          ]
+        },
+        {
+          "group": "Compliance & Governance",
+          "activation": "as needed",
+          "agents": [
+            "support-legal-compliance-checker",
+            "design-brand-guardian",
+            "support-finance-tracker",
+            "support-executive-summary-generator"
+          ]
+        },
+        {
+          "group": "Quality Assurance",
+          "activation": "as needed",
+          "agents": [
+            "testing-test-results-analyzer",
+            "testing-workflow-optimizer",
+            "project-management-experiment-tracker"
+          ]
+        }
+      ]
+    },
+    {
+      "slug": "marketing-campaign",
+      "title": "Multi-Channel Marketing Campaign",
+      "mode": "NEXUS-Sprint",
+      "duration": "2-4 weeks",
+      "summary": "Launch a coordinated, brand-consistent campaign across channels that drives measurable acquisition and engagement.",
+      "doc": "strategy/runbooks/scenario-marketing-campaign.md",
+      "roster": [
+        {
+          "group": "Campaign Core",
+          "activation": "always",
+          "agents": [
+            "marketing-social-media-strategist",
+            "marketing-content-creator",
+            "marketing-growth-hacker",
+            "design-brand-guardian",
+            "support-analytics-reporter"
+          ]
+        },
+        {
+          "group": "Platform Specialists",
+          "activation": "as needed",
+          "agents": [
+            "marketing-twitter-engager",
+            "marketing-tiktok-strategist",
+            "marketing-instagram-curator",
+            "marketing-reddit-community-builder",
+            "marketing-app-store-optimizer"
+          ]
+        },
+        {
+          "group": "Support",
+          "activation": "as needed",
+          "agents": [
+            "product-trend-researcher",
+            "project-management-experiment-tracker",
+            "support-executive-summary-generator",
+            "support-legal-compliance-checker"
+          ]
+        }
+      ]
+    },
+    {
+      "slug": "incident-response",
+      "title": "Incident Response",
+      "mode": "NEXUS-Micro",
+      "duration": "Minutes to hours",
+      "summary": "Detection through post-mortem for a production incident — fast response without cutting corners.",
+      "doc": "strategy/runbooks/scenario-incident-response.md",
+      "roster": [
+        {
+          "group": "P0 Critical Response",
+          "activation": "always",
+          "agents": [
+            "support-infrastructure-maintainer",
+            "engineering-devops-automator",
+            "engineering-backend-architect",
+            "engineering-frontend-developer",
+            "support-support-responder",
+            "support-executive-summary-generator"
+          ]
+        },
+        {
+          "group": "Verification & Post-Mortem",
+          "activation": "post-fix",
+          "agents": [
+            "testing-evidence-collector",
+            "testing-api-tester",
+            "testing-workflow-optimizer",
+            "product-sprint-prioritizer"
+          ]
+        }
+      ]
+    }
+  ]
+}

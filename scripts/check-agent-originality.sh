@@ -23,7 +23,7 @@
 #   ORIGINALITY_FAIL   default 40  — at/above this %, treated as a duplicate (exit 1)
 #   ORIGINALITY_WARN   default 20  — at/above this %, surfaced as a warning (no fail)
 #
-# Calibration: across the existing 184-agent library the worst same-pair
+# Calibration: across the existing agent library the worst same-pair
 # similarity is ~1.5% (median 0%). Anything in the double digits is a strong
 # anomaly; the defaults leave a wide safety margin against false positives.
 
@@ -41,15 +41,18 @@ ORIGINALITY_FAIL="${ORIGINALITY_FAIL:-40}" \
 ORIGINALITY_WARN="${ORIGINALITY_WARN:-20}" \
 REPO_ROOT="$REPO_ROOT" \
 python3 - "$@" <<'PYEOF'
-import os, re, sys, glob
+import os, re, sys, glob, json
 
 REPO_ROOT = os.environ["REPO_ROOT"]
 FAIL = float(os.environ["ORIGINALITY_FAIL"])
 WARN = float(os.environ["ORIGINALITY_WARN"])
 
-AGENT_DIRS = ("academic design engineering finance game-development marketing "
-              "paid-media product project-management sales spatial-computing "
-              "specialized strategy support testing").split()
+# Division set — divisions.json (repo root) is the single source of truth, and
+# scripts/check-divisions.sh (CI) enforces it against the directories on disk.
+# Read it directly rather than hardcoding the list here so this check can never
+# drift out of sync with the catalog the way a copied literal silently would.
+with open(os.path.join(REPO_ROOT, "divisions.json")) as _fh:
+    AGENT_DIRS = sorted(json.load(_fh)["divisions"].keys())
 
 # Proper nouns we neutralize so a find-replace re-skin (swap the country/platform
 # and little else) still scores as a near-duplicate. Extend as new markets appear.

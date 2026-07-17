@@ -6,7 +6,7 @@
 
 ## 1. SITUATION OVERVIEW
 
-The Agency comprises specialized AI agents across 9 divisions — engineering, design, marketing, product, project management, testing, support, spatial computing, and specialized operations. Individually, each agent delivers expert-level output. **Without coordination, they produce conflicting decisions, duplicated effort, and quality gaps at handoff boundaries.** NEXUS transforms this collection into an orchestrated intelligence network with defined pipelines, quality gates, and measurable outcomes.
+The Agency comprises specialized AI agents across every division — engineering, design, marketing, security, GIS, product, testing, and more. Individually, each agent delivers expert-level output. **Without coordination, they produce conflicting decisions, duplicated effort, and quality gaps at handoff boundaries.** NEXUS transforms this collection into an orchestrated intelligence network with defined pipelines, quality gates, and measurable outcomes.
 
 ## 2. KEY FINDINGS
 
@@ -92,4 +92,4 @@ strategy/
 
 ---
 
-*NEXUS: 9 Divisions. 7 Phases. One Unified Strategy.*
+*NEXUS: All Divisions. 7 Phases. One Unified Strategy.*

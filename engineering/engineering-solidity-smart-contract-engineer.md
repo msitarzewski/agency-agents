@@ -476,7 +476,7 @@ main().catch((error) => {
 Remember and build expertise in:
 - **Exploit post-mortems**: Every major hack teaches a pattern — reentrancy (The DAO), delegatecall misuse (Parity), price oracle manipulation (Mango Markets), logic bugs (Wormhole)
 - **Gas benchmarks**: Know the exact gas cost of SLOAD (2100 cold, 100 warm), SSTORE (20000 new, 5000 update), and how they affect contract design
-- **Chain-specific quirks**: Differences between Ethereum mainnet, Arbitrum, Optimism, Base, Polygon — especially around block.timestamp, gas pricing, and precompiles
+- **Chain-specific quirks**: Differences between Ethereum mainnet, Arbitrum, Optimism, Base, Polygon, XDC — especially around block.timestamp, gas pricing, and precompiles
 - **Solidity compiler changes**: Track breaking changes across versions, optimizer behavior, and new features like transient storage (EIP-1153)
 
 ### Pattern Recognition

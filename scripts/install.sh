@@ -14,7 +14,7 @@
 # Tools:
 #   claude-code  -- Copy agents to ~/.claude/agents/
 #   copilot      -- Copy agents to ~/.github/agents/ and ~/.copilot/agents/
-#   antigravity  -- Copy skills to ~/.gemini/antigravity/skills/
+#   antigravity  -- Copy skills to ~/.gemini/config/skills/
 #   gemini-cli   -- Install agents to ~/.gemini/agents/
 #   opencode     -- Copy agents to .opencode/agents/ in current directory
 #   cursor       -- Copy rules to .cursor/rules/ in current directory
@@ -22,9 +22,11 @@
 #   windsurf     -- Copy .windsurfrules to current directory
 #   openclaw     -- Copy workspaces to ~/.openclaw/agency-agents/
 #   qwen         -- Copy SubAgents to ~/.qwen/agents/ (user-wide) or .qwen/agents/ (project)
+#   zcode        -- Copy agents to ~/.zcode/agents/ (global) or .zcode/agents/ (project)
 #   codex        -- Copy custom agent TOML files to ~/.codex/agents/
 #   osaurus      -- Copy skills to ~/.osaurus/skills/
 #   hermes       -- Copy lazy-router plugin to ~/.hermes/plugins/ and enable it
+#   vibe         -- Copy agents and prompts to ~/.vibe/agents/ and ~/.vibe/prompts/
 #   all          -- Install for all detected tools (default)
 #
 # Selection (compose freely; empty = everything):
@@ -49,7 +51,7 @@
 #
 # Env: CLAUDE_CONFIG_DIR, COPILOT_AGENT_DIR, CURSOR_RULES_DIR, GEMINI_AGENTS_DIR,
 #      OPENCODE_AGENTS_DIR, OPENCLAW_DIR, QWEN_AGENTS_DIR, CODEX_AGENTS_DIR,
-#      OSAURUS_SKILLS_DIR, HERMES_HOME, HERMES_PLUGIN_DIR
+#      OSAURUS_SKILLS_DIR, HERMES_HOME, HERMES_PLUGIN_DIR, VIBE_HOME
 #      override default install paths (checked before hardcoded defaults).
 #
 # --- USAGE-END ---  (sentinel for usage(); do not remove)
@@ -128,27 +130,33 @@ INTEGRATIONS="$REPO_ROOT/integrations"
 # shellcheck source=lib.sh
 . "$SCRIPT_DIR/lib.sh"
 
-ALL_TOOLS=(claude-code copilot antigravity gemini-cli opencode openclaw cursor aider windsurf qwen kimi codex osaurus hermes)
+ALL_TOOLS=(claude-code copilot antigravity gemini-cli opencode openclaw cursor aider windsurf qwen zcode kimi codex osaurus hermes vibe)
 
-# Directories scanned for installable agents. Intentionally includes strategy/
-# (its frontmatter-less NEXUS docs are filtered out by is_agent_file at scan time);
-# the selectable division list below is this set minus strategy. This is NOT the
-# same set as AGENT_DIRS in convert.sh / lint-agents.sh, which exclude strategy
-# entirely — see divisions.json (the source of truth) and scripts/check-divisions.sh.
-AGENT_DIRS=(
-  academic design engineering finance game-development gis marketing paid-media product project-management
-  sales security spatial-computing specialized strategy support testing
-)
+# The division set is derived from divisions.json (the single source of truth)
+# so the installer can never drift from the catalog — a hardcoded copy silently
+# dropped healthcare (#655/#668) and can't be seen by check-divisions.sh. Same
+# no-jq awk/grep/sed parse as scripts/check-divisions.sh (macOS + Linux).
+divisions_from_json() {
+  local json="$REPO_ROOT/divisions.json"
+  [[ -f "$json" ]] || { err "divisions.json not found at $json"; exit 1; }
+  awk '/"divisions"[[:space:]]*:[[:space:]]*\{/{f=1; next} f' "$json" \
+    | grep -oE '"[a-z0-9-]+"[[:space:]]*:[[:space:]]*\{' \
+    | sed -E 's/"([a-z0-9-]+)".*/\1/'
+}
+
+# Selectable divisions = exactly the divisions.json entries.
+ALL_DIVISIONS=()
+while IFS= read -r _div; do [[ -n "$_div" ]] && ALL_DIVISIONS+=("$_div"); done < <(divisions_from_json)
+[[ ${#ALL_DIVISIONS[@]} -gt 0 ]] || { err "no divisions parsed from divisions.json"; exit 1; }
+
+# Directories scanned for installable agents = the divisions plus strategy/.
+# strategy/ holds frontmatter-less NEXUS docs (filtered out by is_agent_file at
+# scan time), so it is scanned but selectable only via ALL_DIVISIONS above.
+AGENT_DIRS=("${ALL_DIVISIONS[@]}" strategy)
 
 # ---------------------------------------------------------------------------
 # Selection engine (team / agent / agents-file filtering)
 # ---------------------------------------------------------------------------
-# Selectable divisions = AGENT_DIRS minus strategy/ (NEXUS docs, not agents).
-ALL_DIVISIONS=(
-  academic design engineering finance game-development gis marketing paid-media
-  product project-management sales security spatial-computing specialized support testing
-)
-
 FILTER_DIVISIONS=()      # --division
 FILTER_AGENTS=()         # --agent
 AGENTS_FILE=""           # --agents-file
@@ -261,9 +269,11 @@ resolve_dest() {
     opencode)    var="OPENCODE_AGENTS_DIR" ;;
     openclaw)    var="OPENCLAW_DIR" ;;
     qwen)        var="QWEN_AGENTS_DIR" ;;
+    zcode)       var="ZCODE_AGENTS_DIR" ;;
     codex)       var="CODEX_AGENTS_DIR" ;;
     osaurus)     var="OSAURUS_SKILLS_DIR" ;;
     hermes)      var="HERMES_PLUGIN_DIR" ;;
+    vibe)        var="VIBE_HOME" ;;
   esac
   if [[ -n "$var" && -n "${!var:-}" ]]; then printf '%s' "${!var}"; else printf '%s' "$def"; fi
 }
@@ -275,8 +285,9 @@ resolve_tool_path() {
     claude-code) bin="claude" ;; copilot) bin="code" ;; gemini-cli) bin="gemini" ;;
     opencode) bin="opencode" ;; openclaw) bin="openclaw" ;; cursor) bin="cursor" ;;
     aider) bin="aider" ;; windsurf) bin="windsurf" ;; qwen) bin="qwen" ;;
+    zcode) bin="zcode" ;;
     kimi) bin="kimi" ;; codex) bin="codex" ;; antigravity) bin="" ;;
-    osaurus) bin="osaurus" ;; hermes) bin="hermes" ;;
+    osaurus) bin="osaurus" ;; hermes) bin="hermes" ;; vibe) bin="vibe" ;;
   esac
   [[ -n "$bin" ]] && command -v "$bin" 2>/dev/null
 }
@@ -363,7 +374,7 @@ check_integrations() {
 # ---------------------------------------------------------------------------
 detect_claude_code() { [[ -d "${HOME}/.claude" ]]; }
 detect_copilot()      { command -v code >/dev/null 2>&1 || [[ -d "${HOME}/.github" || -d "${HOME}/.copilot" ]]; }
-detect_antigravity()  { [[ -d "${HOME}/.gemini/antigravity/skills" ]]; }
+detect_antigravity()  { [[ -d "${HOME}/.gemini/config/skills" ]]; }
 detect_gemini_cli()   { command -v gemini >/dev/null 2>&1 || [[ -d "${HOME}/.gemini" ]]; }
 detect_cursor()       { command -v cursor >/dev/null 2>&1 || [[ -d "${HOME}/.cursor" ]]; }
 detect_opencode()     { command -v opencode >/dev/null 2>&1 || [[ -d "${HOME}/.config/opencode" ]]; }
@@ -371,10 +382,12 @@ detect_aider()        { command -v aider >/dev/null 2>&1; }
 detect_openclaw()     { command -v openclaw >/dev/null 2>&1 || [[ -d "${HOME}/.openclaw" ]]; }
 detect_windsurf()     { command -v windsurf >/dev/null 2>&1 || [[ -d "${HOME}/.codeium" ]]; }
 detect_qwen()         { command -v qwen >/dev/null 2>&1 || [[ -d "${HOME}/.qwen" ]]; }
+detect_zcode()        { command -v zcode >/dev/null 2>&1 || [[ -d "${HOME}/.zcode" ]]; }
 detect_kimi()         { command -v kimi >/dev/null 2>&1; }
 detect_codex()        { command -v codex >/dev/null 2>&1 || [[ -d "${HOME}/.codex" ]]; }
 detect_osaurus()      { command -v osaurus >/dev/null 2>&1 || [[ -d "${HOME}/.osaurus" ]]; }
 detect_hermes()       { command -v hermes >/dev/null 2>&1 || [[ -d "${HERMES_HOME:-${HOME}/.hermes}" ]]; }
+detect_vibe()         { command -v vibe >/dev/null 2>&1 || [[ -d "${VIBE_HOME:-${HOME}/.vibe}" ]]; }
 
 is_detected() {
   case "$1" in
@@ -388,10 +401,12 @@ is_detected() {
     aider)       detect_aider       ;;
     windsurf)    detect_windsurf    ;;
     qwen)        detect_qwen        ;;
+    zcode)       detect_zcode       ;;
     kimi)        detect_kimi        ;;
     codex)       detect_codex       ;;
     osaurus)     detect_osaurus     ;;
     hermes)      detect_hermes      ;;
+    vibe)        detect_vibe        ;;
     *)           return 1 ;;
   esac
 }
@@ -401,7 +416,7 @@ tool_label() {
   case "$1" in
     claude-code) printf "%-14s  %s" "Claude Code"  "(claude.ai/code)"        ;;
     copilot)     printf "%-14s  %s" "Copilot"      "(~/.github + ~/.copilot)" ;;
-    antigravity) printf "%-14s  %s" "Antigravity"  "(~/.gemini/antigravity)" ;;
+    antigravity) printf "%-14s  %s" "Antigravity"  "(~/.gemini/config/skills)" ;;
     gemini-cli)  printf "%-14s  %s" "Gemini CLI"   "(~/.gemini/agents)"      ;;
     opencode)    printf "%-14s  %s" "OpenCode"     "(opencode.ai)"           ;;
     openclaw)    printf "%-14s  %s" "OpenClaw"     "(~/.openclaw/agency-agents)" ;;
@@ -409,10 +424,12 @@ tool_label() {
     aider)       printf "%-14s  %s" "Aider"        "(CONVENTIONS.md)"        ;;
     windsurf)    printf "%-14s  %s" "Windsurf"     "(.windsurfrules)"        ;;
     qwen)        printf "%-14s  %s" "Qwen Code"    "(~/.qwen/agents)"        ;;
+    zcode)       printf "%-14s  %s" "ZCode"        "(~/.zcode/agents)" ;;
     kimi)        printf "%-14s  %s" "Kimi Code"    "(~/.config/kimi/agents)" ;;
     codex)       printf "%-14s  %s" "Codex"        "(~/.codex/agents)"       ;;
     osaurus)     printf "%-14s  %s" "Osaurus"      "(~/.osaurus/skills)"     ;;
     hermes)      printf "%-14s  %s" "Hermes"       "(~/.hermes/plugins)"     ;;
+    vibe)        printf "%-14s  %s" "Mistral Vibe" "(~/.vibe/agents)"        ;;
   esac
 }
 
@@ -536,7 +553,7 @@ tool_simple_name() {
     claude-code) echo "Claude Code";; copilot) echo "Copilot";; antigravity) echo "Antigravity";;
     gemini-cli) echo "Gemini CLI";; opencode) echo "OpenCode";; openclaw) echo "OpenClaw";;
     cursor) echo "Cursor";; aider) echo "Aider";; windsurf) echo "Windsurf";;
-    qwen) echo "Qwen Code";; kimi) echo "Kimi Code";; codex) echo "Codex";; osaurus) echo "Osaurus";; *) echo "$1";;
+    qwen) echo "Qwen Code";; zcode) echo "ZCode";; kimi) echo "Kimi Code";; codex) echo "Codex";; osaurus) echo "Osaurus";; *) echo "$1";;
   esac
 }
 
@@ -720,7 +737,7 @@ install_copilot() {
 
 install_antigravity() {
   local src="$INTEGRATIONS/antigravity"
-  local dest; dest="$(resolve_dest antigravity "${HOME}/.gemini/antigravity/skills")"
+  local dest; dest="$(resolve_dest antigravity "${HOME}/.gemini/config/skills")"
   local count=0
   [[ -d "$src" ]] || { err "integrations/antigravity missing. Run convert.sh first."; return 1; }
   mkdir -p "$dest"
@@ -892,6 +909,26 @@ install_qwen() {
   warn "Tip: Run '/agents manage' in Qwen Code to refresh, or restart session"
 }
 
+install_zcode() {
+  local src="$INTEGRATIONS/zcode/agents"
+  local dest; dest="$(resolve_dest zcode "${HOME}/.zcode/agents")"
+  local count=0
+
+  [[ -d "$src" ]] || { err "integrations/zcode missing. Run convert.sh first."; return 1; }
+
+  mkdir -p "$dest"
+
+  local f
+  while IFS= read -r -d '' f; do
+    slug_allowed "$(basename "$f" .md)" || continue
+    install_file "$f" "$dest/"
+    incr count
+  done < <(find "$src" -maxdepth 1 -name "*.md" -print0)
+
+  ok "ZCode: installed $count agents to $dest"
+  warn "ZCode: set ZCODE_AGENTS_DIR=.zcode/agents (in a project) to install there instead."
+}
+
 install_kimi() {
   local src="$INTEGRATIONS/kimi"
   local dest; dest="$(resolve_dest kimi "${HOME}/.config/kimi/agents")"
@@ -928,6 +965,39 @@ install_codex() {
     incr count
   done < <(find "$src" -maxdepth 1 -name "*.toml" -print0)
   ok "Codex: $count agents -> $dest"
+}
+
+install_vibe() {
+  local src_agents="$INTEGRATIONS/vibe/agents"
+  local src_prompts="$INTEGRATIONS/vibe/prompts"
+  local dest; dest="$(resolve_dest vibe "${HOME}/.vibe")"
+  local count=0
+  
+  [[ -d "$src_agents" && -d "$src_prompts" ]] || { err "integrations/vibe missing. Run convert.sh first."; return 1; }
+  
+  mkdir -p "$dest/agents" "$dest/prompts"
+  
+  local agent_file prompt_file slug
+  
+  while IFS= read -r -d '' agent_file; do
+    slug="$(basename "$agent_file" .toml)"
+    slug_allowed "$slug" || continue
+    
+    # Find the corresponding prompt file
+    prompt_file="$src_prompts/$slug.md"
+    
+    [[ -f "$prompt_file" ]] || continue
+    
+    install_file "$agent_file" "$dest/agents/"
+    install_file "$prompt_file" "$dest/prompts/"
+    incr count
+  done < <(find "$src_agents" -maxdepth 1 -name "*.toml" -print0)
+  
+  ok "Mistral Vibe: $count agents -> $dest/agents/ and $dest/prompts/"
+}
+
+vibe_home_dir() {
+  printf '%s\n' "${VIBE_HOME:-${HOME}/.vibe}"
 }
 
 hermes_home_dir() {
@@ -1031,11 +1101,23 @@ install_hermes() {
   local src="$INTEGRATIONS/hermes/agency-agents-router"
   local hermes_home; hermes_home="$(hermes_home_dir)"
   local dest; dest="$(resolve_dest hermes "${hermes_home}/plugins/agency-agents-router")"
+  # HERMES_PLUGIN_DIR is ambiguous: its name invites setting it to the plugins
+  # parent (~/.hermes/plugins) rather than the full plugin path. Always target
+  # the agency-agents-router subdir so we never rm -rf a shared plugins dir that
+  # holds other plugins.
+  if [[ "$(basename "$dest")" != "agency-agents-router" ]]; then
+    dest="${dest%/}/agency-agents-router"
+  fi
   [[ -f "$src/plugin.yaml" && -f "$src/__init__.py" && -f "$src/data/agents.json" ]] || {
     err "integrations/hermes/agency-agents-router missing. Run ./scripts/convert.sh --tool hermes first."
     return 1
   }
   mkdir -p "$(dirname "$dest")"
+  # Safety net: only ever remove our own plugin directory, never a parent.
+  if [[ "$(basename "$dest")" != "agency-agents-router" ]]; then
+    err "Hermes: refusing to remove '$dest' — expected an agency-agents-router directory."
+    return 1
+  fi
   rm -rf "$dest"
   if $USE_LINK; then
     ln -s "$src" "$dest"
@@ -1070,10 +1152,12 @@ install_tool() {
     aider)       install_aider       ;;
     windsurf)    install_windsurf    ;;
     qwen)        install_qwen        ;;
+    zcode)       install_zcode       ;;
     kimi)        install_kimi        ;;
     codex)       install_codex       ;;
     osaurus)     install_osaurus     ;;
     hermes)      install_hermes      ;;
+    vibe)        install_vibe        ;;
   esac
 }
 
@@ -1126,14 +1210,21 @@ main() {
 
   check_integrations
 
-  # Validate explicit tool
+  # Validate explicit tool(s). --tool accepts a comma-separated list (like
+  # --division / --agent), e.g. --tool claude-code,cursor.
+  local _tool_list=()
   if [[ "$tool" != "all" ]]; then
-    local valid=false t
-    for t in "${ALL_TOOLS[@]}"; do [[ "$t" == "$tool" ]] && valid=true && break; done
-    if ! $valid; then
-      err "Unknown tool '$tool'. Valid: ${ALL_TOOLS[*]}"
-      exit 1
-    fi
+    local _t
+    IFS=',' read -ra _tool_list <<< "$tool"
+    local _cleaned=()
+    for _t in "${_tool_list[@]}"; do
+      _t="$(printf '%s' "$_t" | xargs)"; [[ -z "$_t" ]] && continue
+      local valid=false _vt
+      for _vt in "${ALL_TOOLS[@]}"; do [[ "$_vt" == "$_t" ]] && valid=true && break; done
+      $valid || { err "Unknown tool '$_t'. Valid: ${ALL_TOOLS[*]}"; exit 1; }
+      _cleaned+=("$_t")
+    done
+    _tool_list=("${_cleaned[@]}")
   fi
 
   # Decide whether to show interactive UI
@@ -1150,7 +1241,7 @@ main() {
     : # wizard committed SELECTED_TOOLS + FILTER_DIVISIONS
 
   elif [[ "$tool" != "all" ]]; then
-    SELECTED_TOOLS=("$tool")
+    SELECTED_TOOLS=("${_tool_list[@]}")
 
   else
     # Non-interactive (or no TTY): auto-detect

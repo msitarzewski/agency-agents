@@ -18,6 +18,7 @@ AGENT_DIRS=(
   finance
   game-development
   gis
+  healthcare
   marketing
   paid-media
   product
@@ -90,7 +91,7 @@ lint_file() {
 
   # 2. Check required frontmatter fields
   for field in "${REQUIRED_FRONTMATTER[@]}"; do
-    if ! echo "$frontmatter" | grep -qE "^${field}:"; then
+    if ! grep -qE -- "^${field}:" <<<"$frontmatter"; then
       echo "ERROR $file: missing frontmatter field '${field}'"
       errors=$((errors + 1))
     fi
@@ -100,8 +101,12 @@ lint_file() {
   local body
   body=$(awk 'BEGIN{n=0} /^---$/{n++; next} n>=2{print}' "$file")
 
+  # Feed grep from a herestring, not a pipe: `grep -q` exits at the first match
+  # without draining its input, which kills a piping `echo` with SIGPIPE. Under
+  # `set -o pipefail` that 141 becomes the pipeline's status and is indistinguishable
+  # from "no match", so a large body raced its way to a spurious WARN.
   for section in "${RECOMMENDED_SECTIONS[@]}"; do
-    if ! echo "$body" | grep -qi "$section"; then
+    if ! grep -qi -- "$section" <<<"$body"; then
       echo "WARN  $file: missing recommended section '${section}'"
       warnings=$((warnings + 1))
     fi
