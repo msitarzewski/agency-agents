@@ -27,6 +27,7 @@
 #   osaurus      -- Copy skills to ~/.osaurus/skills/
 #   hermes       -- Copy lazy-router plugin to ~/.hermes/plugins/ and enable it
 #   vibe         -- Copy agents and prompts to ~/.vibe/agents/ and ~/.vibe/prompts/
+#   pi           -- Copy agents as skills to ~/.pi/agent/skills/
 #   all          -- Install for all detected tools (default)
 #
 # Selection (compose freely; empty = everything):
@@ -51,8 +52,9 @@
 #
 # Env: CLAUDE_CONFIG_DIR, COPILOT_AGENT_DIR, CURSOR_RULES_DIR, GEMINI_AGENTS_DIR,
 #      OPENCODE_AGENTS_DIR, OPENCLAW_DIR, QWEN_AGENTS_DIR, CODEX_AGENTS_DIR,
-#      OSAURUS_SKILLS_DIR, HERMES_HOME, HERMES_PLUGIN_DIR, VIBE_HOME
-#      override default install paths (checked before hardcoded defaults).
+#      OSAURUS_SKILLS_DIR, HERMES_HOME, HERMES_PLUGIN_DIR, VIBE_HOME,
+#      PI_CODING_AGENT_DIR override default install paths (checked before
+#      hardcoded defaults).
 #
 # --- USAGE-END ---  (sentinel for usage(); do not remove)
 # Platform support:
@@ -130,7 +132,7 @@ INTEGRATIONS="$REPO_ROOT/integrations"
 # shellcheck source=lib.sh
 . "$SCRIPT_DIR/lib.sh"
 
-ALL_TOOLS=(claude-code copilot antigravity gemini-cli opencode openclaw cursor aider windsurf qwen zcode kimi codex osaurus hermes vibe)
+ALL_TOOLS=(claude-code copilot antigravity gemini-cli opencode openclaw cursor aider windsurf qwen zcode kimi codex osaurus hermes vibe pi)
 
 # The division set is derived from divisions.json (the single source of truth)
 # so the installer can never drift from the catalog — a hardcoded copy silently
@@ -261,6 +263,10 @@ install_file() {
 resolve_dest() {
   local tool="$1" def="$2" var=""
   [[ -n "$OVERRIDE_PATH" ]] && { printf '%s' "$OVERRIDE_PATH"; return; }
+  if [[ "$tool" == "pi" ]]; then
+    printf '%s/skills' "${PI_CODING_AGENT_DIR:-${HOME}/.pi/agent}"
+    return
+  fi
   case "$tool" in
     claude-code) var="CLAUDE_CONFIG_DIR" ;;
     copilot)     var="COPILOT_AGENT_DIR" ;;
@@ -288,6 +294,7 @@ resolve_tool_path() {
     zcode) bin="zcode" ;;
     kimi) bin="kimi" ;; codex) bin="codex" ;; antigravity) bin="" ;;
     osaurus) bin="osaurus" ;; hermes) bin="hermes" ;; vibe) bin="vibe" ;;
+    pi) bin="pi" ;;
   esac
   [[ -n "$bin" ]] && command -v "$bin" 2>/dev/null
 }
@@ -297,7 +304,7 @@ resolve_tool_path() {
 ensure_converted() {
   local tool="$1"
   $AUTO_CONVERT || return 0
-  case "$tool" in claude-code|copilot) return 0 ;; esac
+  case "$tool" in claude-code|copilot|pi) return 0 ;; esac
   local d="$INTEGRATIONS/$tool"
   if [[ ! -d "$d" ]] || [[ -z "$(find "$d" -type f 2>/dev/null | head -1)" ]]; then
     warn "$tool: integration files missing — running convert.sh --tool $tool"
@@ -388,6 +395,7 @@ detect_codex()        { command -v codex >/dev/null 2>&1 || [[ -d "${HOME}/.code
 detect_osaurus()      { command -v osaurus >/dev/null 2>&1 || [[ -d "${HOME}/.osaurus" ]]; }
 detect_hermes()       { command -v hermes >/dev/null 2>&1 || [[ -d "${HERMES_HOME:-${HOME}/.hermes}" ]]; }
 detect_vibe()         { command -v vibe >/dev/null 2>&1 || [[ -d "${VIBE_HOME:-${HOME}/.vibe}" ]]; }
+detect_pi()           { command -v pi >/dev/null 2>&1 || [[ -d "${PI_CODING_AGENT_DIR:-${HOME}/.pi/agent}" ]]; }
 
 is_detected() {
   case "$1" in
@@ -407,6 +415,7 @@ is_detected() {
     osaurus)     detect_osaurus     ;;
     hermes)      detect_hermes      ;;
     vibe)        detect_vibe        ;;
+    pi)          detect_pi          ;;
     *)           return 1 ;;
   esac
 }
@@ -430,6 +439,7 @@ tool_label() {
     osaurus)     printf "%-14s  %s" "Osaurus"      "(~/.osaurus/skills)"     ;;
     hermes)      printf "%-14s  %s" "Hermes"       "(~/.hermes/plugins)"     ;;
     vibe)        printf "%-14s  %s" "Mistral Vibe" "(~/.vibe/agents)"        ;;
+    pi)          printf "%-14s  %s" "Pi"           "(~/.pi/agent/skills)"     ;;
   esac
 }
 
@@ -553,7 +563,8 @@ tool_simple_name() {
     claude-code) echo "Claude Code";; copilot) echo "Copilot";; antigravity) echo "Antigravity";;
     gemini-cli) echo "Gemini CLI";; opencode) echo "OpenCode";; openclaw) echo "OpenClaw";;
     cursor) echo "Cursor";; aider) echo "Aider";; windsurf) echo "Windsurf";;
-    qwen) echo "Qwen Code";; zcode) echo "ZCode";; kimi) echo "Kimi Code";; codex) echo "Codex";; osaurus) echo "Osaurus";; *) echo "$1";;
+    qwen) echo "Qwen Code";; zcode) echo "ZCode";; kimi) echo "Kimi Code";; codex) echo "Codex";; osaurus) echo "Osaurus";;
+    pi) echo "Pi";; *) echo "$1";;
   esac
 }
 
@@ -698,6 +709,23 @@ interactive_wizard() {
 # ---------------------------------------------------------------------------
 # Installers
 # ---------------------------------------------------------------------------
+
+install_pi() {
+  local dest; dest="$(resolve_dest pi "${HOME}/.pi/agent/skills")"
+  local count=0 dir f slug
+  mkdir -p "$dest"
+  for dir in "${AGENT_DIRS[@]}"; do
+    [[ -d "$REPO_ROOT/$dir" ]] || continue
+    while IFS= read -r -d '' f; do
+      is_agent_file "$f" || continue
+      slug="$(agent_slug "$f")"; slug_allowed "$slug" || continue
+      install_file "$f" "$dest/$slug.md"
+      incr count
+    done < <(find "$REPO_ROOT/$dir" -name "*.md" -type f -print0)
+  done
+  ok "Pi: $count skills -> $dest"
+  warn "Pi: run '/reload' or restart Pi to discover the installed skills."
+}
 
 install_claude_code() {
   local dest; dest="$(resolve_dest claude-code "${HOME}/.claude/agents")"
@@ -1158,6 +1186,7 @@ install_tool() {
     osaurus)     install_osaurus     ;;
     hermes)      install_hermes      ;;
     vibe)        install_vibe        ;;
+    pi)          install_pi          ;;
   esac
 }
 
