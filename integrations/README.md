@@ -16,6 +16,7 @@ supported agentic coding tools.
 - **[Windsurf](#windsurf)** — `.windsurfrules` in `windsurf/`
 - **[Kimi Code](#kimi-code)** — YAML agent specs in `kimi/`
 - **[Qwen Code](#qwen-code)** — project-scoped `.md` SubAgents in `.qwen/agents/`
+- **[ZCode](zcode/README.md)** — `.md` agent files generated in `zcode/agents/`
 - **[Codex](#codex)** — `.toml` custom agents in `codex/`
 - **[Mistral Vibe](vibe/README.md)** — `.toml` agents + prompt files generated in `vibe/`
 - **Osaurus** -- `SKILL.md` skills generated in `osaurus/`

@@ -66,7 +66,7 @@ Each agent file contains:
 
 Browse the agents below and copy/adapt the ones you need!
 
-### Option 4: Use with Other Tools (GitHub Copilot, Antigravity, Gemini CLI, OpenCode, OpenClaw, Cursor, Aider, Windsurf, Kimi Code, Codex, Osaurus, Hermes, Mistral Vibe)
+### Option 4: Use with Other Tools (GitHub Copilot, Antigravity, Gemini CLI, OpenCode, OpenClaw, Cursor, Aider, Windsurf, Qwen Code, ZCode, Kimi Code, Codex, Osaurus, Hermes, Mistral Vibe)
 
 ```bash
 # Step 1 -- generate integration files for all supported tools
@@ -84,6 +84,8 @@ Browse the agents below and copy/adapt the ones you need!
 ./scripts/install.sh --tool cursor
 ./scripts/install.sh --tool aider
 ./scripts/install.sh --tool windsurf
+./scripts/install.sh --tool qwen
+./scripts/install.sh --tool zcode
 ./scripts/install.sh --tool kimi
 ./scripts/install.sh --tool codex
 ./scripts/install.sh --tool osaurus
@@ -718,10 +720,12 @@ The Agency works natively with Claude Code, and ships conversion + install scrip
 - **[Windsurf](https://codeium.com/windsurf)** — single `.windsurfrules` → `./.windsurfrules`
 - **[OpenClaw](https://github.com/openclaw/openclaw)** — `SOUL.md` + `AGENTS.md` + `IDENTITY.md` per agent
 - **[Qwen Code](https://github.com/QwenLM/qwen-code)** — `.md` SubAgent files → `~/.qwen/agents/`
+- **[ZCode](integrations/zcode/README.md)** — `.md` agent files → `~/.zcode/agents/`
 - **[Kimi Code](https://github.com/MoonshotAI/kimi-cli)** — YAML agent specs → `~/.config/kimi/agents/`
 - **[Codex](https://developers.openai.com/codex/overview)** — TOML custom agents → `~/.codex/agents/`
 - **Osaurus** -- `SKILL.md` skills -> `~/.osaurus/skills/`
 - **[Hermes](integrations/hermes/README.md)** -- lazy-router plugin -> `~/.hermes/plugins/`
+- **[Mistral Vibe](integrations/vibe/README.md)** — `.toml` agents + prompt files → `~/.vibe/agents/` + `~/.vibe/prompts/`
 
 ---
 
@@ -750,7 +754,7 @@ The installer scans your system for installed tools, shows a checkbox UI, and le
 
   [x]  1)  [*]  Claude Code     (claude.ai/code)
   [x]  2)  [*]  Copilot         (~/.github + ~/.copilot)
-  [x]  3)  [*]  Antigravity     (~/.gemini/antigravity)
+  [x]  3)  [*]  Antigravity     (~/.gemini/config/skills)
   [ ]  4)  [ ]  Gemini CLI      (~/.gemini/agents)
   [ ]  5)  [ ]  OpenCode        (opencode.ai)
   [ ]  6)  [ ]  OpenClaw        (~/.openclaw/agency-agents)
@@ -758,12 +762,14 @@ The installer scans your system for installed tools, shows a checkbox UI, and le
   [ ]  8)  [ ]  Aider           (CONVENTIONS.md)
   [ ]  9)  [ ]  Windsurf        (.windsurfrules)
   [ ] 10)  [ ]  Qwen Code       (~/.qwen/agents)
-  [ ] 11)  [ ]  Kimi Code       (~/.config/kimi/agents)
-  [ ] 12)  [ ]  Codex           (~/.codex/agents)
-  [ ] 13)  [ ]  Osaurus         (~/.osaurus/skills)
-  [ ] 14)  [ ]  Hermes          (~/.hermes/plugins)
+  [ ] 11)  [ ]  ZCode           (~/.zcode/agents)
+  [ ] 12)  [ ]  Kimi Code       (~/.config/kimi/agents)
+  [ ] 13)  [ ]  Codex           (~/.codex/agents)
+  [ ] 14)  [ ]  Osaurus         (~/.osaurus/skills)
+  [ ] 15)  [ ]  Hermes          (~/.hermes/plugins)
+  [ ] 16)  [ ]  Mistral Vibe    (~/.vibe/agents)
 
-  [1-14] toggle   [a] all   [n] none   [d] detected
+  [1-16] toggle   [a] all   [n] none   [d] detected
   [Enter] install   [q] quit
 ```
 
