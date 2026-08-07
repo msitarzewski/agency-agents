@@ -35,8 +35,8 @@ PDF resumes
 - `skills/pdf-resume-parser/`: local Skill that converts PDF resumes into
   model-readable, traceable text.
 - `generated-skill/loomloom-recruitment-specialist-batch-resume-screening/`:
-  Loomloom-generated local Skill pinned to the validated private version, with
-  a mandatory PDF-parser first step.
+  Loomloom-generated local Skill bound to the approved public Market Listing,
+  with a mandatory PDF-parser and data-minimization first step.
 - `fixtures/resumes/`: synthetic PDF resumes used for testing.
 - `fixtures/parsed/`: parser output generated from the synthetic resumes.
 - `fixtures/job-description.txt`: synthetic role description used for testing.
@@ -59,11 +59,13 @@ See `results/run-summary.json`, `results/audit-summary.md`, and the downloaded
 result workbook for the complete validation record. The measured run cost is a
 test observation, not a performance or future-price guarantee.
 
-The public SkillBot submission charges a creator fixed fee of CNY 0.01 per
-successfully billed candidate row, with model/API cost charged separately. Its
-identifiers and current review state are recorded in
-`results/public-listing-submission.json`. At the time of this commit, the
-listing is pending review and is not publicly executable.
+The public SkillBot is approved, listed, and available for Market execution. It
+charges a creator fixed fee of CNY 0.01 per successfully billed candidate row,
+with model/API cost charged separately. Its identifiers and review state are
+recorded in `results/public-listing-submission.json`. The local generated Skill
+binds to the Listing rather than the underlying private version, so future
+execution must inspect the current Listing, quote through Market, and obtain
+explicit user confirmation before every paid run.
 
 ## Public input contract
 

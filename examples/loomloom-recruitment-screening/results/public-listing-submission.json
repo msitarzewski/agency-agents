@@ -9,8 +9,10 @@
     "amount": "0.0100000",
     "currency": "CNY"
   },
-  "review_status": "pending_review",
-  "market_status": "unlisted_pending_review",
+  "review_status": "approved",
+  "market_status": "published_listed",
+  "execution_available": true,
   "submitted_at": "2026-08-07",
-  "note": "The SkillBot cannot be publicly executed until Loomloom approves the listing. Model/API cost is charged separately from the creator fixed fee."
+  "reviewed_at": "2026-08-07T18:26:25+08:00",
+  "note": "The SkillBot is approved, listed, and available for Market execution. Model/API cost is charged separately from the creator fixed fee."
 }
