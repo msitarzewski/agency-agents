@@ -41,8 +41,13 @@ Have an idea for a specialized agent? Great! Here's how to add one:
    > truth for the division set, validated in CI by `scripts/check-divisions.sh`.
    > **Proposing a new division** means: create the directory, add an entry to
    > `divisions.json` (label/icon/color), and add it to `AGENT_DIRS` in both
-   > `scripts/convert.sh` and `scripts/lint-agents.sh`. The check fails the build
-   > unless all of these agree and the directory contains at least one agent file.
+   > `scripts/convert.sh` and `scripts/lint-agents.sh`. CI regenerates and validates
+   > the plugin marketplace on every PR (`scripts/check-plugin-marketplace.sh`) and
+   > publishes it to the `plugins` branch when merged to `main` — so a division that
+   > reaches `main` is automatically installable as a skills plugin from the
+   > [plugin marketplace](integrations/plugin-marketplace/README.md).
+   > The check fails the build unless all of these agree and the directory
+   > contains at least one agent file.
    >
    > Note: `strategy/` (NEXUS playbooks/runbooks — no agent frontmatter) and
    > `integrations/` (generated per-tool output from `convert.sh`) are **not**
@@ -298,7 +303,7 @@ For anything beyond that, here's how we keep things smooth:
 We love ambitious ideas — a [Discussion](https://github.com/msitarzewski/agency-agents/discussions) just gives the community a chance to align on approach before code gets written. It saves everyone time, especially yours.
 
 #### Things we'll always close
-- **Committed build output**: Generated files (`_site/`, compiled assets, converted agent files) should never be checked in. Users run `convert.sh` locally; its output is gitignored. When adding a new tool, adding that `.gitignore` rule is your step — see [Adding a Tool Integration](#adding-a-tool-integration).
+- **Committed build output**: Generated files (`_site/`, compiled assets, converted agent files) should never be checked in. Users run `convert.sh` locally; its output is gitignored. When adding a new tool, adding that `.gitignore` rule is your step — see [Adding a Tool Integration](#adding-a-tool-integration). This also covers the plugin marketplace output (`.claude-plugin/marketplace.json` and the generated `plugins/` tree) — it is never committed to `main`; CI rebuilds it from source and publishes it to the `plugins` branch, and `scripts/check-plugin-marketplace.sh` fails the build if `main` ever tracks it or if a fresh build drifts from the roster.
 - **PRs that bulk-modify existing agents** without a prior discussion — even well-intentioned reformatting can create merge conflicts for other contributors.
 - **Near-duplicate "re-skins"**: New agents that are find-replace copies of an existing one (e.g. swapping a country or platform name) rather than genuinely new specialists. Run `scripts/check-agent-originality.sh` before submitting — CI runs it automatically.
 
