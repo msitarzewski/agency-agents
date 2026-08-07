@@ -1,0 +1,14 @@
+{
+  "schema_version": "loomloom-skill/v1",
+  "generated_by": "loomloom-cli",
+  "source_type": "user_template",
+  "agent": "codex",
+  "generated_at": "2026-08-07T08:46:00Z",
+  "skill_name": "loomloom-recruitment-specialist-batch-resume-screening",
+  "display_name": "Recruitment Specialist - Batch Resume Screening",
+  "description": "Batch, evidence-based resume prescreening adapted from The Agency Recruitment Specialist. Produces human-reviewable candidate fit assessments without using protected characteristics.",
+  "source_id": "76c4b6e6-de49-4bda-9755-9ea55eac9fa9:a5bdf34a-335b-4f52-90ad-055417e1485e",
+  "input_schema_mode": "workbook_only",
+  "template_id": "76c4b6e6-de49-4bda-9755-9ea55eac9fa9",
+  "template_version_id": "a5bdf34a-335b-4f52-90ad-055417e1485e"
+}

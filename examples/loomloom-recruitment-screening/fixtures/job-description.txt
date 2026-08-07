@@ -1,0 +1,23 @@
+Backend Engineer
+
+Responsibilities
+- Design, build, and operate production backend services and REST APIs.
+- Improve service reliability, latency, and observability.
+- Collaborate with product and infrastructure teams on delivery.
+- Review code and contribute to engineering standards.
+
+Must-have requirements
+- At least three years of production software engineering experience.
+- Strong Python experience.
+- Experience designing REST APIs and working with relational databases.
+- Evidence of owning production delivery or operations.
+
+Preferred qualifications
+- Docker or Kubernetes experience.
+- Experience with a major cloud provider.
+- Demonstrated performance or reliability improvements with measurable results.
+
+Screening safeguards
+- Evaluate only job-related evidence contained in the resume.
+- Do not use protected characteristics or proxy attributes.
+- Missing information must be treated as unknown rather than assumed negative.

@@ -1,0 +1,16 @@
+{
+  "listing_id": "019fdb67-2092-75e7-88b9-dd2590f81bd5",
+  "listing_version_id": "019fdb67-2092-75de-9d9e-2b8f743c82f0",
+  "review_request_id": "019fdb67-2096-7064-9452-406ada090e01",
+  "display_name": "Recruitment Specialist - Batch Resume Screening",
+  "template_id": "76c4b6e6-de49-4bda-9755-9ea55eac9fa9",
+  "template_version_id": "a5bdf34a-335b-4f52-90ad-055417e1485e",
+  "creator_task_fixed_fee": {
+    "amount": "0.0100000",
+    "currency": "CNY"
+  },
+  "review_status": "pending_review",
+  "market_status": "unlisted_pending_review",
+  "submitted_at": "2026-08-07",
+  "note": "The SkillBot cannot be publicly executed until Loomloom approves the listing. Model/API cost is charged separately from the creator fixed fee."
+}
