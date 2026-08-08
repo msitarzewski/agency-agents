@@ -115,7 +115,45 @@ def cluster_anomalies(suspect_rows: list[str]) -> chromadb.Collection:
 
 ### Step 3 — Air-Gapped SLM Fix Generation
 ```python
+import ast
 import ollama, json
+
+ALLOWED_NODES = (
+    ast.Expression, ast.Lambda, ast.arguments, ast.arg,
+    ast.BinOp, ast.UnaryOp, ast.Compare, ast.BoolOp,
+    ast.Call, ast.Name, ast.Load, ast.Constant, ast.Attribute,
+    ast.Subscript, ast.Slice, ast.IfExp,
+    ast.Add, ast.Sub, ast.Mult, ast.Div, ast.Mod,
+    ast.Eq, ast.NotEq, ast.Lt, ast.Gt, ast.LtE, ast.GtE, ast.Is, ast.IsNot, ast.In, ast.NotIn,
+    ast.And, ast.Or, ast.Not, ast.USub, ast.UAdd,
+    ast.List, ast.Tuple,
+)
+ALLOWED_CALL_NAMES = {'abs', 'min', 'max', 'round', 'len', 'str', 'int', 'float', 'bool'}
+
+def validate_transformation(expr: str) -> ast.AST:
+    """Parse `expr` as a single lambda expression and reject anything whose AST
+    contains a node type outside ALLOWED_NODES, a dunder/private name or attribute
+    access (`__class__`, `__builtins__`, `.__subclasses__`, ...  the standard
+    Python sandbox-escape gadget chain runs entirely through dunder attributes), or
+    a Call whose target is not a plain name in ALLOWED_CALL_NAMES or a non-dunder
+    attribute access (permits `.strip()`, `.lower()`, `.replace()` — the
+    string-cleanup methods this generator's own use cases need)."""
+    if not expr.startswith('lambda'):
+        raise ValueError("Rejected: output must be a lambda function")
+    tree = ast.parse(expr, mode='eval')
+    for node in ast.walk(tree):
+        if not isinstance(node, ALLOWED_NODES):
+            raise ValueError(f"Rejected: disallowed AST node {type(node).__name__}")
+        if isinstance(node, ast.Attribute) and node.attr.startswith('_'):
+            raise ValueError(f"Rejected: dunder/private attribute access .{node.attr}")
+        if isinstance(node, ast.Name) and node.id.startswith('_'):
+            raise ValueError(f"Rejected: dunder/private name {node.id}")
+        if isinstance(node, ast.Call):
+            if isinstance(node.func, ast.Name) and node.func.id not in ALLOWED_CALL_NAMES:
+                raise ValueError(f"Rejected: call to non-allowlisted function {node.func.id}")
+            elif not isinstance(node.func, (ast.Name, ast.Attribute)):
+                raise ValueError("Rejected: call to a non-Name, non-Attribute target")
+    return tree
 
 SYSTEM_PROMPT = """You are a data transformation assistant.
 Respond ONLY with this exact JSON structure:
@@ -137,19 +175,67 @@ def generate_fix_logic(sample_rows: list[str], column_name: str) -> dict:
     )
     result = json.loads(response['message']['content'])
 
-    # Safety gate — reject anything that isn't a simple lambda
-    forbidden = ['import', 'exec', 'eval', 'os.', 'subprocess']
-    if not result['transformation'].startswith('lambda'):
-        raise ValueError("Rejected: output must be a lambda function")
-    if any(term in result['transformation'] for term in forbidden):
-        raise ValueError("Rejected: forbidden term in lambda")
+    # Safety gate — AST-based allowlist, not a substring deny-list. A substring
+    # check (e.g. rejecting the literal text "exec") is bypassable by string
+    # concatenation (`'ex' + 'ec'`), alternate name resolution (`getattr(
+    # __builtins__, 'exec')`), or non-ASCII lookalike identifiers — parsing the
+    # expression and walking its AST closes those classes structurally, rather
+    # than by pattern-matching the source text.
+    validate_transformation(result['transformation'])
 
     return result
 ```
 
 ### Step 4 — Cluster-Wide Vectorized Execution
 ```python
+import ast
 import pandas as pd
+
+ALLOWED_NODES = (
+    ast.Expression, ast.Lambda, ast.arguments, ast.arg,
+    ast.BinOp, ast.UnaryOp, ast.Compare, ast.BoolOp,
+    ast.Call, ast.Name, ast.Load, ast.Constant, ast.Attribute,
+    ast.Subscript, ast.Slice, ast.IfExp,
+    ast.Add, ast.Sub, ast.Mult, ast.Div, ast.Mod,
+    ast.Eq, ast.NotEq, ast.Lt, ast.Gt, ast.LtE, ast.GtE, ast.Is, ast.IsNot, ast.In, ast.NotIn,
+    ast.And, ast.Or, ast.Not, ast.USub, ast.UAdd,
+    ast.List, ast.Tuple,
+)
+ALLOWED_CALL_NAMES = {'abs', 'min', 'max', 'round', 'len', 'str', 'int', 'float', 'bool'}
+
+def validate_transformation(expr: str) -> ast.AST:
+    """Parse `expr` as a single lambda expression and reject anything whose AST
+    contains a node type outside ALLOWED_NODES, a dunder/private name or attribute
+    access (`__class__`, `__builtins__`, `.__subclasses__`, ...  the standard
+    Python sandbox-escape gadget chain runs entirely through dunder attributes), or
+    a Call whose target is not a plain name in ALLOWED_CALL_NAMES or a non-dunder
+    attribute access (permits `.strip()`, `.lower()`, `.replace()` — the
+    string-cleanup methods this generator's own use cases need)."""
+    if not expr.startswith('lambda'):
+        raise ValueError("Rejected: output must be a lambda function")
+    tree = ast.parse(expr, mode='eval')
+    for node in ast.walk(tree):
+        if not isinstance(node, ALLOWED_NODES):
+            raise ValueError(f"Rejected: disallowed AST node {type(node).__name__}")
+        if isinstance(node, ast.Attribute) and node.attr.startswith('_'):
+            raise ValueError(f"Rejected: dunder/private attribute access .{node.attr}")
+        if isinstance(node, ast.Name) and node.id.startswith('_'):
+            raise ValueError(f"Rejected: dunder/private name {node.id}")
+        if isinstance(node, ast.Call):
+            if isinstance(node.func, ast.Name) and node.func.id not in ALLOWED_CALL_NAMES:
+                raise ValueError(f"Rejected: call to non-allowlisted function {node.func.id}")
+            elif not isinstance(node.func, (ast.Name, ast.Attribute)):
+                raise ValueError("Rejected: call to a non-Name, non-Attribute target")
+    return tree
+
+def safe_lambda(expr: str):
+    """Validate `expr` (see validate_transformation) and return the compiled,
+    callable lambda — the only path this step uses to turn a generated
+    transformation string into a callable. Re-validates independently rather
+    than trusting that Step 3 already did — this step may run on a different
+    host, and `fix` arrives here as an external dict either way."""
+    tree = validate_transformation(expr)
+    return eval(compile(tree, '<safe_lambda>', 'eval'))  # tree is AST-validated above, not raw source
 
 def apply_fix_to_cluster(df: pd.DataFrame, column: str, fix: dict) -> pd.DataFrame:
     """Apply AI-generated lambda across entire cluster — vectorized, not looped."""
@@ -159,7 +245,7 @@ def apply_fix_to_cluster(df: pd.DataFrame, column: str, fix: dict) -> pd.DataFra
         df['quarantine_reason'] = f"Low confidence: {fix['confidence_score']}"
         return df
 
-    transform_fn = eval(fix['transformation'])  # safe — evaluated only after strict validation gate (lambda-only, no imports/exec/os)
+    transform_fn = safe_lambda(fix['transformation'])  # AST-validated at the point of execution, not trusted from an upstream caller
     df[column] = df[column].map(transform_fn)
     df['validation_status'] = 'AI_FIXED'
     df['ai_reasoning'] = fix['reasoning']
