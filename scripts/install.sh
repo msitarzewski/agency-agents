@@ -1177,7 +1177,7 @@ main() {
 
   # Parallel workers receive the parent's selection state through a NUL-delimited
   # file. Append those values as real argv entries before normal option parsing.
-  if [[ -n "${AGENCY_INSTALL_WORKER_STATE:-}" ]]; then
+  if [[ "${AGENCY_INSTALL_WORKER:-}" == "1" && -n "${AGENCY_INSTALL_WORKER_STATE:-}" ]]; then
     [[ -f "$AGENCY_INSTALL_WORKER_STATE" ]] || {
       err "Parallel worker state not found: $AGENCY_INSTALL_WORKER_STATE"
       exit 1
