@@ -23,6 +23,7 @@ AGENT_DIRS=(
   paid-media
   product
   project-management
+  research
   sales
   security
   spatial-computing
