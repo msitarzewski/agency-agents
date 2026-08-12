@@ -30,6 +30,7 @@ VERBOSE=false
 
 passed=0
 failed=0
+xfailed=0
 SANDBOX_ROOT="$(mktemp -d "${TMPDIR:-/tmp}/agency-install-tests.XXXXXX")"
 trap 'rm -rf "$SANDBOX_ROOT"' EXIT
 
@@ -43,6 +44,21 @@ fail() {
 # assert_eq <expected> <actual> <label>
 assert_eq() {
   if [[ "$1" == "$2" ]]; then pass "$3"; else fail "$3" "expected '$1', got '$2'"; fi
+}
+
+# xfail_eq <expected> <actual> <label> <tracking> — a case that is known to fail
+# until a specific fix lands. It never turns the suite red: a mismatch is the
+# documented status quo today, and a match means the fix landed and the case
+# should be promoted to a plain assert_eq (one-word edit).
+xfail_eq() {
+  if [[ "$1" == "$2" ]]; then
+    pass "$3"
+    printf '       ^ %s appears to have landed — promote this case to assert_eq\n' "$4"
+  else
+    printf '  xfail %s\n' "$3"
+    printf '       expected '\''%s'\'', got '\''%s'\'' — fixed by %s\n' "$1" "$2" "$4"
+    xfailed=$((xfailed + 1))
+  fi
 }
 
 # sandbox <name> — fresh HOME for one case; echoes its path.
@@ -184,6 +200,48 @@ assert_eq 0 "$(find "$home" -maxdepth 1 -name 'My' -o -maxdepth 1 -name 'Agents'
   "a spaced path is not split into separate directories"
 
 # ---------------------------------------------------------------------------
+# 4b. Parallel workers get their arguments intact (PR #755)
+#
+# --parallel hands the parent's selection state to child workers. On main that
+# happens through a command-shaped string expanded unquoted, so a --path or
+# --agents-file containing whitespace or glob characters is word-split and
+# pathname-expanded on the way in. The install then writes nothing while still
+# reporting "Done! Installed 2 tool(s)" and exiting 0 — a silent miss, which is
+# why the exit-status assertion below cannot catch it on its own and the file
+# count is what actually pins the regression.
+#
+# Two tools are required: a single tool stays on the serial path and never
+# reaches the worker spawn.
+#
+# --jobs 1 is deliberate. Workers are still spawned through the same xargs/sh
+# hand-off, so argument propagation — the thing under test — is exercised in
+# full; serializing them just keeps a second, unrelated defect out of this case.
+# With two workers running concurrently against one shared --path, the parent
+# exits non-zero on roughly 3 runs in 5 (measured on macOS, bash 3.2) once the
+# workers actually copy anything. That race is invisible on main only because
+# the workers currently install nothing at all. See the PR discussion.
+# ---------------------------------------------------------------------------
+echo ""
+echo "parallel workers"
+
+home="$(sandbox parallel-serial-control)"
+dest="$home/My [Agents]/dest dir"
+list="$home/my agents list.txt"
+{ echo "# same selection as the parallel case below"; echo "$FIRST_ENG_SLUG"; } > "$list"
+run_install "$home" --tool claude-code,copilot --no-convert --agents-file "$list" --path "$dest"
+assert_eq 0 "$RUN_STATUS" "serial control: two tools, spaced/globbed --path, exits 0"
+assert_eq 1 "$(count_md "$dest")" "serial control: installs exactly the one selected agent"
+
+home="$(sandbox parallel)"
+dest="$home/My [Agents]/dest dir"
+list="$home/my agents list.txt"
+{ echo "# one agent, listed in a file whose own path has spaces"; echo "$FIRST_ENG_SLUG"; } > "$list"
+run_install "$home" --tool claude-code,copilot --parallel --jobs 1 --no-convert --agents-file "$list" --path "$dest"
+assert_eq 0 "$RUN_STATUS" "--parallel with a spaced/globbed --path exits 0"
+xfail_eq 1 "$(count_md "$dest")" \
+  "--parallel installs exactly the one selected agent (spaced --path + --agents-file)" "PR #755"
+
+# ---------------------------------------------------------------------------
 # 5. Selection filters
 # ---------------------------------------------------------------------------
 echo ""
@@ -232,7 +290,11 @@ assert_eq "$first" "$(count_md "$dest")" "re-running installs the same set, not 
 
 # ---------------------------------------------------------------------------
 echo ""
-echo "Results: $passed passed, $failed failed."
+if [[ $xfailed -gt 0 ]]; then
+  echo "Results: $passed passed, $failed failed, $xfailed known-broken (xfail)."
+else
+  echo "Results: $passed passed, $failed failed."
+fi
 if [[ $failed -gt 0 ]]; then
   echo "FAILED"
   exit 1
