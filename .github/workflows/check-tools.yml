@@ -21,3 +21,6 @@ jobs:
 
       - name: Validate generated Hermes plugin
         run: python3 scripts/check-hermes-plugin.py
+
+      - name: Validate converted YAML frontmatter
+        run: bash scripts/test-convert-frontmatter.sh
