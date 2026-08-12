@@ -4,6 +4,7 @@
 #   1. YAML frontmatter must exist with name, description, color (ERROR)
 #   2. Recommended sections checked but only warned (WARN)
 #   3. File must have meaningful content
+#   4. Shell code fences must name a canonical shell — bash or powershell (WARN)
 #
 # Usage: ./scripts/lint-agents.sh [file ...]
 #   If no files given, scans all agent directories.
@@ -119,6 +120,19 @@ lint_file() {
     echo "WARN  $file: body seems very short (< 50 words)"
     warnings=$((warnings + 1))
   fi
+
+  # 5. Shell code fences must name a canonical shell. A fence tag only ever
+  #    appears on an OPENING fence (closers are a bare ```), so a plain grep is
+  #    enough here — no fence-state tracking. Canonical tags are `bash` (POSIX
+  #    shell: macOS/Linux/WSL/Git Bash) and `powershell` (Windows); ambiguous
+  #    aliases hide which shell a block is for. See CONTRIBUTING.md.
+  local bad_fence
+  while IFS= read -r bad_fence; do
+    [[ -n "$bad_fence" ]] || continue
+    echo "WARN  $file: ambiguous shell fence '\`\`\`${bad_fence}' — use \`\`\`bash (POSIX shell) or \`\`\`powershell (Windows); see CONTRIBUTING.md"
+    warnings=$((warnings + 1))
+  done < <(grep -oiE '^```(sh|shell|zsh|console|terminal|shell-session|cmd|bat|batch|dos|ps|ps1|pwsh)[[:space:]]*$' <<<"$body" \
+             | sed -e 's/^```//' -e 's/[[:space:]]*$//' | tr '[:upper:]' '[:lower:]' | sort -u)
 
   local soul_headers=0
   local agents_headers=0
