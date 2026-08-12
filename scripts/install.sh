@@ -1222,7 +1222,15 @@ main() {
       local valid=false _vt
       for _vt in "${ALL_TOOLS[@]}"; do [[ "$_vt" == "$_t" ]] && valid=true && break; done
       $valid || { err "Unknown tool '$_t'. Valid: ${ALL_TOOLS[*]}"; exit 1; }
-      _cleaned+=("$_t")
+      # A repeated --tool value would otherwise launch duplicate workers in
+      # --parallel mode and make the reported install count misleading.
+      local duplicate=false _selected
+      if [[ ${#_cleaned[@]} -gt 0 ]]; then
+        for _selected in "${_cleaned[@]}"; do
+          [[ "$_selected" == "$_t" ]] && { duplicate=true; break; }
+        done
+      fi
+      $duplicate || _cleaned+=("$_t")
     done
     _tool_list=("${_cleaned[@]}")
   fi
