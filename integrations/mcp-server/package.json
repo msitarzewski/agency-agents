@@ -1,0 +1,35 @@
+{
+  "name": "@agency-agents/mcp-server",
+  "version": "1.0.0",
+  "description": "Official Model Context Protocol (MCP) Server for dynamic discovery and loading of Agency Agents",
+  "main": "dist/index.js",
+  "type": "module",
+  "bin": {
+    "agency-agents-mcp": "./dist/index.js"
+  },
+  "scripts": {
+    "build": "tsc",
+    "start": "node dist/index.js",
+    "dev": "tsc --watch"
+  },
+  "keywords": [
+    "mcp",
+    "model-context-protocol",
+    "ai-agents",
+    "agency-agents",
+    "claude",
+    "cursor"
+  ],
+  "author": "The Agency",
+  "license": "MIT",
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.1.0",
+    "js-yaml": "^4.1.0",
+    "zod": "^3.22.4"
+  },
+  "devDependencies": {
+    "@types/js-yaml": "^4.0.9",
+    "@types/node": "^20.11.0",
+    "typescript": "^5.3.3"
+  }
+}
