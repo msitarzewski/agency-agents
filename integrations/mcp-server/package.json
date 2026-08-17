@@ -5,20 +5,36 @@
   "main": "dist/index.js",
   "type": "module",
   "bin": {
-    "agency-agents-mcp": "./dist/index.js"
+    "agency-agents-mcp": "./dist/index.js",
+    "@agency-agents/mcp-server": "./dist/index.js"
   },
+  "files": [
+    "dist",
+    "README.md"
+  ],
   "scripts": {
     "build": "tsc",
+    "prepack": "npm run build",
     "start": "node dist/index.js",
     "dev": "tsc --watch"
   },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/msitarzewski/agency-agents.git",
+    "directory": "integrations/mcp-server"
+  },
+  "bugs": {
+    "url": "https://github.com/msitarzewski/agency-agents/issues"
+  },
+  "homepage": "https://github.com/msitarzewski/agency-agents#readme",
   "keywords": [
     "mcp",
     "model-context-protocol",
     "ai-agents",
     "agency-agents",
     "claude",
-    "cursor"
+    "cursor",
+    "zed"
   ],
   "author": "The Agency",
   "license": "MIT",
