@@ -25,6 +25,8 @@ jobs:
   lint:
     name: Validate agent frontmatter and structure
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
     steps:
       - uses: actions/checkout@v4
         with:

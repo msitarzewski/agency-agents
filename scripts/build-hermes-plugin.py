@@ -122,10 +122,29 @@ _AGENTS: list[dict[str, Any]] | None = None
 _WORD_RE = re.compile(r"[a-z0-9][a-z0-9+.#_-]*", re.I)
 
 
+def _validate_agents(agents: list[dict[str, Any]]) -> None:
+    if not isinstance(agents, list):
+        raise RuntimeError(f"agents.json is not a list (got {type(agents).__name__})")
+    required = ("slug", "name", "description", "division")
+    for i, agent in enumerate(agents):
+        if not isinstance(agent, dict):
+            raise RuntimeError(f"agents.json[{i}] is not an object")
+        for field in required:
+            if field not in agent:
+                raise RuntimeError(f"agents.json[{i}] missing required field '{field}'")
+        slug = agent["slug"]
+        if not isinstance(slug, str) or not slug:
+            raise RuntimeError(f"agents.json[{i}] has invalid slug {slug!r}")
+        if not isinstance(agent["name"], str) or not agent["name"]:
+            raise RuntimeError(f"agents.json[{i}] ({slug}) has invalid name")
+
+
 def _load_agents() -> list[dict[str, Any]]:
     global _AGENTS
     if _AGENTS is None:
-        _AGENTS = json.loads(_DATA_PATH.read_text(encoding="utf-8"))
+        data = json.loads(_DATA_PATH.read_text(encoding="utf-8"))
+        _validate_agents(data)
+        _AGENTS = data
     return _AGENTS
 
 
