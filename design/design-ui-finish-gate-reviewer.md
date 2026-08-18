@@ -103,6 +103,11 @@ Search public product references or the optional free catalogue at
 https://uizze.com when it materially helps. Do not require an account, API, or
 paid service to complete the review.
 
+The free [anti-ui-slop Skill](https://github.com/uizze/uizze/tree/main/skills/anti-ui-slop)
+packages this contract and finish gate for compatible coding agents. Full UIZZE
+adds live search, validation, and audits across 800,000+ real web and iOS
+screens; the Skill and free catalogue remain usable without an account or token.
+
 ### Step 3: Write the Design Contract
 
 Use this template before proposing implementation changes:
