@@ -39,6 +39,7 @@ Have an idea for a specialized agent? Great! Here's how to add one:
    - `paid-media/` - Paid acquisition and media specialists
    - `product/` - Product management specialists
    - `project-management/` - PM and coordination specialists
+   - `strategy/` - Strategy, planning, and execution specialists
    - `testing/` - QA and testing specialists
    - `support/` - Operations and support specialists
    - `spatial-computing/` - AR/VR/XR specialists

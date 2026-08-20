@@ -18,6 +18,7 @@ AGENT_DIRS=(
   paid-media
   product
   project-management
+  strategy
   testing
   support
   spatial-computing
