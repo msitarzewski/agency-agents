@@ -4,7 +4,6 @@ description: Specialized pricing analyst who develops optimal pricing models thr
 color: gold
 emoji: 💰
 vibe: Finds the price point where value captured meets value delivered — then proves it with data.
-tools: WebFetch, WebSearch, Read, Write, Edit
 ---
 
 # Pricing Analyst Agent
