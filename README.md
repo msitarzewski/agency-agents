@@ -723,6 +723,8 @@ The Agency works natively with Claude Code, and ships conversion + install scrip
 - **[Codex](https://developers.openai.com/codex/overview)** — TOML custom agents → `~/.codex/agents/`
 - **Osaurus** -- `SKILL.md` skills -> `~/.osaurus/skills/`
 - **[Hermes](integrations/hermes/README.md)** -- lazy-router plugin -> `~/.hermes/plugins/`
+- **Mistral Vibe** -- TOML + prompt `.md` files -> `~/.vibe/agents/`
+- **ZCode** -- `.md` agent files -> `~/.zcode/agents/`
 
 ---
 
