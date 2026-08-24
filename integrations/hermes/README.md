@@ -24,7 +24,7 @@ its name, description, and JSON `parameters`. The available arguments are:
 | `agency_agents_search` | `query` (required), optional `division` and `limit` |
 | `agency_agents_inspect` | `agent` or `slug`, optional `include_body` |
 | `agency_agents_load` | `agent` or `slug`, optional `task` |
-| `agency_agents_delegate` | `agent` or `slug`, `task` (required), optional `toolsets` |
+| `agency_agents_delegate` | `agent` or `slug`, `task` (required) |
 
 A normal flow is: search by capability, take a returned `slug`, then inspect,
 load, or delegate to that specialist. You can ask Hermes to do this in natural
