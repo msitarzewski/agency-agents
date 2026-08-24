@@ -14,7 +14,7 @@ Generated agent count: 270
 - `agency_agents_search` — find matching specialists by query/division.
 - `agency_agents_inspect` — inspect one specialist's metadata or full body.
 - `agency_agents_load` — compose one specialist prompt for the current task.
-- `agency_agents_delegate` — delegate through Hermes `delegate_task` when available.
+- `agency_agents_delegate` — delegate through Hermes' public subagent lifecycle.
 
 Each tool is registered with Hermes' complete function-tool schema, including
 its name, description, and JSON `parameters`. The available arguments are:
