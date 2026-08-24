@@ -276,8 +276,8 @@ PROMPT_SCHEMA = {
 
 DELEGATE_DESCRIPTION = (
     "Delegate a task to one selected Agency specialist through Hermes' "
-    "delegate_task tool when available. Falls back to returning the composed "
-    "specialist prompt if delegation is unavailable."
+    "public subagent lifecycle. Falls back to returning the composed specialist "
+    "prompt if delegation is unavailable."
 )
 DELEGATE_SCHEMA = {
     "name": "agency_agents_delegate",
@@ -360,22 +360,50 @@ def register(ctx):
         if not task:
             return _json({"success": False, "error": "task is required"})
         composed = _specialist_prompt(agent, task)
-        delegate_args: dict[str, Any] = {
-            "goal": task,
-            "context": composed,
-        }
         toolsets = args.get("toolsets")
-        if isinstance(toolsets, list) and toolsets:
-            delegate_args["toolsets"] = [str(item) for item in toolsets]
+        allowed_toolsets = (
+            tuple(str(item) for item in toolsets)
+            if isinstance(toolsets, list) and toolsets
+            else None
+        )
         try:
-            result = ctx.dispatch_tool("delegate_task", delegate_args)
-            return _json({"success": True, "agent": _summary(agent), "delegated": True, "result": result})
+            from agent.subagent_lifecycle import SubagentLaunchRequest
+
+            lifecycle = ctx.subagent_lifecycle
+            handle = lifecycle.launch(SubagentLaunchRequest(
+                goal=task,
+                context=composed,
+                allowed_toolsets=allowed_toolsets,
+            ))
+            lifecycle.wait(handle)
+            result = lifecycle.result(handle)
+            if not result.ready or result.terminal_state.value != "SUCCEEDED":
+                detail = (
+                    result.error_message
+                    or result.error_classification
+                    or result.terminal_state.value
+                )
+                return _json({
+                    "success": True,
+                    "agent": _summary(agent),
+                    "delegated": False,
+                    "warning": f"subagent delegation failed: {detail}",
+                    "prompt": composed,
+                })
+            return _json({
+                "success": True,
+                "agent": _summary(agent),
+                "delegated": True,
+                "subagent_id": handle.subagent_id,
+                "result": result.summary,
+                "structured_result": result.structured_payload,
+            })
         except Exception as exc:  # pragma: no cover - depends on Hermes runtime
             return _json({
                 "success": True,
                 "agent": _summary(agent),
                 "delegated": False,
-                "warning": f"delegate_task unavailable: {exc}",
+                "warning": f"subagent delegation unavailable: {exc}",
                 "prompt": composed,
             })
 
@@ -429,7 +457,7 @@ def readme(agent_count: int) -> str:
         - `agency_agents_search` — find matching specialists by query/division.
         - `agency_agents_inspect` — inspect one specialist's metadata or full body.
         - `agency_agents_load` — compose one specialist prompt for the current task.
-        - `agency_agents_delegate` — delegate through Hermes `delegate_task` when available.
+        - `agency_agents_delegate` — delegate through Hermes' public subagent lifecycle.
 
         Each tool is registered with Hermes' complete function-tool schema, including
         its name, description, and JSON `parameters`. The available arguments are:
