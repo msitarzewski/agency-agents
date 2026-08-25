@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Reports · Tally Web App</title>
+  <link rel="icon" href="assets/icons/favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="assets/vendor/fontawesome/css/all.min.css">
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="css/forms.css">
+</head>
+<body>
+  <div class="bg-mesh"></div>
+
+  <div class="app-shell">
+    <aside class="sidebar" id="sidebar">
+      <div class="brand">
+        <div class="brand-logo"><i class="fa-solid fa-indian-rupee-sign"></i></div>
+        <div><div class="brand-name">Tally Web</div><div class="brand-sub">ACCOUNTING SUITE</div></div>
+      </div>
+      <div class="nav-label">Overview</div>
+      <a class="nav-item" href="index.html"><i class="fa-solid fa-gauge-high"></i> Dashboard</a>
+      <div class="nav-label">Transactions</div>
+      <a class="nav-item" href="voucher-entry.html"><i class="fa-solid fa-file-invoice-dollar"></i> Voucher Entry</a>
+      <a class="nav-item" href="ledger-master.html"><i class="fa-solid fa-address-book"></i> Ledger Master</a>
+      <div class="nav-label">Insights</div>
+      <a class="nav-item active" href="reports.html"><i class="fa-solid fa-chart-pie"></i> Reports</a>
+      <a class="nav-item" href="settings.html"><i class="fa-solid fa-sliders"></i> Settings</a>
+      <div class="side-sync">
+        <div class="company" id="sideCompany">—</div>
+        <div class="fy" id="sideFy">—</div>
+        <div class="row" style="margin-top:8px">
+          <span class="sync-dot red" id="sideSyncDot"></span><span id="sideSyncText">Connecting…</span>
+        </div>
+        <div class="last-sync" id="sideLastSync">Last sync: —</div>
+      </div>
+    </aside>
+    <div class="sidebar-backdrop" id="sidebarBackdrop"></div>
+
+    <div class="main">
+      <header class="topbar">
+        <button class="hamburger" id="hamburger"><i class="fa-solid fa-bars"></i></button>
+        <div class="topbar-title">
+          <h1>Financial Reports</h1>
+          <span class="crumb">Live from Tally · print, PDF &amp; Excel ready</span>
+        </div>
+        <div class="topbar-actions">
+          <div class="global-search">
+            <i class="fa-solid fa-magnifying-glass"></i>
+            <input type="text" id="globalSearch" placeholder="Search ledgers, vouchers…" autocomplete="off">
+            <kbd>Ctrl K</kbd>
+          </div>
+          <button class="icon-btn" id="manualSyncBtn" title="Sync now"><i class="fa-solid fa-rotate"></i></button>
+          <button class="icon-btn" id="themeToggle" title="Toggle dark mode"><i class="fa-solid fa-moon"></i></button>
+          <div class="sync-badge" id="syncBadge">
+            <span class="sync-dot red" id="syncDot"></span><span id="syncText">Connecting…</span>
+            <span class="badge badge-muted" id="queueBadge" style="display:none">0 queued</span>
+          </div>
+        </div>
+      </header>
+
+      <main class="page">
+        <div class="reports-layout">
+          <!-- ---------------- report nav ---------------- -->
+          <nav class="report-nav card" style="padding:12px">
+            <button class="report-nav-btn active" data-report="trial-balance"><i class="fa-solid fa-scale-balanced"></i> Trial Balance</button>
+            <button class="report-nav-btn" data-report="profit-loss"><i class="fa-solid fa-chart-line"></i> Profit &amp; Loss</button>
+            <button class="report-nav-btn" data-report="balance-sheet"><i class="fa-solid fa-table-columns"></i> Balance Sheet</button>
+            <button class="report-nav-btn" data-report="daybook"><i class="fa-solid fa-book-open"></i> Day Book</button>
+            <button class="report-nav-btn" data-report="ledger"><i class="fa-solid fa-file-lines"></i> Ledger Report</button>
+            <button class="report-nav-btn" data-report="outstanding"><i class="fa-solid fa-hourglass-half"></i> Outstanding</button>
+            <button class="report-nav-btn" data-report="gst"><i class="fa-solid fa-percent"></i> GST Reports</button>
+          </nav>
+
+          <!-- ---------------- report body ---------------- -->
+          <div class="card">
+            <div class="filter-bar no-print">
+              <div class="field" id="ledgerPickerField" style="display:none;min-width:220px">
+                <label>Ledger</label>
+                <div class="searchable" data-searchable>
+                  <input class="input" id="reportLedger" placeholder="Pick a ledger…" autocomplete="off">
+                  <i class="fa-solid fa-chevron-down chev"></i><div class="dd"></div>
+                </div>
+              </div>
+              <div class="field"><label>From</label><input class="input" type="date" id="reportFrom"></div>
+              <div class="field"><label>To</label><input class="input" type="date" id="reportTo"></div>
+              <div class="field" id="gstKindField" style="display:none"><label>Return</label>
+                <select class="select" id="gstKind"><option value="gstr1">GSTR-1 (Outward)</option><option value="gstr3b">GSTR-3B Summary</option></select></div>
+              <button class="btn btn-accent" id="reportRun"><i class="fa-solid fa-play"></i> Run</button>
+              <div class="end" style="margin-left:auto;display:flex;gap:8px">
+                <button class="btn btn-ghost btn-sm" id="reportPdf"><i class="fa-solid fa-file-pdf"></i> PDF</button>
+                <button class="btn btn-ghost btn-sm" id="reportExcel"><i class="fa-solid fa-file-excel"></i> Excel</button>
+                <button class="btn btn-ghost btn-sm" id="reportPrint"><i class="fa-solid fa-print"></i> Print</button>
+              </div>
+            </div>
+
+            <div id="reportBody">
+              <div class="empty-state"><i class="fa-solid fa-chart-pie"></i>Select a report and press <b>Run</b></div>
+            </div>
+          </div>
+        </div>
+
+        <footer class="page-foot">Report data pulls through ODBC when available (faster), else the Tally XML API</footer>
+      </main>
+    </div>
+  </div>
+
+  <div class="toast-host" id="toastHost"></div>
+
+  <script src="assets/vendor/socket.io/socket.io.min.js"></script>
+  <script src="assets/vendor/sweetalert2/sweetalert2.all.min.js"></script>
+  <script src="assets/vendor/toastify/toastify.js"></script>
+  <script src="assets/vendor/html2pdf/html2pdf.bundle.min.js"></script>
+  <script src="assets/vendor/xlsx/xlsx.full.min.js"></script>
+  <script src="js/app.js"></script>
+  <script src="js/tallySync.js"></script>
+  <script src="js/reports.js"></script>
+</body>
+</html>

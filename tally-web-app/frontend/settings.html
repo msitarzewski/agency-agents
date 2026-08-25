@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Settings · Tally Web App</title>
+  <link rel="icon" href="assets/icons/favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="assets/vendor/fontawesome/css/all.min.css">
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="css/forms.css">
+</head>
+<body>
+  <div class="bg-mesh"></div>
+
+  <div class="app-shell">
+    <aside class="sidebar" id="sidebar">
+      <div class="brand">
+        <div class="brand-logo"><i class="fa-solid fa-indian-rupee-sign"></i></div>
+        <div><div class="brand-name">Tally Web</div><div class="brand-sub">ACCOUNTING SUITE</div></div>
+      </div>
+      <div class="nav-label">Overview</div>
+      <a class="nav-item" href="index.html"><i class="fa-solid fa-gauge-high"></i> Dashboard</a>
+      <div class="nav-label">Transactions</div>
+      <a class="nav-item" href="voucher-entry.html"><i class="fa-solid fa-file-invoice-dollar"></i> Voucher Entry</a>
+      <a class="nav-item" href="ledger-master.html"><i class="fa-solid fa-address-book"></i> Ledger Master</a>
+      <div class="nav-label">Insights</div>
+      <a class="nav-item" href="reports.html"><i class="fa-solid fa-chart-pie"></i> Reports</a>
+      <a class="nav-item active" href="settings.html"><i class="fa-solid fa-sliders"></i> Settings</a>
+      <div class="side-sync">
+        <div class="company" id="sideCompany">—</div>
+        <div class="fy" id="sideFy">—</div>
+        <div class="row" style="margin-top:8px">
+          <span class="sync-dot red" id="sideSyncDot"></span><span id="sideSyncText">Connecting…</span>
+        </div>
+        <div class="last-sync" id="sideLastSync">Last sync: —</div>
+      </div>
+    </aside>
+    <div class="sidebar-backdrop" id="sidebarBackdrop"></div>
+
+    <div class="main">
+      <header class="topbar">
+        <button class="hamburger" id="hamburger"><i class="fa-solid fa-bars"></i></button>
+        <div class="topbar-title">
+          <h1>Settings</h1>
+          <span class="crumb">Connection, sync &amp; preferences — applied instantly</span>
+        </div>
+        <div class="topbar-actions">
+          <button class="icon-btn" id="manualSyncBtn" title="Sync now"><i class="fa-solid fa-rotate"></i></button>
+          <button class="icon-btn" id="themeToggle" title="Toggle dark mode"><i class="fa-solid fa-moon"></i></button>
+          <div class="sync-badge" id="syncBadge">
+            <span class="sync-dot red" id="syncDot"></span><span id="syncText">Connecting…</span>
+            <span class="badge badge-muted" id="queueBadge" style="display:none">0 queued</span>
+          </div>
+        </div>
+      </header>
+
+      <main class="page" style="max-width:900px">
+        <!-- connection -->
+        <section class="card">
+          <div class="card-head"><h3><i class="fa-solid fa-plug" style="color:var(--accent)"></i> Tally Connection</h3>
+            <div class="end"><button class="btn btn-accent btn-sm" id="testConnBtn"><i class="fa-solid fa-tower-broadcast"></i> Test Connection</button></div>
+          </div>
+          <div class="form-grid">
+            <div class="field"><label>Tally Server IP / Host</label><input class="input" id="set-tallyHost" placeholder="localhost or 192.168.1.50"></div>
+            <div class="field"><label>XML API Port</label><input class="input" id="set-tallyPort" type="number" placeholder="9000"><span class="hint">F12 → Advanced Configuration in Tally</span></div>
+            <div class="field span-2"><label>Company Name <span class="hint">(blank = the open company in Tally)</span></label>
+              <input class="input" id="set-companyName" placeholder="Exactly as shown in Tally's Select Company"></div>
+            <div class="field span-2"><label>Data Mode</label>
+              <select class="select" id="set-demoMode">
+                <option value="auto">Auto — try Tally, fall back to demo data when offline</option>
+                <option value="never">Tally only — queue writes when Tally is down</option>
+                <option value="always">Demo only — never touch Tally</option>
+              </select><span class="hint">Auto keeps the UI usable &amp; queues entries for later push</span></div>
+          </div>
+          <div id="connResult" style="margin-top:14px"></div>
+        </section>
+
+        <!-- sync -->
+        <section class="card">
+          <div class="card-head"><h3><i class="fa-solid fa-satellite-dish" style="color:var(--accent)"></i> Sync Engine</h3></div>
+          <div class="form-grid">
+            <div class="field"><label>Poll Interval (seconds)</label><input class="input" id="set-syncIntervalSec" type="number" min="2" max="300"></div>
+            <div class="field"><label>ODBC Reads</label>
+              <select class="select" id="set-odbcEnabled"><option value="true">Enabled (faster reports)</option><option value="false">Disabled (XML only)</option></select></div>
+            <div class="field span-2"><label>ODBC DSN Name</label><input class="input" id="set-odbcDsn" placeholder="Tally ODBC 64-bit"></div>
+          </div>
+        </section>
+
+        <!-- preferences -->
+        <section class="card">
+          <div class="card-head"><h3><i class="fa-solid fa-wand-magic-sparkles" style="color:var(--accent)"></i> Preferences</h3></div>
+          <div class="form-grid">
+            <div class="field"><label>Theme</label>
+              <select class="select" id="set-theme"><option value="light">Light</option><option value="dark">Dark</option></select></div>
+            <div class="field"><label>Default Print Size</label>
+              <select class="select" id="set-defaultPrint"><option>A4</option><option>Thermal80</option></select></div>
+            <div class="field"><label>Invoice Prefix</label><input class="input" id="set-invoicePrefix" placeholder="e.g. INV/"></div>
+            <div class="field"><label>Default Voucher View</label>
+              <select class="select" id="set-defaultVoucherView">
+                <option value="sales">Sales</option><option value="purchase">Purchase</option><option value="payment">Payment</option>
+                <option value="receipt">Receipt</option><option value="contra">Contra</option><option value="journal">Journal</option>
+              </select></div>
+            <div class="field"><label>Auto Round-Off</label>
+              <select class="select" id="set-autoRoundOff"><option value="true">Yes</option><option value="false">No</option></select></div>
+          </div>
+          <div class="form-actions" style="margin-top:16px">
+            <button class="btn btn-primary" id="settingsSave"><i class="fa-solid fa-floppy-disk"></i> Save Settings</button>
+            <button class="btn btn-ghost" id="settingsReset"><i class="fa-solid fa-rotate-left"></i> Reset to Defaults</button>
+          </div>
+        </section>
+
+        <section class="card">
+          <div class="card-head"><h3><i class="fa-solid fa-circle-info" style="color:var(--muted)"></i> Tally Prime Setup Checklist</h3></div>
+          <ol style="margin:0;padding-left:20px;color:var(--text-2);line-height:2">
+            <li>Tally Prime → <b>F1 (Help) → Settings → Connectivity</b> → "TallyPrime acts as" = <b>Both</b> (or Server)</li>
+            <li><b>F12 → Advanced Configuration</b>: "Allow XML Server on Port" = Yes, Port = <b>9000</b></li>
+            <li>Same screen: "Allow ODBC" = Yes, Port = <b>9001</b></li>
+            <li>Windows <b>ODBC Data Sources (64-bit)</b> → System DSN → <b>Tally ODBC 64-bit</b></li>
+            <li>Keep Tally running with the target company open, then hit <b>Test Connection</b></li>
+          </ol>
+        </section>
+
+        <footer class="page-foot">Settings persist in backend/data/settings.json</footer>
+      </main>
+    </div>
+  </div>
+
+  <div class="toast-host" id="toastHost"></div>
+
+  <script src="assets/vendor/socket.io/socket.io.min.js"></script>
+  <script src="assets/vendor/sweetalert2/sweetalert2.all.min.js"></script>
+  <script src="assets/vendor/toastify/toastify.js"></script>
+  <script src="js/app.js"></script>
+  <script src="js/tallySync.js"></script>
+  <script src="js/settings.js"></script>
+</body>
+</html>

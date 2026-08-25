@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Ledger Master · Tally Web App</title>
+  <link rel="icon" href="assets/icons/favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="assets/vendor/fontawesome/css/all.min.css">
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="css/forms.css">
+</head>
+<body>
+  <div class="bg-mesh"></div>
+
+  <div class="app-shell">
+    <aside class="sidebar" id="sidebar">
+      <div class="brand">
+        <div class="brand-logo"><i class="fa-solid fa-indian-rupee-sign"></i></div>
+        <div><div class="brand-name">Tally Web</div><div class="brand-sub">ACCOUNTING SUITE</div></div>
+      </div>
+      <div class="nav-label">Overview</div>
+      <a class="nav-item" href="index.html"><i class="fa-solid fa-gauge-high"></i> Dashboard</a>
+      <div class="nav-label">Transactions</div>
+      <a class="nav-item" href="voucher-entry.html"><i class="fa-solid fa-file-invoice-dollar"></i> Voucher Entry</a>
+      <a class="nav-item active" href="ledger-master.html"><i class="fa-solid fa-address-book"></i> Ledger Master</a>
+      <div class="nav-label">Insights</div>
+      <a class="nav-item" href="reports.html"><i class="fa-solid fa-chart-pie"></i> Reports</a>
+      <a class="nav-item" href="settings.html"><i class="fa-solid fa-sliders"></i> Settings</a>
+      <div class="side-sync">
+        <div class="company" id="sideCompany">—</div>
+        <div class="fy" id="sideFy">—</div>
+        <div class="row" style="margin-top:8px">
+          <span class="sync-dot red" id="sideSyncDot"></span><span id="sideSyncText">Connecting…</span>
+        </div>
+        <div class="last-sync" id="sideLastSync">Last sync: —</div>
+      </div>
+    </aside>
+    <div class="sidebar-backdrop" id="sidebarBackdrop"></div>
+
+    <div class="main">
+      <header class="topbar">
+        <button class="hamburger" id="hamburger"><i class="fa-solid fa-bars"></i></button>
+        <div class="topbar-title">
+          <h1>Ledger Master</h1>
+          <span class="crumb">Create &amp; manage ledger accounts in Tally</span>
+        </div>
+        <div class="topbar-actions">
+          <div class="global-search">
+            <i class="fa-solid fa-magnifying-glass"></i>
+            <input type="text" id="globalSearch" placeholder="Search ledgers, vouchers…" autocomplete="off">
+            <kbd>Ctrl K</kbd>
+          </div>
+          <button class="icon-btn" id="manualSyncBtn" title="Sync now"><i class="fa-solid fa-rotate"></i></button>
+          <button class="icon-btn" id="themeToggle" title="Toggle dark mode"><i class="fa-solid fa-moon"></i></button>
+          <div class="sync-badge" id="syncBadge">
+            <span class="sync-dot red" id="syncDot"></span><span id="syncText">Connecting…</span>
+            <span class="badge badge-muted" id="queueBadge" style="display:none">0 queued</span>
+          </div>
+        </div>
+      </header>
+
+      <main class="page">
+        <div class="ledger-layout">
+          <!-- ---------------- create / edit form ---------------- -->
+          <div class="card ledger-form-card">
+            <div class="card-head">
+              <h3 id="ledgerFormTitle"><i class="fa-solid fa-user-plus" style="color:var(--accent)"></i> Create Ledger</h3>
+              <div class="end">
+                <button class="btn btn-ghost btn-sm" id="ledgerFormReset" style="display:none"><i class="fa-solid fa-xmark"></i> Cancel edit</button>
+              </div>
+            </div>
+            <form id="ledgerForm" class="form-grid" style="grid-template-columns:1fr" autocomplete="off">
+              <div class="field"><label>Ledger Name <span class="req">*</span></label>
+                <input class="input" id="lg-name" placeholder="e.g. Sharma Electronics LLP"><span class="err-msg"></span></div>
+              <div class="field"><label>Under Group <span class="req">*</span></label>
+                <select class="select" id="lg-parent"><option value="">Loading groups…</option></select><span class="err-msg"></span>
+                <span class="hint">Pick the Tally group — it drives where the ledger appears in reports</span></div>
+              <div style="display:grid;grid-template-columns:1fr 110px;gap:10px">
+                <div class="field"><label>Opening Balance</label>
+                  <input class="input" id="lg-opening" type="number" step="0.01" placeholder="0.00"></div>
+                <div class="field"><label>Dr / Cr</label>
+                  <select class="select" id="lg-drcr"><option>Dr</option><option>Cr</option></select></div>
+              </div>
+
+              <div class="nav-label" style="padding-left:0">GST Details</div>
+              <div class="field"><label>GSTIN</label>
+                <input class="input" id="lg-gstin" placeholder="27AAACS1867F1Z5" maxlength="15" style="text-transform:uppercase"><span class="err-msg"></span></div>
+              <div class="field"><label>State</label>
+                <select class="select" id="lg-state"><option value="">— Select —</option></select></div>
+              <div class="field"><label>Registration Type</label>
+                <select class="select" id="lg-regtype"><option>Regular</option><option>Composition</option><option>Unregistered</option><option>Consumer</option><option>Not Applicable</option></select></div>
+
+              <div class="nav-label" style="padding-left:0">Mailing Details</div>
+              <div class="field"><label>Address</label><input class="input" id="lg-address" placeholder="Street / area"></div>
+              <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+                <div class="field"><label>City</label><input class="input" id="lg-city"></div>
+                <div class="field"><label>PIN Code</label><input class="input" id="lg-pincode" maxlength="6"><span class="err-msg"></span></div>
+              </div>
+              <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+                <div class="field"><label>Phone</label><input class="input" id="lg-phone"></div>
+                <div class="field"><label>Email</label><input class="input" id="lg-email" type="email"><span class="err-msg"></span></div>
+              </div>
+
+              <button class="btn btn-primary" type="submit" id="ledgerSubmit" style="margin-top:8px">
+                <i class="fa-solid fa-floppy-disk"></i> Create Ledger
+              </button>
+            </form>
+          </div>
+
+          <!-- ---------------- list + tree ---------------- -->
+          <div>
+            <div class="card" style="margin-bottom:20px">
+              <div class="card-head">
+                <h3><i class="fa-solid fa-list" style="color:var(--accent)"></i> Ledgers <span class="badge badge-muted" id="ledgerCount">—</span></h3>
+                <div class="end">
+                  <div class="tab-bar">
+                    <button class="tab-btn active" data-view="table"><i class="fa-solid fa-table"></i> Table</button>
+                    <button class="tab-btn" data-view="tree"><i class="fa-solid fa-sitemap"></i> Tree</button>
+                  </div>
+                </div>
+              </div>
+              <div class="filter-bar">
+                <div class="field" style="flex:1;min-width:220px"><label>Search</label>
+                  <input class="input" id="ledgerSearch" placeholder="Filter by name, GSTIN, city…"></div>
+                <div class="field"><label>Group</label>
+                  <select class="select" id="ledgerGroupFilter"><option value="">All groups</option></select></div>
+                <div class="field"><label>Sort</label>
+                  <select class="select" id="ledgerSort">
+                    <option value="name">Name A→Z</option><option value="name-desc">Name Z→A</option>
+                    <option value="group">Group</option>
+                  </select></div>
+                <button class="btn btn-ghost btn-sm" id="ledgerExport"><i class="fa-solid fa-file-excel"></i> Excel</button>
+              </div>
+
+              <div id="ledgerTableView">
+                <div class="table-wrap" style="max-height:560px">
+                  <table class="data-table" id="ledgerTable">
+                    <thead><tr>
+                      <th>Name</th><th>Group</th><th>GSTIN</th><th>State</th>
+                      <th>Phone</th><th class="num">Opening (Dr/Cr)</th><th style="width:90px"></th>
+                    </tr></thead>
+                    <tbody><tr><td colspan="7"><div class="empty-state"><i class="fa-solid fa-spinner fa-spin"></i>Loading ledgers…</div></td></tr></tbody>
+                  </table>
+                </div>
+              </div>
+
+              <div id="ledgerTreeView" style="display:none;max-height:560px;overflow:auto" class="tree">
+                <div class="empty-state"><i class="fa-solid fa-spinner fa-spin"></i>Loading tree…</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <footer class="page-foot">Ledger changes are pushed to Tally via XML Import (ACTION="Create/Alter/Delete")</footer>
+      </main>
+    </div>
+  </div>
+
+  <div class="toast-host" id="toastHost"></div>
+
+  <script src="assets/vendor/socket.io/socket.io.min.js"></script>
+  <script src="assets/vendor/sweetalert2/sweetalert2.all.min.js"></script>
+  <script src="assets/vendor/toastify/toastify.js"></script>
+  <script src="assets/vendor/xlsx/xlsx.full.min.js"></script>
+  <script src="js/app.js"></script>
+  <script src="js/tallySync.js"></script>
+  <script src="js/ledgerMaster.js"></script>
+</body>
+</html>
