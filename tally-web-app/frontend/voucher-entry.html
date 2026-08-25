@@ -1,0 +1,440 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Voucher Entry · Tally Web App</title>
+  <link rel="icon" href="assets/icons/favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="assets/vendor/fontawesome/css/all.min.css">
+  <link rel="stylesheet" href="assets/vendor/toastify/toastify.css">
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="css/forms.css">
+</head>
+<body>
+  <div class="bg-mesh"></div>
+
+  <div class="app-shell">
+    <aside class="sidebar" id="sidebar">
+      <div class="brand">
+        <div class="brand-logo"><i class="fa-solid fa-indian-rupee-sign"></i></div>
+        <div><div class="brand-name">Tally Web</div><div class="brand-sub">ACCOUNTING SUITE</div></div>
+      </div>
+      <div class="nav-label">Overview</div>
+      <a class="nav-item" href="index.html"><i class="fa-solid fa-gauge-high"></i> Dashboard</a>
+      <div class="nav-label">Transactions</div>
+      <a class="nav-item active" href="voucher-entry.html"><i class="fa-solid fa-file-invoice-dollar"></i> Voucher Entry</a>
+      <a class="nav-item" href="ledger-master.html"><i class="fa-solid fa-address-book"></i> Ledger Master</a>
+      <div class="nav-label">Insights</div>
+      <a class="nav-item" href="reports.html"><i class="fa-solid fa-chart-pie"></i> Reports</a>
+      <a class="nav-item" href="settings.html"><i class="fa-solid fa-sliders"></i> Settings</a>
+      <div class="side-sync">
+        <div class="company" id="sideCompany">—</div>
+        <div class="fy" id="sideFy">—</div>
+        <div class="row" style="margin-top:8px">
+          <span class="sync-dot red" id="sideSyncDot"></span><span id="sideSyncText">Connecting…</span>
+        </div>
+        <div class="last-sync" id="sideLastSync">Last sync: —</div>
+      </div>
+    </aside>
+    <div class="sidebar-backdrop" id="sidebarBackdrop"></div>
+
+    <div class="main">
+      <header class="topbar">
+        <button class="hamburger" id="hamburger"><i class="fa-solid fa-bars"></i></button>
+        <div class="topbar-title">
+          <h1>Voucher Entry</h1>
+          <span class="crumb">Entries push to Tally instantly · saved offline if Tally is down</span>
+        </div>
+        <div class="topbar-actions">
+          <div class="global-search">
+            <i class="fa-solid fa-magnifying-glass"></i>
+            <input type="text" id="globalSearch" placeholder="Search ledgers, vouchers…" autocomplete="off">
+            <kbd>Ctrl K</kbd>
+          </div>
+          <button class="icon-btn" id="manualSyncBtn" title="Sync now"><i class="fa-solid fa-rotate"></i></button>
+          <button class="icon-btn" id="themeToggle" title="Toggle dark mode"><i class="fa-solid fa-moon"></i></button>
+          <div class="sync-badge" id="syncBadge">
+            <span class="sync-dot red" id="syncDot"></span><span id="syncText">Connecting…</span>
+            <span class="badge badge-muted" id="queueBadge" style="display:none">0 queued</span>
+          </div>
+        </div>
+      </header>
+
+      <main class="page">
+        <!-- voucher type selector -->
+        <nav class="vtype-rail" id="vtypeRail">
+          <button class="vtype-btn active" data-type="sales"><i class="fa-solid fa-file-circle-plus"></i> Sales</button>
+          <button class="vtype-btn" data-type="purchase"><i class="fa-solid fa-file-import"></i> Purchase</button>
+          <button class="vtype-btn" data-type="payment"><i class="fa-solid fa-money-bill-transfer"></i> Payment</button>
+          <button class="vtype-btn" data-type="receipt"><i class="fa-solid fa-hand-holding-dollar"></i> Receipt</button>
+          <button class="vtype-btn" data-type="contra"><i class="fa-solid fa-right-left"></i> Contra</button>
+          <button class="vtype-btn" data-type="journal"><i class="fa-solid fa-code-branch"></i> Journal</button>
+          <button class="vtype-btn" data-type="credit-note"><i class="fa-solid fa-rotate-left"></i> Credit Note</button>
+          <button class="vtype-btn" data-type="debit-note"><i class="fa-solid fa-rotate-right"></i> Debit Note</button>
+        </nav>
+
+        <!-- ======================= SALES ======================= -->
+        <section class="voucher-panel active" id="panel-sales">
+          <div class="voucher-layout">
+            <div>
+              <div class="card">
+                <div class="card-head"><h3><i class="fa-solid fa-file-circle-plus" style="color:var(--success)"></i> Sales Voucher <span class="badge badge-success" id="gstModeSales">CGST + SGST</span></h3></div>
+                <div class="form-grid">
+                  <div class="field"><label>Voucher No. <span class="req">*</span></label><input class="input" id="sales-number" placeholder="AUTO"><span class="err-msg"></span></div>
+                  <div class="field"><label>Date <span class="req">*</span></label><input class="input" type="date" id="sales-date"><span class="err-msg"></span></div>
+                  <div class="field span-2 searchable" data-searchable><label>Party (Customer) <span class="req">*</span></label>
+                    <input class="input" id="sales-party" placeholder="Type to search ledgers…" autocomplete="off"><i class="fa-solid fa-chevron-down chev"></i>
+                    <div class="dd"></div><span class="err-msg"></span></div>
+                  <div class="field"><label>GSTIN <span class="hint">(auto from party)</span></label><input class="input" id="sales-gstin" placeholder=""><span class="err-msg"></span></div>
+                  <div class="field"><label>State <span class="hint">(decides IGST)</span></label><input class="input" id="sales-state" list="stateList" placeholder="Maharashtra"><span class="err-msg"></span></div>
+                  <div class="field"><label>Sales Ledger</label>
+                    <select class="select" id="sales-ledger"><option>Sales Account — Local</option><option>Sales Account — Interstate</option><option>Sales Account</option></select></div>
+                  <div class="field span-all"><label>Narration</label><input class="input" id="sales-narration" placeholder="Optional note printed in Tally"></div>
+                </div>
+
+                <div style="margin-top:18px">
+                  <div class="item-table-wrap">
+                    <table class="item-table">
+                      <thead><tr>
+                        <th class="sno">#</th><th style="min-width:200px">Item Name</th><th>HSN</th>
+                        <th style="width:76px">Qty</th><th style="width:110px">Rate</th><th style="width:70px">Disc %</th>
+                        <th style="width:110px">Taxable</th><th style="width:84px">GST %</th>
+                        <th style="width:96px">CGST</th><th style="width:96px">SGST</th><th style="width:96px">IGST</th>
+                        <th style="width:110px">Total</th><th></th>
+                      </tr></thead>
+                      <tbody id="sales-items"></tbody>
+                      <tfoot>
+                        <tr><td colspan="13" style="padding:8px">
+                          <button class="btn btn-ghost btn-sm" data-add-row="sales-items"><i class="fa-solid fa-plus"></i> Add Row</button>
+                          <button class="btn btn-ghost btn-sm" data-clear-rows="sales-items"><i class="fa-solid fa-eraser"></i> Clear All</button>
+                        </td></tr>
+                      </tfoot>
+                    </table>
+                  </div>
+                </div>
+              </div>
+
+              <div class="form-actions">
+                <button class="btn btn-primary" data-save="sales"><i class="fa-solid fa-floppy-disk"></i> Save <span class="kbd" style="margin-left:4px">Ctrl S</span></button>
+                <button class="btn btn-accent" data-save-print="sales"><i class="fa-solid fa-print"></i> Save &amp; Print</button>
+                <button class="btn btn-ghost" data-save-new="sales"><i class="fa-solid fa-plus"></i> Save &amp; New</button>
+                <span class="draft-note" id="draftNote-sales"><i class="fa-solid fa-cloud-arrow-up"></i> Draft auto-saves locally</span>
+              </div>
+            </div>
+
+            <aside class="card totals-card">
+              <div class="card-head"><h3>Totals</h3></div>
+              <div class="totals-row"><span class="lbl">Taxable Value</span><span class="val" id="sales-t-taxable">0.00</span></div>
+              <div class="totals-row"><span class="lbl">CGST</span><span class="val" id="sales-t-cgst">0.00</span></div>
+              <div class="totals-row"><span class="lbl">SGST</span><span class="val" id="sales-t-sgst">0.00</span></div>
+              <div class="totals-row"><span class="lbl">IGST</span><span class="val" id="sales-t-igst">0.00</span></div>
+              <div class="totals-row grand"><span>Grand Total</span><span class="val" id="sales-t-grand">₹ 0.00</span></div>
+              <div class="amount-words" id="sales-words">Rupees Zero Only</div>
+            </aside>
+          </div>
+        </section>
+
+        <!-- ======================= PURCHASE ======================= -->
+        <section class="voucher-panel" id="panel-purchase">
+          <div class="voucher-layout">
+            <div>
+              <div class="card">
+                <div class="card-head"><h3><i class="fa-solid fa-file-import" style="color:#b57e0a"></i> Purchase Voucher <span class="badge badge-success" id="gstModePurchase">CGST + SGST</span></h3></div>
+                <div class="form-grid">
+                  <div class="field"><label>Voucher No. <span class="req">*</span></label><input class="input" id="purchase-number"><span class="err-msg"></span></div>
+                  <div class="field"><label>Date <span class="req">*</span></label><input class="input" type="date" id="purchase-date"><span class="err-msg"></span></div>
+                  <div class="field span-2 searchable" data-searchable><label>Supplier <span class="req">*</span></label>
+                    <input class="input" id="purchase-party" placeholder="Type to search ledgers…" autocomplete="off"><i class="fa-solid fa-chevron-down chev"></i>
+                    <div class="dd"></div><span class="err-msg"></span></div>
+                  <div class="field"><label>GSTIN</label><input class="input" id="purchase-gstin"></div>
+                  <div class="field"><label>State</label><input class="input" id="purchase-state" list="stateList"></div>
+                  <div class="field"><label>Supplier Invoice No. <span class="req">*</span></label><input class="input" id="purchase-ref" placeholder="e.g. SUP/2381"><span class="err-msg"></span></div>
+                  <div class="field"><label>Invoice Date</label><input class="input" type="date" id="purchase-refdate"></div>
+                  <div class="field"><label>Purchase Ledger</label>
+                    <select class="select" id="purchase-ledger"><option>Purchase Account — Local</option><option>Purchase Account — Interstate</option><option>Purchase Account</option></select></div>
+                  <div class="field span-all"><label>Narration</label><input class="input" id="purchase-narration"></div>
+                </div>
+                <div style="margin-top:18px">
+                  <div class="item-table-wrap">
+                    <table class="item-table">
+                      <thead><tr>
+                        <th class="sno">#</th><th style="min-width:200px">Item Name</th><th>HSN</th>
+                        <th style="width:76px">Qty</th><th style="width:110px">Rate</th><th style="width:70px">Disc %</th>
+                        <th style="width:110px">Taxable</th><th style="width:84px">GST %</th>
+                        <th style="width:96px">CGST</th><th style="width:96px">SGST</th><th style="width:96px">IGST</th>
+                        <th style="width:110px">Total</th><th></th>
+                      </tr></thead>
+                      <tbody id="purchase-items"></tbody>
+                      <tfoot><tr><td colspan="13" style="padding:8px">
+                        <button class="btn btn-ghost btn-sm" data-add-row="purchase-items"><i class="fa-solid fa-plus"></i> Add Row</button>
+                        <button class="btn btn-ghost btn-sm" data-clear-rows="purchase-items"><i class="fa-solid fa-eraser"></i> Clear All</button>
+                      </td></tr></tfoot>
+                    </table>
+                  </div>
+                </div>
+              </div>
+              <div class="form-actions">
+                <button class="btn btn-primary" data-save="purchase"><i class="fa-solid fa-floppy-disk"></i> Save <span class="kbd" style="margin-left:4px">Ctrl S</span></button>
+                <button class="btn btn-ghost" data-save-new="purchase"><i class="fa-solid fa-plus"></i> Save &amp; New</button>
+                <span class="draft-note" id="draftNote-purchase"><i class="fa-solid fa-cloud-arrow-up"></i> Draft auto-saves locally</span>
+              </div>
+            </div>
+            <aside class="card totals-card">
+              <div class="card-head"><h3>Totals</h3></div>
+              <div class="totals-row"><span class="lbl">Taxable Value</span><span class="val" id="purchase-t-taxable">0.00</span></div>
+              <div class="totals-row"><span class="lbl">CGST (Input)</span><span class="val" id="purchase-t-cgst">0.00</span></div>
+              <div class="totals-row"><span class="lbl">SGST (Input)</span><span class="val" id="purchase-t-sgst">0.00</span></div>
+              <div class="totals-row"><span class="lbl">IGST (Input)</span><span class="val" id="purchase-t-igst">0.00</span></div>
+              <div class="totals-row grand"><span>Grand Total</span><span class="val" id="purchase-t-grand">₹ 0.00</span></div>
+              <div class="amount-words" id="purchase-words">Rupees Zero Only</div>
+            </aside>
+          </div>
+        </section>
+
+        <!-- ======================= PAYMENT ======================= -->
+        <section class="voucher-panel" id="panel-payment">
+          <div class="card" style="max-width:840px">
+            <div class="card-head"><h3><i class="fa-solid fa-money-bill-transfer" style="color:var(--danger)"></i> Payment Voucher</h3></div>
+            <div class="form-grid">
+              <div class="field"><label>Voucher No.</label><input class="input" id="payment-number"></div>
+              <div class="field"><label>Date <span class="req">*</span></label><input class="input" type="date" id="payment-date"></div>
+              <div class="field searchable" data-searchable><label>Payment From (Cash/Bank) <span class="req">*</span></label>
+                <input class="input" id="payment-from" placeholder="Cash, bank ledgers…" autocomplete="off"><i class="fa-solid fa-chevron-down chev"></i><div class="dd"></div></div>
+              <div class="field searchable" data-searchable><label>Payment To (Party/Ledger) <span class="req">*</span></label>
+                <input class="input" id="payment-to" placeholder="Any ledger…" autocomplete="off"><i class="fa-solid fa-chevron-down chev"></i><div class="dd"></div></div>
+              <div class="field"><label>Amount <span class="req">*</span></label><input class="input input-prefix" id="payment-amount" type="number" min="0" step="0.01"><span class="err-msg"></span></div>
+              <div class="field"><label>Payment Mode</label>
+                <select class="select" id="payment-mode">
+                  <option>Cash</option><option>Cheque</option><option>NEFT/RTGS</option><option>UPI</option><option>Card</option>
+                </select></div>
+            </div>
+            <div class="conditional" id="payment-cheque-fields" style="margin-top:14px;flex-direction:row;flex-wrap:wrap">
+              <div class="field" style="flex:1;min-width:180px"><label>Cheque / Ref No.</label><input class="input" id="payment-chequeno"></div>
+              <div class="field" style="flex:1;min-width:180px"><label>Cheque Date</label><input class="input" type="date" id="payment-chequedate"></div>
+              <div class="field" style="flex:1;min-width:180px"><label>Drawn on / Bank</label><input class="input" id="payment-bank"></div>
+            </div>
+            <div class="form-grid" style="margin-top:14px">
+              <div class="field span-all"><label>Narration</label><input class="input" id="payment-narration"></div>
+            </div>
+            <div class="form-actions">
+              <button class="btn btn-primary" data-save="payment"><i class="fa-solid fa-floppy-disk"></i> Save <span class="kbd" style="margin-left:4px">Ctrl S</span></button>
+              <button class="btn btn-ghost" data-save-new="payment"><i class="fa-solid fa-plus"></i> Save &amp; New</button>
+            </div>
+          </div>
+        </section>
+
+        <!-- ======================= RECEIPT ======================= -->
+        <section class="voucher-panel" id="panel-receipt">
+          <div class="card" style="max-width:840px">
+            <div class="card-head"><h3><i class="fa-solid fa-hand-holding-dollar" style="color:var(--info)"></i> Receipt Voucher</h3></div>
+            <div class="form-grid">
+              <div class="field"><label>Voucher No.</label><input class="input" id="receipt-number"></div>
+              <div class="field"><label>Date <span class="req">*</span></label><input class="input" type="date" id="receipt-date"></div>
+              <div class="field searchable" data-searchable><label>Received From (Party) <span class="req">*</span></label>
+                <input class="input" id="receipt-from" placeholder="Any ledger…" autocomplete="off"><i class="fa-solid fa-chevron-down chev"></i><div class="dd"></div></div>
+              <div class="field searchable" data-searchable><label>Received In (Cash/Bank) <span class="req">*</span></label>
+                <input class="input" id="receipt-in" placeholder="Cash, bank ledgers…" autocomplete="off"><i class="fa-solid fa-chevron-down chev"></i><div class="dd"></div></div>
+              <div class="field"><label>Amount <span class="req">*</span></label><input class="input" id="receipt-amount" type="number" min="0" step="0.01"></div>
+              <div class="field"><label>Receipt Mode</label>
+                <select class="select" id="receipt-mode">
+                  <option>Cash</option><option>Cheque</option><option>NEFT/RTGS</option><option>UPI</option><option>Card</option>
+                </select></div>
+            </div>
+            <div class="conditional" id="receipt-cheque-fields" style="margin-top:14px;flex-direction:row;flex-wrap:wrap">
+              <div class="field" style="flex:1;min-width:180px"><label>Cheque / Ref No.</label><input class="input" id="receipt-chequeno"></div>
+              <div class="field" style="flex:1;min-width:180px"><label>Cheque Date</label><input class="input" type="date" id="receipt-chequedate"></div>
+              <div class="field" style="flex:1;min-width:180px"><label>Drawn on / Bank</label><input class="input" id="receipt-bank"></div>
+            </div>
+            <div class="form-grid" style="margin-top:14px">
+              <div class="field span-all"><label>Narration</label><input class="input" id="receipt-narration"></div>
+            </div>
+            <div class="form-actions">
+              <button class="btn btn-primary" data-save="receipt"><i class="fa-solid fa-floppy-disk"></i> Save <span class="kbd" style="margin-left:4px">Ctrl S</span></button>
+              <button class="btn btn-ghost" data-save-new="receipt"><i class="fa-solid fa-plus"></i> Save &amp; New</button>
+            </div>
+          </div>
+        </section>
+
+        <!-- ======================= CONTRA ======================= -->
+        <section class="voucher-panel" id="panel-contra">
+          <div class="card" style="max-width:840px">
+            <div class="card-head"><h3><i class="fa-solid fa-right-left" style="color:var(--accent-600)"></i> Contra Voucher <span class="sub">(Cash ⇄ Bank transfers)</span></h3></div>
+            <div class="form-grid">
+              <div class="field"><label>Voucher No.</label><input class="input" id="contra-number"></div>
+              <div class="field"><label>Date <span class="req">*</span></label><input class="input" type="date" id="contra-date"></div>
+              <div class="field"><label>Type</label>
+                <select class="select" id="contra-direction">
+                  <option value="deposit">Cash → Bank (Deposit)</option>
+                  <option value="withdraw">Bank → Cash (Withdrawal)</option>
+                  <option value="transfer">Bank → Bank (Transfer)</option>
+                </select></div>
+              <div class="field searchable" data-searchable><label id="contra-from-label">From (Cash) <span class="req">*</span></label>
+                <input class="input" id="contra-from" autocomplete="off"><i class="fa-solid fa-chevron-down chev"></i><div class="dd"></div></div>
+              <div class="field searchable" data-searchable><label id="contra-to-label">To (Bank) <span class="req">*</span></label>
+                <input class="input" id="contra-to" autocomplete="off"><i class="fa-solid fa-chevron-down chev"></i><div class="dd"></div></div>
+              <div class="field"><label>Amount <span class="req">*</span></label><input class="input" id="contra-amount" type="number" min="0" step="0.01"></div>
+              <div class="field span-all"><label>Narration</label><input class="input" id="contra-narration"></div>
+            </div>
+            <div class="form-actions">
+              <button class="btn btn-primary" data-save="contra"><i class="fa-solid fa-floppy-disk"></i> Save <span class="kbd" style="margin-left:4px">Ctrl S</span></button>
+              <button class="btn btn-ghost" data-save-new="contra"><i class="fa-solid fa-plus"></i> Save &amp; New</button>
+            </div>
+          </div>
+        </section>
+
+        <!-- ======================= JOURNAL ======================= -->
+        <section class="voucher-panel" id="panel-journal">
+          <div class="card" style="max-width:940px">
+            <div class="card-head"><h3><i class="fa-solid fa-code-branch" style="color:#6a4de0"></i> Journal Voucher <span class="sub">Multi-debit · Multi-credit</span></h3></div>
+            <div class="form-grid" style="margin-bottom:16px">
+              <div class="field"><label>Voucher No.</label><input class="input" id="journal-number"></div>
+              <div class="field"><label>Date <span class="req">*</span></label><input class="input" type="date" id="journal-date"></div>
+              <div class="field span-2"><label>Narration</label><input class="input" id="journal-narration"></div>
+            </div>
+            <div class="journal-grid">
+              <div class="jh">Ledger</div><div class="jh" style="text-align:right">Debit</div><div class="jh" style="text-align:right">Credit</div><div></div>
+            </div>
+            <div id="journal-rows"></div>
+            <div style="margin-top:10px">
+              <button class="btn btn-ghost btn-sm" id="journal-add"><i class="fa-solid fa-plus"></i> Add Line</button>
+            </div>
+            <div class="journal-check" id="journal-check"></div>
+            <div class="form-actions">
+              <button class="btn btn-primary" data-save="journal"><i class="fa-solid fa-floppy-disk"></i> Save <span class="kbd" style="margin-left:4px">Ctrl S</span></button>
+              <button class="btn btn-ghost" data-save-new="journal"><i class="fa-solid fa-plus"></i> Save &amp; New</button>
+            </div>
+          </div>
+        </section>
+
+        <!-- ======================= CREDIT NOTE ======================= -->
+        <section class="voucher-panel" id="panel-credit-note">
+          <div class="voucher-layout">
+            <div>
+              <div class="card">
+                <div class="card-head"><h3><i class="fa-solid fa-rotate-left" style="color:#d92e58"></i> Credit Note <span class="sub">(Sales Return)</span></h3></div>
+                <div class="form-grid">
+                  <div class="field"><label>Note No.</label><input class="input" id="credit-note-number"></div>
+                  <div class="field"><label>Date <span class="req">*</span></label><input class="input" type="date" id="credit-note-date"></div>
+                  <div class="field span-2 searchable" data-searchable><label>Party (Customer) <span class="req">*</span></label>
+                    <input class="input" id="credit-note-party" autocomplete="off"><i class="fa-solid fa-chevron-down chev"></i><div class="dd"></div></div>
+                  <div class="field"><label>Original Invoice No.</label><input class="input" id="credit-note-orig" placeholder="e.g. INV/0121"></div>
+                  <div class="field"><label>Reason</label>
+                    <select class="select" id="credit-note-reason">
+                      <option>Sales Return</option><option>Rate Difference</option><option>Discount Given</option>
+                      <option>Correction in Invoice</option><option>Others</option>
+                    </select></div>
+                  <div class="field"><label>GSTIN</label><input class="input" id="credit-note-gstin"></div>
+                  <div class="field"><label>State</label><input class="input" id="credit-note-state" list="stateList"></div>
+                  <div class="field span-all"><label>Narration</label><input class="input" id="credit-note-narration"></div>
+                </div>
+                <div style="margin-top:18px">
+                  <div class="item-table-wrap">
+                    <table class="item-table">
+                      <thead><tr>
+                        <th class="sno">#</th><th style="min-width:200px">Item Name</th><th>HSN</th>
+                        <th style="width:76px">Qty</th><th style="width:110px">Rate</th><th style="width:70px">Disc %</th>
+                        <th style="width:110px">Taxable</th><th style="width:84px">GST %</th>
+                        <th style="width:96px">CGST</th><th style="width:96px">SGST</th><th style="width:96px">IGST</th>
+                        <th style="width:110px">Total</th><th></th>
+                      </tr></thead>
+                      <tbody id="credit-note-items"></tbody>
+                      <tfoot><tr><td colspan="13" style="padding:8px">
+                        <button class="btn btn-ghost btn-sm" data-add-row="credit-note-items"><i class="fa-solid fa-plus"></i> Add Row</button>
+                      </td></tr></tfoot>
+                    </table>
+                  </div>
+                </div>
+              </div>
+              <div class="form-actions">
+                <button class="btn btn-primary" data-save="credit-note"><i class="fa-solid fa-floppy-disk"></i> Save <span class="kbd" style="margin-left:4px">Ctrl S</span></button>
+                <button class="btn btn-ghost" data-save-new="credit-note"><i class="fa-solid fa-plus"></i> Save &amp; New</button>
+              </div>
+            </div>
+            <aside class="card totals-card">
+              <div class="card-head"><h3>Totals</h3></div>
+              <div class="totals-row"><span class="lbl">Taxable Value</span><span class="val" id="credit-note-t-taxable">0.00</span></div>
+              <div class="totals-row"><span class="lbl">CGST</span><span class="val" id="credit-note-t-cgst">0.00</span></div>
+              <div class="totals-row"><span class="lbl">SGST</span><span class="val" id="credit-note-t-sgst">0.00</span></div>
+              <div class="totals-row"><span class="lbl">IGST</span><span class="val" id="credit-note-t-igst">0.00</span></div>
+              <div class="totals-row grand"><span>Credit Total</span><span class="val" id="credit-note-t-grand">₹ 0.00</span></div>
+              <div class="amount-words" id="credit-note-words">Rupees Zero Only</div>
+            </aside>
+          </div>
+        </section>
+
+        <!-- ======================= DEBIT NOTE ======================= -->
+        <section class="voucher-panel" id="panel-debit-note">
+          <div class="voucher-layout">
+            <div>
+              <div class="card">
+                <div class="card-head"><h3><i class="fa-solid fa-rotate-right" style="color:#d92e58"></i> Debit Note <span class="sub">(Purchase Return)</span></h3></div>
+                <div class="form-grid">
+                  <div class="field"><label>Note No.</label><input class="input" id="debit-note-number"></div>
+                  <div class="field"><label>Date <span class="req">*</span></label><input class="input" type="date" id="debit-note-date"></div>
+                  <div class="field span-2 searchable" data-searchable><label>Party (Supplier) <span class="req">*</span></label>
+                    <input class="input" id="debit-note-party" autocomplete="off"><i class="fa-solid fa-chevron-down chev"></i><div class="dd"></div></div>
+                  <div class="field"><label>Original Invoice No.</label><input class="input" id="debit-note-orig"></div>
+                  <div class="field"><label>Reason</label>
+                    <select class="select" id="debit-note-reason">
+                      <option>Purchase Return</option><option>Rate Difference</option><option>Quality Rejection</option>
+                      <option>Correction in Invoice</option><option>Others</option>
+                    </select></div>
+                  <div class="field"><label>GSTIN</label><input class="input" id="debit-note-gstin"></div>
+                  <div class="field"><label>State</label><input class="input" id="debit-note-state" list="stateList"></div>
+                  <div class="field span-all"><label>Narration</label><input class="input" id="debit-note-narration"></div>
+                </div>
+                <div style="margin-top:18px">
+                  <div class="item-table-wrap">
+                    <table class="item-table">
+                      <thead><tr>
+                        <th class="sno">#</th><th style="min-width:200px">Item Name</th><th>HSN</th>
+                        <th style="width:76px">Qty</th><th style="width:110px">Rate</th><th style="width:70px">Disc %</th>
+                        <th style="width:110px">Taxable</th><th style="width:84px">GST %</th>
+                        <th style="width:96px">CGST</th><th style="width:96px">SGST</th><th style="width:96px">IGST</th>
+                        <th style="width:110px">Total</th><th></th>
+                      </tr></thead>
+                      <tbody id="debit-note-items"></tbody>
+                      <tfoot><tr><td colspan="13" style="padding:8px">
+                        <button class="btn btn-ghost btn-sm" data-add-row="debit-note-items"><i class="fa-solid fa-plus"></i> Add Row</button>
+                      </td></tr></tfoot>
+                    </table>
+                  </div>
+                </div>
+              </div>
+              <div class="form-actions">
+                <button class="btn btn-primary" data-save="debit-note"><i class="fa-solid fa-floppy-disk"></i> Save <span class="kbd" style="margin-left:4px">Ctrl S</span></button>
+                <button class="btn btn-ghost" data-save-new="debit-note"><i class="fa-solid fa-plus"></i> Save &amp; New</button>
+              </div>
+            </div>
+            <aside class="card totals-card">
+              <div class="card-head"><h3>Totals</h3></div>
+              <div class="totals-row"><span class="lbl">Taxable Value</span><span class="val" id="debit-note-t-taxable">0.00</span></div>
+              <div class="totals-row"><span class="lbl">CGST</span><span class="val" id="debit-note-t-cgst">0.00</span></div>
+              <div class="totals-row"><span class="lbl">SGST</span><span class="val" id="debit-note-t-sgst">0.00</span></div>
+              <div class="totals-row"><span class="lbl">IGST</span><span class="val" id="debit-note-t-igst">0.00</span></div>
+              <div class="totals-row grand"><span>Debit Total</span><span class="val" id="debit-note-t-grand">₹ 0.00</span></div>
+              <div class="amount-words" id="debit-note-words">Rupees Zero Only</div>
+            </aside>
+          </div>
+        </section>
+
+        <footer class="page-foot">
+          <span class="kbd">Ctrl S</span> save · <span class="kbd">Ctrl Alt N</span> new/clear · <span class="kbd">Enter</span> in table adds a row · <span class="kbd">Esc</span> closes pickers
+        </footer>
+      </main>
+    </div>
+  </div>
+
+  <!-- state list for datalist -->
+  <datalist id="stateList"></datalist>
+  <div class="toast-host" id="toastHost"></div>
+
+  <script src="assets/vendor/socket.io/socket.io.min.js"></script>
+  <script src="assets/vendor/sweetalert2/sweetalert2.all.min.js"></script>
+  <script src="assets/vendor/toastify/toastify.js"></script>
+  <script src="assets/vendor/html2pdf/html2pdf.bundle.min.js"></script>
+  <script src="js/app.js"></script>
+  <script src="js/tallySync.js"></script>
+  <script src="js/voucherEntry.js"></script>
+</body>
+</html>
