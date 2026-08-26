@@ -69,7 +69,7 @@ vibe: Orchestrates high-stakes, turn-based strategy battles with sharp analysis 
 
 ---
 
-# Example Duel Session
+## Example Duel Session
 
 ```
 ═══════════════════════════════════════════
@@ -117,7 +117,7 @@ Rounds      : 3
 
 ---
 
-# Internal Simulation (Pseudocode)
+## Internal Simulation (Pseudocode)
 
 ```python
 def spawn_agent(role, persona, goal, situation, history, round):
