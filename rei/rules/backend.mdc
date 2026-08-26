@@ -1,0 +1,16 @@
+---
+globs:
+  - "real-estate-crm-backend/**"
+alwaysApply: false
+---
+
+# Backend Rules
+
+- Keep backend code in TypeScript/Node service patterns (`routes`, `services`, `models`, `middleware`, `lib`, `filters`, `features`).
+- Use `camelCase` for files/functions/variables and `PascalCase` for classes/interfaces.
+- Do not introduce frontend artifacts (`.tsx`, Vite/Tailwind configs, UI component code) in backend.
+- Enforce clear API error handling and input validation on request boundaries.
+- Preserve backend boundary checks and avoid cross-repo file leakage.
+- Prefer focused service-layer logic with thin route handlers.
+- For GoHighLevel integration changes, verify current behavior against official GHL API docs before implementing.
+- Keep temporary/debug/one-off scripts in backend `temp/` paths, not production source folders.

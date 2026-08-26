@@ -71,7 +71,16 @@ integrations/gemini-cli/skills/
 integrations/gemini-cli/gemini-extension.json
 integrations/gemini-cli/agents
 integrations/opencode/agents/
+# Cursor pack (subagent-first): regenerate with ./scripts/convert.sh --tool cursor
+integrations/cursor/agents/
+integrations/cursor/skills/
+integrations/cursor/catalog/
+integrations/cursor/commands/
 integrations/cursor/rules/
+integrations/cursor/AGENTS.md.template
+integrations/cursor/.work-*
+integrations/cursor/.slug-index-*
+integrations/cursor/.catalog-*.tsv
 integrations/aider/CONVENTIONS.md
 integrations/windsurf/.windsurfrules
 integrations/openclaw/*

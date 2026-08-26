@@ -1,0 +1,98 @@
+---
+description: Mandatory default workflow — REI subagents and planner before implementation
+globs:
+  - "**/*"
+alwaysApply: true
+---
+
+# REI orchestration (canonical routing)
+
+## Default (mandatory unless opted out)
+
+- **REI orchestration is the default for all substantive work.** The parent agent **routes** via **Task** to **🏠(REI)** subagents; it does **not** implement product changes unless the user **explicitly** opts out for the **current** request (see [Explicit opt-out](#explicit-opt-out)).
+- Single source of truth for routing, opt-out, continue/resume, and multitask delegation. Other files **cross-reference** here—not duplicate playbooks.
+
+## What counts as substantive work
+
+Route through REI when the request involves: new features, behavior changes, refactors, bug fixes, multi-file/multi-repo edits, migrations, config that changes runtime behavior, executing plans under `plans/`, or slash commands that launch work (`/plan-feature`, `/fix-bug`, `/implement-plan`, etc.) unless the command says otherwise.
+
+**Task not required:** short answers, read-only navigation, explaining behavior, status checks, questions with **no** code change.
+
+## Default implementation chain
+
+1. **🏠(REI) Planner** (Task) → plan under `plans/features/` or `plans/bugs/` (`.cursor/skills/plan-feature/SKILL.md`).
+2. **User approves** the plan—or **explicitly** waives planning/approval (see opt-out).
+3. **🏠(REI) Implementer** (Task) → `.cursor/skills/execute-plan/SKILL.md` (branch-gate, Test-engineer → Reviewer per `.cursor/agents/implementer.md`).
+
+**Exact Task `subagent_type` values:**
+
+| Role | `subagent_type` |
+|------|-----------------|
+| Planner | `🏠(REI) Planner` |
+| Implementer | `🏠(REI)  Implementer` |
+| Researcher | `🏠(REI) Researcher` |
+| Test-engineer | `🏠(REI) Test-engineer` |
+| Reviewer | `🏠(REI) Reviewer` |
+
+(Implementer has **two spaces** after `REI)`.)
+
+## Planner before implementation
+
+Parent chat must **not** patch features/bugs unless: (1) approved plan + **Task → Implementer**, (2) **explicit opt-out**, or (3) trivial non-behavioral typo/comment the user pointed to. If unclear, **ask once**.
+
+## Continue / resume (not an opt-out)
+
+"continue", "go ahead", "approved", "implement it", etc. do **not** waive REI or allow parent patching.
+
+- Plan **approved** (or waiver): **Task → Implementer** with plan path—do not implement in parent chat.
+- Plan exists, **not** approved: blocked transition per `.cursor/docs/step-transition-contract.md`; wait for explicit approval/waiver.
+- No plan, substantive work: **Task → Planner** first (unless planning waived).
+
+## Step transitions
+
+At significant boundaries, enforce `.cursor/docs/step-transition-contract.md` (`Status`, `Reason`, `Next required action` with concrete options; approval gates require exact approve/waiver replies).
+
+## Post-`/design-product` auto-routing
+
+After **🏠(REI) product-designer**: **Task → Implementer** only if implementation-ready (scope locked, boundaries clear, contracts/edge cases/validation/sequence explicit); else **Task → Planner**; if ambiguous, default Planner. Explicit opt-out still applies.
+
+## Multitask / Task tool
+
+- Background runs use named REI subagents for substantive work.
+- Do **not** default to `resume: "self"` for features/bugs—that bypasses Implementer branch-gate/handoffs.
+- `resume: "self"` only when user explicitly requested self-fork **and** opted out of Implementer.
+- `run_in_background` on **Task → Implementer** (or Planner), not nameless self-fork, unless opted out.
+
+## Explicit opt-out
+
+User must **clearly** opt out for the **current** request:
+
+| Intent | Example phrases |
+|--------|-----------------|
+| No subagents | "main chat only", "no subagents", "skip Task" |
+| Parent implements | "implement in this chat", "inline fix" |
+| Skip formal planning | "waive formal planning", "skip the plan" |
+| Skip plan approval | "waive plan approval", "implement immediately" (when clear) |
+| Q&A only | "just explain", "read only", "don't change code" |
+
+**Not opt-out:** "please fix", "fix the bug", "continue", "ok", "go" alone.
+
+## `/fix-bug`
+
+Follow `.cursor/commands/fix-bug.md`: Planner → separate approval → Implementer → test/review.
+
+## Parent vs Implementer
+
+Default conversation agent **delegates** to **Implementer** via Task; no production patches for substantive work except opt-out or trivial non-behavioral edit.
+
+## Required inputs
+
+Ask concise clarifying questions when required inputs are missing. Stage security gates: `.cursor/docs/security-gates.md`.
+
+## Agency Agents (optional specialists)
+
+When `.cursor/agents/` includes Agency slugs (e.g. `backend-architect`), use them for **domain expertise** only—never as a replacement for Planner / Implementer / Test-engineer / Reviewer.
+
+- Map and invocation: `.cursor/skills/agency-integration/SKILL.md`
+- Discovery: `/agency` or `.cursor/catalog/`
+- Thin always-on reminder: `.cursor/rules/agency-integration.mdc`

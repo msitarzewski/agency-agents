@@ -1,0 +1,14 @@
+---
+description: Frontend architecture, lint quality, and API boundary rules for the React app
+globs:
+  - "real-estate-crm-frontend/**"
+alwaysApply: false
+---
+# Frontend Rules
+
+- Keep frontend code in React/Vite TypeScript patterns (`pages`, `components`, `services`, `hooks`, `features`, `design-system`).
+- Frontend services call backend APIs; do not implement backend/server runtime logic here.
+- Respect strict lint quality: zero warnings is required.
+- Prefer reusable components and shared UI primitives over one-off duplicated UI code.
+- Keep naming consistent with existing codebase conventions and imports.
+- Avoid introducing backend-only dependencies or server startup code in frontend.

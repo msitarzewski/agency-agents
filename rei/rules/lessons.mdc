@@ -1,0 +1,17 @@
+---
+description: Per-repo lessons learned — loaded when editing lessons or planning
+globs:
+  - "**/lessons.md"
+  - "plans/**"
+alwaysApply: false
+---
+
+# Lessons learned
+
+Institutional memory lives in **`lessons.md`** at each git repo root (append-only). Procedure is defined in:
+
+- **Planner:** `.cursor/agents/planner.md` — read before planning
+- **Implementer:** `.cursor/skills/execute-plan/SKILL.md` — skim before large edits
+- **Reviewer:** `.cursor/skills/review-diff/SKILL.md` — append MEDIUM/HIGH findings
+
+Do not delete or rewrite past entries unless the user explicitly asks.

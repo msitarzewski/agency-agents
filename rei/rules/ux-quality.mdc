@@ -1,0 +1,23 @@
+---
+description: UX and accessibility quality guidance for user-facing interfaces and interaction flows
+globs:
+  - "real-estate-crm-frontend/src/**/*.{ts,tsx,js,jsx,css,scss}"
+  - "real-estate-crm-chrome-extension/src/**/*.{ts,tsx,js,jsx,css,scss}"
+alwaysApply: false
+---
+
+# UX Quality Rules
+
+- Prioritize task clarity: each view should make the primary action obvious.
+- Keep user-facing language domain-friendly and plain; avoid internal jargon/error codes in UI copy.
+- For async surfaces, define and render clear `loading`, `empty`, `error`, and `ready` states.
+- Prefer skeleton placeholders for content-heavy loading states; use spinners only for short, indeterminate waits.
+- Use immediate feedback for user actions (pending, success, failure) with actionable recovery paths.
+- Prevent avoidable mistakes with constraints, validation, safe defaults, and confirmation for destructive actions.
+- Preserve user control: provide cancel/escape routes and avoid interaction dead ends.
+- Prefer recognition over recall: visible labels/options and contextual hints over hidden assumptions.
+- Maintain consistent interaction patterns across similar components and workflows.
+- Ensure keyboard access and visible focus states for interactive elements.
+- Keep layouts responsive and readable; avoid fixed-height patterns that clip content.
+- Keep mobile touch targets at least 44x44 px for primary interactive controls.
+- Support efficient usage for power users when feasible (bulk actions, shortcuts, reduced click paths).

@@ -1,0 +1,15 @@
+description: Scraper-specific Python conventions
+globs: [
+"real-estate-crm-scraper/**",
+"HomeHarvestLocal/**"
+]
+alwaysApply: false
+
+# Scraper Rules
+
+- Use Python naming conventions: `snake_case` files/functions/variables, `PascalCase` classes, `UPPER_SNAKE_CASE` constants.
+- Keep scraper logic and API wiring clear between app entrypoints and service modules.
+- Place additional markdown docs in `docs/` rather than repo root (except `README.md`).
+- Preserve robustness for pagination, retries, and upstream API failures.
+- Prefer resilient async patterns for scraping/database workflows: bounded concurrency, explicit timeouts, retry/backoff where appropriate, and graceful per-item failure handling.
+- Use batch-oriented persistence and clear logging/metrics for long-running jobs to reduce partial-failure risk and improve debuggability.

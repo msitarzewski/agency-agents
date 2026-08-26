@@ -1,0 +1,16 @@
+---
+globs:
+  - "real-estate-crm-frontend/**"
+
+alwaysApply: false
+---
+
+# Design System Rules
+
+- Use existing design tokens and shared component primitives before adding new styling patterns.
+- Avoid hardcoded visual literals (hex colors, spacing, radius, shadows) when an existing token already covers the need.
+- Prefer composition and consistency over custom one-off components.
+- Include explicit UI states for async surfaces: `loading`, `empty`, `error`, `ready`.
+- Keep interactions accessible (keyboard support, focus visibility, semantic labels).
+- Use plain-language error messages with actionable recovery guidance.
+- Keep visual hierarchy clear: primary actions obvious, destructive actions confirmed.

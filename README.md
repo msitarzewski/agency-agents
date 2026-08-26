@@ -716,7 +716,7 @@ The Agency works natively with Claude Code, and ships conversion + install scrip
 - **[Antigravity](https://github.com/google-gemini/antigravity)** — `SKILL.md` per agent → `~/.gemini/config/skills/`
 - **[Gemini CLI](https://github.com/google-gemini/gemini-cli)** -- `.md` agent files -> `~/.gemini/agents/`
 - **[OpenCode](https://opencode.ai)** — `.md` agent files → `.opencode/agents/`
-- **[Cursor](https://cursor.sh)** — `.mdc` rule files → `.cursor/rules/`
+- **[Cursor](https://cursor.sh)** — subagents → `.cursor/agents/` (+ thin `agency-router.mdc`)
 - **[Aider](https://aider.chat)** — single `CONVENTIONS.md` → `./CONVENTIONS.md`
 - **[Windsurf](https://codeium.com/windsurf)** — single `.windsurfrules` → `./.windsurfrules`
 - **[OpenClaw](https://github.com/openclaw/openclaw)** — `SOUL.md` + `AGENTS.md` + `IDENTITY.md` per agent
@@ -757,7 +757,7 @@ The installer scans your system for installed tools, shows a checkbox UI, and le
   [ ]  4)  [ ]  Gemini CLI      (~/.gemini/agents)
   [ ]  5)  [ ]  OpenCode        (opencode.ai)
   [ ]  6)  [ ]  OpenClaw        (~/.openclaw/agency-agents)
-  [x]  7)  [*]  Cursor          (.cursor/rules)
+  [x]  7)  [*]  Cursor          (.cursor/agents)
   [ ]  8)  [ ]  Aider           (CONVENTIONS.md)
   [ ]  9)  [ ]  Windsurf        (.windsurfrules)
   [ ] 10)  [ ]  Qwen Code       (~/.qwen/agents)
@@ -892,19 +892,21 @@ See [integrations/opencode/README.md](integrations/opencode/README.md) for detai
 <details>
 <summary><strong>Cursor</strong></summary>
 
-Each agent becomes a `.mdc` rule file in `.cursor/rules/` of your project.
+Each agent becomes a Cursor **subagent** under `.cursor/agents/` (flattened). A thin
+always-on `agency-router.mdc` routes to subagents — persona `.mdc` rules are not installed.
+
+Convert from division Claude `*.md` sources (never from `.mdc`):
 
 ```bash
+./scripts/convert.sh --tool cursor
 cd /your/project
-/path/to/agency-agents/scripts/install.sh --tool cursor
+/path/to/agency-agents/scripts/install.sh --tool cursor --division engineering,testing,product
 ```
 
-Rules are auto-applied when Cursor detects them in the project. Reference them explicitly:
-```
-Use the @security-engineer rules to review this code.
-```
+Activate via Task / subagents (slug) or `/agency`. Prefer selective `--division` /
+`--agent` installs (full roster can add delegation noise).
 
-See [integrations/cursor/README.md](integrations/cursor/README.md) for details.
+See [integrations/cursor/README.md](integrations/cursor/README.md) for migration from legacy `.mdc` rules.
 </details>
 
 <details>

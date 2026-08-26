@@ -1,0 +1,47 @@
+---
+description: Workspace global governance
+globs:
+  - "**/*"
+alwaysApply: true
+---
+
+# Global Governance
+
+- Follow `.cursor/rules/orchestration.mdc` unless the user explicitly opts out for the current request.
+- Step boundaries: `.cursor/docs/step-transition-contract.md`.
+- Multi-repo workspace: scope changes to the repo that owns the concern.
+- Plans: `plans/features/`, `plans/bugs/` at workspace root only.
+- Human guides: `Global/docs/cursor-rei-guide.md`, `Global/docs/gstack-rei-integration.md`.
+- Agency specialists (optional): `.cursor/skills/agency-integration/SKILL.md` — does not replace REI orchestration.
+
+## Nested rules
+
+Root `.cursor/rules/*.mdc` are canonical defaults; repo-local `.mdc` files are optional overlays—do not duplicate root policy.
+
+## Branch policy
+
+- **Protected (read-only for agents):** `main`, `master`, `DEV`, `develop` unless user explicitly waives.
+- **Work branches:** `feature/<slug>` or `fix/<slug>` (or exact name in plan).
+- **Before first edit or commit:** run `.cursor/skills/branch-gate/SKILL.md` in every repo you will touch—do not edit on protected branches and "move later."
+- **Multi-repo:** same branch name in every affected repo.
+- **Merges/pushes** to protected branches are **user-only** unless requested.
+- Planning/execution: `.cursor/skills/plan-feature/SKILL.md`, `.cursor/skills/execute-plan/SKILL.md`.
+
+## MCP governance
+
+Use MCP only when external capability is required. Read tool schemas before calling. Prefer local repo tools first.
+
+## Command workflow
+
+Ask concise questions when required inputs are missing. Security gates: `.cursor/docs/security-gates.md`.
+
+## Hooks
+
+Deterministic, fast, safe; objective checks only. Report hook failures clearly; allow configured overrides.
+
+## General
+
+- No secrets in code, tests, docs, or commits.
+- Minimal targeted edits unless requested.
+- Stop and ask when requirements are ambiguous or unsafe.
+- Preserve existing behavior unless the change explicitly alters it.

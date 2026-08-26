@@ -1,0 +1,13 @@
+---
+description: Guardrails for external documentation usage and synchronization
+globs:
+  - "**/*"
+alwaysApply: true
+---
+
+# External docs governance
+
+- Use external documentation to confirm behavior, not to paste large excerpts into plans, commits, or chat output.
+- Prefer source-of-truth URLs and extract only the minimum actionable facts needed for the current task.
+- Record any external-doc assumptions or unknowns explicitly in `docs/external/*` notes before implementation.
+- If docs conflict with code/runtime evidence, treat code/runtime as authoritative and mark the doc mismatch for follow-up.

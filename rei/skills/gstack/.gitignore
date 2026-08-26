@@ -1,0 +1,4 @@
+# Junction targets are local; only README is tracked.
+*
+!.gitignore
+!README.md

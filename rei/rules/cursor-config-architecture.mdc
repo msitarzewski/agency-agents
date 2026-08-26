@@ -1,0 +1,69 @@
+﻿---
+description: Cursor AI configuration architecture standards. Use when editing rules, skills, agents, subagents, commands, MCP, hooks, or plugin files.
+globs:
+  - ".cursor/**"
+  - ".cursor-plugin/**"
+  - "skills/**"
+  - "agents/**"
+  - "commands/**"
+  - "hooks/**"
+  - "mcp.json"
+alwaysApply: false
+---
+
+# Cursor Configuration Architecture Standards
+
+Use the correct layer for each responsibility:
+
+- Rules define persistent defaults.
+- Agents orchestrate execution.
+- Subagents specialize execution.
+- Skills contain reusable methodology.
+- Commands trigger workflows.
+- MCP exposes external capabilities.
+- Hooks enforce deterministic automation.
+- Plugins package the system.
+
+## Required Behavior
+
+- Keep always-on rules short.
+- Do not duplicate full skill logic inside agents or commands.
+- Route repeated workflows through commands.
+- Use subagents for specialized roles with clear boundaries.
+- Use MCP only when external capability is needed.
+- Use hooks only for deterministic, safe, fast automation.
+- Package coherent bundles as plugins.
+
+## Forbidden Behavior
+
+- Do not put long playbooks inside rules.
+- Do not create broad "do everything" subagents.
+- Do not add MCP without a concrete external capability.
+- Do not use hooks for subjective decisions.
+- Do not create plugins that are random file dumps.
+
+## Validation
+
+Before finalizing a configuration change, identify:
+
+1. Layer changed
+2. Why that layer is correct
+3. Duplicated logic removed
+4. How the workflow is invoked
+5. How the behavior is validated
+
+## Plugin Packaging Stance
+
+- Current mode: workspace-local configuration remains the default operating model.
+- Packaging into `.cursor-plugin/` is deferred intentionally to avoid premature distribution overhead.
+- Revisit packaging only when at least one criterion is met:
+  - The same configuration must be reused across multiple workspaces.
+  - Versioned release/change-management is required for external consumers.
+  - Installation/onboarding needs one-step plugin distribution rather than repository clone/setup.
+
+## Imported Domain Packs
+
+- Import large external capability bundles as on-demand .cursor/skills/* and .cursor/commands/*, not always-on rules.
+- Use namespaced command filenames (<domain>-<command>.md) to prevent collisions with workspace-native commands.
+- Keep migration additive first; defer removals/deprecations to a follow-up review cycle.
+

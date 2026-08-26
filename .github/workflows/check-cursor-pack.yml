@@ -1,0 +1,69 @@
+name: check-cursor-pack
+
+on:
+  pull_request:
+    paths:
+      - "scripts/convert.sh"
+      - "scripts/install.sh"
+      - "scripts/lib.sh"
+      - "scripts/check-cursor-pack.sh"
+      - "scripts/test-cursor-pack.sh"
+      - "integrations/cursor/**"
+      - "tools.json"
+      - "divisions.json"
+      - "academic/**"
+      - "design/**"
+      - "engineering/**"
+      - "finance/**"
+      - "game-development/**"
+      - "gis/**"
+      - "healthcare/**"
+      - "marketing/**"
+      - "paid-media/**"
+      - "product/**"
+      - "project-management/**"
+      - "sales/**"
+      - "security/**"
+      - "spatial-computing/**"
+      - "specialized/**"
+      - "support/**"
+      - "testing/**"
+      - ".github/workflows/check-cursor-pack.yml"
+  push:
+    paths:
+      - "scripts/convert.sh"
+      - "scripts/install.sh"
+      - "scripts/lib.sh"
+      - "scripts/check-cursor-pack.sh"
+      - "scripts/test-cursor-pack.sh"
+      - "integrations/cursor/**"
+      - "tools.json"
+      - "divisions.json"
+      - "academic/**"
+      - "design/**"
+      - "engineering/**"
+      - "finance/**"
+      - "game-development/**"
+      - "gis/**"
+      - "healthcare/**"
+      - "marketing/**"
+      - "paid-media/**"
+      - "product/**"
+      - "project-management/**"
+      - "sales/**"
+      - "security/**"
+      - "spatial-computing/**"
+      - "specialized/**"
+      - "support/**"
+      - "testing/**"
+      - ".github/workflows/check-cursor-pack.yml"
+
+jobs:
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Convert cursor pack from Claude division sources
+        run: ./scripts/convert.sh --tool cursor
+      - name: Cursor pack convert+install regression tests
+        run: ./scripts/test-cursor-pack.sh

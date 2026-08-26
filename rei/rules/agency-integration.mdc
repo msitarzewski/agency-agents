@@ -1,0 +1,17 @@
+---
+description: Agency Agents specialists — optional domain depth; REI pipeline stays canonical
+globs:
+  - "**/*"
+alwaysApply: true
+---
+
+# Agency integration (thin router)
+
+When Agency Agents are installed under `.cursor/agents/`:
+
+- **Delivery** stays REI: Planner → approve → Implementer → Test-engineer → Reviewer (see `orchestration.mdc`).
+- **Design** stays REI by default: `/design-product` → product-designer → designer-skills (`design-pack`). Agency design-division agents only when the pack is a poor fit (see `agency-integration` skill § Design).
+- **Domain depth** (engineering, etc.) uses Agency subagents by slug via **Task** or `/agency`.
+- Routing table: `.cursor/skills/agency-integration/SKILL.md`.
+- Do **not** load Agency personas as `.mdc` rules; do not replace REI for plan/implement/test/review/design defaults.
+- Prefer selective Agency installs (`--division engineering,security,testing,…`) over the full roster.

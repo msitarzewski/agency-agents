@@ -1,0 +1,15 @@
+---
+description: "Use when working on the Chrome extension codebase, including MV3 architecture, manifest permissions, and extension messaging boundaries."
+globs:
+  - "real-estate-crm-chrome-extension/**"
+alwaysApply: false
+---
+
+# Extension Rules
+
+- Keep extension architecture compliant with Chrome Manifest V3.
+- Do not introduce MV2-era patterns (persistent background pages, `background.html`).
+- Keep docs in `docs/` rather than adding root markdown files beyond `README.md`.
+- Preserve clear boundaries between content script, popup UI, and background/service-worker messaging.
+- Follow least-privilege permissions in manifest updates; request only permissions/host access required for current functionality.
+- Avoid unsafe runtime/script patterns (for example dynamic code execution) and keep extension messaging/input handling explicit and validated.

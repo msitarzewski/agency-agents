@@ -1,0 +1,34 @@
+---
+description: Repo-aware testing and validation requirements
+globs:
+  - "**/tests/**"
+  - "**/__tests__/**"
+  - "**/*.test.*"
+  - "**/*.spec.*"
+  - "**/test_*.py"
+  - "**/*_test.py"
+alwaysApply: false
+---
+
+# Testing & Validation
+
+- Run tests for each affected repo before finalizing changes.
+- Prefer scoped runs on changed behavior first, then broader suites.
+- Add or update tests for behavior changes and bug fixes.
+- Tests live inside each affected repo's native layout—not workspace-root aggregates.
+
+## Backend
+
+Jest/Supertest in `tests/unit`, `tests/integration`, `tests/e2e`. Keep integration tests realistic.
+
+## Frontend
+
+React Testing Library; zero lint warnings. Use existing `src/**/__tests__` or `tests/*` layout.
+
+## Scraper
+
+`pytest` under `tests/`; cover parsing and failure paths.
+
+## Extension
+
+Validate buildability and key flows; tests stay in the extension repo.

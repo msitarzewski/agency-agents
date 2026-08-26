@@ -1,0 +1,21 @@
+---
+alwaysApply: true
+---
+
+# Architecture & Boundaries
+
+## Workspace Modules
+
+- `real-estate-crm-backend/`: Node.js + Express + TypeScript + MongoDB.
+- `real-estate-crm-frontend/`: React + Vite + TypeScript + MUI + Tailwind.
+- `real-estate-crm-chrome-extension/`: React + Vite + TypeScript (Chrome MV3).
+- `real-estate-crm-scraper/`: Python + FastAPI + Motor (MongoDB).
+- `HomeHarvestLocal/`: local Python scraping/enrichment library.
+
+## Boundary Rules
+
+- Frontend consumes backend APIs; frontend does not implement server logic.
+- Backend exposes APIs and business logic; backend does not include frontend UI code.
+- Extension must remain MV3-compliant; no persistent background page patterns.
+- Scraper owns async scraping/data pipeline concerns; keep Python conventions there.
+- Keep cross-repo changes explicit in PR descriptions and test plans.

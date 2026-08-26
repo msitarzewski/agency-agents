@@ -13,7 +13,7 @@
 #   antigravity  — Antigravity skill files (~/.gemini/config/skills/)
 #   gemini-cli   — Gemini CLI subagent files (~/.gemini/agents/*.md)
 #   opencode     — OpenCode agent files (.opencode/agents/*.md)
-#   cursor       — Cursor rule files (.cursor/rules/*.mdc)
+#   cursor       — Cursor full config pack (agents + thin router + optional skills/commands/catalog)
 #   aider        — Single CONVENTIONS.md for Aider
 #   windsurf     — Single .windsurfrules for Windsurf
 #   openclaw     — OpenClaw workspaces (integrations/openclaw/<agent>/SOUL.md)
@@ -276,27 +276,480 @@ ${body}
 HEREDOC
 }
 
+# ---------------------------------------------------------------------------
+# Cursor pack converters (subagent-first)
+#
+# Sources: division Claude agent *.md only (AGENT_DIRS). NEVER convert from
+# .mdc or integrations/cursor/rules/. Deterministic heading trim (no LLM).
+# Subagent emit: name, description (WHAT+WHEN), model: inherit. Drop color.
+# Optional vibe → Identity bullet. Skills when oversized / template-heavy.
+# Only always-on rule: agency-router.mdc (written in cursor_finalize).
+# Size targets: subagent ≤150 preferred (warn >150); skill SKILL.md ≤200;
+# router ≤60; AGENTS Agency section ≤80.
+# ---------------------------------------------------------------------------
+
+# cursor_classify_header <## line> — bucket: identity|mission|rules|workflow|deliverables|cut|default
+cursor_classify_header() {
+  local header_lower
+  header_lower="$(printf '%s' "$1" | tr '[:upper:]' '[:lower:]')"
+  # Strip common emoji / non-ascii noise for keyword match
+  header_lower="$(printf '%s' "$header_lower" | sed 's/[^a-z0-9 &/\-]//g')"
+
+  # Only ## headers are classified; # titles are handled as preamble.
+  if [[ "$header_lower" =~ learning ]]; then
+    printf 'cut'
+  elif [[ "$header_lower" =~ identity ]] ||
+       [[ "$header_lower" =~ personality ]] ||
+       [[ "$header_lower" =~ memory ]] ||
+       [[ "$header_lower" =~ communication ]] ||
+       [[ "$header_lower" =~ style ]]; then
+    printf 'identity'
+  elif [[ "$header_lower" =~ core[[:space:]]*mission ]] ||
+       [[ "$header_lower" =~ mission ]]; then
+    printf 'mission'
+  elif [[ "$header_lower" =~ critical[[:space:]]*rule ]] ||
+       [[ "$header_lower" =~ rules[[:space:]]*you[[:space:]]*must[[:space:]]*follow ]] ||
+       [[ "$header_lower" =~ critical[[:space:]]*rules ]]; then
+    printf 'rules'
+  elif [[ "$header_lower" =~ workflow ]] ||
+       [[ "$header_lower" =~ process ]]; then
+    printf 'workflow'
+  elif [[ "$header_lower" =~ technical[[:space:]]*deliverable ]] ||
+       [[ "$header_lower" =~ deliverable ]] ||
+       [[ "$header_lower" =~ example ]]; then
+    printf 'deliverables'
+  elif [[ "$header_lower" =~ success[[:space:]]*metric ]] ||
+       [[ "$header_lower" =~ advanced ]] ||
+       [[ "$header_lower" =~ instructions[[:space:]]*reference ]]; then
+    printf 'cut'
+  else
+    printf 'default'
+  fi
+}
+
+# cursor_enrich_description <desc> <name> — append Use when… if missing (deterministic).
+cursor_enrich_description() {
+  local desc="$1" name="$2" lower
+  lower="$(printf '%s' "$desc" | tr '[:upper:]' '[:lower:]')"
+  if [[ "$lower" =~ use[[:space:]]+when ]]; then
+    printf '%s' "$desc"
+  else
+    printf '%s Use when the user needs %s expertise or related tasks.' "$desc" "$name"
+  fi
+}
+
+# cursor_yaml_escape <string> — single-line YAML double-quoted value.
+cursor_yaml_escape() {
+  printf '%s' "$1" | sed 's/\\/\\\\/g; s/"/\\"/g; s/\t/ /g' | tr '\n' ' ' | sed 's/  */ /g; s/^ //; s/ $//'
+}
+
+# cursor_division_of <file> — basename of parent dir under REPO_ROOT.
+cursor_division_of() {
+  local file="$1" rel parent
+  rel="${file#$REPO_ROOT/}"
+  parent="${rel%%/*}"
+  printf '%s' "$parent"
+}
+
+# cursor_trim_body <body_file> <agent_out> <skill_out> <ref_out> <need_out>
+# Single-pass awk trim (fast on Git Bash / Windows). Same classifier as
+# cursor_classify_header. Writes agent/skill/ref files; need_out is 0|1.
+cursor_trim_body() {
+  local body_file="$1" agent_out="$2" skill_out="$3" ref_out="$4" need_out="$5"
+  local meta agent_lines need=0
+  meta="$(awk -v agent_out="$agent_out" -v skill_out="$skill_out" -v ref_out="$ref_out" '
+    function classify(h,   x) {
+      x = tolower(h)
+      gsub(/[^a-z0-9 &\/-]/, "", x)
+      if (x ~ /learning/) return "cut"
+      if (x ~ /identity/ || x ~ /personality/ || x ~ /memory/ || x ~ /communication/ || x ~ /style/) return "identity"
+      if (x ~ /mission/) return "mission"
+      if (x ~ /critical[[:space:]]*rule/ || x ~ /rules[[:space:]]*you[[:space:]]*must[[:space:]]*follow/) return "rules"
+      if (x ~ /workflow/ || x ~ /process/) return "workflow"
+      if (x ~ /deliverable/ || x ~ /example/) return "deliverables"
+      if (x ~ /success[[:space:]]*metric/ || x ~ /advanced/ || x ~ /instructions[[:space:]]*reference/) return "cut"
+      return "default"
+    }
+    function is_bullet(l) { return l ~ /^[[:space:]]*[-*][[:space:]]/ }
+    function is_step(l) {
+      return (l ~ /^###/ || is_bullet(l) || l ~ /^[[:space:]]*[0-9]+\.[[:space:]]/)
+    }
+    function flush(    i, n, steps, bullets, line) {
+      n = sec_n
+      if (n < 1) return
+      if (bucket == "preamble") {
+        for (i = 1; i <= n; i++) {
+          line = sec[i]
+          if (line ~ /^#/ || line ~ /^[[:space:]]*$/) continue
+          print line >> agent_out
+          preamble_kept++
+          if (preamble_kept >= 4) break
+        }
+        if (preamble_kept > 0) print "" >> agent_out
+        return
+      }
+      if (bucket == "identity") {
+        print sec[1] >> agent_out
+        bullets = 0
+        for (i = 2; i <= n; i++) if (is_bullet(sec[i])) {
+          print sec[i] >> agent_out
+          bullets++
+          if (bullets >= 6) break
+        }
+        if (bullets == 0) {
+          for (i = 2; i <= n && i <= 8; i++) print sec[i] >> agent_out
+        }
+        print "" >> agent_out
+        return
+      }
+      if (bucket == "mission") {
+        for (i = 1; i <= n && i <= 40; i++) print sec[i] >> agent_out
+        print "" >> agent_out
+        return
+      }
+      if (bucket == "rules") {
+        for (i = 1; i <= n; i++) print sec[i] >> agent_out
+        return
+      }
+      if (bucket == "workflow") {
+        has_workflow = 1
+        steps = 0
+        for (i = 1; i <= n; i++) if (is_step(sec[i])) steps++
+        if (steps > 8) {
+          workflow_long = 1
+          print sec[1] >> agent_out
+          steps = 0
+          for (i = 2; i <= n; i++) if (is_step(sec[i])) {
+            print sec[i] >> agent_out
+            steps++
+            if (steps >= 8) break
+          }
+          print "" >> agent_out
+          for (i = 1; i <= n; i++) print sec[i] >> skill_out
+          has_skill = 1
+        } else {
+          for (i = 1; i <= n; i++) print sec[i] >> agent_out
+        }
+        return
+      }
+      if (bucket == "deliverables") {
+        has_deliverables = 1
+        has_skill = 1
+        want_ref = 0
+        for (i = 1; i <= n; i++) print sec[i] >> skill_out
+        if (n > 40) want_ref = 1
+        else {
+          for (i = 1; i <= n; i++) if (sec[i] ~ /```/) { want_ref = 1; break }
+        }
+        if (want_ref) {
+          for (i = 1; i <= n; i++) print sec[i] >> ref_out
+        }
+        return
+      }
+      if (bucket == "cut") {
+        bullets = 0
+        for (i = 2; i <= n; i++) if (is_bullet(sec[i])) {
+          if (bullets == 0) print sec[1] >> agent_out
+          print sec[i] >> agent_out
+          bullets++
+          if (bullets >= 2) break
+        }
+        if (bullets > 0) print "" >> agent_out
+        return
+      }
+      # default
+      if (n > 25) {
+        for (i = 1; i <= n; i++) print sec[i] >> skill_out
+        has_skill = 1
+      } else {
+        for (i = 1; i <= n; i++) print sec[i] >> agent_out
+      }
+    }
+    BEGIN {
+      bucket = "preamble"; sec_n = 0; preamble_kept = 0
+      has_workflow = 0; has_deliverables = 0; workflow_long = 0
+      has_skill = 0; has_ref = 0
+    }
+    /^##[[:space:]]/ {
+      flush()
+      split("", sec); sec_n = 0
+      bucket = classify($0)
+    }
+    {
+      sec[++sec_n] = $0
+    }
+    END {
+      flush()
+      printf "%d %d %d %d\n", has_workflow, has_deliverables, workflow_long, has_skill
+    }
+  ' "$body_file")"
+
+  # shellcheck disable=SC2086
+  set -- $meta
+  local has_workflow="${1:-0}" has_deliverables="${2:-0}" workflow_long="${3:-0}" has_skill="${4:-0}"
+
+  agent_lines=0
+  [[ -f "$agent_out" ]] && agent_lines="$(wc -l < "$agent_out" | tr -d ' ')"
+  if [[ "$agent_lines" -gt 150 ]]; then need=1; fi
+  if [[ "$has_workflow" -eq 1 && "$has_deliverables" -eq 1 ]]; then need=1; fi
+  if [[ "$has_skill" -eq 1 || -s "$skill_out" ]]; then need=1; fi
+  if [[ "$agent_lines" -gt 150 && ! -s "$skill_out" ]]; then
+    printf '%s\n' "## Extended reference" "" \
+      "See the source agent for full deliverable templates and advanced guidance." >> "$skill_out" || true
+    need=1
+  fi
+  mkdir -p "$(dirname "$need_out")"
+  printf '%s' "$need" > "$need_out" || printf '0' > "$need_out"
+}
+
+# cursor_guard_source <file> — fail closed on .mdc / cursor rules paths.
+cursor_guard_source() {
+  local file="$1"
+  case "$file" in
+    *.mdc)
+      error "cursor convert refuses .mdc input (sources must be division Claude *.md): $file"
+      return 1
+      ;;
+  esac
+  case "$file" in
+    */integrations/cursor/*|integrations/cursor/*|*/integrations/cursor|integrations/cursor|\
+    */.cursor/rules/*|.cursor/rules/*|*/.cursor/rules|.cursor/rules)
+      error "cursor convert refuses integrations/cursor or .cursor/rules paths: $file"
+      return 1
+      ;;
+  esac
+  return 0
+}
+
 convert_cursor() {
   local file="$1"
-  local name description slug outfile body
+  local name description slug division emoji vibe enriched
+  local need_skill
+  local tmpdir body_tmp agent_tmp skill_tmp ref_tmp need_tmp outfile skill_dir
+  local identity_extra="" title skill_link="" desc_escaped agent_lines
 
-  name="$(get_field "name" "$file")"
-  description="$(get_field "description" "$file")"
+  cursor_guard_source "$file" || return 1
+
+  # One awk pass for common frontmatter fields (faster on Git Bash)
+  local fm_line
+  fm_line="$(awk '
+    /^---$/ { fm++; next }
+    fm == 1 && /^name: / { sub(/^name: /, ""); name=$0 }
+    fm == 1 && /^description: / { sub(/^description: /, ""); desc=$0 }
+    fm == 1 && /^emoji: / { sub(/^emoji: /, ""); emoji=$0 }
+    fm == 1 && /^vibe: / { sub(/^vibe: /, ""); vibe=$0 }
+    fm >= 2 { exit }
+    END { printf "%s\t%s\t%s\t%s", name, desc, emoji, vibe }
+  ' "$file")"
+  IFS=$'\t' read -r name description emoji vibe <<< "$fm_line"
   slug="$(slugify "$name")"
-  body="$(get_body "$file")"
+  division="$(cursor_division_of "$file")"
+  enriched="$(cursor_enrich_description "$description" "$name")"
 
-  outfile="$OUT_DIR/cursor/rules/${slug}.mdc"
-  mkdir -p "$OUT_DIR/cursor/rules"
+  # Collision warn: same slug already staged under another division
+  if [[ -n "${CURSOR_SLUG_INDEX:-}" ]]; then
+    local prev
+    prev="$(grep -E "^${slug}[[:space:]]" "$CURSOR_SLUG_INDEX" 2>/dev/null | head -1 || true)"
+    if [[ -n "$prev" ]]; then
+      warn "cursor: duplicate slug '$slug' (also in ${prev#* }) — install flatten last-writer-wins"
+    fi
+    printf '%s %s\n' "$slug" "$division" >> "$CURSOR_SLUG_INDEX"
+  fi
 
-  # Cursor .mdc format: description + globs + alwaysApply frontmatter
-  cat > "$outfile" <<HEREDOC
+  # Reuse per-run work dir (avoid fragile per-agent /tmp on Git Bash / Windows)
+  if [[ -z "${CURSOR_WORK_DIR:-}" || ! -d "${CURSOR_WORK_DIR:-}" ]]; then
+    CURSOR_WORK_DIR="$OUT_DIR/cursor/.work-$$"
+    mkdir -p "$CURSOR_WORK_DIR"
+  fi
+  body_tmp="$CURSOR_WORK_DIR/body.md"
+  agent_tmp="$CURSOR_WORK_DIR/agent.md"
+  skill_tmp="$CURSOR_WORK_DIR/skill.md"
+  ref_tmp="$CURSOR_WORK_DIR/ref.md"
+  need_tmp="$CURSOR_WORK_DIR/need.txt"
+  get_body "$file" > "$body_tmp"
+  : > "$agent_tmp"; : > "$skill_tmp"; : > "$ref_tmp"
+  cursor_trim_body "$body_tmp" "$agent_tmp" "$skill_tmp" "$ref_tmp" "$need_tmp"
+  need_skill="$(cat "$need_tmp" 2>/dev/null || echo 0)"
+
+  if [[ -n "$vibe" ]]; then
+    identity_extra="## Identity"$'\n'"- **Vibe**: ${vibe}"$'\n\n'
+  fi
+
+  title="# ${name}"
+  [[ -n "$emoji" ]] && title="# ${emoji} ${name}"
+
+  if [[ "$need_skill" == "1" && -s "$skill_tmp" ]]; then
+    skill_link=$'\n'"## Skill pack"$'\n'"- Detailed workflows and deliverable templates: see skill \`${slug}\` (SKILL.md)."$'\n'
+  fi
+
+  outfile="$OUT_DIR/cursor/agents/${division}/${slug}.md"
+  mkdir -p "$(dirname "$outfile")"
+
+  desc_escaped="$(cursor_yaml_escape "$enriched")"
+
+  {
+    cat <<HEREDOC
 ---
-description: ${description}
-globs: ""
-alwaysApply: false
+name: ${slug}
+description: "${desc_escaped}"
+model: inherit
 ---
-${body}
+
+${title}
+
 HEREDOC
+    [[ -n "$identity_extra" ]] && printf '%s' "$identity_extra"
+    cat "$agent_tmp"
+    [[ -n "$skill_link" ]] && printf '%s' "$skill_link"
+  } > "$outfile"
+
+  agent_lines="$(wc -l < "$outfile" | tr -d ' ')"
+  if [[ "$agent_lines" -gt 150 ]]; then
+    warn "cursor: ${division}/${slug} subagent is ${agent_lines} lines (prefer ≤150)"
+  fi
+
+  # Hard cap: keep ≤200 lines in subagent; overflow goes to skill
+  if [[ "$agent_lines" -gt 200 ]]; then
+    local keep=180 overflow_tmp
+    overflow_tmp="$CURSOR_WORK_DIR/overflow.md"
+    : > "$overflow_tmp"
+    awk -v keep="$keep" -v overflow="$overflow_tmp" '
+      BEGIN { n=0; fm=0 }
+      /^---$/ { fm++; print; next }
+      fm < 2 { print; next }
+      {
+        n++
+        if (n <= keep) print
+        else print >> overflow
+      }
+    ' "$outfile" > "$outfile.tmp"
+    mv "$outfile.tmp" "$outfile"
+    if [[ -s "$overflow_tmp" ]]; then
+      printf '\n## Overflow (trimmed from subagent)\n\n' >> "$skill_tmp"
+      cat "$overflow_tmp" >> "$skill_tmp"
+      need_skill=1
+      printf '\n## Skill pack\n- Additional detail moved to skill `%s` (SKILL.md).\n' "$slug" >> "$outfile"
+    fi
+    agent_lines="$(wc -l < "$outfile" | tr -d ' ')"
+    warn "cursor: ${division}/${slug} truncated to ${agent_lines} lines (hard cap 200)"
+  fi
+
+  local has_skill=0
+  if [[ "$need_skill" == "1" && -s "$skill_tmp" ]]; then
+    has_skill=1
+    skill_dir="$OUT_DIR/cursor/skills/${division}/${slug}"
+    mkdir -p "$skill_dir"
+    {
+      cat <<HEREDOC
+---
+name: ${slug}
+description: "${desc_escaped}"
+disable-model-invocation: true
+---
+
+# ${name} Skill
+
+HEREDOC
+      cat "$skill_tmp"
+    } > "$skill_dir/SKILL.md"
+    if [[ -s "$ref_tmp" ]]; then
+      {
+        printf '# %s Reference\n\n' "$name"
+        cat "$ref_tmp"
+      } > "$skill_dir/reference.md"
+    fi
+  fi
+
+  # Catalog row for cursor_finalize (TSV: slug, name, division, desc, has_skill)
+  if [[ -n "${CURSOR_CATALOG_TSV:-}" ]]; then
+    printf '%s\t%s\t%s\t%s\t%s\n' "$slug" "$name" "$division" "$desc_escaped" "$has_skill" \
+      >> "$CURSOR_CATALOG_TSV"
+  fi
+}
+
+# cursor_finalize — once per cursor convert run: router, catalog, command, AGENTS template.
+# Never writes persona rules/*.mdc.
+cursor_finalize() {
+  local cursor_root="$OUT_DIR/cursor"
+  local agents_root="$cursor_root/agents"
+  [[ -d "$agents_root" ]] || { warn "cursor_finalize: no agents/ to catalog"; return 0; }
+
+  mkdir -p "$cursor_root/rules" "$cursor_root/commands" "$cursor_root/catalog/by-division"
+
+  # Thin always-on router only
+  cat > "$cursor_root/rules/agency-router.mdc" <<'HEREDOC'
+---
+description: Agency Agents router — activate project subagents; do not inline persona bodies.
+alwaysApply: true
+---
+
+# Agency Agents Router
+
+This project has Agency Agents installed as Cursor **subagents** under `.cursor/agents/`.
+
+## How to delegate
+
+1. Prefer the Task / subagent tool with the matching agent `name` (slug) from `.cursor/agents/`.
+2. Use `/agency` (`.cursor/commands/agency.md`) or `.cursor/catalog/roster.json` to pick by division.
+3. Do **not** paste full persona rule bodies into the chat. Subagents already carry trimmed instructions.
+4. Keep this router thin — it only routes; expertise lives in subagents (and optional skills).
+
+If unsure which agent to use, open `AGENTS.md` (Agency section) or `catalog/by-division/`.
+HEREDOC
+
+  # Catalog from TSV accumulated during convert_cursor (no per-file re-scan)
+  local roster_file="$cursor_root/catalog/roster.json"
+  local slug name division desc has_skill artifacts first=1
+  printf '[\n' > "$roster_file"
+  if [[ -n "${CURSOR_CATALOG_TSV:-}" && -f "${CURSOR_CATALOG_TSV:-}" ]]; then
+    while IFS=$'\t' read -r slug name division desc has_skill; do
+      [[ -n "$slug" ]] || continue
+      artifacts='["agent"]'
+      [[ "$has_skill" == "1" ]] && artifacts='["agent","skill"]'
+      if [[ "$first" -eq 1 ]]; then first=0; else printf ',\n' >> "$roster_file"; fi
+      printf '  {"slug":"%s","name":"%s","division":"%s","description":"%s","artifacts":%s}' \
+        "$slug" "$name" "$division" "$desc" "$artifacts" >> "$roster_file"
+      # Append to by-division page (create header once via sentinel files)
+      if [[ ! -f "$cursor_root/catalog/by-division/${division}.md" ]]; then
+        printf '# %s\n\n| Slug | Name |\n|------|------|\n' "$division" \
+          > "$cursor_root/catalog/by-division/${division}.md"
+      fi
+      printf '| `%s` | %s |\n' "$slug" "$name" >> "$cursor_root/catalog/by-division/${division}.md"
+    done < "$CURSOR_CATALOG_TSV"
+  fi
+  printf '\n]\n' >> "$roster_file"
+
+  cat > "$cursor_root/commands/agency.md" <<'HEREDOC'
+# Agency — list or activate an Agency agent
+
+Read `.cursor/catalog/roster.json` (or `catalog/by-division/<division>.md`) and help the user pick a subagent.
+
+## Behavior
+
+1. If the user names a slug or role, activate that Cursor subagent (Task / subagent with `name` = slug).
+2. If the user names a division, list matching slugs from the catalog.
+3. If unclear, ask one clarifying question, then recommend 1–3 agents.
+4. Do not dump full agent bodies into the chat; delegate to the subagent instead.
+
+Installed agents live in `.cursor/agents/<slug>.md`.
+HEREDOC
+
+  cat > "$cursor_root/AGENTS.md.template" <<'HEREDOC'
+<!-- agency-agents:start -->
+## Agency Agents
+
+This project uses [Agency Agents](https://github.com/msitarzewski/agency-agents) as Cursor subagents.
+
+- **Activate:** Task / subagent by slug under `.cursor/agents/`, or run `/agency`.
+- **Router:** `.cursor/rules/agency-router.mdc` (always on, thin — no persona bodies).
+- **Catalog:** `.cursor/catalog/roster.json` and `catalog/by-division/`.
+- **Selective install:** prefer `--division` / `--agent` (large full-roster installs add delegation noise).
+
+Do not convert or reinstall from `.mdc` persona rules; sources are division Claude `*.md` agents.
+<!-- agency-agents:end -->
+HEREDOC
+
+  info "cursor: wrote router, catalog, /agency command, AGENTS.md.template"
 }
 
 convert_openclaw() {
@@ -624,6 +1077,16 @@ run_conversions() {
 
   clean_tool_output "$tool"
 
+  # Cursor slug collision index + catalog TSV + stable work dir (Claude sources only)
+  if [[ "$tool" == "cursor" ]]; then
+    CURSOR_SLUG_INDEX="$OUT_DIR/cursor/.slug-index-$$"
+    CURSOR_CATALOG_TSV="$OUT_DIR/cursor/.catalog-$$.tsv"
+    CURSOR_WORK_DIR="$OUT_DIR/cursor/.work-$$"
+    mkdir -p "$OUT_DIR/cursor" "$CURSOR_WORK_DIR"
+    : > "$CURSOR_SLUG_INDEX"
+    : > "$CURSOR_CATALOG_TSV"
+  fi
+
   for dir in "${AGENT_DIRS[@]}"; do
     local dirpath="$REPO_ROOT/$dir"
     [[ -d "$dirpath" ]] || continue
@@ -657,6 +1120,13 @@ run_conversions() {
       (( count++ )) || true
     done < <(find "$dirpath" -name "*.md" -type f -print0 | sort -z)
   done
+
+  if [[ "$tool" == "cursor" ]]; then
+    cursor_finalize
+    rm -f "${CURSOR_SLUG_INDEX:-}" "${CURSOR_CATALOG_TSV:-}"
+    rm -rf "${CURSOR_WORK_DIR:-}"
+    unset CURSOR_SLUG_INDEX CURSOR_CATALOG_TSV CURSOR_WORK_DIR
+  fi
 
   echo "$count"
 }

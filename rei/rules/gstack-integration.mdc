@@ -1,0 +1,12 @@
+---
+description: REI + gstack precedence — optional gstack skills without overriding branch policy
+globs:
+  - "**/*"
+alwaysApply: true
+---
+
+# gstack integration
+
+gstack skills are **optional** accelerators under `.cursor/skills/gstack/` (install: `scripts/install-gstack-cursor-skills.ps1`). They do **not** replace REI Planner, Implementer, or Reviewer.
+
+**Precedence, phase routing, mutual-exclusion, and browser tooling:** `.cursor/skills/gstack-integration/SKILL.md`. User docs: `.cursor/docs/gstack-rei-integration.md`. Never auto-run gstack **`ship`** after Implementer—use **`prepare-pr`** unless the user explicitly requests gstack ship.

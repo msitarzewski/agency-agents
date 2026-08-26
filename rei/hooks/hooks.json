@@ -1,0 +1,24 @@
+{
+  "version": "0.1.0",
+  "description": "Active deterministic baseline for Cursor workspace checks.",
+  "hooks": [
+    {
+      "name": "cursor-config-json-validate",
+      "enabled": true,
+      "trigger": "post-edit",
+      "deterministic": true,
+      "command": "node -e \"JSON.parse(require('fs').readFileSync('.cursor/hooks/hooks.json','utf8'));\"",
+      "timeoutMs": 3000,
+      "continueOnError": false
+    },
+    {
+      "name": "cursor-config-canonical-check",
+      "enabled": true,
+      "trigger": "post-edit",
+      "deterministic": true,
+      "command": "rg \"Canonical cross-reference and precedence\" .cursor/skills/execute-plan/SKILL.md",
+      "timeoutMs": 3000,
+      "continueOnError": false
+    }
+  ]
+}

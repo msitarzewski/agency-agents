@@ -17,7 +17,8 @@
 #   antigravity  -- Copy skills to ~/.gemini/config/skills/
 #   gemini-cli   -- Install agents to ~/.gemini/agents/
 #   opencode     -- Copy agents to .opencode/agents/ in current directory
-#   cursor       -- Copy rules to .cursor/rules/ in current directory
+#   cursor       -- Install Agency subagents + thin router to .cursor/ (project root)
+#                   Optional: --with-rei merges rei/ delivery pipeline overlay
 #   aider        -- Copy CONVENTIONS.md to current directory
 #   windsurf     -- Copy .windsurfrules to current directory
 #   openclaw     -- Copy workspaces to ~/.openclaw/agency-agents/
@@ -38,6 +39,9 @@
 # Mode:
 #   --link                Symlink instead of copy (updates propagate)
 #   --path <dir>          Override the install directory (single destination)
+#   --with-rei            After cursor Agency pack, also merge rei/ overlay
+#                         (REI agents, thin rules, workflow skills/commands/docs)
+#   --no-rei              Skip rei/ overlay even if present (cursor only)
 #
 # Behavior:
 #   --interactive         Show the interactive wizard (default when run in a terminal)
@@ -49,10 +53,13 @@
 #   --jobs N              Max parallel jobs (default: nproc or 4)
 #   --help                Show this help
 #
-# Env: CLAUDE_CONFIG_DIR, COPILOT_AGENT_DIR, CURSOR_RULES_DIR, GEMINI_AGENTS_DIR,
-#      OPENCODE_AGENTS_DIR, OPENCLAW_DIR, QWEN_AGENTS_DIR, CODEX_AGENTS_DIR,
-#      OSAURUS_SKILLS_DIR, HERMES_HOME, HERMES_PLUGIN_DIR, VIBE_HOME
+# Env: CLAUDE_CONFIG_DIR, COPILOT_AGENT_DIR, CURSOR_CONFIG_DIR (preferred),
+#      CURSOR_AGENTS_DIR / CURSOR_RULES_DIR (legacy; parent of agents|rules used),
+#      GEMINI_AGENTS_DIR, OPENCODE_AGENTS_DIR, OPENCLAW_DIR, QWEN_AGENTS_DIR,
+#      CODEX_AGENTS_DIR, OSAURUS_SKILLS_DIR, HERMES_HOME, HERMES_PLUGIN_DIR, VIBE_HOME
 #      override default install paths (checked before hardcoded defaults).
+#      For cursor, --path / CURSOR_CONFIG_DIR is the .cursor config root
+#      (parent of agents/, rules/, skills/, commands/, catalog/).
 #
 # --- USAGE-END ---  (sentinel for usage(); do not remove)
 # Platform support:
@@ -231,6 +238,8 @@ worker_flags() {
   local out="" d a
   $USE_LINK && out="$out --link"
   $AUTO_CONVERT || out="$out --no-convert"
+  [[ "$WITH_REI" == "yes" ]] && out="$out --with-rei"
+  [[ "$WITH_REI" == "no" ]] && out="$out --no-rei"
   [[ -n "$OVERRIDE_PATH" ]] && out="$out --path $OVERRIDE_PATH"
   for d in ${FILTER_DIVISIONS[@]+"${FILTER_DIVISIONS[@]}"}; do out="$out --division $d"; done
   for a in ${FILTER_AGENTS[@]+"${FILTER_AGENTS[@]}"}; do out="$out --agent $a"; done
@@ -251,10 +260,37 @@ validate_division() {
 # ---------------------------------------------------------------------------
 USE_LINK=false        # --link
 OVERRIDE_PATH=""      # --path (single-destination override)
+WITH_REI=""           # --with-rei | --no-rei | empty=auto (on if rei/ exists for cursor)
 
 # install_file <src> <dest> — copy, or symlink when --link is set.
 install_file() {
   if $USE_LINK; then ln -sf "$1" "$2"; else cp "$1" "$2"; fi
+}
+
+# install_tree <src_dir> <dest_dir> — recursive file copy preserving relative paths.
+install_tree() {
+  local src="$1" dest="$2" f rel target
+  [[ -d "$src" ]] || return 0
+  mkdir -p "$dest"
+  while IFS= read -r f; do
+    [[ -n "$f" ]] || continue
+    rel="${f#"$src"/}"
+    [[ "$rel" == "$f" ]] && continue
+    target="$dest/$rel"
+    mkdir -p "$(dirname "$target")"
+    install_file "$f" "$target"
+  done < <(find "$src" -type f)
+}
+
+# cursor_want_rei — true when REI overlay should merge for this cursor install.
+cursor_want_rei() {
+  local rei_root="$REPO_ROOT/rei"
+  [[ -d "$rei_root/agents" ]] || return 1
+  case "${WITH_REI}" in
+    yes) return 0 ;;
+    no)  return 1 ;;
+    *)   return 0 ;; # auto: on when rei/ is present
+  esac
 }
 
 # resolve_dest <tool> <default> — --path > $ENV_VAR > default.
@@ -264,7 +300,7 @@ resolve_dest() {
   case "$tool" in
     claude-code) var="CLAUDE_CONFIG_DIR" ;;
     copilot)     var="COPILOT_AGENT_DIR" ;;
-    cursor)      var="CURSOR_RULES_DIR" ;;
+    cursor)      var="CURSOR_CONFIG_DIR" ;;
     gemini-cli)  var="GEMINI_AGENTS_DIR" ;;
     opencode)    var="OPENCODE_AGENTS_DIR" ;;
     openclaw)    var="OPENCLAW_DIR" ;;
@@ -275,6 +311,19 @@ resolve_dest() {
     hermes)      var="HERMES_PLUGIN_DIR" ;;
     vibe)        var="VIBE_HOME" ;;
   esac
+  # Cursor legacy env: CURSOR_AGENTS_DIR / CURSOR_RULES_DIR → normalize to .cursor root
+  if [[ "$tool" == "cursor" && -z "${CURSOR_CONFIG_DIR:-}" && -z "$OVERRIDE_PATH" ]]; then
+    if [[ -n "${CURSOR_AGENTS_DIR:-}" ]]; then
+      local d="$CURSOR_AGENTS_DIR"
+      [[ "$(basename "$d")" == "agents" ]] && d="$(dirname "$d")"
+      printf '%s' "$d"; return
+    fi
+    if [[ -n "${CURSOR_RULES_DIR:-}" ]]; then
+      local d="$CURSOR_RULES_DIR"
+      [[ "$(basename "$d")" == "rules" ]] && d="$(dirname "$d")"
+      printf '%s' "$d"; return
+    fi
+  fi
   if [[ -n "$var" && -n "${!var:-}" ]]; then printf '%s' "${!var}"; else printf '%s' "$def"; fi
 }
 
@@ -299,7 +348,17 @@ ensure_converted() {
   $AUTO_CONVERT || return 0
   case "$tool" in claude-code|copilot) return 0 ;; esac
   local d="$INTEGRATIONS/$tool"
-  if [[ ! -d "$d" ]] || [[ -z "$(find "$d" -type f 2>/dev/null | head -1)" ]]; then
+  local missing=false
+  if [[ "$tool" == "cursor" ]]; then
+    if [[ ! -d "$d/agents" ]] || \
+       [[ -z "$(find "$d/agents" -type f -name '*.md' 2>/dev/null | head -1)" ]] || \
+       [[ ! -f "$d/rules/agency-router.mdc" ]]; then
+      missing=true
+    fi
+  elif [[ ! -d "$d" ]] || [[ -z "$(find "$d" -type f 2>/dev/null | head -1)" ]]; then
+    missing=true
+  fi
+  if $missing; then
     warn "$tool: integration files missing — running convert.sh --tool $tool"
     "$SCRIPT_DIR/convert.sh" --tool "$tool" >/dev/null 2>&1 \
       && ok "$tool: generated integration files" \
@@ -308,15 +367,21 @@ ensure_converted() {
 }
 AUTO_CONVERT=true     # --no-convert disables
 
-# Per-tool soft capacity (opencode silently drops past ~119 — upstream #27988).
-tool_cap() { case "$1" in opencode) echo 119 ;; *) echo 0 ;; esac; }
+# Per-tool soft capacity (opencode silently drops past ~119 — upstream #27988;
+# cursor soft-warns above ~40 to reduce auto-delegate noise).
+tool_cap() { case "$1" in opencode) echo 119 ;; cursor) echo 40 ;; *) echo 0 ;; esac; }
 
 # capacity_warn <tool> <count> — warn if a tool can't register this many.
 capacity_warn() {
   local cap; cap="$(tool_cap "$1")"
   if [[ "$cap" -gt 0 && "$2" -gt "$cap" ]]; then
-    warn "$1: registers only ~$cap agents (upstream bug anomalyco/opencode#27988)."
-    warn "      You selected $2 — ~$(( $2 - cap )) won't load. Narrow with --division to fix."
+    if [[ "$1" == "cursor" ]]; then
+      warn "cursor: installing $2 agents (soft cap ~$cap). Large selections add delegation noise."
+      warn "      Narrow with --division or --agent (e.g. --division engineering,testing,product)."
+    else
+      warn "$1: registers only ~$cap agents (upstream bug anomalyco/opencode#27988)."
+      warn "      You selected $2 — ~$(( $2 - cap )) won't load. Narrow with --division to fix."
+    fi
   fi
 }
 
@@ -420,7 +485,7 @@ tool_label() {
     gemini-cli)  printf "%-14s  %s" "Gemini CLI"   "(~/.gemini/agents)"      ;;
     opencode)    printf "%-14s  %s" "OpenCode"     "(opencode.ai)"           ;;
     openclaw)    printf "%-14s  %s" "OpenClaw"     "(~/.openclaw/agency-agents)" ;;
-    cursor)      printf "%-14s  %s" "Cursor"       "(.cursor/rules)"         ;;
+    cursor)      printf "%-14s  %s" "Cursor"       "(.cursor/agents)"        ;;
     aider)       printf "%-14s  %s" "Aider"        "(CONVENTIONS.md)"        ;;
     windsurf)    printf "%-14s  %s" "Windsurf"     "(.windsurfrules)"        ;;
     qwen)        printf "%-14s  %s" "Qwen Code"    "(~/.qwen/agents)"        ;;
@@ -845,19 +910,203 @@ install_openclaw() {
   fi
 }
 
+# cursor_merge_agents_md <template> <dest> — merge Agency block via HTML markers.
+cursor_merge_agents_md() {
+  local template="$1" dest="$2"
+  local start="<!-- agency-agents:start -->"
+  local end="<!-- agency-agents:end -->"
+  local block tmp
+  [[ -f "$template" ]] || return 0
+  block="$(cat "$template")"
+  if [[ ! -f "$dest" ]]; then
+    printf '%s\n' "$block" > "$dest"
+    ok "Cursor: created $dest (Agency section)"
+    return 0
+  fi
+  if grep -qF "$start" "$dest" 2>/dev/null; then
+    tmp="$(mktemp)"
+    # Replace inclusive marker block with template (template already has markers).
+    awk -v start="$start" -v end="$end" '
+      BEGIN {
+        tfile = ARGV[2]
+        delete ARGV[2]
+        while ((getline line < tfile) > 0) tmpl = tmpl line ORS
+        close(tfile)
+      }
+      $0 == start { printf "%s", tmpl; skip=1; next }
+      skip && $0 == end { skip=0; next }
+      !skip { print }
+    ' "$dest" "$template" > "$tmp"
+    mv "$tmp" "$dest"
+    ok "Cursor: updated Agency section in $dest"
+  else
+    warn "Cursor: $dest exists without Agency markers — appending Agency block"
+    printf '\n%s\n' "$block" >> "$dest"
+  fi
+}
+
+# cursor_write_filtered_roster <agents_root_staging> <dest_roster> — roster for installed slugs.
+cursor_write_filtered_roster() {
+  local staging_agents="$1" dest_roster="$2"
+  local f slug name desc division artifacts first=1
+  mkdir -p "$(dirname "$dest_roster")"
+  printf '[\n' > "$dest_roster"
+  while IFS= read -r f; do
+    [[ -n "$f" ]] || continue
+    slug="$(basename "$f" .md)"
+    slug_allowed "$slug" || continue
+    name="$(sed -n 's/^#[[:space:]]*//p' "$f" | head -1 | sed 's/^[^[:alnum:]]*//')"
+    [[ -n "$name" ]] || name="$slug"
+    desc="$(sed -n 's/^description: "\(.*\)"$/\1/p; s/^description: \(.*\)$/\1/p' "$f" | head -1)"
+    division="$(basename "$(dirname "$f")")"
+    artifacts='["agent"]'
+    if [[ -f "$INTEGRATIONS/cursor/skills/$division/$slug/SKILL.md" ]]; then
+      artifacts='["agent","skill"]'
+    fi
+    desc="$(printf '%s' "$desc" | sed 's/\\/\\\\/g; s/"/\\"/g' | tr '\n' ' ')"
+    name="$(printf '%s' "$name" | sed 's/\\/\\\\/g; s/"/\\"/g')"
+    if [[ "$first" -eq 1 ]]; then first=0; else printf ',\n' >> "$dest_roster"; fi
+    printf '  {"slug":"%s","name":"%s","division":"%s","description":"%s","artifacts":%s}' \
+      "$slug" "$name" "$division" "$desc" "$artifacts" >> "$dest_roster"
+  done < <(find "$staging_agents" -type f -name '*.md' | LC_ALL=C sort)
+  printf '\n]\n' >> "$dest_roster"
+}
+
 install_cursor() {
-  local src="$INTEGRATIONS/cursor/rules"
-  local dest; dest="$(resolve_dest cursor "${PWD}/.cursor/rules")"
-  local count=0
-  [[ -d "$src" ]] || { err "integrations/cursor missing. Run convert.sh first."; return 1; }
-  mkdir -p "$dest"
-  local f
-  while IFS= read -r -d '' f; do
-    slug_allowed "$(basename "$f" .mdc)" || continue
-    install_file "$f" "$dest/"; incr count
-  done < <(find "$src" -maxdepth 1 -name "*.mdc" -print0)
-  ok "Cursor: $count rules -> $dest"
+  local src="$INTEGRATIONS/cursor"
+  local agents_src="$src/agents"
+  local root; root="$(resolve_dest cursor "${PWD}/.cursor")"
+  local count=0 skill_count=0
+  local f slug dest_agent division skill_src skill_dest
+
+  [[ -d "$agents_src" ]] || { err "integrations/cursor/agents missing. Run convert.sh --tool cursor first."; return 1; }
+  [[ -f "$src/rules/agency-router.mdc" ]] || { err "integrations/cursor/rules/agency-router.mdc missing. Run convert.sh --tool cursor first."; return 1; }
+
+  mkdir -p "$root/agents" "$root/rules" "$root/commands" "$root/skills" "$root/catalog/by-division"
+
+  # Flatten agents: agents/<division>/<slug>.md → .cursor/agents/<slug>.md
+  while IFS= read -r f; do
+    [[ -n "$f" ]] || continue
+    slug="$(basename "$f" .md)"
+    slug_allowed "$slug" || continue
+    dest_agent="$root/agents/${slug}.md"
+    if [[ -e "$dest_agent" ]] && ! $USE_LINK; then
+      warn "Cursor: overwriting $dest_agent"
+    fi
+    install_file "$f" "$dest_agent"
+    incr count
+
+    division="$(basename "$(dirname "$f")")"
+    skill_src="$src/skills/$division/$slug"
+    if [[ -d "$skill_src" ]]; then
+      skill_dest="$root/skills/$slug"
+      mkdir -p "$skill_dest"
+      local sf
+      while IFS= read -r sf; do
+        [[ -n "$sf" ]] || continue
+        install_file "$sf" "$skill_dest/$(basename "$sf")"
+      done < <(find "$skill_src" -type f)
+      incr skill_count
+    fi
+  done < <(find "$agents_src" -type f -name '*.md' | LC_ALL=C sort)
+
+  if (( count == 0 )); then
+    err "Cursor: no agents matched the current selection."
+    return 1
+  fi
+
+  # Always install thin router (never persona .mdc files)
+  install_file "$src/rules/agency-router.mdc" "$root/rules/agency-router.mdc"
+
+  if [[ -f "$src/commands/agency.md" ]]; then
+    install_file "$src/commands/agency.md" "$root/commands/agency.md"
+  fi
+
+  cursor_write_filtered_roster "$agents_src" "$root/catalog/roster.json"
+
+  # Rebuild by-division pages from the *selected* agents only (not full staged pages)
+  rm -rf "$root/catalog/by-division"
+  mkdir -p "$root/catalog/by-division"
+  while IFS= read -r f; do
+    [[ -n "$f" ]] || continue
+    slug="$(basename "$f" .md)"
+    slug_allowed "$slug" || continue
+    division="$(basename "$(dirname "$f")")"
+    name="$(sed -n 's/^#[[:space:]]*//p' "$f" | head -1 | sed 's/^[^[:alnum:]]*//')"
+    [[ -n "$name" ]] || name="$slug"
+    if [[ ! -f "$root/catalog/by-division/${division}.md" ]]; then
+      printf '# %s\n\n| Slug | Name |\n|------|------|\n' "$division" \
+        > "$root/catalog/by-division/${division}.md"
+    fi
+    printf '| `%s` | %s |\n' "$slug" "$name" >> "$root/catalog/by-division/${division}.md"
+  done < <(find "$agents_src" -type f -name '*.md' | LC_ALL=C sort)
+
+  if [[ -f "$src/AGENTS.md.template" ]]; then
+    cursor_merge_agents_md "$src/AGENTS.md.template" "${PWD}/AGENTS.md"
+  fi
+
+  capacity_warn cursor "$count"
+  ok "Cursor: $count agents -> $root/agents/ (+ router, ${skill_count} skills, /agency, catalog)"
   warn "Cursor: project-scoped. Run from your project root to install there."
+  warn "Cursor: migrate away from legacy persona .mdc rules under .cursor/rules/ (router-only now)."
+
+  if cursor_want_rei; then
+    install_rei_overlay "$root"
+  elif [[ "${WITH_REI}" == "yes" ]]; then
+    err "Cursor: --with-rei requested but $REPO_ROOT/rei/agents is missing."
+    return 1
+  fi
+}
+
+# install_rei_overlay <cursor_root> — merge rei/ SoT into .cursor (after Agency pack).
+# REI files win on name conflicts for rules/commands/skills; Agency slug agents stay.
+install_rei_overlay() {
+  local root="$1"
+  local rei="$REPO_ROOT/rei"
+  local n_agents=0 n_rules=0 n_cmds=0
+  local f base
+
+  [[ -d "$rei/agents" ]] || { err "rei/agents missing"; return 1; }
+
+  mkdir -p "$root/agents" "$root/rules" "$root/commands" "$root/skills" "$root/docs" "$root/hooks" "$root/mcp"
+
+  while IFS= read -r f; do
+    [[ -n "$f" ]] || continue
+    base="$(basename "$f")"
+    install_file "$f" "$root/agents/$base"
+    incr n_agents
+  done < <(find "$rei/agents" -maxdepth 1 -type f -name '*.md' | LC_ALL=C sort)
+
+  # Thin REI rules only — never copy persona dumps (guard: skip huge files)
+  while IFS= read -r f; do
+    [[ -n "$f" ]] || continue
+    base="$(basename "$f")"
+    # Safety: skip accidental Agency-style persona rules if someone drops them in rei/rules
+    if [[ "$(wc -l < "$f" | tr -d ' ')" -gt 120 ]]; then
+      warn "REI: skipping oversized rule $base (possible persona dump)"
+      continue
+    fi
+    install_file "$f" "$root/rules/$base"
+    incr n_rules
+  done < <(find "$rei/rules" -maxdepth 1 -type f \( -name '*.mdc' -o -name '*.md' \) 2>/dev/null | LC_ALL=C sort)
+
+  if [[ -d "$rei/skills" ]]; then
+    install_tree "$rei/skills" "$root/skills"
+  fi
+
+  while IFS= read -r f; do
+    [[ -n "$f" ]] || continue
+    base="$(basename "$f")"
+    install_file "$f" "$root/commands/$base"
+    incr n_cmds
+  done < <(find "$rei/commands" -maxdepth 1 -type f -name '*.md' 2>/dev/null | LC_ALL=C sort)
+
+  [[ -d "$rei/docs" ]] && install_tree "$rei/docs" "$root/docs"
+  [[ -d "$rei/hooks" ]] && install_tree "$rei/hooks" "$root/hooks"
+  [[ -d "$rei/mcp" ]] && install_tree "$rei/mcp" "$root/mcp"
+
+  ok "REI overlay: $n_agents agents, $n_rules rules, $n_cmds commands (+ skills/docs/hooks) -> $root"
+  dim "  REI delivery + Agency specialists. Map: .cursor/skills/agency-integration/SKILL.md"
 }
 
 install_aider() {
@@ -1193,6 +1442,8 @@ main() {
       --agents-file)     AGENTS_FILE="${2:?'--agents-file requires a value'}"; interactive_mode="no"; shift 2 ;;
       --link)            USE_LINK=true; shift ;;
       --path)            OVERRIDE_PATH="${2:?'--path requires a value'}"; shift 2 ;;
+      --with-rei)        WITH_REI=yes; shift ;;
+      --no-rei)          WITH_REI=no; shift ;;
       --no-convert)      AUTO_CONVERT=false; shift ;;
       --dry-run)         DRY_RUN=true; interactive_mode="no"; shift ;;
       --list)            if [[ -z "${2:-}" || "${2:-}" == --* ]]; then list_what="all"; shift; else list_what="$2"; shift 2; fi ;;
@@ -1282,8 +1533,36 @@ main() {
     local _t _cap
     for _t in "${SELECTED_TOOLS[@]}"; do
       _cap="$(tool_cap "$_t")"
-      [[ "$_cap" -gt 0 && "$agents" -gt "$_cap" ]] && \
+      if [[ "$_t" == "cursor" ]]; then
+        local _cursor_root _skills=0 _af _slug _div
+        _cursor_root="$(resolve_dest cursor "${PWD}/.cursor")"
+        if [[ -d "$INTEGRATIONS/cursor/agents" ]]; then
+          while IFS= read -r _af; do
+            [[ -n "$_af" ]] || continue
+            _slug="$(basename "$_af" .md)"
+            slug_allowed "$_slug" || continue
+            _div="$(basename "$(dirname "$_af")")"
+            [[ -d "$INTEGRATIONS/cursor/skills/$_div/$_slug" ]] && incr _skills
+          done < <(find "$INTEGRATIONS/cursor/agents" -type f -name '*.md' 2>/dev/null | LC_ALL=C sort)
+        fi
+        printf "  Cursor plan:\n"
+        printf "    agents:  %s -> %s/agents/<slug>.md (flattened)\n" "$agents" "$_cursor_root"
+        printf "    router:  agency-router.mdc -> %s/rules/\n" "$_cursor_root"
+        printf "    skills:  %s -> %s/skills/<slug>/\n" "$_skills" "$_cursor_root"
+        printf "    command: agency.md -> %s/commands/\n" "$_cursor_root"
+        printf "    catalog: roster.json (+ by-division) -> %s/catalog/\n" "$_cursor_root"
+        printf "    AGENTS:  merge Agency markers into %s/AGENTS.md\n" "$PWD"
+        if cursor_want_rei; then
+          printf "    REI:     merge %s/rei/{agents,rules,skills,commands,docs,hooks} -> %s/\n" \
+            "$REPO_ROOT" "$_cursor_root"
+        else
+          printf "    REI:     skipped (--no-rei or rei/ missing)\n"
+        fi
+        [[ "$_cap" -gt 0 && "$agents" -gt "$_cap" ]] && \
+          warn "cursor: $agents agents exceeds soft cap ~$_cap — narrow with --division"
+      elif [[ "$_cap" -gt 0 && "$agents" -gt "$_cap" ]]; then
         warn "$_t caps ~$_cap — ~$(( agents - _cap )) of $agents won't register (anomalyco/opencode#27988)"
+      fi
     done
     printf "\n"; exit 0
   fi
