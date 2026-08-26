@@ -15,6 +15,7 @@ AGENT_DIRS=(
   academic
   design
   engineering
+  engineering-workflow
   finance
   game-development
   gis
