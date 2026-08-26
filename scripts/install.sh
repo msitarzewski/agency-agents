@@ -478,7 +478,7 @@ division_emoji() {
     academic) printf '📚';; design) printf '🎨';; engineering) printf '💻';;
     finance) printf '💵';; game-development) printf '🎮';; gis) printf '🌍';; marketing) printf '📢';;
     paid-media) printf '💰';; product) printf '📊';; project-management) printf '🎬';;
-    sales) printf '💼';; security) printf '🔒';; spatial-computing) printf '🥽';;
+    research) printf '🔍';; sales) printf '💼';; security) printf '🔒';; spatial-computing) printf '🥽';;
     specialized) printf '🎯';; support) printf '🛟';; testing) printf '🧪';; *) printf '•';;
   esac
 }

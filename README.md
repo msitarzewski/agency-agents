@@ -533,6 +533,16 @@ Building AI agents for regulated clinical and sovereign health contexts.
 
 ---
 
+### 🔍 Research Division
+
+Finding, evaluating, and synthesizing existing evidence rather than generating new primary data.
+
+| Agent | Specialty | When to Use |
+|-------|-----------|-------------|
+| 🔍 [Research Synthesist](research/research-synthesist.md) | Literature review, source evaluation, citation tracing, evidence synthesis | Turning a scattered pile of sources into a structured, honestly-weighted map of what the evidence supports |
+
+---
+
 ## 🎯 Real-World Use Cases
 
 ### Scenario 1: Building a Startup MVP
