@@ -66,7 +66,7 @@ Each agent file contains:
 
 Browse the agents below and copy/adapt the ones you need!
 
-### Option 4: Use with Other Tools (GitHub Copilot, Antigravity, Gemini CLI, OpenCode, OpenClaw, Cursor, Aider, Windsurf, Kimi Code, Codex, Osaurus, Hermes, Mistral Vibe)
+### Option 4: Use with Other Tools (GitHub Copilot, Antigravity, Gemini CLI, Pi, OpenCode, OpenClaw, Cursor, Aider, Windsurf, Kimi Code, Codex, Osaurus, Hermes, Mistral Vibe)
 
 ```bash
 # Step 1 -- generate integration files for all supported tools
@@ -725,6 +725,7 @@ The Agency works natively with Claude Code, and ships conversion + install scrip
 - **[GitHub Copilot](https://github.com/copilot)** — native `.md` agents, no conversion needed → `~/.github/agents/` + `~/.copilot/agents/`
 - **[Antigravity](https://github.com/google-gemini/antigravity)** — `SKILL.md` per agent → `~/.gemini/config/skills/`
 - **[Gemini CLI](https://github.com/google-gemini/gemini-cli)** -- `.md` agent files -> `~/.gemini/agents/`
+- **[Pi](https://pi.dev)** — custom Subagent definitions → `~/.pi/agent/agents/` or `.pi/agents/`
 - **[OpenCode](https://opencode.ai)** — `.md` agent files → `.opencode/agents/`
 - **[Cursor](https://cursor.sh)** — `.mdc` rule files → `.cursor/rules/`
 - **[Aider](https://aider.chat)** — single `CONVENTIONS.md` → `./CONVENTIONS.md`
@@ -789,6 +790,7 @@ The installer scans your system for installed tools, shows a checkbox UI, and le
 ./scripts/install.sh --tool codex
 ./scripts/install.sh --tool osaurus
 ./scripts/install.sh --tool hermes
+./scripts/convert.sh --tool pi && ./scripts/install.sh --tool pi
 ```
 
 **Non-interactive (CI/scripts):**
@@ -873,6 +875,25 @@ On a fresh clone, generate the Gemini agent files before running the installer.
 ```
 
 See [integrations/gemini-cli/README.md](integrations/gemini-cli/README.md) for details.
+</details>
+
+<details>
+<summary><strong>Pi</strong></summary>
+
+Pi custom Subagents require [`pi-subagents`](https://github.com/tintinweb/pi-subagents).
+Install globally, or pass the project-local destination explicitly:
+
+```bash
+pi install npm:@tintinweb/pi-subagents
+./scripts/convert.sh --tool pi
+./scripts/install.sh --tool pi  # ~/.pi/agent/agents/
+
+cd /your/project
+/path/to/agency-agents/scripts/install.sh --tool pi --path .pi/agents
+```
+
+The source filename becomes the Pi agent type, while incompatible Claude-only
+frontmatter such as `tools:` is omitted.
 </details>
 
 <details>
@@ -1054,7 +1075,7 @@ When you add new agents or edit existing ones, regenerate all integration files:
 
 - [ ] Interactive agent selector web tool
 - [x] Multi-agent workflow examples -- see [examples/](examples/)
-- [x] Multi-tool integration scripts (Claude Code, GitHub Copilot, Antigravity, Gemini CLI, OpenCode, OpenClaw, Cursor, Aider, Windsurf, Qwen Code, Kimi Code, Codex, Osaurus, Hermes)
+- [x] Multi-tool integration scripts (Claude Code, GitHub Copilot, Antigravity, Gemini CLI, Pi, OpenCode, OpenClaw, Cursor, Aider, Windsurf, Qwen Code, Kimi Code, Codex, Osaurus, Hermes)
 - [ ] Video tutorials on agent design
 - [ ] Community agent marketplace
 - [ ] Agent "personality quiz" for project matching

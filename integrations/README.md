@@ -9,6 +9,7 @@ supported agentic coding tools.
 - **[GitHub Copilot](#github-copilot)** — `.md` agents, use the repo directly
 - **[Antigravity](#antigravity)** — `SKILL.md` per agent in `antigravity/`
 - **[Gemini CLI](#gemini-cli)** — `.md` agent files in `gemini-cli/agents/`
+- **[Pi](#pi)** — custom Subagent definitions in `pi/agents/`
 - **[OpenCode](#opencode)** — `.md` agent files in `opencode/`
 - **[OpenClaw](#openclaw)** — `SOUL.md` + `AGENTS.md` + `IDENTITY.md` workspaces
 - **[Cursor](#cursor)** — `.mdc` rule files in `cursor/`
@@ -39,6 +40,11 @@ supported agentic coding tools.
 # Gemini CLI needs generated integration files on a fresh clone
 ./scripts/convert.sh --tool gemini-cli
 ./scripts/install.sh --tool gemini-cli
+
+# Pi requires pi-subagents and generated custom agent definitions
+pi install npm:@tintinweb/pi-subagents
+./scripts/convert.sh --tool pi
+./scripts/install.sh --tool pi
 
 # Qwen Code also needs generated SubAgent files on a fresh clone
 ./scripts/convert.sh --tool qwen
@@ -120,6 +126,26 @@ Because the agent files are generated artifacts, run
 ```
 
 See [gemini-cli/README.md](gemini-cli/README.md) for details.
+
+---
+
+## Pi
+
+Pi custom Subagents require [`pi-subagents`](https://github.com/tintinweb/pi-subagents).
+Generated definitions install globally to `~/.pi/agent/agents/`; use
+`--path .pi/agents` from a project root for project scope.
+
+```bash
+./scripts/convert.sh --tool pi
+./scripts/install.sh --tool pi
+
+cd /your/project
+/path/to/agency-agents/scripts/install.sh --tool pi --path .pi/agents
+```
+
+The source filename remains the Pi agent type. Conversion keeps only `name`,
+`description`, and the persona body so Claude-specific `tools:` values cannot
+be misread as Pi restrictions.
 
 ---
 

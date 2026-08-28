@@ -12,6 +12,7 @@
 # Tools:
 #   antigravity  — Antigravity skill files (~/.gemini/config/skills/)
 #   gemini-cli   — Gemini CLI subagent files (~/.gemini/agents/*.md)
+#   pi           — Pi custom subagent files (~/.pi/agent/agents/*.md)
 #   opencode     — OpenCode agent files (.opencode/agents/*.md)
 #   cursor       — Cursor rule files (.cursor/rules/*.mdc)
 #   aider        — Single CONVENTIONS.md for Aider
@@ -207,6 +208,34 @@ convert_gemini_cli() {
   cat > "$outfile" <<HEREDOC
 ---
 name: $(yaml_quote "$slug")
+description: $(yaml_quote "$description")
+---
+${body}
+HEREDOC
+}
+
+convert_pi() {
+  local file="$1"
+  local name description slug source_slug outdir outfile body
+
+  name="$(get_field "name" "$file")"
+  description="$(get_field "description" "$file")"
+  slug="$(slugify "$name")"
+  source_slug="$(basename "$file" .md)"
+  # Strip only the leading frontmatter block. Unlike the shared legacy helper,
+  # keep later `---` separators because they are part of the persona prompt.
+  body="$(awk 'BEGIN{f=0} f<2 && /^---$/{f++; next} f>=2{print}' "$file")"
+
+  # pi-subagents uses the filename as the agent type. Keep the source slug for
+  # stable identity, but emit only shared-safe frontmatter so Claude-specific
+  # fields such as `tools` cannot be misread as Pi tool restrictions.
+  outdir="$OUT_DIR/pi/agents"
+  outfile="$outdir/${source_slug}.md"
+  mkdir -p "$outdir"
+
+  cat > "$outfile" <<HEREDOC
+---
+name: ${slug}
 description: $(yaml_quote "$description")
 ---
 ${body}
@@ -649,6 +678,7 @@ run_conversions() {
         antigravity) convert_antigravity "$file" ;;
         codex)       convert_codex       "$file" ;;
         gemini-cli)  convert_gemini_cli  "$file" ;;
+        pi)           convert_pi          "$file" ;;
         opencode)    convert_opencode    "$file" ;;
         cursor)      convert_cursor      "$file" ;;
         openclaw)    convert_openclaw    "$file" ;;
@@ -687,7 +717,7 @@ main() {
     esac
   done
 
-  local valid_tools=("antigravity" "gemini-cli" "opencode" "cursor" "aider" "windsurf" "openclaw" "qwen" "zcode" "kimi" "codex" "osaurus" "hermes" "vibe" "all")
+  local valid_tools=("antigravity" "gemini-cli" "opencode" "cursor" "aider" "windsurf" "openclaw" "qwen" "zcode" "kimi" "codex" "osaurus" "hermes" "vibe" "pi" "all")
   local valid=false
   for t in "${valid_tools[@]}"; do [[ "$t" == "$tool" ]] && valid=true && break; done
   if ! $valid; then
@@ -706,7 +736,7 @@ main() {
 
   local tools_to_run=()
   if [[ "$tool" == "all" ]]; then
-    tools_to_run=("antigravity" "gemini-cli" "opencode" "cursor" "aider" "windsurf" "openclaw" "qwen" "zcode" "kimi" "codex" "osaurus" "hermes" "vibe")
+    tools_to_run=("antigravity" "gemini-cli" "opencode" "cursor" "aider" "windsurf" "openclaw" "qwen" "zcode" "kimi" "codex" "osaurus" "hermes" "vibe" "pi")
   else
     tools_to_run=("$tool")
   fi
@@ -717,7 +747,7 @@ main() {
 
   if $use_parallel && [[ "$tool" == "all" ]]; then
     # Tools that write to separate dirs can run in parallel; buffer output so each tool's output stays together
-    local parallel_tools=(antigravity gemini-cli opencode cursor openclaw qwen zcode codex osaurus hermes vibe)
+    local parallel_tools=(antigravity gemini-cli opencode cursor openclaw qwen zcode codex osaurus hermes vibe pi)
     local parallel_out_dir
     parallel_out_dir="$(mktemp -d)"
     info "Converting: ${#parallel_tools[@]}/${n_tools} tools in parallel (output buffered per tool)..."
