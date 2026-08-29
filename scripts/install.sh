@@ -827,7 +827,7 @@ install_pi() {
   local f target backup_root="" backup_stamp
   backup_stamp="$(date +%Y%m%d%H%M%S)-$$"
   while IFS= read -r -d '' f; do
-    slug_allowed "$(get_field name "$f")" || continue
+    slug_allowed "$(slugify "$(get_field name "$f")")" || continue
     target="$dest/$(basename "$f")"
     if [[ -L "$target" ]]; then
       warn "Pi: skipping symlink $target (refusing to overwrite its source)."

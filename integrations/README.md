@@ -143,9 +143,9 @@ cd /your/project
 /path/to/agency-agents/scripts/install.sh --tool pi --path .pi/agents
 ```
 
-The source filename remains the Pi agent type. Conversion keeps only `name`,
-`description`, and the persona body so Claude-specific `tools:` values cannot
-be misread as Pi restrictions.
+The source filename remains the Pi agent type. Conversion preserves Claude
+`name`, `description`, `color`, `emoji`, `vibe`, and persona body fields. Current
+`tools:` values are mapped, with original and unmapped values kept under `x-agency-*`.
 
 ---
 

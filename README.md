@@ -892,8 +892,9 @@ cd /your/project
 /path/to/agency-agents/scripts/install.sh --tool pi --path .pi/agents
 ```
 
-The source filename becomes the Pi agent type, while incompatible Claude-only
-frontmatter such as `tools:` is omitted.
+The source filename becomes the Pi agent type. Claude `name`, `description`,
+`color`, `emoji`, `vibe`, and persona body fields are preserved; current `tools:`
+values are mapped to Pi names, with original and unmapped values kept under `x-agency-*`.
 </details>
 
 <details>

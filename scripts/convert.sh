@@ -214,32 +214,80 @@ ${body}
 HEREDOC
 }
 
+get_pi_field() {
+  local field="$1" file="$2"
+  awk -v key="$field" '
+    /^---$/ { frontmatter++; if (frontmatter >= 2) exit; next }
+    frontmatter != 1 { next }
+    found {
+      if ($0 ~ /^[[:space:]]+/) {
+        line=$0; sub(/^[[:space:]]+/, "", line)
+        value = value (value && line ? " " : "") line
+        next
+      }
+      exit
+    }
+    {
+      split($0, parts, ":")
+      field_name=parts[1]; gsub(/^[[:space:]]+|[[:space:]]+$/, "", field_name)
+      if (field_name == key) {
+        line=$0; sub(/^[^:]*:[[:space:]]*/, "", line)
+        value=line; found=1
+      }
+    }
+    END { print value }
+  ' "$file"
+}
+
+pi_yaml_string() {
+  case "$1" in
+    \'*\'|\"*\") printf '%s' "$1" ;;
+    *) yaml_quote "$1" ;;
+  esac
+}
+
 convert_pi() {
   local file="$1"
-  local name description slug source_slug outdir outfile body
+  local source_slug outdir outfile body field value tools token mapped_tool
+  local mapped="" unmapped="" tool_items=()
 
-  name="$(get_field "name" "$file")"
-  description="$(get_field "description" "$file")"
-  slug="$(slugify "$name")"
   source_slug="$(basename "$file" .md)"
-  # Strip only the leading frontmatter block. Unlike the shared legacy helper,
-  # keep later `---` separators because they are part of the persona prompt.
   body="$(awk 'BEGIN{f=0} f<2 && /^---$/{f++; next} f>=2{print}' "$file")"
-
-  # pi-subagents uses the filename as the agent type. Keep the source slug for
-  # stable identity, but emit only shared-safe frontmatter so Claude-specific
-  # fields such as `tools` cannot be misread as Pi tool restrictions.
   outdir="$OUT_DIR/pi/agents"
   outfile="$outdir/${source_slug}.md"
   mkdir -p "$outdir"
 
-  cat > "$outfile" <<HEREDOC
----
-name: ${slug}
-description: $(yaml_quote "$description")
----
-${body}
-HEREDOC
+  printf '%s\n' '---' > "$outfile"
+  for field in name description color emoji vibe; do
+    value="$(get_pi_field "$field" "$file")"
+    [[ -n "$value" ]] && printf '%s: %s\n' "$field" "$(pi_yaml_string "$value")" >> "$outfile"
+  done
+
+  tools="$(get_pi_field tools "$file")"
+  if [[ -n "$tools" ]]; then
+    IFS=',' read -ra tool_items <<< "$tools"
+    for token in "${tool_items[@]}"; do
+      token="$(printf '%s' "$token" | sed 's/^[[:space:]]*//;s/[[:space:]]*$//')"
+      case "$token" in
+        Read) mapped_tool=read ;; Write) mapped_tool=write ;; Edit) mapped_tool=edit ;;
+        Bash) mapped_tool=bash ;; Grep) mapped_tool=grep ;; Glob) mapped_tool=find ;;
+        *) mapped_tool="" ;;
+      esac
+      if [[ -n "$mapped_tool" ]]; then
+        [[ -n "$mapped" ]] && mapped+=", "
+        mapped+="$mapped_tool"
+      else
+        [[ -n "$unmapped" ]] && unmapped+=", "
+        unmapped+="$token"
+      fi
+    done
+    printf 'x-agency-claude-tools: %s\n' "$(yaml_quote "$tools")" >> "$outfile"
+    printf 'tools: %s\n' "${mapped:-none}" >> "$outfile"
+    printf 'extensions: false\n' >> "$outfile"
+    [[ -n "$unmapped" ]] && printf 'x-agency-unmapped-tools: %s\n' "$(yaml_quote "$unmapped")" >> "$outfile"
+  fi
+
+  printf '%s\n%s\n' '---' "$body" >> "$outfile"
 }
 
 # Map known color names and normalize to OpenCode-safe #RRGGBB values.
