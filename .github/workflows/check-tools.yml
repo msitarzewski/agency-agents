@@ -24,3 +24,6 @@ jobs:
 
       - name: Validate converted YAML frontmatter
         run: bash scripts/test-convert-frontmatter.sh
+
+      - name: Validate installer selection and Pi safety
+        run: bash scripts/test-agent-selection.sh

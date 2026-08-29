@@ -8,7 +8,7 @@ REPO_ROOT="$(cd "$SCRIPT_DIR/.." && pwd)"
 OUTPUT_DIR="$(mktemp -d "${TMPDIR:-/tmp}/agency-convert-frontmatter.XXXXXX")"
 trap 'rm -rf "$OUTPUT_DIR"' EXIT
 
-for tool in gemini-cli opencode qwen; do
+for tool in gemini-cli opencode qwen pi; do
   "$SCRIPT_DIR/convert.sh" --tool "$tool" --out "$OUTPUT_DIR" >/dev/null
 done
 
@@ -35,5 +35,21 @@ assert_quoted \
 assert_quoted \
   "$OUTPUT_DIR/qwen/agents/programmatic-display-buyer.md" \
   tools
+assert_quoted \
+  "$OUTPUT_DIR/pi/agents/engineering-developer-tooling-engineer.md" \
+  description
+PI_AGENT="$OUTPUT_DIR/pi/agents/engineering-code-reviewer.md"
+for line in "color: 'purple'" "emoji: '👁️'" "vibe: 'Reviews code like a mentor, not a gatekeeper. Every comment teaches something.'"; do
+  grep -Fqx "$line" "$PI_AGENT" || { echo "Pi output dropped metadata: $line" >&2; exit 1; }
+done
+PI_TOOLS_AGENT="$OUTPUT_DIR/pi/agents/product-manager.md"
+grep -Fqx "x-agency-claude-tools: 'WebFetch, WebSearch, Read, Write, Edit'" "$PI_TOOLS_AGENT"
+grep -Fqx 'tools: read, write, edit' "$PI_TOOLS_AGENT"
+grep -Fqx 'extensions: false' "$PI_TOOLS_AGENT"
+grep -Fqx "x-agency-unmapped-tools: 'WebFetch, WebSearch'" "$PI_TOOLS_AGENT"
+if [[ "$(grep -c '^---$' "$OUTPUT_DIR/pi/agents/design-ux-architect.md")" -ne 4 ]]; then
+  echo "Pi output dropped persona body separators" >&2
+  exit 1
+fi
 
 echo "PASS: converted YAML frontmatter keeps scalar values safely quoted"

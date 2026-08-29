@@ -16,6 +16,7 @@
 #   copilot      -- Copy agents to ~/.github/agents/ and ~/.copilot/agents/
 #   antigravity  -- Copy skills to ~/.gemini/config/skills/
 #   gemini-cli   -- Install agents to ~/.gemini/agents/
+#   pi           -- Install custom subagents to ~/.pi/agent/agents/
 #   opencode     -- Copy agents to .opencode/agents/ in current directory
 #   cursor       -- Copy rules to .cursor/rules/ in current directory
 #   aider        -- Copy CONVENTIONS.md to current directory
@@ -51,7 +52,8 @@
 #
 # Env: CLAUDE_CONFIG_DIR, COPILOT_AGENT_DIR, CURSOR_RULES_DIR, GEMINI_AGENTS_DIR,
 #      OPENCODE_AGENTS_DIR, OPENCLAW_DIR, QWEN_AGENTS_DIR, CODEX_AGENTS_DIR,
-#      OSAURUS_SKILLS_DIR, HERMES_HOME, HERMES_PLUGIN_DIR, VIBE_HOME
+#      OSAURUS_SKILLS_DIR, HERMES_HOME, HERMES_PLUGIN_DIR, VIBE_HOME,
+#      PI_CODING_AGENT_DIR, PI_AGENTS_DIR
 #      override default install paths (checked before hardcoded defaults).
 #
 # --- USAGE-END ---  (sentinel for usage(); do not remove)
@@ -124,13 +126,14 @@ box_blank() { printf "  |%*s|\n" $BOX_INNER ''; }
 # ---------------------------------------------------------------------------
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 REPO_ROOT="$(cd "$SCRIPT_DIR/.." && pwd)"
-INTEGRATIONS="$REPO_ROOT/integrations"
+# Test/embedding hook; normal installs always use the repo's generated integrations.
+INTEGRATIONS="${AGENCY_INTEGRATIONS_DIR:-$REPO_ROOT/integrations}"
 
 # Shared helpers (get_field, agent_slug, slugify, incr, ANSI + TUI primitives)
 # shellcheck source=lib.sh
 . "$SCRIPT_DIR/lib.sh"
 
-ALL_TOOLS=(claude-code copilot antigravity gemini-cli opencode openclaw cursor aider windsurf qwen zcode kimi codex osaurus hermes vibe)
+ALL_TOOLS=(claude-code copilot antigravity gemini-cli opencode openclaw cursor aider windsurf qwen zcode kimi codex osaurus hermes vibe pi)
 
 # The division set is derived from divisions.json (the single source of truth)
 # so the installer can never drift from the catalog — a hardcoded copy silently
@@ -291,6 +294,7 @@ resolve_dest() {
     copilot)     var="COPILOT_AGENT_DIR" ;;
     cursor)      var="CURSOR_RULES_DIR" ;;
     gemini-cli)  var="GEMINI_AGENTS_DIR" ;;
+    pi)           var="PI_AGENTS_DIR" ;;
     opencode)    var="OPENCODE_AGENTS_DIR" ;;
     openclaw)    var="OPENCLAW_DIR" ;;
     qwen)        var="QWEN_AGENTS_DIR" ;;
@@ -311,6 +315,7 @@ resolve_tool_path() {
     opencode) bin="opencode" ;; openclaw) bin="openclaw" ;; cursor) bin="cursor" ;;
     aider) bin="aider" ;; windsurf) bin="windsurf" ;; qwen) bin="qwen" ;;
     zcode) bin="zcode" ;;
+    pi) bin="pi" ;;
     kimi) bin="kimi" ;; codex) bin="codex" ;; antigravity) bin="" ;;
     osaurus) bin="osaurus" ;; hermes) bin="hermes" ;; vibe) bin="vibe" ;;
   esac
@@ -401,6 +406,7 @@ detect_claude_code() { [[ -d "${HOME}/.claude" ]]; }
 detect_copilot()      { command -v code >/dev/null 2>&1 || [[ -d "${HOME}/.github" || -d "${HOME}/.copilot" ]]; }
 detect_antigravity()  { [[ -d "${HOME}/.gemini/config/skills" ]]; }
 detect_gemini_cli()   { command -v gemini >/dev/null 2>&1 || [[ -d "${HOME}/.gemini" ]]; }
+detect_pi()           { command -v pi >/dev/null 2>&1 || [[ -d "${PI_AGENTS_DIR:-${PI_CODING_AGENT_DIR:-${HOME}/.pi/agent}/agents}" ]]; }
 detect_cursor()       { command -v cursor >/dev/null 2>&1 || [[ -d "${HOME}/.cursor" ]]; }
 detect_opencode()     { command -v opencode >/dev/null 2>&1 || [[ -d "${HOME}/.config/opencode" ]]; }
 detect_aider()        { command -v aider >/dev/null 2>&1; }
@@ -420,6 +426,7 @@ is_detected() {
     copilot)     detect_copilot     ;;
     antigravity) detect_antigravity ;;
     gemini-cli)  detect_gemini_cli  ;;
+    pi)           detect_pi          ;;
     opencode)    detect_opencode    ;;
     openclaw)    detect_openclaw    ;;
     cursor)      detect_cursor      ;;
@@ -443,6 +450,7 @@ tool_label() {
     copilot)     printf "%-14s  %s" "Copilot"      "(~/.github + ~/.copilot)" ;;
     antigravity) printf "%-14s  %s" "Antigravity"  "(~/.gemini/config/skills)" ;;
     gemini-cli)  printf "%-14s  %s" "Gemini CLI"   "(~/.gemini/agents)"      ;;
+    pi)           printf "%-14s  %s" "Pi"           "(~/.pi/agent/agents)"     ;;
     opencode)    printf "%-14s  %s" "OpenCode"     "(opencode.ai)"           ;;
     openclaw)    printf "%-14s  %s" "OpenClaw"     "(~/.openclaw/agency-agents)" ;;
     cursor)      printf "%-14s  %s" "Cursor"       "(.cursor/rules)"         ;;
@@ -578,7 +586,7 @@ tool_simple_name() {
     claude-code) echo "Claude Code";; copilot) echo "Copilot";; antigravity) echo "Antigravity";;
     gemini-cli) echo "Gemini CLI";; opencode) echo "OpenCode";; openclaw) echo "OpenClaw";;
     cursor) echo "Cursor";; aider) echo "Aider";; windsurf) echo "Windsurf";;
-    qwen) echo "Qwen Code";; zcode) echo "ZCode";; kimi) echo "Kimi Code";; codex) echo "Codex";; osaurus) echo "Osaurus";; *) echo "$1";;
+    qwen) echo "Qwen Code";; zcode) echo "ZCode";; kimi) echo "Kimi Code";; codex) echo "Codex";; osaurus) echo "Osaurus";; pi) echo "Pi";; *) echo "$1";;
   esac
 }
 
@@ -807,6 +815,39 @@ install_gemini_cli() {
     incr count
   done < <(find "$src" -maxdepth 1 -name "*.md" -print0)
   ok "Gemini CLI: $count agents -> $dest"
+}
+
+install_pi() {
+  local src="$INTEGRATIONS/pi/agents"
+  local pi_root="${PI_CODING_AGENT_DIR:-${HOME}/.pi/agent}"
+  local dest; dest="$(resolve_dest pi "${pi_root}/agents")"
+  local count=0
+  [[ -d "$src" ]] || { err "integrations/pi/agents missing. Run ./scripts/convert.sh --tool pi first."; return 1; }
+  mkdir -p "$dest"
+  local f target backup_root="" backup_stamp
+  backup_stamp="$(date +%Y%m%d%H%M%S)-$$"
+  while IFS= read -r -d '' f; do
+    slug_allowed "$(slugify "$(get_field name "$f")")" || continue
+    target="$dest/$(basename "$f")"
+    if [[ -L "$target" ]]; then
+      warn "Pi: skipping symlink $target (refusing to overwrite its source)."
+      continue
+    fi
+    if [[ -e "$target" && ! -f "$target" ]]; then
+      warn "Pi: skipping non-file target $target."
+      continue
+    fi
+    if [[ -f "$target" ]] && ! cmp -s "$f" "$target"; then
+      backup_root="$dest/.agency-agents-backups/$backup_stamp"
+      mkdir -p "$backup_root"
+      cp -p "$target" "$backup_root/"
+      warn "Pi: backed up existing $(basename "$target") -> $backup_root"
+    fi
+    install_file "$f" "$target"
+    incr count
+  done < <(find "$src" -maxdepth 1 -name "*.md" -print0)
+  ok "Pi: $count custom subagents -> $dest"
+  warn "Pi: requires the pi-subagents extension (pi install npm:@tintinweb/pi-subagents)."
 }
 
 install_opencode() {
@@ -1171,6 +1212,7 @@ install_tool() {
     copilot)     install_copilot     ;;
     antigravity) install_antigravity ;;
     gemini-cli)  install_gemini_cli  ;;
+    pi)           install_pi          ;;
     opencode)    install_opencode    ;;
     openclaw)    install_openclaw    ;;
     cursor)      install_cursor      ;;

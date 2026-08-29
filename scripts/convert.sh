@@ -12,6 +12,7 @@
 # Tools:
 #   antigravity  — Antigravity skill files (~/.gemini/config/skills/)
 #   gemini-cli   — Gemini CLI subagent files (~/.gemini/agents/*.md)
+#   pi           — Pi custom subagent files (~/.pi/agent/agents/*.md)
 #   opencode     — OpenCode agent files (.opencode/agents/*.md)
 #   cursor       — Cursor rule files (.cursor/rules/*.mdc)
 #   aider        — Single CONVENTIONS.md for Aider
@@ -211,6 +212,82 @@ description: $(yaml_quote "$description")
 ---
 ${body}
 HEREDOC
+}
+
+get_pi_field() {
+  local field="$1" file="$2"
+  awk -v key="$field" '
+    /^---$/ { frontmatter++; if (frontmatter >= 2) exit; next }
+    frontmatter != 1 { next }
+    found {
+      if ($0 ~ /^[[:space:]]+/) {
+        line=$0; sub(/^[[:space:]]+/, "", line)
+        value = value (value && line ? " " : "") line
+        next
+      }
+      exit
+    }
+    {
+      split($0, parts, ":")
+      field_name=parts[1]; gsub(/^[[:space:]]+|[[:space:]]+$/, "", field_name)
+      if (field_name == key) {
+        line=$0; sub(/^[^:]*:[[:space:]]*/, "", line)
+        value=line; found=1
+      }
+    }
+    END { print value }
+  ' "$file"
+}
+
+pi_yaml_string() {
+  case "$1" in
+    \'*\'|\"*\") printf '%s' "$1" ;;
+    *) yaml_quote "$1" ;;
+  esac
+}
+
+convert_pi() {
+  local file="$1"
+  local source_slug outdir outfile body field value tools token mapped_tool
+  local mapped="" unmapped="" tool_items=()
+
+  source_slug="$(basename "$file" .md)"
+  body="$(awk 'BEGIN{f=0} f<2 && /^---$/{f++; next} f>=2{print}' "$file")"
+  outdir="$OUT_DIR/pi/agents"
+  outfile="$outdir/${source_slug}.md"
+  mkdir -p "$outdir"
+
+  printf '%s\n' '---' > "$outfile"
+  for field in name description color emoji vibe; do
+    value="$(get_pi_field "$field" "$file")"
+    [[ -n "$value" ]] && printf '%s: %s\n' "$field" "$(pi_yaml_string "$value")" >> "$outfile"
+  done
+
+  tools="$(get_pi_field tools "$file")"
+  if [[ -n "$tools" ]]; then
+    IFS=',' read -ra tool_items <<< "$tools"
+    for token in "${tool_items[@]}"; do
+      token="$(printf '%s' "$token" | sed 's/^[[:space:]]*//;s/[[:space:]]*$//')"
+      case "$token" in
+        Read) mapped_tool=read ;; Write) mapped_tool=write ;; Edit) mapped_tool=edit ;;
+        Bash) mapped_tool=bash ;; Grep) mapped_tool=grep ;; Glob) mapped_tool=find ;;
+        *) mapped_tool="" ;;
+      esac
+      if [[ -n "$mapped_tool" ]]; then
+        [[ -n "$mapped" ]] && mapped+=", "
+        mapped+="$mapped_tool"
+      else
+        [[ -n "$unmapped" ]] && unmapped+=", "
+        unmapped+="$token"
+      fi
+    done
+    printf 'x-agency-claude-tools: %s\n' "$(yaml_quote "$tools")" >> "$outfile"
+    printf 'tools: %s\n' "${mapped:-none}" >> "$outfile"
+    printf 'extensions: false\n' >> "$outfile"
+    [[ -n "$unmapped" ]] && printf 'x-agency-unmapped-tools: %s\n' "$(yaml_quote "$unmapped")" >> "$outfile"
+  fi
+
+  printf '%s\n%s\n' '---' "$body" >> "$outfile"
 }
 
 # Map known color names and normalize to OpenCode-safe #RRGGBB values.
@@ -649,6 +726,7 @@ run_conversions() {
         antigravity) convert_antigravity "$file" ;;
         codex)       convert_codex       "$file" ;;
         gemini-cli)  convert_gemini_cli  "$file" ;;
+        pi)           convert_pi          "$file" ;;
         opencode)    convert_opencode    "$file" ;;
         cursor)      convert_cursor      "$file" ;;
         openclaw)    convert_openclaw    "$file" ;;
@@ -687,7 +765,7 @@ main() {
     esac
   done
 
-  local valid_tools=("antigravity" "gemini-cli" "opencode" "cursor" "aider" "windsurf" "openclaw" "qwen" "zcode" "kimi" "codex" "osaurus" "hermes" "vibe" "all")
+  local valid_tools=("antigravity" "gemini-cli" "opencode" "cursor" "aider" "windsurf" "openclaw" "qwen" "zcode" "kimi" "codex" "osaurus" "hermes" "vibe" "pi" "all")
   local valid=false
   for t in "${valid_tools[@]}"; do [[ "$t" == "$tool" ]] && valid=true && break; done
   if ! $valid; then
@@ -706,7 +784,7 @@ main() {
 
   local tools_to_run=()
   if [[ "$tool" == "all" ]]; then
-    tools_to_run=("antigravity" "gemini-cli" "opencode" "cursor" "aider" "windsurf" "openclaw" "qwen" "zcode" "kimi" "codex" "osaurus" "hermes" "vibe")
+    tools_to_run=("antigravity" "gemini-cli" "opencode" "cursor" "aider" "windsurf" "openclaw" "qwen" "zcode" "kimi" "codex" "osaurus" "hermes" "vibe" "pi")
   else
     tools_to_run=("$tool")
   fi
@@ -717,7 +795,7 @@ main() {
 
   if $use_parallel && [[ "$tool" == "all" ]]; then
     # Tools that write to separate dirs can run in parallel; buffer output so each tool's output stays together
-    local parallel_tools=(antigravity gemini-cli opencode cursor openclaw qwen zcode codex osaurus hermes vibe)
+    local parallel_tools=(antigravity gemini-cli opencode cursor openclaw qwen zcode codex osaurus hermes vibe pi)
     local parallel_out_dir
     parallel_out_dir="$(mktemp -d)"
     info "Converting: ${#parallel_tools[@]}/${n_tools} tools in parallel (output buffered per tool)..."
