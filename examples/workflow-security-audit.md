@@ -2,6 +2,8 @@
 
 > An end-to-end security audit using The Agency's security division. From kickoff through remediation tracking, coordinated across pen-test, appsec, cloud, and threat-detection agents.
 
+> **Safety preflight:** Treat this as a planning example, not permission to test a real target. Before any active scan, exploit attempt, production access, or issue creation, obtain written authorization from the asset owner, define the scope, test window, rate limits, emergency stop condition, and data-handling rules, and prefer staging or synthetic data. Stop if authorization or ownership is unclear.
+
 ## The Scenario
 
 You're the security lead at a 200-person SaaS company. The board has asked for an independent security review before Series C diligence. You have three weeks. The product is a multi-tenant Node.js + Postgres app on AWS, with a React SPA frontend, a few internal Go services, and a Slack-bot integration. The codebase has not had a formal security review in 18 months.
