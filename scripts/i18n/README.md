@@ -9,6 +9,21 @@ Localize agent `name` and `description` fields in YAML frontmatter to Simplified
 | `agent-names-zh.json` | Mapping of English agent names → Chinese translations (130+ entries) |
 | `localize-agents-zh.ps1` | PowerShell script that reads the JSON and updates installed agent files |
 
+---
+
+# 🇪🇸 Spanish (es) Localization
+
+Localize agent `name` and `description` fields in YAML frontmatter to Spanish. This makes agent names readable in Copilot Chat's agent picker for Spanish-speaking users.
+
+**This is a starter set (~47 entries covering engineering, security, marketing, and the most-common specialists).** A follow-up contribution should expand to all 130+ entries once a native-Spanish-speaking reviewer has refined the wording.
+
+## Files
+
+| File | Description |
+|------|-------------|
+| `agent-names-es.json` | Mapping of English agent names → Spanish translations (47 entries, starter set) |
+| `localize-agents-es.ps1` | PowerShell script that reads the JSON and updates installed agent files |
+
 ## Usage
 
 After installing agents with `install.sh --tool copilot`:
