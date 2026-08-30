@@ -199,13 +199,15 @@ A monorepo with a Go backend, TypeScript React frontend, Postgres, and Terraform
 - The agent's output should list the concrete files, function names, and
   config keys. If it does not, ask it to re-trace and quote source.
 
-### Day 3 — Make one no-op change
-- Add a log line, run the test suite, open a draft PR. Even no-op PRs
-  exercise: the test runner, the CI pipeline, the code review tooling.
+### Day 3 — Exercise the contribution path safely
+- Make a small documentation-only change in a disposable branch, run the test
+  suite, and exercise the review tooling locally. Do not open a public PR just
+  to test the environment; use a draft PR only when the host project welcomes
+  that kind of contribution.
 - Capture the gotchas in `GOTCHAS.md` (e.g. "tests need Postgres running
   on a specific port", "the linter requires Go 1.22").
-- This step is read-only in spirit, but the no-op PR is a small
-  environment-test exception, not a refactor.
+- This step is read-only in spirit and is not a reason to refactor unrelated
+  code.
 
 ### Day 4 — Pair with the agent on a small feature
 - Pick a starter ticket. Use the agent to map the affected files, then
