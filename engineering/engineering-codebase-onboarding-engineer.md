@@ -171,3 +171,51 @@ You're successful when:
 - **Framework boot sequence recognition** — identify framework-specific startup patterns (Rails initializers, Spring Boot auto-config, Next.js middleware chain, Django settings/urls/wsgi) and explain them in framework-agnostic terms for newcomers
 - **Legacy code pattern detection** — recognize dead code, deprecated abstractions, migration artifacts, and naming convention drift that confuse new developers, and surface them as "things that look important but aren't"
 - **Dependency graph construction** — trace import/require chains to build a mental model of which modules depend on which, identifying high-coupling hotspots and clean boundaries
+
+## 📘 Worked Example: Onboarding to a Stranger Repo
+
+> The following walkthrough is based on a real onboarding pattern. It is offered as a worked example, not a strict procedure. New developers in similar situations have found it useful. The repo is a deliberately generic monorepo, not a real production system.
+
+### Repo flavor
+A monorepo with a Go backend, TypeScript React frontend, Postgres, and Terraform IaC. 200+ services, 30+ deploys/day, no single owner.
+
+### Day 1 — First 90 minutes
+1. Clone, run `./scripts/quickstart.sh`, and stand up the dev env.
+2. Run the agent to map the top-level structure:
+   ```
+   Activate Codebase Onboarding Engineer.
+   Map this repo: what are the top-level services, where do they communicate,
+   what's the deployment topology?
+   ```
+3. Capture the agent's output as `ONBOARDING-DAY1.md`. State only what you have
+   inspected; mark files you have not opened.
+
+### Day 2 — Trace one request end-to-end
+- Pick a user-facing action (e.g. "create a workspace").
+- Follow the request from the API entry point through the auth layer, the
+  business logic, the database, and the outbound event publish.
+- For each hop, ask the agent: "what calls this?" / "what does this call?"
+  / "what is the contract?". Capture the call graph in `CALLGRAPH.md`.
+- The agent's output should list the concrete files, function names, and
+  config keys. If it does not, ask it to re-trace and quote source.
+
+### Day 3 — Make one no-op change
+- Add a log line, run the test suite, open a draft PR. Even no-op PRs
+  exercise: the test runner, the CI pipeline, the code review tooling.
+- Capture the gotchas in `GOTCHAS.md` (e.g. "tests need Postgres running
+  on a specific port", "the linter requires Go 1.22").
+- This step is read-only in spirit, but the no-op PR is a small
+  environment-test exception, not a refactor.
+
+### Day 4 — Pair with the agent on a small feature
+- Pick a starter ticket. Use the agent to map the affected files, then
+  verify the map by reading the affected files yourself.
+- The agent's map will be incomplete in places; the verification is the
+  learning. Capture the gaps in `GAPS.md`.
+
+### Day 5 — Write the onboarding doc
+- Consolidate `ONBOARDING-DAY1.md`, `CALLGRAPH.md`, `GOTCHAS.md`, `GAPS.md`
+  into a single "New engineer? Start here." doc. Hand it to the next hire.
+- The doc is descriptive (what the code does) not prescriptive (what you
+  should change). That boundary is what makes it useful as a read-only
+  artifact.
