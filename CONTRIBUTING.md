@@ -240,6 +240,11 @@ Want agency-agents to install into a new tool (a CLI, editor, or agent runtime)?
 4. **`.gitignore`** — add a rule for your tool's generated output under `integrations/<tool>/`. **This step is required and easy to miss.** Converted agent/skill files are generated locally by `convert.sh` and are **never committed** (see "Things we'll always close" below) — only `integrations/<tool>/README.md` is tracked. Match an existing per-tool entry.
 5. **`integrations/<tool>/README.md`** — a short doc for the integration (every tool has one; it's the only committed file in the tool's directory).
 6. **Run `./scripts/check-tools.sh`** — it must pass. It cross-checks `tools.json` against `install.sh` and `convert.sh` and flags anything missing.
+7. **Run `./scripts/test-install.sh`** — it must pass. It installs into throwaway
+   sandboxes (never your real `$HOME`) and pins the installer's observable
+   contract: where files land, that `--path` beats the tool's env var, that
+   `--division` / `--agent` / `--agents-file` filter, that `--dry-run` writes
+   nothing, and that paths with spaces survive. CI runs it on Linux and macOS.
 
 If your PR commits the converted output (the generated `integrations/<tool>/*` files), CI and review will ask you to remove it and add the `.gitignore` rule instead.
 
