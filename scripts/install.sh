@@ -1258,6 +1258,12 @@ main() {
       $duplicate || _cleaned+=("$_t")
     done
     _tool_list=("${_cleaned[@]}")
+    # --path is a single-destination override; with several tools every one of
+    # them would land in the same directory and clobber each other.
+    if [[ -n "$OVERRIDE_PATH" && ${#_tool_list[@]} -gt 1 ]]; then
+      err "--path sets ONE destination; use it with exactly one --tool (got ${#_tool_list[@]}: ${_tool_list[*]})."
+      exit 1
+    fi
   fi
 
   # Decide whether to show interactive UI
