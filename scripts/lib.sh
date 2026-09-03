@@ -21,7 +21,16 @@ get_field() {
   local field="$1" file="$2"
   awk -v f="$field" '
     /^---$/ { fm++; next }
-    fm == 1 && $0 ~ "^" f ": " { sub("^" f ": ", ""); print; exit }
+    fm == 1 && $0 ~ "^" f ": " {
+      sub("^" f ": ", "")
+      # A quoted YAML scalar carries its quotes as delimiters, not content.
+      # Strip one matching outer pair and unescape, so a quoted source value
+      # never double-wraps when a converter re-quotes it (\047 is a literal
+      # apostrophe; this program sits inside shell single quotes).
+      if ($0 ~ /^".*"$/)            { $0 = substr($0, 2, length($0) - 2); gsub(/\\"/, "\"", $0); gsub(/\\\\/, "\\", $0) }
+      else if ($0 ~ /^\047.*\047$/) { $0 = substr($0, 2, length($0) - 2); gsub(/\047\047/, "\047", $0) }
+      print; exit
+    }
   ' "$file"
 }
 
