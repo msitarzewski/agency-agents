@@ -224,19 +224,38 @@ assert_eq 0 "$(find "$home" -maxdepth 1 -name 'My' -o -maxdepth 1 -name 'Agents'
 echo ""
 echo "parallel workers"
 
+# Two tools that write the same filenames into one shared --path would silently
+# overwrite each other (claude-code and copilot both copy the raw source as
+# <division>-<slug>.md). The installer must refuse, not clobber. Both tools work
+# under --no-convert, which keeps this case cheap in CI.
+home="$(sandbox path-collision)"
+dest="$home/My [Agents]/dest dir"
+run_install "$home" --tool claude-code,copilot --no-convert --agent "$FIRST_ENG_SLUG" --path "$dest"
+assert_eq 1 "$RUN_STATUS" "two tools that write the same filenames into one --path are refused"
+assert_eq 1 "$(printf '%s' "$RUN_OUT" | grep -c 'overwrite')" "the refusal explains the collision"
+assert_eq 0 "$(count_md "$dest")" "a refused install writes nothing"
+
+# The propagation cases below therefore use a NON-colliding pair: claude-code
+# writes <division>-<slug>.md and codex writes <slug>.toml, so BOTH outputs must
+# survive in the shared --path — which is a stronger check than one tool's count
+# alone (a count of 1 cannot tell "two wrote, one clobbered" from "one wrote").
+# codex has no committed output (integrations/ is generated and gitignored), so
+# these cases let the installer convert.
 home="$(sandbox parallel-serial-control)"
 dest="$home/My [Agents]/dest dir"
 list="$home/my agents list.txt"
 { echo "# same selection as the parallel case below"; echo "$FIRST_ENG_SLUG"; } > "$list"
-run_install "$home" --tool claude-code,copilot --no-convert --agents-file "$list" --path "$dest"
-assert_eq 0 "$RUN_STATUS" "serial control: two tools, spaced/globbed --path, exits 0"
-assert_eq 1 "$(count_md "$dest")" "serial control: installs exactly the one selected agent"
+run_install "$home" --tool claude-code,codex --agents-file "$list" --path "$dest"
+assert_eq 0 "$RUN_STATUS" "serial control: two non-colliding tools, spaced/globbed --path, exits 0"
+assert_eq 1 "$(count_md "$dest")" "serial control: claude-code installs exactly the one selected agent"
+assert_eq 1 "$(find "$dest" -maxdepth 1 -name '*.toml' -type f 2>/dev/null | wc -l | tr -d ' ')" \
+  "serial control: codex's output survives alongside claude-code's"
 
 home="$(sandbox parallel)"
 dest="$home/My [Agents]/dest dir"
 list="$home/my agents list.txt"
 { echo "# one agent, listed in a file whose own path has spaces"; echo "$FIRST_ENG_SLUG"; } > "$list"
-run_install "$home" --tool claude-code,copilot --parallel --jobs 1 --no-convert --agents-file "$list" --path "$dest"
+run_install "$home" --tool claude-code,codex --parallel --jobs 1 --agents-file "$list" --path "$dest"
 assert_eq 0 "$RUN_STATUS" "--parallel with a spaced/globbed --path exits 0"
 xfail_eq 1 "$(count_md "$dest")" \
   "--parallel installs exactly the one selected agent (spaced --path + --agents-file)" "PR #755"
