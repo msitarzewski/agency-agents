@@ -2,7 +2,11 @@
 
 ## Reporting a Vulnerability
 
-If you discover a security vulnerability in this project, please report it responsibly. Do NOT open a public GitHub issue for security vulnerabilities. Open a private security advisory via GitHub Security tab.
+If you discover a security vulnerability in this project, please report it responsibly. Do NOT open a public GitHub issue for security vulnerabilities.
+
+Report it through a private security advisory: open the repository's `Security` tab and choose `Report a vulnerability`. This keeps the details private until a fix is available.
+
+Note: if the advisory form is unavailable, private vulnerability reporting is not enabled for this repository yet. In that case, please do not post the details publicly; check back after the maintainer enables it.
 
 ## Response Timeline
 
