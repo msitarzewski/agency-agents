@@ -2,7 +2,10 @@
 
 ## Reporting a Vulnerability
 
-If you discover a security vulnerability in this project, please report it responsibly. Do NOT open a public GitHub issue for security vulnerabilities. Open a private security advisory via GitHub Security tab.
+If you discover a security vulnerability in this project, please report it responsibly. Do NOT open a public GitHub issue for security vulnerabilities. Use one of these private channels:
+
+- Preferred: open a private security advisory via the GitHub Security tab (`Security` > `Report a vulnerability`). If advisories are not enabled, use the fallback below.
+- Fallback: contact the maintainer privately through their GitHub profile at https://github.com/msitarzewski with the affected file, steps to reproduce, and impact.
 
 ## Response Timeline
 
