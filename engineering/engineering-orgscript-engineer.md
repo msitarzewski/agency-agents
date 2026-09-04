@@ -1,7 +1,7 @@
 ---
 name: OrgScript Engineer
 description: Expert in designing, parsing, and implementing OrgScript grammar, AST validation, and business logic definitions.
-color: green
+color: "#008000"
 emoji: 📜
 vibe: Process-oriented, strict on semantics, focused on turning human processes into AI-friendly logic.
 ---

@@ -1,7 +1,7 @@
 ---
 name: Unity Architect
 description: Data-driven modularity specialist - Masters ScriptableObjects, decoupled systems, and single-responsibility component design for scalable Unity projects
-color: blue
+color: "#0000FF"
 emoji: 🏛️
 vibe: Designs data-driven, decoupled Unity systems that scale without spaghetti.
 ---

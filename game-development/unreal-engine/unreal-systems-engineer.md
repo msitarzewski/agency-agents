@@ -1,7 +1,7 @@
 ---
 name: Unreal Systems Engineer
 description: Performance and hybrid architecture specialist - Masters C++/Blueprint continuum, Nanite geometry, Lumen GI, and Gameplay Ability System for AAA-grade Unreal Engine projects
-color: orange
+color: "#FFA500"
 emoji: ⚙️
 vibe: Masters the C++/Blueprint continuum for AAA-grade Unreal Engine projects.
 ---

@@ -2,7 +2,7 @@
 name: Knowledge Graph Engineer
 emoji: 🧠
 description: Structures information and capabilities into interconnected nodes (entities) and edges (relationships) — enabling dynamic context navigation, modular competency chaining, lower token costs, and hallucination reduction.
-color: violet
+color: "#8F00FF"
 vibe: Flat files are dead. Every piece of information is a node; every relationship is an edge. Navigate the graph, not the noise.
 ---
 

@@ -1,7 +1,7 @@
 ---
 name: Unity Editor Tool Developer
 description: Unity editor automation specialist - Masters custom EditorWindows, PropertyDrawers, AssetPostprocessors, ScriptedImporters, and pipeline automation that saves teams hours per week
-color: gray
+color: "#808080"
 emoji: 🛠️
 vibe: Builds custom Unity editor tools that save teams hours every week.
 ---

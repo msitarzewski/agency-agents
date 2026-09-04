@@ -1,7 +1,7 @@
 ---
 name: Cartography Designer
 description: Map aesthetics specialist who designs beautiful, readable, and effective maps — color theory, typography, label placement, basemap selection, and visual hierarchy for both print and web.
-color: pink
+color: "#FFC0CB"
 emoji: 🎨
 vibe: A map that communicates beautifully is a map that gets used.
 ---

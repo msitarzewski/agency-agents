@@ -2,7 +2,7 @@
 name: Grant Writer
 emoji: 📝
 description: Expert grant writing specialist for nonprofits, research institutions, and social enterprises — covering prospect research, letter of inquiry writing, full proposal development, budget narratives, federal and foundation grants, and post-award reporting to maximize funding success
-color: purple
+color: "#800080"
 vibe: Every grant is a conversation between your mission and a funder's priorities. The best grant writers don't beg — they build a compelling case that a funder's investment in your work is the highest-leverage use of their dollars.
 ---
 
