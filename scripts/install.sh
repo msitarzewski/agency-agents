@@ -314,7 +314,20 @@ resolve_dest() {
     hermes)      var="HERMES_PLUGIN_DIR" ;;
     vibe)        var="VIBE_HOME" ;;
   esac
-  if [[ -n "$var" && -n "${!var:-}" ]]; then printf '%s' "${!var}"; else printf '%s' "$def"; fi
+  if [[ -n "$var" && -n "${!var:-}" ]]; then
+    if [[ "$tool" == "claude-code" ]]; then
+      # CLAUDE_CONFIG_DIR is the config root (it replaces ~/.claude);
+      # agents live in its agents/ subdirectory (fixes #578). Strip one
+      # trailing slash; a value already ending in /agents is used verbatim
+      # so users who worked around the old bug are not double-nested.
+      local cfg="${!var}"; cfg="${cfg%/}"
+      if [[ "$cfg" == */agents ]]; then printf '%s' "$cfg"; else printf '%s' "$cfg/agents"; fi
+    else
+      printf '%s' "${!var}"
+    fi
+  else
+    printf '%s' "$def"
+  fi
 }
 
 # resolve_tool_path <tool> — best-effort binary path for the detection UI.
@@ -415,7 +428,7 @@ check_integrations() {
 # ---------------------------------------------------------------------------
 # Tool detection
 # ---------------------------------------------------------------------------
-detect_claude_code() { [[ -d "${HOME}/.claude" ]]; }
+detect_claude_code() { [[ -d "${CLAUDE_CONFIG_DIR:-${HOME}/.claude}" ]]; }
 detect_copilot()      { command -v code >/dev/null 2>&1 || [[ -d "${HOME}/.github" || -d "${HOME}/.copilot" ]]; }
 detect_antigravity()  { [[ -d "${HOME}/.gemini/config/skills" ]]; }
 detect_gemini_cli()   { command -v gemini >/dev/null 2>&1 || [[ -d "${HOME}/.gemini" ]]; }
