@@ -72,7 +72,7 @@ TODAY="$(date +%Y-%m-%d)"
 
 AGENT_DIRS=(
   academic design engineering finance game-development gis healthcare marketing paid-media product project-management
-  sales security spatial-computing specialized support testing
+  research sales security spatial-computing specialized support testing
 )
 
 # --- Usage ---
@@ -106,6 +106,13 @@ toml_escape_string() {
   '
 }
 
+# Quote a single-line value for a YAML frontmatter scalar. Single-quoted YAML
+# strings keep colons, hashes, backslashes, and Unicode literal, while doubling
+# an apostrophe is the only escaping rule required here.
+yaml_quote() {
+  printf "'%s'" "$(printf '%s' "$1" | sed "s/'/''/g")"
+}
+
 # --- Per-tool converters ---
 
 convert_antigravity() {
@@ -127,8 +134,8 @@ convert_antigravity() {
   # valid Agent-Skills skill for any host (and deterministic — no date stamp).
   cat > "$outfile" <<HEREDOC
 ---
-name: ${slug}
-description: ${description}
+name: $(yaml_quote "$slug")
+description: $(yaml_quote "$description")
 ---
 ${body}
 HEREDOC
@@ -154,8 +161,8 @@ convert_osaurus() {
   # Kept to the standard fields so it stays compatible with any Agent-Skills host.
   cat > "$outfile" <<HEREDOC
 ---
-name: ${slug}
-description: ${description}
+name: $(yaml_quote "$slug")
+description: $(yaml_quote "$description")
 ---
 ${body}
 HEREDOC
@@ -199,8 +206,8 @@ convert_gemini_cli() {
 
   cat > "$outfile" <<HEREDOC
 ---
-name: ${slug}
-description: ${description}
+name: $(yaml_quote "$slug")
+description: $(yaml_quote "$description")
 ---
 ${body}
 HEREDOC
@@ -267,8 +274,8 @@ convert_opencode() {
   # Named colors are resolved to hex via resolve_opencode_color().
   cat > "$outfile" <<HEREDOC
 ---
-name: ${name}
-description: ${description}
+name: $(yaml_quote "$name")
+description: $(yaml_quote "$description")
 mode: subagent
 color: '${color}'
 ---
@@ -291,7 +298,7 @@ convert_cursor() {
   # Cursor .mdc format: description + globs + alwaysApply frontmatter
   cat > "$outfile" <<HEREDOC
 ---
-description: ${description}
+description: $(yaml_quote "$description")
 globs: ""
 alwaysApply: false
 ---
@@ -409,17 +416,17 @@ convert_qwen() {
   if [[ -n "$tools" ]]; then
     cat > "$outfile" <<HEREDOC
 ---
-name: ${slug}
-description: ${description}
-tools: ${tools}
+name: $(yaml_quote "$slug")
+description: $(yaml_quote "$description")
+tools: $(yaml_quote "$tools")
 ---
 ${body}
 HEREDOC
   else
     cat > "$outfile" <<HEREDOC
 ---
-name: ${slug}
-description: ${description}
+name: $(yaml_quote "$slug")
+description: $(yaml_quote "$description")
 ---
 ${body}
 HEREDOC
@@ -446,17 +453,17 @@ convert_zcode() {
   if [[ -n "$tools" ]]; then
     cat > "$outfile" <<HEREDOC
 ---
-name: ${slug}
-description: ${description}
-tools: ${tools}
+name: $(yaml_quote "$slug")
+description: $(yaml_quote "$description")
+tools: $(yaml_quote "$tools")
 ---
 ${body}
 HEREDOC
   else
     cat > "$outfile" <<HEREDOC
 ---
-name: ${slug}
-description: ${description}
+name: $(yaml_quote "$slug")
+description: $(yaml_quote "$description")
 ---
 ${body}
 HEREDOC
@@ -607,6 +614,9 @@ HEREDOC
 # but never pruned stale output). Preserves the committed README.md — the only
 # tracked file under integrations/<tool>/ for conversion targets.
 clean_tool_output() {
+  # Defensive: tool names are plain slugs; refuse anything else so a future
+  # caller can never steer this rm -rf outside $OUT_DIR via "../" or "/".
+  [[ "$1" =~ ^[a-z0-9-]+$ ]] || { echo "ERROR: clean_tool_output: refusing non-slug tool name '$1'" >&2; return 1; }
   local dir="$OUT_DIR/$1"
   [[ -d "$dir" ]] || return 0
   find "$dir" -mindepth 1 -maxdepth 1 ! -name 'README.md' -exec rm -rf {} +
@@ -710,7 +720,7 @@ main() {
 
   if $use_parallel && [[ "$tool" == "all" ]]; then
     # Tools that write to separate dirs can run in parallel; buffer output so each tool's output stays together
-    local parallel_tools=(antigravity gemini-cli opencode cursor openclaw qwen zcode codex osaurus hermes vibe)
+    local parallel_tools=(antigravity gemini-cli opencode cursor openclaw qwen zcode kimi codex osaurus hermes vibe)
     local parallel_out_dir
     parallel_out_dir="$(mktemp -d)"
     info "Converting: ${#parallel_tools[@]}/${n_tools} tools in parallel (output buffered per tool)..."
@@ -722,7 +732,7 @@ main() {
       [[ -f "$parallel_out_dir/$t" ]] && cat "$parallel_out_dir/$t"
     done
     rm -rf "$parallel_out_dir"
-    local idx=8
+    local idx=$(( ${#parallel_tools[@]} + 1 ))
     for t in aider windsurf; do
       progress_bar "$idx" "$n_tools"
       printf "\n"

@@ -20,8 +20,23 @@
 get_field() {
   local field="$1" file="$2"
   awk -v f="$field" '
-    /^---$/ { fm++; next }
-    fm == 1 && $0 ~ "^" f ": " { sub("^" f ": ", ""); print; exit }
+    # A quoted YAML scalar carries its quotes as delimiters, not content:
+    # strip one matching outer pair and unescape (\047 is a literal apostrophe;
+    # this program sits inside shell single quotes). A plain scalar may also
+    # continue onto indented lines; YAML folds those into one line joined by
+    # single spaces, and so do we — otherwise the generated description is
+    # silently truncated to its first line (three healthcare agents were).
+    function emit(v) {
+      sub(/^[ \t]+/, "", v); sub(/[ \t]+$/, "", v)   # YAML: plain-scalar padding is not content
+      if (v ~ /^".*"$/)            { v = substr(v, 2, length(v) - 2); gsub(/\\"/, "\"", v); gsub(/\\\\/, "\\", v) }
+      else if (v ~ /^\047.*\047$/) { v = substr(v, 2, length(v) - 2); gsub(/\047\047/, "\047", v) }
+      print v; printed = 1; exit
+    }
+    /^---$/ { fm++; if (fm == 2 && found) emit(val); next }
+    fm == 1 && !found && $0 ~ "^" f ": " { sub("^" f ": ", ""); val = $0; found = 1; next }
+    fm == 1 && found && /^[ \t]+[^ \t]/ { sub(/^[ \t]+/, ""); val = val " " $0; next }
+    fm == 1 && found { emit(val) }
+    END { if (found && !printed) emit(val) }
   ' "$file"
 }
 

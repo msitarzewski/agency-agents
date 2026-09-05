@@ -176,6 +176,19 @@ division_files() {
 # division_count <division> — number of agents in a division.
 division_count() { division_files "$1" | grep -c . ; }
 
+# agent_slug_exists <slug> — verify a requested agent against the source roster.
+# Selection filters should fail before installation when they name nothing that
+# can be installed; otherwise dry-run counts and completion messages lie.
+agent_slug_exists() {
+  local target="$1" div f
+  for div in "${ALL_DIVISIONS[@]}"; do
+    while IFS= read -r f; do
+      [[ "$(agent_slug "$f")" == "$target" ]] && return 0
+    done < <(division_files "$div")
+  done
+  return 1
+}
+
 # build_selection — compute the allowed slug set from --division/--agent/--agents-file.
 # With no filter flags, SELECTION_ACTIVE stays false (install everything).
 build_selection() {
@@ -184,20 +197,32 @@ build_selection() {
     return
   fi
   SELECTION_ACTIVE=true
-  local slugs="" div f s line
+  local slugs="" div f s line requested
   for div in ${FILTER_DIVISIONS[@]+"${FILTER_DIVISIONS[@]}"}; do
     while IFS= read -r f; do
       s="$(agent_slug "$f")"; [[ -n "$s" ]] && slugs+="$s"$'\n'
     done < <(division_files "$div")
   done
-  for s in ${FILTER_AGENTS[@]+"${FILTER_AGENTS[@]}"}; do slugs+="$(slugify "$s")"$'\n'; done
+  for s in ${FILTER_AGENTS[@]+"${FILTER_AGENTS[@]}"}; do
+    requested="$(slugify "$s")"
+    if ! agent_slug_exists "$requested"; then
+      err "Unknown agent '$s'. Use --list agents to see the available roster."
+      exit 1
+    fi
+    slugs+="$requested"$'\n'
+  done
   if [[ -n "$AGENTS_FILE" ]]; then
     [[ -f "$AGENTS_FILE" ]] || { err "agents-file not found: $AGENTS_FILE"; exit 1; }
     while IFS= read -r line || [[ -n "$line" ]]; do
       line="${line%%#*}"                              # strip trailing comment
       line="$(printf '%s' "$line" | xargs 2>/dev/null)" # trim
       [[ -z "$line" ]] && continue
-      slugs+="$(slugify "$line")"$'\n'
+      requested="$(slugify "$line")"
+      if ! agent_slug_exists "$requested"; then
+        err "Unknown agent '$line' in agents-file '$AGENTS_FILE'."
+        exit 1
+      fi
+      slugs+="$requested"$'\n'
     done < "$AGENTS_FILE"
   fi
   _ALLOWED_SLUGS="$(printf '%s' "$slugs" | sort -u | sed '/^$/d')"
@@ -258,6 +283,20 @@ install_file() {
 }
 
 # resolve_dest <tool> <default> — --path > $ENV_VAR > default.
+# path_collision_group <tool> — tools in the same group write identical
+# filenames into a shared --path and would overwrite each other; empty means
+# the tool's output is distinct and may share a path with anything. Derived by
+# installing one agent with every tool into a sandbox and comparing what
+# landed; re-measure if a converter's output naming changes.
+path_collision_group() {
+  case "$1" in
+    claude-code|copilot)             printf 'raw-source-md' ;;  # <division>-<slug>.md
+    gemini-cli|opencode|qwen|zcode)  printf 'slug-md' ;;        # <slug>.md
+    antigravity|osaurus)             printf 'agency-skill' ;;   # agency-<slug>/SKILL.md
+    *)                               printf '' ;;
+  esac
+}
+
 resolve_dest() {
   local tool="$1" def="$2" var=""
   [[ -n "$OVERRIDE_PATH" ]] && { printf '%s' "$OVERRIDE_PATH"; return; }
@@ -275,7 +314,20 @@ resolve_dest() {
     hermes)      var="HERMES_PLUGIN_DIR" ;;
     vibe)        var="VIBE_HOME" ;;
   esac
-  if [[ -n "$var" && -n "${!var:-}" ]]; then printf '%s' "${!var}"; else printf '%s' "$def"; fi
+  if [[ -n "$var" && -n "${!var:-}" ]]; then
+    if [[ "$tool" == "claude-code" ]]; then
+      # CLAUDE_CONFIG_DIR is the config root (it replaces ~/.claude);
+      # agents live in its agents/ subdirectory (fixes #578). Strip one
+      # trailing slash; a value already ending in /agents is used verbatim
+      # so users who worked around the old bug are not double-nested.
+      local cfg="${!var}"; cfg="${cfg%/}"
+      if [[ "$cfg" == */agents ]]; then printf '%s' "$cfg"; else printf '%s' "$cfg/agents"; fi
+    else
+      printf '%s' "${!var}"
+    fi
+  else
+    printf '%s' "$def"
+  fi
 }
 
 # resolve_tool_path <tool> — best-effort binary path for the detection UI.
@@ -299,7 +351,11 @@ ensure_converted() {
   $AUTO_CONVERT || return 0
   case "$tool" in claude-code|copilot) return 0 ;; esac
   local d="$INTEGRATIONS/$tool"
-  if [[ ! -d "$d" ]] || [[ -z "$(find "$d" -type f 2>/dev/null | head -1)" ]]; then
+  # Every integrations/<tool>/ ships a committed README.md, so "any file
+  # present" mistook the README for generated output and never converted in a
+  # fresh checkout (the installer then hard-failed "<tool> missing"). Only files
+  # other than the README count as output.
+  if [[ ! -d "$d" ]] || [[ -z "$(find "$d" -type f ! -name 'README.md' 2>/dev/null | head -1)" ]]; then
     warn "$tool: integration files missing — running convert.sh --tool $tool"
     "$SCRIPT_DIR/convert.sh" --tool "$tool" >/dev/null 2>&1 \
       && ok "$tool: generated integration files" \
@@ -372,7 +428,7 @@ check_integrations() {
 # ---------------------------------------------------------------------------
 # Tool detection
 # ---------------------------------------------------------------------------
-detect_claude_code() { [[ -d "${HOME}/.claude" ]]; }
+detect_claude_code() { [[ -d "${CLAUDE_CONFIG_DIR:-${HOME}/.claude}" ]]; }
 detect_copilot()      { command -v code >/dev/null 2>&1 || [[ -d "${HOME}/.github" || -d "${HOME}/.copilot" ]]; }
 detect_antigravity()  { [[ -d "${HOME}/.gemini/config/skills" ]]; }
 detect_gemini_cli()   { command -v gemini >/dev/null 2>&1 || [[ -d "${HOME}/.gemini" ]]; }
@@ -453,7 +509,7 @@ division_emoji() {
     academic) printf '📚';; design) printf '🎨';; engineering) printf '💻';;
     finance) printf '💵';; game-development) printf '🎮';; gis) printf '🌍';; marketing) printf '📢';;
     paid-media) printf '💰';; product) printf '📊';; project-management) printf '🎬';;
-    sales) printf '💼';; security) printf '🔒';; spatial-computing) printf '🥽';;
+    research) printf '🔍';; sales) printf '💼';; security) printf '🔒';; spatial-computing) printf '🥽';;
     specialized) printf '🎯';; support) printf '🛟';; testing) printf '🧪';; *) printf '•';;
   esac
 }
@@ -1222,9 +1278,34 @@ main() {
       local valid=false _vt
       for _vt in "${ALL_TOOLS[@]}"; do [[ "$_vt" == "$_t" ]] && valid=true && break; done
       $valid || { err "Unknown tool '$_t'. Valid: ${ALL_TOOLS[*]}"; exit 1; }
-      _cleaned+=("$_t")
+      # A repeated --tool value would otherwise launch duplicate workers in
+      # --parallel mode and make the reported install count misleading.
+      local duplicate=false _selected
+      if [[ ${#_cleaned[@]} -gt 0 ]]; then
+        for _selected in "${_cleaned[@]}"; do
+          [[ "$_selected" == "$_t" ]] && { duplicate=true; break; }
+        done
+      fi
+      $duplicate || _cleaned+=("$_t")
     done
     _tool_list=("${_cleaned[@]}")
+    # --path is one shared directory. Tools that write the same filenames into
+    # it silently overwrite each other; tools with distinct outputs coexist.
+    # Refuse only the colliding combinations (see path_collision_group).
+    if [[ -n "$OVERRIDE_PATH" && ${#_tool_list[@]} -gt 1 ]]; then
+      local _ta _tb _ga _gb
+      for _ta in "${_tool_list[@]}"; do
+        _ga="$(path_collision_group "$_ta")"; [[ -z "$_ga" ]] && continue
+        for _tb in "${_tool_list[@]}"; do
+          [[ "$_tb" == "$_ta" ]] && continue
+          _gb="$(path_collision_group "$_tb")"
+          if [[ "$_ga" == "$_gb" ]]; then
+            err "--path is one shared directory, and $_ta and $_tb write the same filenames into it — they would overwrite each other. Use one of them per --path (tools with distinct outputs may share one)."
+            exit 1
+          fi
+        done
+      done
+    fi
   fi
 
   # Decide whether to show interactive UI
