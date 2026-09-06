@@ -220,6 +220,42 @@ The test: *is this agent for the user, or for the vendor?* An agent that
 solves the user's problem using a service belongs here. A service's
 quickstart guide wearing an agent costume does not.
 
+### Shell Commands & Platform Support
+
+Most agent files contain no shell at all — they're prompts, not installers. When
+you do include commands, follow this convention so Windows readers (and tools
+that re-render agents per host) can tell which shell a block is for:
+
+1. **Tag every shell block with its shell.** The canonical tags are `bash`
+   (POSIX shell — macOS, Linux, WSL, Git Bash) and `powershell` (Windows).
+   Ambiguous or non-canonical tags (`sh`, `shell`, `zsh`, `console`, `terminal`,
+   `shell-session`, `cmd`, `bat`, `batch`, `dos`, `ps`, `ps1`, `pwsh`) are
+   flagged by `scripts/lint-agents.sh`.
+2. **`bash` is the default assumption.** Tag a POSIX block `bash` even when it
+   would also run under `sh` or `zsh` — the tag is the contract, not a guess. If
+   a snippet truly depends on zsh-only syntax, rewrite it in POSIX shell rather
+   than shipping a `zsh` fence.
+3. **Don't mirror every command into PowerShell.** Doubling every block doubles
+   the agent's token cost for no benefit. Most shell in these agents targets the
+   *deployment* environment — Linux servers, containers, CI — where bash is
+   correct no matter what the reader's laptop runs. Add a `powershell` block
+   only when the command runs on the reader's own Windows machine and has no
+   bash equivalent. [Incident Responder](security/security-incident-responder.md)
+   is the model: it ships a PowerShell triage script because Windows forensics
+   *is* the subject.
+4. **Prefer portable prose when the step matters more than the syntax:** "copy
+   the agent into your Claude Code agents directory" beats
+   `cp engineering/*.md ~/.claude/agents/`.
+
+The repo's own shell scripts (`scripts/*.sh`) are Bash 3.2-compatible and run on
+macOS, Linux, WSL, and Git Bash. There is no PowerShell port of `convert.sh` or
+`install.sh` — Windows users run them from Git Bash or WSL, or use the
+[desktop app](https://agencyagents.app). The one Windows-native helper is
+`scripts/i18n/localize-agents-zh.ps1`. Keep new shell scripts Bash 3.2-compatible:
+no `jq`, no GNU-only flags, no Bash 4+ features. `python3` is already required by
+`check-agent-originality.sh`, `check-runbooks.sh`, and the Hermes build, so using
+it for JSON work is fine — reaching for `jq` is not.
+
 ### Tool-Specific Compatibility
 
 **Qwen Code Compatibility**: Agent bodies support `${variable}` templating for dynamic context (e.g., `${project_name}`, `${task_description}`). Qwen SubAgents use minimal frontmatter: only `name` and `description` are required; `color`, `emoji`, and `version` fields are omitted as Qwen doesn't use them.
@@ -355,6 +391,7 @@ A word on why these checks exist. People are building genuinely remarkable thing
 - [ ] Has concrete code/template examples
 - [ ] Defines success metrics
 - [ ] Includes step-by-step workflow
+- [ ] Any shell blocks are tagged `bash` or `powershell` (see Shell Commands & Platform Support)
 - [ ] Proofread and formatted correctly
 - [ ] Tested in real scenarios
 ```
@@ -379,6 +416,8 @@ A word on why these checks exist. People are building genuinely remarkable thing
 - Use **bold** for emphasis, `code` for technical terms
 
 ### Code Examples
+
+Shell blocks have an extra rule — see [Shell Commands & Platform Support](#shell-commands--platform-support).
 
 ```markdown
 ## Example Code Block

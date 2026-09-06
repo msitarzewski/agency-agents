@@ -54,9 +54,12 @@
 #      OSAURUS_SKILLS_DIR, HERMES_HOME, HERMES_PLUGIN_DIR, VIBE_HOME
 #      override default install paths (checked before hardcoded defaults).
 #
-# --- USAGE-END ---  (sentinel for usage(); do not remove)
 # Platform support:
-#   Linux, macOS (requires bash 3.2+), Windows Git Bash / WSL
+#   Linux, macOS (requires bash 3.2+), Windows Git Bash / WSL.
+#   There is no PowerShell port — on Windows run this from Git Bash or WSL,
+#   or use the desktop app: https://agencyagents.app
+#
+# --- USAGE-END ---  (sentinel for usage(); do not remove)
 
 set -euo pipefail
 
