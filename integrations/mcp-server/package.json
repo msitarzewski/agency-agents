@@ -1,0 +1,26 @@
+{
+  "name": "@agency-agents/mcp-server",
+  "version": "1.0.0",
+  "description": "MCP server that exposes The Agency's AI specialist agents as tools and resources",
+  "module": "src/index.ts",
+  "type": "module",
+  "private": true,
+  "bin": {
+    "agency-agents-mcp": "src/index.ts"
+  },
+  "scripts": {
+    "start": "bun run src/index.ts",
+    "dev": "bun --watch run src/index.ts"
+  },
+  "devDependencies": {
+    "@types/bun": "latest"
+  },
+  "peerDependencies": {
+    "typescript": "^5"
+  },
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.28.0",
+    "gray-matter": "^4.0.3",
+    "zod": "^4.3.6"
+  }
+}
