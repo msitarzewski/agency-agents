@@ -1032,6 +1032,18 @@ Then reference the custom agent by name in Codex:
 Use the Frontend Developer agent to review this component.
 ```
 
+In the Codex GUI, you can mention an agent with `@<agent name>`:
+```
+Use @Frontend Developer to review this component.
+```
+
+You can also mention multiple agents in one prompt:
+```
+@Product Manager evaluate the current product maturity.
+@UI Designer audit whether the current mini program design is appropriate.
+@WeChat Mini Program Developer check whether the current mini program follows development standards.
+```
+
 See [integrations/codex/README.md](integrations/codex/README.md) for details.
 </details>
 
