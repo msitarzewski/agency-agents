@@ -66,7 +66,7 @@ Each agent file contains:
 
 Browse the agents below and copy/adapt the ones you need!
 
-### Option 4: Use with Other Tools (GitHub Copilot, Antigravity, Gemini CLI, OpenCode, OpenClaw, Cursor, Aider, Windsurf, Kimi Code, Codex, Osaurus, Hermes, Mistral Vibe)
+### Option 4: Use with Other Tools (GitHub Copilot, Antigravity, Gemini CLI, OpenCode, OpenClaw, Cursor, Aider, Windsurf, Kimi Code, Codex, Osaurus, Hermes, Mistral Vibe, Pi)
 
 ```bash
 # Step 1 -- generate integration files for all supported tools
@@ -89,6 +89,7 @@ Browse the agents below and copy/adapt the ones you need!
 ./scripts/install.sh --tool osaurus
 ./scripts/install.sh --tool hermes
 ./scripts/install.sh --tool vibe
+./scripts/install.sh --tool pi
 ```
 
 **Install only the teams you need** (not everyone wants every division):
@@ -735,6 +736,7 @@ The Agency works natively with Claude Code, and ships conversion + install scrip
 - **[Codex](https://developers.openai.com/codex/overview)** — TOML custom agents → `~/.codex/agents/`
 - **Osaurus** -- `SKILL.md` skills -> `~/.osaurus/skills/`
 - **[Hermes](integrations/hermes/README.md)** -- lazy-router plugin -> `~/.hermes/plugins/`
+- **[Pi](https://pi.dev)** — native `.md` skills, no conversion needed → `~/.pi/agent/skills/`
 
 ---
 
@@ -789,6 +791,7 @@ The installer scans your system for installed tools, shows a checkbox UI, and le
 ./scripts/install.sh --tool codex
 ./scripts/install.sh --tool osaurus
 ./scripts/install.sh --tool hermes
+./scripts/install.sh --tool pi
 ```
 
 **Non-interactive (CI/scripts):**
@@ -1018,6 +1021,39 @@ See [integrations/kimi/README.md](integrations/kimi/README.md) for details.
 </details>
 
 <details>
+<summary><strong>Pi</strong></summary>
+
+Pi does not have built-in subagents, so Agency agents are installed as native Pi skills. No conversion step is needed.
+
+Install all Agency skills:
+
+```bash
+./scripts/install.sh --tool pi
+```
+
+Install and test a single skill:
+
+```bash
+# Preview without writing anything
+./scripts/install.sh --tool pi --agent code-reviewer --dry-run
+
+# Install to ~/.pi/agent/skills/code-reviewer.md
+./scripts/install.sh --tool pi --agent code-reviewer --no-interactive
+```
+
+To test without changing `~/.pi`, use a temporary destination:
+
+```bash
+TEST_DIR="$(mktemp -d)"
+./scripts/install.sh --tool pi --agent code-reviewer --path "$TEST_DIR" --no-interactive
+ls -la "$TEST_DIR"
+```
+
+Run `/reload` in Pi (or restart it), then invoke the skill with `/skill:code-reviewer`. Set `PI_CODING_AGENT_DIR` to override Pi's config directory.
+
+</details>
+
+<details>
 <summary><strong>Codex</strong></summary>
 
 Each agent is converted into a Codex custom agent TOML file and installed to `~/.codex/agents/`.
@@ -1054,7 +1090,7 @@ When you add new agents or edit existing ones, regenerate all integration files:
 
 - [ ] Interactive agent selector web tool
 - [x] Multi-agent workflow examples -- see [examples/](examples/)
-- [x] Multi-tool integration scripts (Claude Code, GitHub Copilot, Antigravity, Gemini CLI, OpenCode, OpenClaw, Cursor, Aider, Windsurf, Qwen Code, Kimi Code, Codex, Osaurus, Hermes)
+- [x] Multi-tool integration scripts (Claude Code, GitHub Copilot, Antigravity, Gemini CLI, OpenCode, OpenClaw, Cursor, Aider, Windsurf, Qwen Code, Kimi Code, Codex, Osaurus, Hermes, Pi)
 - [ ] Video tutorials on agent design
 - [ ] Community agent marketplace
 - [ ] Agent "personality quiz" for project matching
