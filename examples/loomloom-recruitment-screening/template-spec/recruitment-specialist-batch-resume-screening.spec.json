@@ -1,0 +1,177 @@
+{
+  "meta": {
+    "name": "Recruitment Specialist - Batch Resume Screening",
+    "description": "Batch, evidence-based resume prescreening adapted from The Agency Recruitment Specialist. Produces human-reviewable candidate fit assessments without using protected characteristics.",
+    "scenario": "recruitment_resume_screening",
+    "inputSummary": "One candidate resume and one job description per workbook row.",
+    "displayOutputType": "text",
+    "primaryOutputType": "text",
+    "tags": [
+      "recruitment",
+      "resume-screening",
+      "batch-evaluation",
+      "human-review"
+    ]
+  },
+  "steps": [
+    {
+      "stepId": "stp_extract1",
+      "displayName": "Extract Job-Relevant Evidence",
+      "executionUnit": "text-generate",
+      "instruction": "You are the evidence-extraction stage of a professional recruitment screening workflow adapted from The Agency Recruitment Specialist. Read the resume, job description, and optional additional screening requirements. Return one valid JSON object only, with no markdown fences. The JSON must contain: role_requirements with must_have, nice_to_have, responsibilities; candidate_evidence with skills, experience, education, projects, achievements; evidence_quotes as an array of objects with aspect and exact_quote; missing_or_unknown; and protected_data_ignored. Use only facts explicitly present in the supplied text. Preserve evidence quotes verbatim. Do not infer age, gender, race, ethnicity, religion, disability, marital or parental status, health, nationality, socioeconomic background, personality, or cultural fit. Ignore photographs, names, addresses, graduation-year age proxies, and other protected or proxy attributes when evaluating suitability. Missing information must be marked unknown, not treated as proof of absence.",
+      "defaultModelRef": {
+        "modelKey": "deepseek/deepseek-v4-flash"
+      }
+    },
+    {
+      "stepId": "stp_assess01",
+      "displayName": "Assess Candidate Fit",
+      "executionUnit": "text-generate",
+      "instruction": "Evaluate the upstream evidence packet against its extracted role requirements. Return one valid JSON object only, with no markdown fences. Include: match_score as an integer from 0 to 100; tier as shortlist, consider, or reject; must_have_status as met, partially_met, not_met, or unknown; evidence_based_strengths as objects containing claim and exact_quote; missing_requirements; risk_flags limited to job-relevant evidence gaps or inconsistencies; interview_focus; recommendation; and reasoning_summary. Preserve quoted evidence verbatim from the upstream packet. A candidate may be shortlist only when all explicit must-have requirements are supported by evidence. Use shortlist for scores 80-100, consider for 60-79, and reject for 0-59 or an unmet explicit must-have. Never use or infer protected characteristics or proxy traits. Do not invent experience, credentials, achievements, employers, dates, or skills. This is prescreening support, not a final employment decision.",
+      "defaultModelRef": {
+        "modelKey": "deepseek/deepseek-v4-flash"
+      },
+      "dependsOn": [
+        "stp_extract1"
+      ],
+      "upstreamBindings": [
+        {
+          "inputPort": "prompt",
+          "sourceType": "step_output",
+          "sourceStepId": "stp_extract1",
+          "sourcePort": "output"
+        }
+      ],
+      "triggerPolicy": "require_all"
+    },
+    {
+      "stepId": "stp_audit001",
+      "displayName": "Audit Evidence and Compliance",
+      "executionUnit": "text-generate",
+      "instruction": "Audit the upstream candidate assessment for internal consistency, evidence discipline, and employment-screening safeguards. Return one valid JSON object only, with no markdown fences. Preserve the candidate assessment fields and add: validation_status as passed, corrected, or needs_human_review; validation_findings; corrected_fields; human_review_required as true or false; and disclaimer stating that the output is decision support and requires recruiter review. Correct score-tier mismatches. Remove unsupported claims, discriminatory reasoning, and protected or proxy attributes. If evidence is missing, contradictory, or insufficient to support the recommendation, set validation_status to needs_human_review and human_review_required to true. Never strengthen a recommendation beyond what the supplied evidence supports.",
+      "defaultModelRef": {
+        "modelKey": "deepseek/deepseek-v4-flash"
+      },
+      "dependsOn": [
+        "stp_assess01"
+      ],
+      "upstreamBindings": [
+        {
+          "inputPort": "prompt",
+          "sourceType": "step_output",
+          "sourceStepId": "stp_assess01",
+          "sourcePort": "output"
+        }
+      ],
+      "triggerPolicy": "require_all"
+    }
+  ],
+  "inputSchema": {
+    "instructions": [
+      "Enter one candidate per row.",
+      "Extract PDF resume text locally before filling resume_text.",
+      "Use a stable candidate identifier instead of unnecessary personal information.",
+      "Provide only lawful, job-related screening requirements.",
+      "All recommendations require human recruiter review."
+    ],
+    "fields": [
+      {
+        "key": "candidate_id",
+        "label": "Candidate ID",
+        "description": "A stable, non-sensitive identifier used to trace the result.",
+        "required": true,
+        "valueType": "string",
+        "order": 1,
+        "presentation": {
+          "widget": "input",
+          "placeholder": "candidate-001",
+          "hint": "Avoid unnecessary personal information."
+        }
+      },
+      {
+        "key": "resume_text",
+        "label": "Resume Text",
+        "description": "Normalized text extracted from one PDF resume.",
+        "required": true,
+        "valueType": "string",
+        "order": 2,
+        "presentation": {
+          "widget": "textarea",
+          "placeholder": "Paste the extracted resume text.",
+          "hint": "Use the companion PDF Resume Parser Skill for PDF files."
+        }
+      },
+      {
+        "key": "job_description",
+        "label": "Job Description",
+        "description": "Complete role responsibilities, must-have requirements, and preferred qualifications.",
+        "required": true,
+        "valueType": "string",
+        "order": 3,
+        "presentation": {
+          "widget": "textarea",
+          "placeholder": "Paste the complete job description.",
+          "hint": "Clearly distinguish must-have requirements from preferences."
+        }
+      },
+      {
+        "key": "additional_screening_requirements",
+        "label": "Additional Screening Requirements",
+        "description": "Optional lawful, job-related constraints or evaluation priorities.",
+        "required": false,
+        "valueType": "string",
+        "order": 4,
+        "presentation": {
+          "widget": "textarea",
+          "placeholder": "Example: Prioritize production Python experience; do not require a specific degree.",
+          "hint": "Do not include protected characteristics or proxy criteria."
+        }
+      }
+    ],
+    "sampleRows": [
+      {
+        "values": {
+          "candidate_id": "candidate-001",
+          "resume_text": "Software engineer with five years of Python experience. Built production APIs and reduced processing latency by 35%. Led containerized deployments using Docker and Kubernetes.",
+          "job_description": "Backend Engineer. Must have: production Python, REST API design, and relational databases. Preferred: Docker, Kubernetes, and cloud deployment experience.",
+          "additional_screening_requirements": "Prioritize evidence of production ownership and measurable delivery outcomes."
+        }
+      }
+    ]
+  },
+  "paramBindings": [
+    {
+      "stepId": "stp_extract1",
+      "paramKey": "prompt",
+      "bindMode": "shared",
+      "separator": "\n\n",
+      "sources": [
+        {
+          "kind": "literal",
+          "literal": "RESUME TEXT"
+        },
+        {
+          "kind": "field_ref",
+          "fieldKey": "resume_text"
+        },
+        {
+          "kind": "literal",
+          "literal": "JOB DESCRIPTION"
+        },
+        {
+          "kind": "field_ref",
+          "fieldKey": "job_description"
+        },
+        {
+          "kind": "literal",
+          "literal": "ADDITIONAL SCREENING REQUIREMENTS"
+        },
+        {
+          "kind": "field_ref",
+          "fieldKey": "additional_screening_requirements"
+        }
+      ]
+    }
+  ],
+  "fieldBindings": []
+}
