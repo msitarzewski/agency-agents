@@ -1,0 +1,52 @@
+name: Check Plugin Marketplace Consistency
+
+# Runs on every PR (no path filter on purpose): a new division or agent must
+# trip this check even when nobody touched the marketplace tooling. With the
+# source/dist split, main never commits plugins/, so this workflow validates a
+# FRESH generation (tmp build) against the roster and against Claude Code rules,
+# and runs a registration smoke test against that temp build. The `plugins` dist
+# branch itself is published separately by publish-plugin-marketplace.yml on
+# push to main.
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+jobs:
+  check-plugin-marketplace:
+    name: marketplace manifests match the roster
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Check source is clean of committed generated output + structure
+        run: |
+          chmod +x scripts/check-plugin-marketplace.sh
+          ./scripts/check-plugin-marketplace.sh
+
+      - name: Build marketplace to a temp dir
+        run: echo "BUILD_DIR=${{ runner.temp }}/marketplace" >> "$GITHUB_ENV"
+
+      - name: Generate marketplace into temp dir
+        run: python3 scripts/build-marketplace.py --out "$BUILD_DIR"
+
+      - name: Validate against Claude Code plugin rules
+        run: npx -y @anthropic-ai/claude-code plugin validate "$BUILD_DIR"
+
+      # Registration smoke test against the freshly built temp marketplace: the
+      # whole point of the skills/ + agents/ layout is that components actually
+      # register. This would have caught the old explicit-`agents`-field design,
+      # which installed cleanly but registered 0 components.
+      - name: Smoke test plugin registration
+        run: |
+          export CLAUDE_CONFIG_DIR="$(mktemp -d)"
+          export CLAUDE_CODE_PLUGIN_CACHE_DIR="$CLAUDE_CONFIG_DIR/cache"
+          npx -y @anthropic-ai/claude-code plugin marketplace add "$BUILD_DIR"
+          npx -y @anthropic-ai/claude-code plugin install agency-finance@agency-agents
+          # Assert non-zero skill AND sub-agent counts (the drift check already
+          # guarantees the manifest lists 5 of each); don't hardcode a magic number.
+          details="$(npx -y @anthropic-ai/claude-code plugin details agency-finance)"
+          echo "$details" | grep -qE 'Skills \([1-9][0-9]*\)' \
+            || { echo "FAILED: agency-finance did not register any skills"; exit 1; }
+          echo "$details" | grep -qE 'Agents \([1-9][0-9]*\)' \
+            || { echo "FAILED: agency-finance did not register any sub-agents"; exit 1; }

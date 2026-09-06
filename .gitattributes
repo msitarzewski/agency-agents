@@ -3,3 +3,7 @@
 *.yml text eol=lf
 *.yaml text eol=lf
 *.sh text eol=lf
+
+# Generated plugin marketplace manifests must stay LF so the byte-identity
+# drift check in scripts/check-plugin-marketplace.sh holds on every platform.
+**/.claude-plugin/*.json text eol=lf
