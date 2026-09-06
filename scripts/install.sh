@@ -251,16 +251,20 @@ selected_agent_count_all() {
   local d n=0; for d in "${ALL_DIVISIONS[@]}"; do incr_by n "$(division_count "$d")"; done; echo "$n"
 }
 
-# worker_flags — re-emit the active selection/mode flags for parallel workers.
-worker_flags() {
-  local out="" d a
-  $USE_LINK && out="$out --link"
-  $AUTO_CONVERT || out="$out --no-convert"
-  [[ -n "$OVERRIDE_PATH" ]] && out="$out --path $OVERRIDE_PATH"
-  for d in ${FILTER_DIVISIONS[@]+"${FILTER_DIVISIONS[@]}"}; do out="$out --division $d"; done
-  for a in ${FILTER_AGENTS[@]+"${FILTER_AGENTS[@]}"}; do out="$out --agent $a"; done
-  [[ -n "$AGENTS_FILE" ]] && out="$out --agents-file $AGENTS_FILE"
-  printf '%s' "$out"
+# write_worker_args <file> — serialize selection/mode flags for parallel workers.
+# NUL delimiters preserve whitespace and glob characters without asking a child
+# shell to split a command-shaped string back into arguments.
+write_worker_args() {
+  local file="$1" d a
+  local args=()
+  $USE_LINK && args+=(--link)
+  $AUTO_CONVERT || args+=(--no-convert)
+  [[ -n "$OVERRIDE_PATH" ]] && args+=(--path "$OVERRIDE_PATH")
+  for d in ${FILTER_DIVISIONS[@]+"${FILTER_DIVISIONS[@]}"}; do args+=(--division "$d"); done
+  for a in ${FILTER_AGENTS[@]+"${FILTER_AGENTS[@]}"}; do args+=(--agent "$a"); done
+  [[ -n "$AGENTS_FILE" ]] && args+=(--agents-file "$AGENTS_FILE")
+  : > "$file"
+  ((${#args[@]} == 0)) || printf '%s\0' "${args[@]}" > "$file"
 }
 
 # validate_division <name> — exit on unknown division.
@@ -1227,6 +1231,21 @@ main() {
   local parallel_jobs
   parallel_jobs="$(parallel_jobs_default)"
 
+  # Parallel workers receive the parent's selection state through a NUL-delimited
+  # file. Append those values as real argv entries before normal option parsing.
+  if [[ "${AGENCY_INSTALL_WORKER:-}" == "1" && -n "${AGENCY_INSTALL_WORKER_STATE:-}" ]]; then
+    [[ -f "$AGENCY_INSTALL_WORKER_STATE" ]] || {
+      err "Parallel worker state not found: $AGENCY_INSTALL_WORKER_STATE"
+      exit 1
+    }
+    local _worker_arg
+    local _worker_args=()
+    while IFS= read -r -d '' _worker_arg; do
+      _worker_args+=("$_worker_arg")
+    done < "$AGENCY_INSTALL_WORKER_STATE"
+    set -- "$@" "${_worker_args[@]}"
+  fi
+
   local list_what=""
   while [[ $# -gt 0 ]]; do
     case "$1" in
@@ -1398,10 +1417,12 @@ main() {
   if $use_parallel; then
     local install_out_dir
     install_out_dir="$(mktemp -d)"
+    local worker_state_file="$install_out_dir/worker-args"
+    write_worker_args "$worker_state_file"
     export AGENCY_INSTALL_OUT_DIR="$install_out_dir"
     export AGENCY_INSTALL_SCRIPT="$SCRIPT_DIR/install.sh"
-    export AGENCY_INSTALL_EXTRA="$(worker_flags)"
-    printf '%s\n' "${SELECTED_TOOLS[@]}" | xargs -P "$parallel_jobs" -I {} sh -c 'AGENCY_INSTALL_WORKER=1 "$AGENCY_INSTALL_SCRIPT" --tool "{}" --no-interactive $AGENCY_INSTALL_EXTRA > "$AGENCY_INSTALL_OUT_DIR/{}" 2>&1'
+    export AGENCY_INSTALL_WORKER_STATE="$worker_state_file"
+    printf '%s\0' "${SELECTED_TOOLS[@]}" | xargs -0 -P "$parallel_jobs" -I {} sh -c 'AGENCY_INSTALL_WORKER=1 "$AGENCY_INSTALL_SCRIPT" --tool "$1" --no-interactive > "$AGENCY_INSTALL_OUT_DIR/$1" 2>&1' agency-install-worker "{}"
     for t in "${SELECTED_TOOLS[@]}"; do
       [[ -f "$install_out_dir/$t" ]] && cat "$install_out_dir/$t"
     done
