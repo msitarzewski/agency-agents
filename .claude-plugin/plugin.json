@@ -1,0 +1,12 @@
+{
+  "name": "agency-agents",
+  "description": "A complete AI agency — 185 specialized expert agents covering engineering, design, marketing, game development, finance, sales, testing, and more, each with distinct personality and domain expertise.",
+  "author": {
+    "name": "msitarzewski",
+    "email": ""
+  },
+  "homepage": "https://github.com/msitarzewski/agency-agents",
+  "repository": "https://github.com/msitarzewski/agency-agents",
+  "license": "MIT",
+  "agents": "./agents/"
+}
