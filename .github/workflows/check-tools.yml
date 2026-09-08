@@ -26,7 +26,9 @@ jobs:
         run: bash scripts/test-convert-frontmatter.sh
 
       - name: Validate converted outputs (round-trip, strict parse, counts, drift)
-        run: bash scripts/test-convert-outputs.sh
+        # Drift is advisory on pull requests (agent PRs always move their own manifest line;
+        # maintainers regenerate at landing) and enforced on pushes to main.
+        run: bash scripts/test-convert-outputs.sh ${{ github.event_name == 'pull_request' && '--drift=advisory' || '' }}
 
       - name: Validate agent selection (install.sh --agent / --agents-file)
         run: bash scripts/test-agent-selection.sh

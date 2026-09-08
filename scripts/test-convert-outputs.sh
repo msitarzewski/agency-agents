@@ -19,19 +19,30 @@
 #                description carries no leaked quote character
 #
 # Layer B — drift (needs the committed manifest):
-#   scripts/convert-outputs.sha256 holds one aggregate hash per tool plus the
-#   three cross-repo contracts (divisions.json, tools.json, runbooks.json).
-#   A flipped line means that tool's outputs (or a contract) changed; the
-#   author regenerates deliberately with --update and the diff shows the blast
-#   radius in review. Per-agent detail: --diff.
+#   scripts/convert-outputs.sha256 (v2) holds
+#     agent  <slug>  <hash>   one line per roster agent: that agent's generated output
+#                             across every tool (its files, its section of the
+#                             accumulated aider/windsurf files, its hermes JSON entry)
+#     tool   <tool>  <hash>   the tool's NON-agent files (README, plugin code, manifests):
+#                             moves only when a generator/template changes
+#     contract <file> <hash>  divisions.json, tools.json, runbooks.json
+#   Adding or editing one agent flips exactly its own line, so two agent PRs
+#   never collide on this file. Hashes are platform-neutral: forward-slash paths
+#   and LF line endings, so a Windows checkout produces the same manifest.
+#
+#   Contributors adding/editing agents do NOT need to touch the manifest: CI runs
+#   this with --drift=advisory on pull requests (drift is printed, not failed) and
+#   maintainers regenerate it when the PR lands. A generator change should ship
+#   with --update so the tool line moves in the same commit.
 #
 # Usage:
-#   ./scripts/test-convert-outputs.sh            # generate into a temp dir, check everything
-#   ./scripts/test-convert-outputs.sh --update   # ...and rewrite the manifest
-#   ./scripts/test-convert-outputs.sh --diff     # list per-agent files behind a flipped line
-#   ./scripts/test-convert-outputs.sh --out=DIR  # check an already-generated DIR (no generation)
+#   ./scripts/test-convert-outputs.sh                   # generate into a temp dir, check everything
+#   ./scripts/test-convert-outputs.sh --update          # ...and rewrite the manifest
+#   ./scripts/test-convert-outputs.sh --drift=advisory  # drift is reported but does not fail (CI on PRs)
+#   ./scripts/test-convert-outputs.sh --out=DIR         # check an already-generated DIR (no generation)
 #
-# Exit 0 only when every check passes AND the manifest matches (or --update).
+# Exit 0 only when every invariant passes AND the manifest matches (or --update,
+# or --drift=advisory).
 # Runs on bash 3.2 (macOS) and 5 (Linux); parsing is done by python3.
 
 set -euo pipefail
@@ -40,13 +51,15 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 REPO_ROOT="$(cd "$SCRIPT_DIR/.." && pwd)"
 MANIFEST="$REPO_ROOT/scripts/convert-outputs.sha256"
 
-UPDATE=false; DIFF=false; OUT=""
+UPDATE=false; DIFF=false; OUT=""; DRIFT=strict
 for a in "$@"; do
   case "$a" in
     --update) UPDATE=true ;;
     --diff)   DIFF=true ;;
+    --drift=advisory) DRIFT=advisory ;;
+    --drift=strict)   DRIFT=strict ;;
     --out=*)  OUT="${a#--out=}" ;;
-    -h|--help) sed -n '2,36p' "$0"; exit 0 ;;
+    -h|--help) sed -n '2,44p' "$0"; exit 0 ;;
     *) printf 'unknown flag: %s\n' "$a" >&2; exit 2 ;;
   esac
 done
@@ -95,11 +108,12 @@ fi
 
 # --- check: invariants + manifest (python does the parsing) -------------------
 REPO_ROOT="$REPO_ROOT" OUT="$OUT" SOURCES="$SOURCES" N="$N" MANIFEST="$MANIFEST" \
-UPDATE="$UPDATE" DIFF="$DIFF" TOOLS="$TOOLS" python3 - <<'PY'
-import os, sys, glob, json, hashlib, yaml, tomllib
+UPDATE="$UPDATE" DIFF="$DIFF" DRIFT="$DRIFT" TOOLS="$TOOLS" python3 - <<'PY'
+import os, re, sys, glob, json, hashlib, yaml, tomllib
 
 R, OUT, N = os.environ["REPO_ROOT"], os.environ["OUT"], int(os.environ["N"])
 MANIFEST, UPDATE, DIFF = os.environ["MANIFEST"], os.environ["UPDATE"] == "true", os.environ["DIFF"] == "true"
+ADVISORY = os.environ.get("DRIFT") == "advisory"
 TOOLS = os.environ["TOOLS"].split()
 
 # slug -> (description, name, source path)
@@ -279,36 +293,120 @@ for m in src_bad[:5]: bad(m)
 if len(src_bad) > 5: bad(f"...and {len(src_bad)-5} more source frontmatter problems")
 if not src_bad: ok(f"all {N} source agents strict-parse (app contract)")
 
-# --- Layer B: manifest ---------------------------------------------------------
+# --- Layer B: manifest (v2: per-agent lines, platform-neutral hashes) ----------
+def norm_bytes(b): return b.replace(b"\r\n", b"\n")
 def sha(b): return hashlib.sha256(b).hexdigest()
-def tool_hash(tool):
-    h = hashlib.sha256()
+def rel(f): return os.path.relpath(f, OUT).replace(os.sep, "/")
+
+slugs = set(src)
+names = {name: slug for slug, (_d, name, _p) in src.items()}
+per_agent = {slug: [] for slug in slugs}     # slug -> [(label, bytes)]
+per_tool  = {t: [] for t in TOOLS}           # tool -> [(label, bytes)] for non-agent files
+
+def owner_of(path):
+    """Which roster agent a generated file belongs to, by exact path component or stem."""
+    parts = rel(path).split("/")[1:]         # drop the tool dir
+    for comp in parts[:-1]:
+        d = comp[len("agency-"):] if comp.startswith("agency-") else comp
+        if d in slugs: return d
+    stem = os.path.splitext(parts[-1])[0]
+    return stem if stem in slugs else None
+
+for tool in TOOLS:
+    pat, fmt = SPEC[tool]
     for f in sorted(glob.glob(os.path.join(OUT, tool, "**", "*"), recursive=True)):
-        if os.path.isfile(f):
-            h.update(os.path.relpath(f, OUT).encode()); h.update(sha(open(f, "rb").read()).encode())
+        if not os.path.isfile(f): continue
+        data = norm_bytes(open(f, "rb").read())
+        if fmt == "accum" and rel(f) == f"{tool}/{pat}":
+            # One file for all agents: attribute each "## <name>" section to its agent;
+            # anything outside a known section (preamble) is the tool's contract.
+            lines_ = data.decode("utf-8", "replace").split("\n")
+            cur, buf, pre = None, [], []
+            def flush():
+                if cur: per_agent[cur].append((f"{tool}:section", "\n".join(buf).encode()))
+            for l in lines_:
+                m = names.get(l.rstrip()[3:]) if l.startswith("## ") else None
+                if m: flush(); cur, buf = m, [l]; continue
+                (buf if cur else pre).append(l)
+            flush()
+            per_tool[tool].append((rel(f) + ":preamble", "\n".join(pre).encode()))
+            continue
+        if fmt == "json" and rel(f) == f"{tool}/{pat}":
+            try:
+                items = json.loads(data.decode("utf-8"))
+                items = items if isinstance(items, list) else items.get("agents", [])
+                for it in items:
+                    sl = it.get("slug") if isinstance(it, dict) else None
+                    if sl in slugs: per_agent[sl].append((f"{tool}:entry", json.dumps(it, sort_keys=True, ensure_ascii=False).encode()))
+                    else: per_tool[tool].append((rel(f) + ":stray-entry", json.dumps(it, sort_keys=True, ensure_ascii=False).encode()))
+            except Exception:
+                per_tool[tool].append((rel(f), data))
+            continue
+        o = owner_of(f)
+        if o is None and os.path.basename(f).lower() == "readme.md":
+            # Roster-derived text in generated docs ("Generated agent count: 273") must not move
+            # the tool line — only template changes should.
+            data = re.sub(rb"(?m)^(Generated agent count: )\d+$", rb"\1N", data)
+        (per_agent[o] if o else per_tool[tool]).append((rel(f), data))
+
+def digest(entries):
+    h = hashlib.sha256()
+    for label, b in sorted(entries, key=lambda e: e[0]):
+        h.update(label.encode()); h.update(b"\0"); h.update(sha(b).encode()); h.update(b"\n")
     return h.hexdigest()
-lines = [f"{t}\t{tool_hash(t)}" for t in TOOLS]
+
+rows = [("agent", slug, digest(per_agent[slug])) for slug in sorted(slugs)]
+rows += [("tool", t, digest(per_tool[t])) for t in TOOLS]
 for c in ("divisions.json", "tools.json", "strategy/runbooks.json"):
     p = os.path.join(R, c)
-    lines.append(f"{c}\t{sha(open(p,'rb').read()) if os.path.exists(p) else 'MISSING'}")
-new = "\n".join(lines) + "\n"
+    rows.append(("contract", c, sha(norm_bytes(open(p, "rb").read())) if os.path.exists(p) else "MISSING"))
+new = ("# convert-outputs manifest v2 — one line per agent (its output across every tool), one per tool\n"
+       "# (non-agent files), one per contract. Platform-neutral hashes. Regenerate: scripts/test-convert-outputs.sh --update\n"
+       + "".join(f"{k}\t{key}\t{h}\n" for k, key, h in rows))
+
+def drift_report(old_text):
+    old = {}
+    for l in old_text.splitlines():
+        if l.startswith("#") or "\t" not in l: continue
+        f = l.split("\t")
+        if len(f) == 3: old[(f[0], f[1])] = f[2]
+        elif len(f) == 2: return None                    # v1 manifest
+    cur = {(k, key): h for k, key, h in rows}
+    changed = sorted(key for (k, key), h in cur.items() if (k, key) in old and old[(k, key)] != h and k == "agent")
+    added   = sorted(key for (k, key) in cur if k == "agent" and (k, key) not in old)
+    removed = sorted(key for (k, key) in old if k == "agent" and (k, key) not in cur)
+    tools   = sorted(key for (k, key), h in cur.items() if k != "agent" and old.get((k, key)) != h)
+    return changed, added, removed, tools
 
 if UPDATE:
-    open(MANIFEST, "w").write(new); ok(f"manifest written: {os.path.relpath(MANIFEST, R)}")
+    open(MANIFEST, "w", newline="\n").write(new); ok(f"manifest written: {os.path.relpath(MANIFEST, R)}")
 elif not os.path.exists(MANIFEST):
     bad(f"manifest missing: run with --update to create {os.path.relpath(MANIFEST, R)}")
 else:
-    old = dict(l.split("\t") for l in open(MANIFEST).read().splitlines() if "\t" in l)
-    changed = [l.split("\t")[0] for l in lines if old.get(l.split("\t")[0]) != l.split("\t")[1]]
-    if changed:
-        bad("manifest drift — outputs/contracts changed for: " + ", ".join(changed) +
-            "\n        If intended, review the change and run --update; if not, this is a regression.")
-        if DIFF:
-            for t in changed:
-                if t in SPEC:
-                    print(f"  --diff {t}: (regenerate on the base branch to compare per-agent; hashes are aggregate)")
+    d = drift_report(open(MANIFEST, encoding="utf-8").read())
+    if d is None:
+        bad("manifest is the old v1 format (per-tool aggregate hashes) — run --update once to migrate")
     else:
-        ok("manifest matches (no output or contract drift)")
+        changed, added, removed, tools = d
+        if not (changed or added or removed or tools):
+            ok("manifest matches (no output or contract drift)")
+        else:
+            def few(xs, n=8): return ", ".join(xs[:n]) + (f", … ({len(xs)} total)" if len(xs) > n else "")
+            parts = []
+            if added:   parts.append(f"new agents: {few(added)}")
+            if changed: parts.append(f"changed agents: {few(changed)}")
+            if removed: parts.append(f"removed agents: {few(removed)}")
+            if tools:   parts.append(f"tool/contract lines: {', '.join(tools)}")
+            msg = "manifest drift — " + "; ".join(parts)
+            if len(changed) >= max(20, N // 4):
+                msg += f"\n        {len(changed)} of {N} agents changed at once — that is a converter/template change, not an agent edit; review the generator diff"
+
+            if ADVISORY:
+                print(f"  ADVISORY {msg}\n           (expected for agent additions/edits; maintainers regenerate the manifest when this lands)")
+                ok("manifest drift reported (advisory mode)")
+            else:
+                bad(msg + "\n        Agent lines move when agents are added/edited — regenerate with --update when landing."
+                          "\n        A tool/contract line moving means a generator or contract changed — review it.")
 
 # --- report --------------------------------------------------------------------
 for m in fails: print(f"  FAIL {m}")
