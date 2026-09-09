@@ -1,4 +1,5 @@
 # Ensure consistent line endings across platforms
+* text=auto eol=lf
 *.md text eol=lf
 *.yml text eol=lf
 *.yaml text eol=lf

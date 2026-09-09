@@ -97,7 +97,7 @@ N="$(wc -l < "$SOURCES" | tr -d ' ')"
 [[ "$N" -gt 0 ]] || { echo "ERROR: no source agents found." >&2; exit 2; }
 
 # --- generate: every converted tool, sequentially, into a scratch dir ---------
-TOOLS="antigravity gemini-cli opencode cursor aider windsurf openclaw qwen zcode kimi codex osaurus hermes vibe"
+TOOLS="antigravity gemini-cli opencode cursor aider windsurf openclaw qwen zcode kimi codex osaurus hermes vibe dsh"
 if [[ -z "$OUT" ]]; then
   OUT="$TMP/out"; mkdir -p "$OUT"
   for t in $TOOLS; do
@@ -142,6 +142,7 @@ def check(cond, msg): (ok if cond else bad)(msg)
 SPEC = {
     "antigravity": ("agency-*/SKILL.md", "yaml-fm"),
     "osaurus":     ("agency-*/SKILL.md", "yaml-fm"),
+    "dsh":         ("agency-*/SKILL.md", "yaml-fm"),
     "gemini-cli":  ("agents/*.md",       "yaml-fm"),
     "opencode":    ("agents/*.md",       "yaml-fm"),
     "qwen":        ("agents/*.md",       "yaml-fm"),
