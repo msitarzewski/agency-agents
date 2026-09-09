@@ -31,16 +31,22 @@ This project and everyone participating in it is governed by our Code of Conduct
 Have an idea for a specialized agent? Great! Here's how to add one:
 
 1. **Fork the repository**
-2. **Choose the appropriate category** (or propose a new one):
-   - `engineering/` - Software development specialists
-   - `design/` - UX/UI and creative specialists
-   - `marketing/` - Growth and marketing specialists
-   - `product/` - Product management specialists
-   - `project-management/` - PM and coordination specialists
-   - `testing/` - QA and testing specialists
-   - `support/` - Operations and support specialists
-   - `spatial-computing/` - AR/VR/XR specialists
-   - `specialized/` - Unique specialists that don't fit elsewhere
+2. **Choose the appropriate division** — or propose a new one. Divisions are the
+   top-level agent directories (e.g. `engineering/`, `security/`, `gis/`, `marketing/`,
+   `finance/`…); browse them to find where your agent fits. The authoritative list —
+   with labels, icons, and colors — is [`divisions.json`](divisions.json) at the repo
+   root, so it's always current.
+
+   > **Divisions are defined by `divisions.json`** (repo root) — the single source of
+   > truth for the division set, validated in CI by `scripts/check-divisions.sh`.
+   > **Proposing a new division** means: create the directory, add an entry to
+   > `divisions.json` (label/icon/color), and add it to `AGENT_DIRS` in both
+   > `scripts/convert.sh` and `scripts/lint-agents.sh`. The check fails the build
+   > unless all of these agree and the directory contains at least one agent file.
+   >
+   > Note: `strategy/` (NEXUS playbooks/runbooks — no agent frontmatter) and
+   > `integrations/` (generated per-tool output from `convert.sh`) are **not**
+   > divisions and must never be added to the division lists.
 
 3. **Create your agent file** following the template below
 4. **Test your agent** in real scenarios
@@ -87,6 +93,12 @@ Every agent should follow this structure:
 name: Agent Name
 description: One-line description of the agent's specialty and focus
 color: colorname or "#hexcode"
+emoji: 🎯
+vibe: One-line personality hook — what makes this agent memorable
+services:                              # optional — only if the agent requires external services
+  - name: Service Name
+    url: https://service-url.com
+    tier: free                         # free, freemium, or paid
 ---
 
 # Agent Name
@@ -142,6 +154,29 @@ Measurable outcomes:
 Advanced techniques and approaches the agent masters
 ```
 
+### Agent Structure
+
+Agent files are organized into two semantic groups that map to
+OpenClaw's workspace format and help other tools parse your agent:
+
+#### Persona (who the agent is)
+- **Identity & Memory** — role, personality, background
+- **Communication Style** — tone, voice, approach
+- **Critical Rules** — boundaries and constraints
+
+#### Operations (what the agent does)
+- **Core Mission** — primary responsibilities
+- **Technical Deliverables** — concrete outputs and templates
+- **Workflow Process** — step-by-step methodology
+- **Success Metrics** — measurable outcomes
+- **Advanced Capabilities** — specialized techniques
+
+No special formatting is required — just keep persona-related sections
+(identity, communication, rules) grouped separately from operational
+sections (mission, deliverables, workflow, metrics). The `convert.sh`
+script uses these section headers to automatically split agents into
+tool-specific formats.
+
 ### Agent Design Principles
 
 1. **🎭 Strong Personality**
@@ -169,6 +204,62 @@ Advanced techniques and approaches the agent masters
    - How it improves over time
    - What it remembers between sessions
 
+### External Services
+
+Agents may depend on external services (APIs, platforms, SaaS tools) when
+those services are essential to the agent's function. When they do:
+
+1. **Declare dependencies** in frontmatter using the `services` field
+2. **The agent must stand on its own** — strip the API calls and there
+   should still be a useful persona, workflow, and expertise underneath
+3. **Don't duplicate vendor docs** — reference them, don't reproduce them.
+   The agent file should read like an agent, not a getting-started guide
+4. **Prefer services with free tiers** so contributors can test the agent
+
+The test: *is this agent for the user, or for the vendor?* An agent that
+solves the user's problem using a service belongs here. A service's
+quickstart guide wearing an agent costume does not.
+
+### Tool-Specific Compatibility
+
+**Qwen Code Compatibility**: Agent bodies support `${variable}` templating for dynamic context (e.g., `${project_name}`, `${task_description}`). Qwen SubAgents use minimal frontmatter: only `name` and `description` are required; `color`, `emoji`, and `version` fields are omitted as Qwen doesn't use them.
+
+**Codex Compatibility**: Codex custom agents are generated as standalone TOML files. The Codex integration keeps a minimal 1:1 mapping: `name` and `description` are copied from frontmatter, and the Markdown body becomes `developer_instructions`. Source-only metadata such as `color`, `emoji`, `vibe`, and other unsupported frontmatter fields are omitted.
+
+### Adding a Tool Integration
+
+Want agency-agents to install into a new tool (a CLI, editor, or agent runtime)? First, **[open a Discussion](https://github.com/msitarzewski/agency-agents/discussions)** — new integration platforms are a "discuss first" change (see the PR Process below). Once there's alignment, a clean integration is small — usually **~5 files, never the converted output itself.** The just-merged Mistral Vibe integration is a good worked example to copy.
+
+`tools.json` at the repo root is the single source of truth for the tool set, and `scripts/check-tools.sh` (CI) fails the build if any of the pieces below disagree. Run it — it names every place that must match.
+
+**The checklist:**
+
+1. **`tools.json`** — add an entry with `id`, `label`, `kebab`, `format`, `installKind`, `dest`, plus detect/version/scope and display fields. **Reuse an existing `format`** if your tool's rendered files are byte-identical to another's (e.g. tools that consume `SKILL.md` share `"format": "skill-md"` — no new renderer needed). Set `installKind` to `per-agent`, `roster`, or `plugin`. Set `icon` to `null` unless the [app](https://github.com/msitarzewski/agency-agents-app) ships a brand SVG for it.
+2. **`scripts/convert.sh`** — add a `convert_<tool>()` (or reuse a shared `format` renderer) and wire it into the tool list + `--help`.
+3. **`scripts/install.sh`** — add an `install_<tool>()` and register it in `ALL_TOOLS` + detection/labeling + `--help`.
+4. **`.gitignore`** — add a rule for your tool's generated output under `integrations/<tool>/`. **This step is required and easy to miss.** Converted agent/skill files are generated locally by `convert.sh` and are **never committed** (see "Things we'll always close" below) — only `integrations/<tool>/README.md` is tracked. Match an existing per-tool entry.
+5. **`integrations/<tool>/README.md`** — a short doc for the integration (every tool has one; it's the only committed file in the tool's directory).
+6. **Run `./scripts/check-tools.sh`** — it must pass. It cross-checks `tools.json` against `install.sh` and `convert.sh` and flags anything missing.
+7. **Run `./scripts/test-install.sh`** — it must pass. It installs into throwaway
+   sandboxes (never your real `$HOME`) and pins the installer's observable
+   contract: where files land, that `--path` beats the tool's env var, that
+   `--division` / `--agent` / `--agents-file` filter, that `--dry-run` writes
+   nothing, and that paths with spaces survive. CI runs it on Linux and macOS.
+8. **Run `./scripts/test-convert-outputs.sh`** — it must pass. It regenerates
+   every tool's output into a scratch directory and checks the *product*, not
+   the syntax: every agent's description round-trips intact, every generated
+   file parses with a real YAML/TOML parser, every tool emits exactly one output
+   per agent, and every source file parses the way the desktop app reads it.
+   When you've changed a converter on purpose it will report **manifest drift**
+   on that tool's line — that's expected. Look over what changed, run it again
+   with `--update`, and commit the refreshed `scripts/convert-outputs.sha256` so
+   reviewers can see the blast radius at a glance. The manifest holds one line
+   per agent and one per tool, and its hashes are the same on every platform
+   (forward-slash paths, LF line endings), so a Windows checkout produces the
+   same file. CI runs it on every PR.
+
+If your PR commits the converted output (the generated `integrations/<tool>/*` files), CI and review will ask you to remove it and add the `.gitignore` rule instead.
+
 ### What Makes a Great Agent?
 
 **Great agents have**:
@@ -190,6 +281,30 @@ Advanced techniques and approaches the agent masters
 
 ## 🔄 Pull Request Process
 
+### What Belongs in a PR (and What Doesn't)
+
+The fastest path to a merged PR is **one markdown file** — a new or improved agent. That's the sweet spot.
+
+For anything beyond that, here's how we keep things smooth:
+
+#### Always welcome as a PR
+- Adding a new agent (one `.md` file)
+- Improving an existing agent's content, examples, or personality
+- Fixing typos or clarifying docs
+
+#### Start a Discussion first
+- New tooling, build systems, or CI workflows
+- Architectural changes (new directories, new scripts, site generators)
+- Changes that touch many files across the repo
+- New integration formats or platforms
+
+We love ambitious ideas — a [Discussion](https://github.com/msitarzewski/agency-agents/discussions) just gives the community a chance to align on approach before code gets written. It saves everyone time, especially yours.
+
+#### Things we'll always close
+- **Committed build output**: Generated files (`_site/`, compiled assets, converted agent files) should never be checked in. Users run `convert.sh` locally; its output is gitignored. When adding a new tool, adding that `.gitignore` rule is your step — see [Adding a Tool Integration](#adding-a-tool-integration).
+- **PRs that bulk-modify existing agents** without a prior discussion — even well-intentioned reformatting can create merge conflicts for other contributors.
+- **Near-duplicate "re-skins"**: New agents that are find-replace copies of an existing one (e.g. swapping a country or platform name) rather than genuinely new specialists. Run `scripts/check-agent-originality.sh` before submitting — CI runs it automatically.
+
 ### Before Submitting
 
 1. **Test Your Agent**: Use it in real scenarios, iterate on feedback
@@ -197,6 +312,10 @@ Advanced techniques and approaches the agent masters
 3. **Add Examples**: Include at least 2-3 code/template examples
 4. **Define Metrics**: Include specific, measurable success criteria
 5. **Proofread**: Check for typos, formatting issues, clarity
+6. **Check it's original**: Run `./scripts/check-agent-originality.sh path/to/your-agent.md`. It compares your agent against the whole roster and flags near-duplicates (a swapped country/platform name won't fool it). A new agent should be genuinely new — if you're localizing for a market, make the platforms, tactics, and examples actually different, not a find-replace.
+7. **Check it comes through every tool intact**: Run `./scripts/test-convert-outputs.sh`. It regenerates every tool's output and confirms your agent survives each converter — description round-tripped, files parsing, nothing dropped — and that its frontmatter parses the way the desktop app reads it. Adding or editing an agent changes the generated product, so it will report **manifest drift** naming your agent — that's expected, and it is **advisory** on pull requests: CI prints it but does not fail on it. You don't need to touch `scripts/convert-outputs.sha256` at all; the maintainers regenerate it when your PR lands. (If you do run `--update`, that's fine too — the manifest has one line per agent, so it won't conflict with anyone else's PR, and the hashes are identical on Windows, macOS and Linux.)
+
+A word on why these checks exist. People are building genuinely remarkable things on top of these agents, and thousands rely on them every day across a dozen different tools. That's wonderful — and it means a small slip in one converter, or a stray quote in one file, quietly reaches all of them at once. Running the suite locally is how we keep that smooth for everyone downstream. It takes about a minute, and it means your work arrives exactly as you wrote it, in every tool, for everyone. Thank you for taking the extra step — it's a real kindness to people you'll never meet.
 
 ### Submitting Your PR
 
@@ -233,6 +352,7 @@ Advanced techniques and approaches the agent masters
 [How have you tested this agent? Real-world use cases?]
 
 ## Checklist
+- [ ] Original — not a near-duplicate (ran `scripts/check-agent-originality.sh`)
 - [ ] Follows agent template structure
 - [ ] Includes personality and voice
 - [ ] Has concrete code/template examples

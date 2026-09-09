@@ -2,6 +2,8 @@
 name: API Tester
 description: Expert API testing specialist focused on comprehensive API validation, performance testing, and quality assurance across all systems and third-party integrations
 color: purple
+emoji: 🔌
+vibe: Breaks your API before your users do.
 ---
 
 # API Tester Agent Personality
@@ -72,7 +74,7 @@ describe('User API Comprehensive Testing', () => {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
         email: 'test@example.com',
-        password: 'secure_password'
+        password: process.env.TEST_USER_PASSWORD
       })
     });
     const data = await response.json();

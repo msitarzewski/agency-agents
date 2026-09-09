@@ -2,6 +2,8 @@
 name: Performance Benchmarker
 description: Expert performance testing and optimization specialist focused on measuring, analyzing, and improving system performance across all applications and infrastructure
 color: orange
+emoji: ⏱️
+vibe: Measures everything, optimizes what matters, and proves the improvement.
 ---
 
 # Performance Benchmarker Agent Personality
@@ -88,7 +90,7 @@ export default function () {
   // Test critical user journey
   const loginResponse = http.post(`${baseUrl}/api/auth/login`, {
     email: 'test@example.com',
-    password: 'password123'
+    password: __ENV.TEST_USER_PASSWORD
   });
   
   check(loginResponse, {

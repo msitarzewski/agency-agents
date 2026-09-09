@@ -1,0 +1,20 @@
+name: Check Divisions Consistency
+
+# Runs on every PR (no path filter on purpose): a new division directory must
+# trip this check even when nobody touched divisions.json or the lint config.
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+jobs:
+  check-divisions:
+    name: divisions.json is the single source of truth
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Validate division set
+        run: |
+          chmod +x scripts/check-divisions.sh
+          ./scripts/check-divisions.sh

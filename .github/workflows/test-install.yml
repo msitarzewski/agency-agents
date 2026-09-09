@@ -1,0 +1,30 @@
+name: Test Installer
+
+# No path filter on purpose: the installer's contract can break from the other
+# side too — a renamed division, a file that loses its frontmatter, a change to
+# lib.sh — so these run on every PR.
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+jobs:
+  test-install:
+    name: install.sh behavior (${{ matrix.os }})
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        # macOS ships bash 3.2, Linux ships bash 5 — the scripts must pass on both.
+        os: [ubuntu-latest, macos-latest]
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Shell syntax
+        run: |
+          for f in scripts/*.sh; do bash -n "$f"; done
+
+      - name: Run installer tests
+        run: |
+          chmod +x scripts/test-install.sh scripts/install.sh
+          ./scripts/test-install.sh

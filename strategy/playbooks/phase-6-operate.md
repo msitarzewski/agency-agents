@@ -76,7 +76,7 @@ Sustained operations with continuous improvement. The product is live — now ma
 MEASURE (Analytics Reporter)
     │
     ▼
-ANALYZE (Feedback Synthesizer + Data Analytics Reporter)
+ANALYZE (Feedback Synthesizer + Analytics Reporter)
     │
     ▼
 PLAN (Sprint Prioritizer + Studio Producer)

@@ -1,6 +1,6 @@
 # Windsurf Integration
 
-All 61 Agency agents are consolidated into a single `.windsurfrules` file.
+The full Agency roster is consolidated into a single `.windsurfrules` file.
 Rules are **project-scoped** — install them from your project root.
 
 ## Install
