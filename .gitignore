@@ -85,4 +85,5 @@ integrations/hermes/agency-agents-router/
 integrations/vibe/agents/
 integrations/vibe/prompts/
 integrations/zcode/agents/
+integrations/dsh/agency-*/
 graphify-out/

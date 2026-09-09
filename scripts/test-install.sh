@@ -11,8 +11,8 @@
 #   * bash 3.2 + BSD userland, no jq, no GNU-only flags.
 #   * Never touches the real $HOME. Every case runs with HOME set to a fresh
 #     sandbox, so a broken default path writes into the sandbox, not your config.
-#   * Only exercises the two source tools (claude-code, copilot) so no case
-#     depends on convert.sh output being present or fresh.
+#   * Source-tool cases use claude-code/copilot directly; focused Codex and DSH
+#     cases exercise auto-conversion before installing into their sandboxes.
 #
 # Usage: ./scripts/test-install.sh [-v]
 #   -v  echo the installer's own output for failing cases
@@ -216,6 +216,41 @@ RUN_OUT="$(HOME="$home" CLAUDE_CONFIG_DIR="$cfg" "$INSTALL" --no-interactive --t
 assert_eq 0 "$RUN_STATUS" "pre-suffixed CLAUDE_CONFIG_DIR install exits 0"
 assert_eq "$TOTAL_AGENTS" "$(count_md "$cfg")" \
   "a CLAUDE_CONFIG_DIR already ending in /agents is used verbatim (no double-nesting)"
+
+# DSH_HOME is DeepSeek Harness's official config root. DSH_SKILLS_DIR remains
+# the more specific destination override and therefore wins when both are set.
+home="$(sandbox dsh-home)"
+dsh_home="$home/custom-dsh"
+RUN_OUT="$(HOME="$home" DSH_HOME="$dsh_home" "$INSTALL" --no-interactive \
+  --tool dsh --agent "$FIRST_ENG_SLUG" 2>&1)"; RUN_STATUS=$?
+assert_eq 0 "$RUN_STATUS" "DSH_HOME install exits 0"
+[[ -f "$dsh_home/skills/agency-$FIRST_ENG_SLUG/SKILL.md" ]] \
+  && pass "DSH_HOME installs skills into \$DSH_HOME/skills" \
+  || fail "DSH_HOME installs skills into \$DSH_HOME/skills"
+
+home="$(sandbox dsh-detect)"
+dsh_home="$home/custom-dsh"
+mkdir -p "$dsh_home"
+RUN_OUT="$(HOME="$home" DSH_HOME="$dsh_home" "$INSTALL" --no-interactive --dry-run 2>&1)"; RUN_STATUS=$?
+assert_eq 0 "$RUN_STATUS" "custom DSH_HOME detection exits 0"
+tools_line="$(printf '%s\n' "$RUN_OUT" | awk '/^  Tools:/ { print; exit }')"
+case " $tools_line " in
+  *" dsh "*) pass "custom DSH_HOME is detected without a dsh binary" ;;
+  *) fail "custom DSH_HOME is detected without a dsh binary" ;;
+esac
+
+home="$(sandbox dsh-skills-dir)"
+dsh_home="$home/custom-dsh"
+dsh_skills="$home/project/.dsh/skills"
+RUN_OUT="$(HOME="$home" DSH_HOME="$dsh_home" DSH_SKILLS_DIR="$dsh_skills" "$INSTALL" \
+  --no-interactive --no-convert --tool dsh --agent "$FIRST_ENG_SLUG" 2>&1)"; RUN_STATUS=$?
+assert_eq 0 "$RUN_STATUS" "DSH_SKILLS_DIR install exits 0"
+[[ -f "$dsh_skills/agency-$FIRST_ENG_SLUG/SKILL.md" ]] \
+  && pass "DSH_SKILLS_DIR overrides DSH_HOME" \
+  || fail "DSH_SKILLS_DIR overrides DSH_HOME"
+[[ ! -e "$dsh_home/skills/agency-$FIRST_ENG_SLUG/SKILL.md" ]] \
+  && pass "DSH_SKILLS_DIR leaves DSH_HOME unused" \
+  || fail "DSH_SKILLS_DIR leaves DSH_HOME unused"
 
 # ---------------------------------------------------------------------------
 # 4. Paths with spaces (regression: word-splitting in the install loop)

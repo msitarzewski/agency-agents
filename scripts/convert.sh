@@ -24,6 +24,7 @@
 #   osaurus      — Osaurus skill files (~/.osaurus/skills/<name>/SKILL.md)
 #   hermes       — Hermes lazy-router plugin (one plugin + on-disk agent index)
 #   vibe         — Mistral Vibe agent TOML + prompt files (~/.vibe/agents/*.toml + ~/.vibe/prompts/*.md)
+#   dsh          — DeepSeek Harness skill files (~/.dsh/skills/<name>/SKILL.md · .dsh/skills/<name>/SKILL.md)
 #   all          — All tools (default)
 #
 # Output is written to integrations/<tool>/ relative to the repo root.
@@ -77,7 +78,7 @@ AGENT_DIRS=(
 
 # --- Usage ---
 usage() {
-  sed -n '3,27p' "$0" | sed 's/^# \{0,1\}//'
+  sed -n '3,28p' "$0" | sed 's/^# \{0,1\}//'
   exit 0
 }
 
@@ -159,6 +160,36 @@ convert_osaurus() {
   # named for the skill containing a SKILL.md with name + description frontmatter
   # and the persona as the instruction body. Installs into ~/.osaurus/skills/.
   # Kept to the standard fields so it stays compatible with any Agent-Skills host.
+  cat > "$outfile" <<HEREDOC
+---
+name: $(yaml_quote "$slug")
+description: $(yaml_quote "$description")
+---
+${body}
+HEREDOC
+}
+
+convert_dsh() {
+  local file="$1"
+  local name description slug outdir outfile body
+
+  name="$(get_field "name" "$file")"
+  description="$(get_field "description" "$file")"
+  slug="agency-$(slugify "$name")"
+  body="$(get_body "$file")"
+
+  outdir="$OUT_DIR/dsh/$slug"
+  outfile="$outdir/SKILL.md"
+  mkdir -p "$outdir"
+
+  # DeepSeek Harness skill format: the Agent-Skills SKILL.md — a directory
+  # named for the skill containing a SKILL.md with name + description
+  # frontmatter (strict kebab-case, validated by the harness) and the persona
+  # as the instruction body. DSH scans ~/.dsh/skills/ (user) and
+  # <project>/.dsh/skills/ (project); skills there are user- and
+  # model-invocable by default, so an agent activates as /agency-<slug> or by
+  # name in conversation. Byte-identical to the antigravity/osaurus skill-md
+  # shape, which the Agency Agents app renders natively.
   cat > "$outfile" <<HEREDOC
 ---
 name: $(yaml_quote "$slug")
@@ -659,6 +690,7 @@ run_conversions() {
         zcode)       convert_zcode       "$file" ;;
         kimi)        convert_kimi        "$file" ;;
         osaurus)     convert_osaurus     "$file" ;;
+        dsh)         convert_dsh         "$file" ;;
         vibe)        convert_vibe        "$file" ;;
         aider)       accumulate_aider    "$file" ;;
         windsurf)    accumulate_windsurf "$file" ;;
@@ -690,7 +722,7 @@ main() {
     esac
   done
 
-  local valid_tools=("antigravity" "gemini-cli" "opencode" "cursor" "aider" "windsurf" "openclaw" "qwen" "zcode" "kimi" "codex" "osaurus" "hermes" "vibe" "all")
+  local valid_tools=("antigravity" "gemini-cli" "opencode" "cursor" "aider" "windsurf" "openclaw" "qwen" "zcode" "kimi" "codex" "osaurus" "hermes" "vibe" "dsh" "all")
   local valid=false
   for t in "${valid_tools[@]}"; do [[ "$t" == "$tool" ]] && valid=true && break; done
   if ! $valid; then
@@ -709,7 +741,7 @@ main() {
 
   local tools_to_run=()
   if [[ "$tool" == "all" ]]; then
-    tools_to_run=("antigravity" "gemini-cli" "opencode" "cursor" "aider" "windsurf" "openclaw" "qwen" "zcode" "kimi" "codex" "osaurus" "hermes" "vibe")
+    tools_to_run=("antigravity" "gemini-cli" "opencode" "cursor" "aider" "windsurf" "openclaw" "qwen" "zcode" "kimi" "codex" "osaurus" "hermes" "vibe" "dsh")
   else
     tools_to_run=("$tool")
   fi
@@ -720,7 +752,7 @@ main() {
 
   if $use_parallel && [[ "$tool" == "all" ]]; then
     # Tools that write to separate dirs can run in parallel; buffer output so each tool's output stays together
-    local parallel_tools=(antigravity gemini-cli opencode cursor openclaw qwen zcode kimi codex osaurus hermes vibe)
+    local parallel_tools=(antigravity gemini-cli opencode cursor openclaw qwen zcode kimi codex osaurus hermes vibe dsh)
     local parallel_out_dir
     parallel_out_dir="$(mktemp -d)"
     info "Converting: ${#parallel_tools[@]}/${n_tools} tools in parallel (output buffered per tool)..."

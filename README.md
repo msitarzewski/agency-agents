@@ -66,7 +66,7 @@ Each agent file contains:
 
 Browse the agents below and copy/adapt the ones you need!
 
-### Option 4: Use with Other Tools (GitHub Copilot, Antigravity, Gemini CLI, OpenCode, OpenClaw, Cursor, Aider, Windsurf, Kimi Code, Codex, Osaurus, Hermes, Mistral Vibe)
+### Option 4: Use with Other Tools (GitHub Copilot, Antigravity, Gemini CLI, OpenCode, OpenClaw, Cursor, Aider, Windsurf, Kimi Code, Codex, Osaurus, Hermes, Mistral Vibe, DeepSeek Harness)
 
 ```bash
 # Step 1 -- generate integration files for all supported tools
@@ -89,6 +89,7 @@ Browse the agents below and copy/adapt the ones you need!
 ./scripts/install.sh --tool osaurus
 ./scripts/install.sh --tool hermes
 ./scripts/install.sh --tool vibe
+./scripts/install.sh --tool dsh
 ```
 
 **Install only the teams you need** (not everyone wants every division):
@@ -741,6 +742,7 @@ The Agency works natively with Claude Code, and ships conversion + install scrip
 - **[Codex](https://developers.openai.com/codex/overview)** — TOML custom agents → `~/.codex/agents/`
 - **Osaurus** -- `SKILL.md` skills -> `~/.osaurus/skills/`
 - **[Hermes](integrations/hermes/README.md)** -- lazy-router plugin -> `~/.hermes/plugins/`
+- **[DeepSeek Harness](https://github.com/deepseek-ai/deepseek-harness)** — `SKILL.md` skills → `~/.dsh/skills/` (user) or `.dsh/skills/` (project)
 
 ---
 
@@ -1039,6 +1041,34 @@ Use the Frontend Developer agent to review this component.
 ```
 
 See [integrations/codex/README.md](integrations/codex/README.md) for details.
+</details>
+
+<details>
+<summary><strong>DeepSeek Harness</strong></summary>
+
+Each agent becomes a DSH skill (`SKILL.md` with Agent-Skills frontmatter) in `${DSH_HOME:-$HOME/.dsh}/skills/agency-<slug>/`. Skills are discovered live — no restart needed.
+
+```bash
+./scripts/convert.sh --tool dsh
+./scripts/install.sh --tool dsh
+```
+
+Custom user home:
+```bash
+DSH_HOME=~/.config/dsh ./scripts/install.sh --tool dsh
+```
+
+Project-scoped install (run from your project root):
+```bash
+DSH_SKILLS_DIR=.dsh/skills ./scripts/install.sh --tool dsh
+```
+
+Activate in DeepSeek Harness — user- and model-invocable by default:
+```
+/agency-frontend-developer review this React component
+```
+
+See [integrations/dsh/README.md](integrations/dsh/README.md) for details.
 </details>
 
 ---

@@ -27,6 +27,7 @@
 #   osaurus      -- Copy skills to ~/.osaurus/skills/
 #   hermes       -- Copy lazy-router plugin to ~/.hermes/plugins/ and enable it
 #   vibe         -- Copy agents and prompts to ~/.vibe/agents/ and ~/.vibe/prompts/
+#   dsh          -- Copy skills to ~/.dsh/skills/ (user-wide) or .dsh/skills/ (project)
 #   all          -- Install for all detected tools (default)
 #
 # Selection (compose freely; empty = everything):
@@ -50,8 +51,9 @@
 #   --help                Show this help
 #
 # Env: CLAUDE_CONFIG_DIR, COPILOT_AGENT_DIR, CURSOR_RULES_DIR, GEMINI_AGENTS_DIR,
-#      OPENCODE_AGENTS_DIR, OPENCLAW_DIR, QWEN_AGENTS_DIR, CODEX_AGENTS_DIR,
-#      OSAURUS_SKILLS_DIR, HERMES_HOME, HERMES_PLUGIN_DIR, VIBE_HOME
+#      OPENCODE_AGENTS_DIR, OPENCLAW_DIR, QWEN_AGENTS_DIR, ZCODE_AGENTS_DIR,
+#      CODEX_AGENTS_DIR, OSAURUS_SKILLS_DIR, HERMES_HOME, HERMES_PLUGIN_DIR,
+#      VIBE_HOME, DSH_HOME, DSH_SKILLS_DIR
 #      override default install paths (checked before hardcoded defaults).
 #
 # --- USAGE-END ---  (sentinel for usage(); do not remove)
@@ -130,7 +132,7 @@ INTEGRATIONS="$REPO_ROOT/integrations"
 # shellcheck source=lib.sh
 . "$SCRIPT_DIR/lib.sh"
 
-ALL_TOOLS=(claude-code copilot antigravity gemini-cli opencode openclaw cursor aider windsurf qwen zcode kimi codex osaurus hermes vibe)
+ALL_TOOLS=(claude-code copilot antigravity gemini-cli opencode openclaw cursor aider windsurf qwen zcode kimi codex osaurus hermes vibe dsh)
 
 # The division set is derived from divisions.json (the single source of truth)
 # so the installer can never drift from the catalog — a hardcoded copy silently
@@ -292,7 +294,7 @@ path_collision_group() {
   case "$1" in
     claude-code|copilot)             printf 'raw-source-md' ;;  # <division>-<slug>.md
     gemini-cli|opencode|qwen|zcode)  printf 'slug-md' ;;        # <slug>.md
-    antigravity|osaurus)             printf 'agency-skill' ;;   # agency-<slug>/SKILL.md
+    antigravity|osaurus|dsh)         printf 'agency-skill' ;;   # agency-<slug>/SKILL.md
     *)                               printf '' ;;
   esac
 }
@@ -313,6 +315,7 @@ resolve_dest() {
     osaurus)     var="OSAURUS_SKILLS_DIR" ;;
     hermes)      var="HERMES_PLUGIN_DIR" ;;
     vibe)        var="VIBE_HOME" ;;
+    dsh)         var="DSH_SKILLS_DIR" ;;
   esac
   if [[ -n "$var" && -n "${!var:-}" ]]; then
     if [[ "$tool" == "claude-code" ]]; then
@@ -340,6 +343,7 @@ resolve_tool_path() {
     zcode) bin="zcode" ;;
     kimi) bin="kimi" ;; codex) bin="codex" ;; antigravity) bin="" ;;
     osaurus) bin="osaurus" ;; hermes) bin="hermes" ;; vibe) bin="vibe" ;;
+    dsh) bin="dsh" ;;
   esac
   [[ -n "$bin" ]] && command -v "$bin" 2>/dev/null
 }
@@ -444,6 +448,7 @@ detect_codex()        { command -v codex >/dev/null 2>&1 || [[ -d "${HOME}/.code
 detect_osaurus()      { command -v osaurus >/dev/null 2>&1 || [[ -d "${HOME}/.osaurus" ]]; }
 detect_hermes()       { command -v hermes >/dev/null 2>&1 || [[ -d "${HERMES_HOME:-${HOME}/.hermes}" ]]; }
 detect_vibe()         { command -v vibe >/dev/null 2>&1 || [[ -d "${VIBE_HOME:-${HOME}/.vibe}" ]]; }
+detect_dsh()          { command -v dsh >/dev/null 2>&1 || [[ -d "${DSH_HOME:-${HOME}/.dsh}" ]]; }
 
 is_detected() {
   case "$1" in
@@ -463,6 +468,7 @@ is_detected() {
     osaurus)     detect_osaurus     ;;
     hermes)      detect_hermes      ;;
     vibe)        detect_vibe        ;;
+    dsh)         detect_dsh         ;;
     *)           return 1 ;;
   esac
 }
@@ -486,6 +492,7 @@ tool_label() {
     osaurus)     printf "%-14s  %s" "Osaurus"      "(~/.osaurus/skills)"     ;;
     hermes)      printf "%-14s  %s" "Hermes"       "(~/.hermes/plugins)"     ;;
     vibe)        printf "%-14s  %s" "Mistral Vibe" "(~/.vibe/agents)"        ;;
+    dsh)         printf "%-14s  %s" "DeepSeek Harness" "(~/.dsh/skills)"     ;;
   esac
 }
 
@@ -609,7 +616,7 @@ tool_simple_name() {
     claude-code) echo "Claude Code";; copilot) echo "Copilot";; antigravity) echo "Antigravity";;
     gemini-cli) echo "Gemini CLI";; opencode) echo "OpenCode";; openclaw) echo "OpenClaw";;
     cursor) echo "Cursor";; aider) echo "Aider";; windsurf) echo "Windsurf";;
-    qwen) echo "Qwen Code";; zcode) echo "ZCode";; kimi) echo "Kimi Code";; codex) echo "Codex";; osaurus) echo "Osaurus";; *) echo "$1";;
+    qwen) echo "Qwen Code";; zcode) echo "ZCode";; kimi) echo "Kimi Code";; codex) echo "Codex";; osaurus) echo "Osaurus";; dsh) echo "DeepSeek Harness";; *) echo "$1";;
   esac
 }
 
@@ -823,6 +830,27 @@ install_osaurus() {
     incr count
   done < <(find "$src" -mindepth 1 -maxdepth 1 -type d -print0)
   ok "Osaurus: $count skills -> $dest"
+}
+
+install_dsh() {
+  local src="$INTEGRATIONS/dsh"
+  local dest; dest="$(resolve_dest dsh "${DSH_HOME:-${HOME}/.dsh}/skills")"
+  local count=0
+  [[ -d "$src" ]] || { err "integrations/dsh missing. Run convert.sh first."; return 1; }
+  mkdir -p "$dest"
+  local d
+  while IFS= read -r -d '' d; do
+    local name; name="$(basename "$d")"
+    slug_allowed "$name" || continue
+    mkdir -p "$dest/$name"
+    install_file "$d/SKILL.md" "$dest/$name/SKILL.md"
+    incr count
+  done < <(find "$src" -mindepth 1 -maxdepth 1 -type d -print0)
+  ok "DeepSeek Harness: $count skills -> $dest"
+  warn "DeepSeek Harness: set DSH_SKILLS_DIR=.dsh/skills (in a project) to install there instead."
+  if command -v dsh >/dev/null 2>&1; then
+    warn "DeepSeek Harness: activate an agent with /agency-<slug> or by name in conversation."
+  fi
 }
 
 install_gemini_cli() {
@@ -1290,6 +1318,7 @@ install_tool() {
     osaurus)     install_osaurus     ;;
     hermes)      install_hermes      ;;
     vibe)        install_vibe        ;;
+    dsh)         install_dsh         ;;
   esac
 }
 
