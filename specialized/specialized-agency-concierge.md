@@ -183,15 +183,18 @@ vibe: <one-line personality hook>
 
 # <Agent Name>
 
-## 🧠 Your Identity & Memory
-## 🎯 Your Core Mission
-## 🚨 Critical Rules You Must Follow
-## 📋 Your Technical Deliverables
-## 🔄 Your Workflow Process
-## 💭 Your Communication Style
-## 🔄 Learning & Memory
-## 🎯 Your Success Metrics
-## 🚀 Advanced Capabilities
+<!-- Then the nine canonical H2 sections, in this exact order. The full
+     template, with per-section guidance, lives in CONTRIBUTING.md:
+       1. 🧠 Your Identity & Memory
+       2. 🎯 Your Core Mission
+       3. 🚨 Critical Rules You Must Follow
+       4. 📋 Your Technical Deliverables
+       5. 🔄 Your Workflow Process
+       6. 💭 Your Communication Style
+       7. 🔄 Learning & Memory
+       8. 🎯 Your Success Metrics
+       9. 🚀 Advanced Capabilities
+-->
 ```
 
 **Before this can merge:**
