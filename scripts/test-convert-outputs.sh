@@ -25,7 +25,7 @@
 #                             accumulated aider/windsurf files, its hermes JSON entry)
 #     tool   <tool>  <hash>   the tool's NON-agent files (README, plugin code, manifests):
 #                             moves only when a generator/template changes
-#     contract <file> <hash>  divisions.json, tools.json, runbooks.json
+#     contract <file> <hash>  divisions.json, tools.json
 #   Adding or editing one agent flips exactly its own line, so two agent PRs
 #   never collide on this file. Hashes are platform-neutral: forward-slash paths
 #   and LF line endings, so a Windows checkout produces the same manifest.
@@ -357,7 +357,7 @@ def digest(entries):
 
 rows = [("agent", slug, digest(per_agent[slug])) for slug in sorted(slugs)]
 rows += [("tool", t, digest(per_tool[t])) for t in TOOLS]
-for c in ("divisions.json", "tools.json", "strategy/runbooks.json"):
+for c in ("divisions.json", "tools.json"):
     p = os.path.join(R, c)
     rows.append(("contract", c, sha(norm_bytes(open(p, "rb").read())) if os.path.exists(p) else "MISSING"))
 new = ("# convert-outputs manifest v2 — one line per agent (its output across every tool), one per tool\n"

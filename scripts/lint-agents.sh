@@ -15,20 +15,12 @@ AGENT_DIRS=(
   academic
   design
   engineering
-  finance
-  game-development
-  gis
-  healthcare
   marketing
-  paid-media
   product
-  project-management
   research
   sales
   security
-  spatial-computing
   specialized
-  support
   testing
 )
 

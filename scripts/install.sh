@@ -149,10 +149,8 @@ ALL_DIVISIONS=()
 while IFS= read -r _div; do [[ -n "$_div" ]] && ALL_DIVISIONS+=("$_div"); done < <(divisions_from_json)
 [[ ${#ALL_DIVISIONS[@]} -gt 0 ]] || { err "no divisions parsed from divisions.json"; exit 1; }
 
-# Directories scanned for installable agents = the divisions plus strategy/.
-# strategy/ holds frontmatter-less NEXUS docs (filtered out by is_agent_file at
-# scan time), so it is scanned but selectable only via ALL_DIVISIONS above.
-AGENT_DIRS=("${ALL_DIVISIONS[@]}" strategy)
+# Directories scanned for installable agents = the divisions.
+AGENT_DIRS=("${ALL_DIVISIONS[@]}")
 
 # ---------------------------------------------------------------------------
 # Selection engine (team / agent / agents-file filtering)
