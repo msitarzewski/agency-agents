@@ -17,6 +17,7 @@
 #   antigravity  -- Copy skills to ~/.gemini/config/skills/
 #   gemini-cli   -- Install agents to ~/.gemini/agents/
 #   opencode     -- Copy agents to .opencode/agents/ in current directory
+#   command-code -- Copy skills to ~/.commandcode/skills/
 #   cursor       -- Copy rules to .cursor/rules/ in current directory
 #   aider        -- Copy CONVENTIONS.md to current directory
 #   windsurf     -- Copy .windsurfrules to current directory
@@ -51,7 +52,8 @@
 #
 # Env: CLAUDE_CONFIG_DIR, COPILOT_AGENT_DIR, CURSOR_RULES_DIR, GEMINI_AGENTS_DIR,
 #      OPENCODE_AGENTS_DIR, OPENCLAW_DIR, QWEN_AGENTS_DIR, CODEX_AGENTS_DIR,
-#      OSAURUS_SKILLS_DIR, HERMES_HOME, HERMES_PLUGIN_DIR, VIBE_HOME
+#      OSAURUS_SKILLS_DIR, COMMAND_CODE_SKILLS_DIR, HERMES_HOME, HERMES_PLUGIN_DIR,
+#      VIBE_HOME
 #      override default install paths (checked before hardcoded defaults).
 #
 # --- USAGE-END ---  (sentinel for usage(); do not remove)
@@ -130,7 +132,7 @@ INTEGRATIONS="$REPO_ROOT/integrations"
 # shellcheck source=lib.sh
 . "$SCRIPT_DIR/lib.sh"
 
-ALL_TOOLS=(claude-code copilot antigravity gemini-cli opencode openclaw cursor aider windsurf qwen zcode kimi codex osaurus hermes vibe)
+ALL_TOOLS=(claude-code copilot antigravity gemini-cli opencode command-code openclaw cursor aider windsurf qwen zcode kimi codex osaurus hermes vibe)
 
 # The division set is derived from divisions.json (the single source of truth)
 # so the installer can never drift from the catalog — a hardcoded copy silently
@@ -292,7 +294,7 @@ path_collision_group() {
   case "$1" in
     claude-code|copilot)             printf 'raw-source-md' ;;  # <division>-<slug>.md
     gemini-cli|opencode|qwen|zcode)  printf 'slug-md' ;;        # <slug>.md
-    antigravity|osaurus)             printf 'agency-skill' ;;   # agency-<slug>/SKILL.md
+    antigravity|osaurus|command-code) printf 'agency-skill' ;;  # agency-<slug>/SKILL.md
     *)                               printf '' ;;
   esac
 }
@@ -301,18 +303,19 @@ resolve_dest() {
   local tool="$1" def="$2" var=""
   [[ -n "$OVERRIDE_PATH" ]] && { printf '%s' "$OVERRIDE_PATH"; return; }
   case "$tool" in
-    claude-code) var="CLAUDE_CONFIG_DIR" ;;
-    copilot)     var="COPILOT_AGENT_DIR" ;;
-    cursor)      var="CURSOR_RULES_DIR" ;;
-    gemini-cli)  var="GEMINI_AGENTS_DIR" ;;
-    opencode)    var="OPENCODE_AGENTS_DIR" ;;
-    openclaw)    var="OPENCLAW_DIR" ;;
-    qwen)        var="QWEN_AGENTS_DIR" ;;
-    zcode)       var="ZCODE_AGENTS_DIR" ;;
-    codex)       var="CODEX_AGENTS_DIR" ;;
-    osaurus)     var="OSAURUS_SKILLS_DIR" ;;
-    hermes)      var="HERMES_PLUGIN_DIR" ;;
-    vibe)        var="VIBE_HOME" ;;
+    claude-code)  var="CLAUDE_CONFIG_DIR" ;;
+    copilot)      var="COPILOT_AGENT_DIR" ;;
+    cursor)       var="CURSOR_RULES_DIR" ;;
+    gemini-cli)   var="GEMINI_AGENTS_DIR" ;;
+    opencode)     var="OPENCODE_AGENTS_DIR" ;;
+    command-code) var="COMMAND_CODE_SKILLS_DIR" ;;
+    openclaw)     var="OPENCLAW_DIR" ;;
+    qwen)         var="QWEN_AGENTS_DIR" ;;
+    zcode)        var="ZCODE_AGENTS_DIR" ;;
+    codex)        var="CODEX_AGENTS_DIR" ;;
+    osaurus)      var="OSAURUS_SKILLS_DIR" ;;
+    hermes)       var="HERMES_PLUGIN_DIR" ;;
+    vibe)         var="VIBE_HOME" ;;
   esac
   if [[ -n "$var" && -n "${!var:-}" ]]; then
     if [[ "$tool" == "claude-code" ]]; then
@@ -336,6 +339,7 @@ resolve_tool_path() {
   case "$1" in
     claude-code) bin="claude" ;; copilot) bin="code" ;; gemini-cli) bin="gemini" ;;
     opencode) bin="opencode" ;; openclaw) bin="openclaw" ;; cursor) bin="cursor" ;;
+    command-code) bin="commandcode" ;;
     aider) bin="aider" ;; windsurf) bin="windsurf" ;; qwen) bin="qwen" ;;
     zcode) bin="zcode" ;;
     kimi) bin="kimi" ;; codex) bin="codex" ;; antigravity) bin="" ;;
@@ -434,6 +438,7 @@ detect_antigravity()  { [[ -d "${HOME}/.gemini/config/skills" ]]; }
 detect_gemini_cli()   { command -v gemini >/dev/null 2>&1 || [[ -d "${HOME}/.gemini" ]]; }
 detect_cursor()       { command -v cursor >/dev/null 2>&1 || [[ -d "${HOME}/.cursor" ]]; }
 detect_opencode()     { command -v opencode >/dev/null 2>&1 || [[ -d "${HOME}/.config/opencode" ]]; }
+detect_command_code() { command -v commandcode >/dev/null 2>&1 || [[ -d "${HOME}/.commandcode" ]]; }
 detect_aider()        { command -v aider >/dev/null 2>&1; }
 detect_openclaw()     { command -v openclaw >/dev/null 2>&1 || [[ -d "${HOME}/.openclaw" ]]; }
 detect_windsurf()     { command -v windsurf >/dev/null 2>&1 || [[ -d "${HOME}/.codeium" ]]; }
@@ -447,22 +452,23 @@ detect_vibe()         { command -v vibe >/dev/null 2>&1 || [[ -d "${VIBE_HOME:-$
 
 is_detected() {
   case "$1" in
-    claude-code) detect_claude_code ;;
-    copilot)     detect_copilot     ;;
-    antigravity) detect_antigravity ;;
-    gemini-cli)  detect_gemini_cli  ;;
-    opencode)    detect_opencode    ;;
-    openclaw)    detect_openclaw    ;;
-    cursor)      detect_cursor      ;;
-    aider)       detect_aider       ;;
-    windsurf)    detect_windsurf    ;;
-    qwen)        detect_qwen        ;;
-    zcode)       detect_zcode       ;;
-    kimi)        detect_kimi        ;;
-    codex)       detect_codex       ;;
-    osaurus)     detect_osaurus     ;;
-    hermes)      detect_hermes      ;;
-    vibe)        detect_vibe        ;;
+    claude-code)  detect_claude_code  ;;
+    copilot)      detect_copilot      ;;
+    antigravity)  detect_antigravity  ;;
+    gemini-cli)   detect_gemini_cli   ;;
+    opencode)     detect_opencode     ;;
+    command-code) detect_command_code ;;
+    openclaw)     detect_openclaw     ;;
+    cursor)       detect_cursor       ;;
+    aider)        detect_aider        ;;
+    windsurf)     detect_windsurf     ;;
+    qwen)         detect_qwen         ;;
+    zcode)        detect_zcode        ;;
+    kimi)         detect_kimi         ;;
+    codex)        detect_codex        ;;
+    osaurus)      detect_osaurus      ;;
+    hermes)       detect_hermes       ;;
+    vibe)         detect_vibe         ;;
     *)           return 1 ;;
   esac
 }
@@ -475,6 +481,7 @@ tool_label() {
     antigravity) printf "%-14s  %s" "Antigravity"  "(~/.gemini/config/skills)" ;;
     gemini-cli)  printf "%-14s  %s" "Gemini CLI"   "(~/.gemini/agents)"      ;;
     opencode)    printf "%-14s  %s" "OpenCode"     "(opencode.ai)"           ;;
+    command-code) printf "%-14s  %s" "Command Code" "(~/.commandcode/skills)" ;;
     openclaw)    printf "%-14s  %s" "OpenClaw"     "(~/.openclaw/agency-agents)" ;;
     cursor)      printf "%-14s  %s" "Cursor"       "(.cursor/rules)"         ;;
     aider)       printf "%-14s  %s" "Aider"        "(CONVENTIONS.md)"        ;;
@@ -607,7 +614,8 @@ screen_tools() {
 tool_simple_name() {
   case "$1" in
     claude-code) echo "Claude Code";; copilot) echo "Copilot";; antigravity) echo "Antigravity";;
-    gemini-cli) echo "Gemini CLI";; opencode) echo "OpenCode";; openclaw) echo "OpenClaw";;
+    gemini-cli) echo "Gemini CLI";; opencode) echo "OpenCode";; command-code) echo "Command Code";;
+    openclaw) echo "OpenClaw";;
     cursor) echo "Cursor";; aider) echo "Aider";; windsurf) echo "Windsurf";;
     qwen) echo "Qwen Code";; zcode) echo "ZCode";; kimi) echo "Kimi Code";; codex) echo "Codex";; osaurus) echo "Osaurus";; *) echo "$1";;
   esac
@@ -823,6 +831,23 @@ install_osaurus() {
     incr count
   done < <(find "$src" -mindepth 1 -maxdepth 1 -type d -print0)
   ok "Osaurus: $count skills -> $dest"
+}
+
+install_command_code() {
+  local src="$INTEGRATIONS/command-code"
+  local dest; dest="$(resolve_dest command-code "${HOME}/.commandcode/skills")"
+  local count=0
+  [[ -d "$src" ]] || { err "integrations/command-code missing. Run convert.sh first."; return 1; }
+  mkdir -p "$dest"
+  local d
+  while IFS= read -r -d '' d; do
+    local name; name="$(basename "$d")"
+    slug_allowed "$name" || continue
+    mkdir -p "$dest/$name"
+    install_file "$d/SKILL.md" "$dest/$name/SKILL.md"
+    incr count
+  done < <(find "$src" -mindepth 1 -maxdepth 1 -type d -print0)
+  ok "Command Code: $count skills -> $dest"
 }
 
 install_gemini_cli() {
@@ -1274,22 +1299,23 @@ PY
 install_tool() {
   ensure_converted "$1"
   case "$1" in
-    claude-code) install_claude_code ;;
-    copilot)     install_copilot     ;;
-    antigravity) install_antigravity ;;
-    gemini-cli)  install_gemini_cli  ;;
-    opencode)    install_opencode    ;;
-    openclaw)    install_openclaw    ;;
-    cursor)      install_cursor      ;;
-    aider)       install_aider       ;;
-    windsurf)    install_windsurf    ;;
-    qwen)        install_qwen        ;;
-    zcode)       install_zcode       ;;
-    kimi)        install_kimi        ;;
-    codex)       install_codex       ;;
-    osaurus)     install_osaurus     ;;
-    hermes)      install_hermes      ;;
-    vibe)        install_vibe        ;;
+    claude-code)  install_claude_code   ;;
+    copilot)      install_copilot       ;;
+    antigravity)  install_antigravity   ;;
+    gemini-cli)   install_gemini_cli    ;;
+    opencode)     install_opencode      ;;
+    command-code) install_command_code  ;;
+    openclaw)     install_openclaw      ;;
+    cursor)       install_cursor        ;;
+    aider)        install_aider         ;;
+    windsurf)     install_windsurf      ;;
+    qwen)         install_qwen          ;;
+    zcode)        install_zcode         ;;
+    kimi)         install_kimi          ;;
+    codex)        install_codex         ;;
+    osaurus)      install_osaurus       ;;
+    hermes)       install_hermes        ;;
+    vibe)         install_vibe          ;;
   esac
 }
 
