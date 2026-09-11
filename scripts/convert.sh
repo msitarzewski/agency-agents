@@ -328,8 +328,29 @@ convert_openclaw() {
 
   local current_target="agents"  # default bucket
   local current_section=""
+  # While fence_marker is set, ## lines are code content, not section
+  # boundaries (issue #849). See lib.sh fence_open_p / fence_closes_p.
+  local fence_marker="" fence_len=0 fence_indent=0
 
   while IFS= read -r line; do
+    if [[ -n "$fence_marker" ]]; then
+      current_section+="$line"$'\n'
+      if fence_closes_p "$line" "$fence_marker" "$fence_len" "$fence_indent"; then
+        fence_marker=""
+        fence_len=0
+        fence_indent=0
+      fi
+      continue
+    fi
+
+    if fence_open_p "$line"; then
+      fence_marker="${BASH_REMATCH[2]:0:1}"
+      fence_len=${#BASH_REMATCH[2]}
+      fence_indent=${#BASH_REMATCH[1]}
+      current_section+="$line"$'\n'
+      continue
+    fi
+
     # Detect ## headers (with or without emoji prefixes)
     if [[ "$line" =~ ^##[[:space:]] ]]; then
       # Flush previous section
