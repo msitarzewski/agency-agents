@@ -187,6 +187,37 @@ assert_eq "$TOTAL_AGENTS" "$(count_md "$home/from-flag")" "--path wins over the 
 assert_eq 0 "$(count_md "$home/from-env")" "env var destination is unused when --path is given"
 
 # ---------------------------------------------------------------------------
+# 3b. CLAUDE_CONFIG_DIR is the config root, not the agents dir (issue #578)
+#
+# Claude Code replaces ~/.claude with $CLAUDE_CONFIG_DIR, so agents belong in
+# $CLAUDE_CONFIG_DIR/agents — matching the default ${HOME}/.claude/agents.
+# Before the fix, resolve_dest returned the variable verbatim and agents
+# landed in the config root where Claude Code never loads them; detection
+# also missed relocated configs entirely.
+# ---------------------------------------------------------------------------
+home="$(sandbox claude-config-dir)"
+cfg="$home/.config/claude-code"
+RUN_OUT="$(HOME="$home" CLAUDE_CONFIG_DIR="$cfg" "$INSTALL" --no-interactive --tool claude-code 2>&1)"; RUN_STATUS=$?
+assert_eq 0 "$RUN_STATUS" "CLAUDE_CONFIG_DIR install exits 0"
+assert_eq "$TOTAL_AGENTS" "$(count_md "$cfg/agents")" "CLAUDE_CONFIG_DIR installs agents into \$CLAUDE_CONFIG_DIR/agents"
+assert_eq 0 "$(count_md "$cfg")" "CLAUDE_CONFIG_DIR leaves the config root itself empty"
+
+# Trailing slash and a pre-existing /agents suffix both resolve cleanly.
+home="$(sandbox claude-config-dir-slash)"
+cfg="$home/.config/claude-code/"
+RUN_OUT="$(HOME="$home" CLAUDE_CONFIG_DIR="$cfg" "$INSTALL" --no-interactive --tool claude-code 2>&1)"; RUN_STATUS=$?
+assert_eq 0 "$RUN_STATUS" "trailing-slash CLAUDE_CONFIG_DIR install exits 0"
+assert_eq "$TOTAL_AGENTS" "$(count_md "$home/.config/claude-code/agents")" \
+  "a trailing slash on CLAUDE_CONFIG_DIR still resolves to .../agents"
+
+home="$(sandbox claude-config-dir-agents)"
+cfg="$home/.config/claude-code/agents"
+RUN_OUT="$(HOME="$home" CLAUDE_CONFIG_DIR="$cfg" "$INSTALL" --no-interactive --tool claude-code 2>&1)"; RUN_STATUS=$?
+assert_eq 0 "$RUN_STATUS" "pre-suffixed CLAUDE_CONFIG_DIR install exits 0"
+assert_eq "$TOTAL_AGENTS" "$(count_md "$cfg")" \
+  "a CLAUDE_CONFIG_DIR already ending in /agents is used verbatim (no double-nesting)"
+
+# ---------------------------------------------------------------------------
 # 4. Paths with spaces (regression: word-splitting in the install loop)
 # ---------------------------------------------------------------------------
 echo ""

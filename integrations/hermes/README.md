@@ -7,14 +7,14 @@ of adding hundreds of generated skills to `skills.external_dirs`. Hermes sees a
 small fixed tool surface at startup, while the complete Agency roster is
 stored on disk in `data/agents.json` and searched/loaded lazily.
 
-Generated agent count: 273
+Generated agent count: 279
 
 ## Tools exposed to Hermes
 
 - `agency_agents_search` — find matching specialists by query/division.
 - `agency_agents_inspect` — inspect one specialist's metadata or full body.
 - `agency_agents_load` — compose one specialist prompt for the current task.
-- `agency_agents_delegate` — delegate through Hermes `delegate_task` when available.
+- `agency_agents_delegate` — delegate through Hermes' public subagent lifecycle.
 
 Each tool is registered with Hermes' complete function-tool schema, including
 its name, description, and JSON `parameters`. The available arguments are:
@@ -24,7 +24,7 @@ its name, description, and JSON `parameters`. The available arguments are:
 | `agency_agents_search` | `query` (required), optional `division` and `limit` |
 | `agency_agents_inspect` | `agent` or `slug`, optional `include_body` |
 | `agency_agents_load` | `agent` or `slug`, optional `task` |
-| `agency_agents_delegate` | `agent` or `slug`, `task` (required), optional `toolsets` |
+| `agency_agents_delegate` | `agent` or `slug`, `task` (required) |
 
 A normal flow is: search by capability, take a returned `slug`, then inspect,
 load, or delegate to that specialist. You can ask Hermes to do this in natural
