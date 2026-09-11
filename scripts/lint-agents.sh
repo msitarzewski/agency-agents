@@ -121,10 +121,27 @@ lint_file() {
     warnings=$((warnings + 1))
   fi
 
+  # Must mirror convert.sh's splitter: a `## ` line inside a fenced code block
+  # is block content, not a section boundary, so it maps to neither bucket.
+  # Counting one here would report a persona section that convert.sh never emits.
+  local fence_re='^(`{3,}|~{3,})'
+  local fence_marker="" fence_len=0
   local soul_headers=0
   local agents_headers=0
   while IFS= read -r line; do
-    if [[ "$line" =~ ^##[[:space:]] ]]; then
+    if [[ "$line" =~ $fence_re ]]; then
+      local marker="${BASH_REMATCH[1]}"
+      if [[ -z "$fence_marker" ]]; then
+        fence_marker="${marker:0:1}"
+        fence_len=${#marker}
+      elif [[ "${marker:0:1}" == "$fence_marker" && ${#marker} -ge $fence_len ]]; then
+        fence_marker=""
+        fence_len=0
+      fi
+      continue
+    fi
+
+    if [[ -z "$fence_marker" && "$line" =~ ^##[[:space:]] ]]; then
       local header_lower
       header_lower=$(printf '%s' "$line" | tr '[:upper:]' '[:lower:]')
       local target

@@ -329,9 +329,30 @@ convert_openclaw() {
   local current_target="agents"  # default bucket
   local current_section=""
 
+  # A `## ` line inside a fenced code block is block content, not a section
+  # boundary: splitting on one tears the block in half and leaves both output
+  # files with an unbalanced fence. Track fence state and only let headings
+  # outside a fence split. A closing fence must be at least as long as the run
+  # that opened it, so a ``` block nested in a ```` block stays contained.
+  local fence_re='^(`{3,}|~{3,})'
+  local fence_marker="" fence_len=0
+
   while IFS= read -r line; do
+    if [[ "$line" =~ $fence_re ]]; then
+      local marker="${BASH_REMATCH[1]}"
+      if [[ -z "$fence_marker" ]]; then
+        fence_marker="${marker:0:1}"
+        fence_len=${#marker}
+      elif [[ "${marker:0:1}" == "$fence_marker" && ${#marker} -ge $fence_len ]]; then
+        fence_marker=""
+        fence_len=0
+      fi
+      current_section+="$line"$'\n'
+      continue
+    fi
+
     # Detect ## headers (with or without emoji prefixes)
-    if [[ "$line" =~ ^##[[:space:]] ]]; then
+    if [[ -z "$fence_marker" && "$line" =~ ^##[[:space:]] ]]; then
       # Flush previous section
       if [[ -n "$current_section" ]]; then
         if [[ "$current_target" == "soul" ]]; then
