@@ -29,3 +29,18 @@ Use the Reality Checker agent to verify this feature is production-ready.
 
 Agents are organized into divisions. See the [main README](../../README.md) for
 the full Agency roster.
+
+## Install as Skills (Marketplace)
+
+Instead of copying agents, you can install each division as a skills plugin from
+the Agency's [plugin marketplace](../plugin-marketplace/README.md):
+
+```
+/plugin marketplace add Marinski/agency-agents#plugins
+/plugin install agency-engineering@agency-agents
+/reload-plugins
+```
+
+Specialists install as skills named by their agent files (e.g.
+`agency-engineering:engineering-frontend-developer`), are invocable by name or
+by task description, and auto-update as the roster changes.

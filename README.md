@@ -105,6 +105,39 @@ Browse the agents below and copy/adapt the ones you need!
 
 See the [Multi-Tool Integrations](#-multi-tool-integrations) section below for full details.
 
+### Option 5: Install as Agent Plugins from the Marketplace
+
+The Agency ships a Claude-format **plugin marketplace** — one installable
+skills plugin per division, consumable by Claude Code, Claude Desktop, VS Code
+(Agent Plugins, Preview), and GitHub Copilot CLI. No clone, no scripts.
+
+**VS Code** — add the marketplace to `settings.json`:
+
+```json
+{
+  "chat.plugins.enabled": true,
+  "chat.plugins.marketplaces": ["Marinski/agency-agents#plugins"]
+}
+```
+
+Then search `@agentPlugins` in the Extensions view and install the divisions
+you need (e.g. **Agency — Engineering**).
+
+**Claude Code / Claude Desktop** — in any session (or Desktop **Settings →
+Plugins → Add marketplace**):
+
+```
+/plugin marketplace add Marinski/agency-agents#plugins
+/plugin install agency-engineering@agency-agents
+/reload-plugins
+```
+
+Then invoke a specialist as a skill — e.g. `/agency-engineering:engineering-frontend-developer`
+or just *"use the frontend developer specialist"*. Skills work in web chat, the
+Desktop Chat tab, and Cowork, and update automatically (every commit is a new
+plugin version). See
+[integrations/plugin-marketplace/README.md](integrations/plugin-marketplace/README.md).
+
 ---
 
 ## 🎨 The Agency Roster

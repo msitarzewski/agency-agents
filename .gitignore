@@ -63,6 +63,14 @@ notes/
 TODO.md
 NOTES.md
 
+# Generated plugin marketplace (source/dist split).
+# The source branch NEVER commits the generated tree: scripts/build-marketplace.py
+# emits plugins/ + .claude-plugin/marketplace.json, and CI (publish-plugin-
+# marketplace.yml) publishes them to the `plugins` dist branch. Consumers point
+# @agentPlugins at <owner>/agency-agents#plugins.
+plugins/
+.claude-plugin/marketplace.json
+
 # Generated integration files — run scripts/convert.sh to regenerate locally
 # The scripts/ and integrations/*/README.md files ARE committed; only generated
 # agent/skill files are excluded.
