@@ -86,7 +86,7 @@ Audit, analyze, and improve brand visibility across AI recommendation engines. B
 
 ### Fix 1: Add FAQ Schema to [Page]
 - **Target prompts**: 8 lost prompts related to [topic]
-- **Expected impact**: +15-20% citation rate on FAQ-style queries
+- **Expected impact**: +15-20% citation rate on FAQ-style queries (benchmark: FAQPage schema increases citation likelihood by ~2.7x)
 - **Implementation**:
   - Add FAQPage schema markup
   - Structure Q&A pairs to match exact prompt patterns
@@ -161,6 +161,8 @@ AI engines cite brands they can clearly identify as entities. Strengthen entity 
 | Claude | Nuanced, balanced content with clear sourcing | Detailed analysis, pros/cons, methodology | Training data cutoff |
 | Gemini | Google ecosystem signals, structured data | Schema-rich pages, Google Business Profile | Real-time search integration |
 | Perplexity | Source diversity, recency, direct answers | News mentions, blog posts, documentation | Real-time search |
+| YouTube | Watch time, engagement, transcript quality | Tutorials with chapters, expert interviews, data-driven analysis | Continuous (indexed in real-time) |
+| Reddit | Community authority, upvotes, comment depth | Detailed answers in niche subreddits, AMAs, data-backed posts | Continuous (Perplexity/Google heavily index Reddit) |
 
 ## Prompt Pattern Engineering
 
@@ -170,3 +172,22 @@ Design content around the actual prompt patterns users type into AI:
 - **"How to choose X"** — requires buyer's guide content with decision frameworks
 - **"What is the difference between X and Y"** — requires clear definitional content
 - **"Recommend a X that does Y"** — requires feature-focused content with use case mapping
+
+## Content Differentiation for Citations
+
+AI engines cite sources that add unique value to a response. Generic content gets passed over in favor of sources with original signals. Structure content to maximize these citation triggers:
+
+### High-Citation Content Signals
+- **Original statistics and data points**: Pages containing specific, sourced numbers see ~33.9% higher citation rates than pages with only qualitative claims
+- **Named expert quotes**: Content with attributed expert quotes achieves ~32% higher citation rates — AI engines use quotes as authority signals
+- **Proprietary research**: Original surveys, case studies with real metrics, and first-party data are the strongest citation magnets because they cannot be found elsewhere
+- **Brand search volume**: The single strongest predictor of AI citation (correlation coefficient 0.334) — brands that people actively search for get cited more. Invest in brand awareness as an upstream AI visibility strategy.
+
+### Citation-Optimized Content Checklist
+When auditing or creating content for AI citation, verify:
+- [ ] Every key claim has an inline source (author/org, year, URL)
+- [ ] At least 3 original data points or statistics not found on competing pages
+- [ ] At least 1 named expert quote with credentials
+- [ ] FAQPage schema applied to all Q&A sections
+- [ ] Comparison tables use structured data (Product or ItemList schema)
+- [ ] Content answers the exact prompt patterns from the Lost Prompt Analysis
