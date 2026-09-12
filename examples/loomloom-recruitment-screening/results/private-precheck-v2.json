@@ -1,0 +1,16 @@
+{
+  "templateId": "76c4b6e6-de49-4bda-9755-9ea55eac9fa9",
+  "versionId": "a5bdf34a-335b-4f52-90ad-055417e1485e",
+  "inputFileId": "2431321e-1a8e-4668-81dc-94badb83eee9",
+  "rowCount": 3,
+  "defaultModel": "deepseek/deepseek-v4-flash",
+  "estimatedTotalCost": {
+    "amount": "0.0198000",
+    "currency": "CNY"
+  },
+  "availableBalance": {
+    "amount": "700.7600000",
+    "currency": "CNY"
+  },
+  "balanceSufficient": true
+}

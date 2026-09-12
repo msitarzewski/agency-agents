@@ -1,0 +1,20 @@
+[Page 1]
+Candidate Reject
+Frontend Developer
+PROFESSIONAL SUMMARY
+Frontend developer with two years of experience building responsive web interfaces and component libraries.
+EXPERIENCE
+Frontend Developer - Lumen Studio - 2024 to Present
+- Built React and TypeScript interfaces for marketing and account pages.
+- Improved Lighthouse accessibility scores from 78 to 94.
+- Worked with designers to maintain a shared component library.
+Web Design Intern - Orchard Creative - 2023
+- Implemented HTML and CSS landing pages from design specifications.
+- Performed cross-browser visual testing.
+SKILLS
+React, TypeScript, JavaScript, HTML, CSS, Storybook, Figma
+SELECTED PROJECT
+Created a reusable form component library. No production Python, backend API design, relational database, or service
+operations experience is stated.
+This document contains fictional information created solely to test the Loomloom recruitment-screening workflow.
+Synthetic resume for testing only Page 1

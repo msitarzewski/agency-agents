@@ -1,0 +1,17 @@
+{
+  "schema_version": "loomloom-skill/v1",
+  "generated_by": "loomloom-cli",
+  "source_type": "market_listing",
+  "agent": "codex",
+  "generated_at": "2026-08-07T10:31:18Z",
+  "skill_name": "loomloom-recruitment-specialist-batch-resume-screening",
+  "display_name": "Recruitment Specialist - Batch Resume Screening",
+  "description": "Batch evidence-based resume screening for recruiter review. Extracts job-relevant evidence, assesses explicit requirements, audits unsupported claims and protected-attribute leakage, and returns traceable recommendations. PDF resumes must be parsed to text before submission.",
+  "source_id": "019fdb67-2092-75e7-88b9-dd2590f81bd5",
+  "input_schema_mode": "schema",
+  "input_schema_snapshot": "{\"fields\":[{\"description\":\"A stable, non-sensitive identifier used to trace the result.\",\"key\":\"candidate_id\",\"label\":\"Candidate ID\",\"order\":1,\"presentation\":{\"hint\":\"Avoid unnecessary personal information.\",\"placeholder\":\"candidate-001\",\"widget\":\"input\"},\"required\":true,\"source_kind\":\"user_input\",\"value_type\":\"string\"},{\"description\":\"Normalized text extracted from one PDF resume.\",\"key\":\"resume_text\",\"label\":\"Resume Text\",\"order\":2,\"presentation\":{\"hint\":\"Use the companion PDF Resume Parser Skill for PDF files.\",\"placeholder\":\"Paste the extracted resume text.\",\"widget\":\"textarea\"},\"required\":true,\"source_kind\":\"user_input\",\"value_type\":\"string\"},{\"description\":\"Complete role responsibilities, must-have requirements, and preferred qualifications.\",\"key\":\"job_description\",\"label\":\"Job Description\",\"order\":3,\"presentation\":{\"hint\":\"Clearly distinguish must-have requirements from preferences.\",\"placeholder\":\"Paste the complete job description.\",\"widget\":\"textarea\"},\"required\":true,\"source_kind\":\"user_input\",\"value_type\":\"string\"},{\"description\":\"Optional lawful, job-related constraints or evaluation priorities.\",\"key\":\"additional_screening_requirements\",\"label\":\"Additional Screening Requirements\",\"order\":4,\"presentation\":{\"hint\":\"Do not include protected characteristics or proxy criteria.\",\"placeholder\":\"Example: Prioritize production Python experience; do not require a specific degree.\",\"widget\":\"textarea\"},\"source_kind\":\"user_input\",\"value_type\":\"string\"}],\"instructions\":[\"Enter one candidate per row.\",\"Extract PDF resume text locally before filling resume_text.\",\"Use a stable candidate identifier instead of unnecessary personal information.\",\"Provide only lawful, job-related screening requirements.\",\"All recommendations require human recruiter review.\"],\"sample_rows\":[{\"additional_screening_requirements\":\"Prioritize evidence of production ownership and measurable delivery outcomes.\",\"candidate_id\":\"candidate-001\",\"job_description\":\"Backend Engineer. Must have: production Python, REST API design, and relational databases. Preferred: Docker, Kubernetes, and cloud deployment experience.\",\"resume_text\":\"Software engineer with five years of Python experience. Built production APIs and reduced processing latency by 35%. Led containerized deployments using Docker and Kubernetes.\"}],\"schema_version\":\"loom_market_public_input_schema_v1\"}",
+  "listing_id": "019fdb67-2092-75e7-88b9-dd2590f81bd5",
+  "installed_listing_version_id": "019fdb67-2092-75de-9d9e-2b8f743c82f0",
+  "pricing_rule_version": "creator_task_fixed_fee_v1",
+  "task_fixed_fee_t": 100000
+}
