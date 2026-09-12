@@ -1,0 +1,46 @@
+# Railway-specific Dockerfile for xct-agent-gateway.
+#
+# Railway builds from the repo root, so paths here are relative to xct-agents/.
+# Agent markdown files are baked into the image at build time (no volume mounts on Railway).
+#
+# In Railway dashboard, set:
+#   Build → Dockerfile path: integrations/litellm/gateway/Dockerfile.railway
+#   (Root directory stays as repo root)
+
+FROM python:3.12-slim
+
+WORKDIR /app
+
+COPY integrations/litellm/gateway/requirements.txt .
+RUN pip install --no-cache-dir -r requirements.txt
+
+COPY integrations/litellm/gateway/main.py .
+
+# Bake all agent markdown files into the image
+COPY academic/          /agents-repo/academic/
+COPY design/            /agents-repo/design/
+COPY engineering/       /agents-repo/engineering/
+COPY finance/           /agents-repo/finance/
+COPY game-development/  /agents-repo/game-development/
+COPY marketing/         /agents-repo/marketing/
+COPY paid-media/        /agents-repo/paid-media/
+COPY product/           /agents-repo/product/
+COPY project-management/ /agents-repo/project-management/
+COPY sales/             /agents-repo/sales/
+COPY spatial-computing/ /agents-repo/spatial-computing/
+COPY specialized/       /agents-repo/specialized/
+COPY strategy/          /agents-repo/strategy/
+COPY support/           /agents-repo/support/
+COPY testing/           /agents-repo/testing/
+
+ENV AGENTS_REPO_PATH=/agents-repo
+# LITELLM_API_BASE, LITELLM_API_KEY, DEFAULT_MODEL are set via Railway env vars
+ENV LITELLM_API_BASE=http://localhost:4000
+ENV LITELLM_API_KEY=sk-1234
+ENV DEFAULT_MODEL=deepseek-v3.2
+# Railway sets PORT; fall back to 9000 for local use
+ENV PORT=9000
+
+EXPOSE 9000
+
+CMD ["sh", "-c", "uvicorn main:app --host 0.0.0.0 --port ${PORT}"]
