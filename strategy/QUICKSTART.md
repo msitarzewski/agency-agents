@@ -176,7 +176,7 @@ Feedback Synthesizer│ Studio Operations   │ Test Results Analyzer
 ────────────────────┼─────────────────────┼──────────────────────
 SUPPORT             │ SPATIAL             │ SPECIALIZED
 Support Responder   │ XR Interface Arch.  │ Agents Orchestrator
-Analytics Reporter  │ macOS Spatial/Metal │ Data Analytics Reporter
+Analytics Reporter  │ macOS Spatial/Metal │ Analytics Reporter
 Finance Tracker     │ XR Immersive Dev    │ LSP/Index Engineer
 Infra Maintainer    │ XR Cockpit Spec.    │ Sales Data Extraction
 Legal Compliance    │ visionOS Spatial    │ Data Consolidation

@@ -1,0 +1,34 @@
+name: Check Tools Consistency
+
+# Runs on every PR (no path filter on purpose): a new or renamed tool must trip
+# this check even when nobody touched tools.json or the install/convert scripts.
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+jobs:
+  check-tools:
+    name: tools.json is the single source of truth
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Validate tool set
+        run: |
+          chmod +x scripts/check-tools.sh
+          ./scripts/check-tools.sh
+
+      - name: Validate generated Hermes plugin
+        run: python3 scripts/check-hermes-plugin.py
+
+      - name: Validate converted YAML frontmatter
+        run: bash scripts/test-convert-frontmatter.sh
+
+      - name: Validate converted outputs (round-trip, strict parse, counts, drift)
+        # Drift is advisory on pull requests (agent PRs always move their own manifest line;
+        # maintainers regenerate at landing) and enforced on pushes to main.
+        run: bash scripts/test-convert-outputs.sh ${{ github.event_name == 'pull_request' && '--drift=advisory' || '' }}
+
+      - name: Validate agent selection (install.sh --agent / --agents-file)
+        run: bash scripts/test-agent-selection.sh

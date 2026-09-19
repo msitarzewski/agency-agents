@@ -72,7 +72,7 @@ FOR EACH task IN sprint_backlog (ordered by RICE score):
 | Visual Storyteller | Visual narrative content needed | Content requires visual assets |
 | Brand Guardian | Brand consistency concern | QA finds brand deviation |
 | XR Interface Architect | Spatial interaction design needed | XR feature requires UX guidance |
-| Data Analytics Reporter | Deep data analysis needed | Feature requires analytics integration |
+| Analytics Reporter | Deep data analysis needed | Feature requires analytics integration |
 
 ## Parallel Build Tracks
 

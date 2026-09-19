@@ -8,12 +8,18 @@ supported agentic coding tools.
 - **[Claude Code](#claude-code)** — `.md` agents, use the repo directly
 - **[GitHub Copilot](#github-copilot)** — `.md` agents, use the repo directly
 - **[Antigravity](#antigravity)** — `SKILL.md` per agent in `antigravity/`
-- **[Gemini CLI](#gemini-cli)** — extension + `SKILL.md` files in `gemini-cli/`
+- **[Gemini CLI](#gemini-cli)** — `.md` agent files in `gemini-cli/agents/`
 - **[OpenCode](#opencode)** — `.md` agent files in `opencode/`
 - **[OpenClaw](#openclaw)** — `SOUL.md` + `AGENTS.md` + `IDENTITY.md` workspaces
 - **[Cursor](#cursor)** — `.mdc` rule files in `cursor/`
 - **[Aider](#aider)** — `CONVENTIONS.md` in `aider/`
 - **[Windsurf](#windsurf)** — `.windsurfrules` in `windsurf/`
+- **[Kimi Code](#kimi-code)** — YAML agent specs in `kimi/`
+- **[Qwen Code](#qwen-code)** — project-scoped `.md` SubAgents in `.qwen/agents/`
+- **[Codex](#codex)** — `.toml` custom agents in `codex/`
+- **[Mistral Vibe](vibe/README.md)** — `.toml` agents + prompt files generated in `vibe/`
+- **Osaurus** -- `SKILL.md` skills generated in `osaurus/`
+- **[Hermes](hermes/README.md)** -- lazy-router plugin generated in `hermes/`
 
 ## Quick Install
 
@@ -26,13 +32,27 @@ supported agentic coding tools.
 ./scripts/install.sh --tool copilot
 ./scripts/install.sh --tool openclaw
 ./scripts/install.sh --tool claude-code
+./scripts/install.sh --tool codex
+./scripts/install.sh --tool osaurus
+./scripts/install.sh --tool hermes
 
 # Gemini CLI needs generated integration files on a fresh clone
 ./scripts/convert.sh --tool gemini-cli
 ./scripts/install.sh --tool gemini-cli
+
+# Qwen Code also needs generated SubAgent files on a fresh clone
+./scripts/convert.sh --tool qwen
+./scripts/install.sh --tool qwen
 ```
 
-For project-scoped tools such as OpenCode, Cursor, Aider, and Windsurf, run
+If you install OpenClaw and the gateway is already running, restart it after installation:
+
+```bash
+openclaw gateway restart
+```
+
+For project-scoped tools such as OpenCode, Cursor, Aider, Windsurf, and Qwen
+Code, run
 the installer from your target project root as shown in the tool-specific
 sections below.
 
@@ -76,7 +96,7 @@ See [github-copilot/README.md](github-copilot/README.md) for details.
 
 ## Antigravity
 
-Skills are installed to `~/.gemini/antigravity/skills/`. Each agent becomes
+Skills are installed to `~/.gemini/config/skills/`. Each agent becomes
 a separate skill prefixed with `agency-` to avoid naming conflicts.
 
 ```bash
@@ -89,9 +109,9 @@ See [antigravity/README.md](antigravity/README.md) for details.
 
 ## Gemini CLI
 
-Agents are packaged as a Gemini CLI extension with individual skill files.
-The extension is installed to `~/.gemini/extensions/agency-agents/`.
-Because the Gemini manifest and skill folders are generated artifacts, run
+Agents are packaged as Gemini CLI subagents.
+Subagents are installed to `~/.gemini/agents/`.
+Because the agent files are generated artifacts, run
 `./scripts/convert.sh --tool gemini-cli` before installing from a fresh clone.
 
 ```bash
@@ -172,3 +192,73 @@ cd /your/project && /path/to/agency-agents/scripts/install.sh --tool windsurf
 ```
 
 See [windsurf/README.md](windsurf/README.md) for details.
+
+---
+
+## Kimi Code
+
+Each agent is converted to a Kimi Code CLI agent specification (YAML format with
+separate system prompt files). Agents are installed to `~/.config/kimi/agents/`.
+
+Because the Kimi agent files are generated from the source Markdown, run
+`./scripts/convert.sh --tool kimi` before installing from a fresh clone.
+
+```bash
+./scripts/convert.sh --tool kimi
+./scripts/install.sh --tool kimi
+```
+
+### Usage
+
+After installation, use an agent with the `--agent-file` flag:
+
+```bash
+kimi --agent-file ~/.config/kimi/agents/frontend-developer/agent.yaml
+```
+
+Or in a specific project:
+
+```bash
+cd /your/project
+kimi --agent-file ~/.config/kimi/agents/frontend-developer/agent.yaml \
+     --work-dir /your/project
+```
+
+See [kimi/README.md](kimi/README.md) for details.
+
+---
+
+## Qwen Code
+
+Each agent becomes a project-scoped `.md` SubAgent file in `.qwen/agents/`.
+
+From a fresh clone, generate the Qwen files first:
+
+```bash
+./scripts/convert.sh --tool qwen
+```
+
+Then install them from your project root:
+
+```bash
+cd /your/project && /path/to/agency-agents/scripts/install.sh --tool qwen
+```
+
+See [qwen/README.md](qwen/README.md) for details.
+
+---
+
+## Codex
+
+Each agent is converted into a standalone Codex custom agent TOML file and
+installed to `~/.codex/agents/`.
+
+Because Codex uses generated TOML files rather than the source Markdown
+directly, run the converter before installing from a fresh clone:
+
+```bash
+./scripts/convert.sh --tool codex
+./scripts/install.sh --tool codex
+```
+
+See [codex/README.md](codex/README.md) for details.

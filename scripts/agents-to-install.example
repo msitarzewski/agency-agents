@@ -1,0 +1,10 @@
+# Example --agents-file for ./scripts/install.sh --agents-file <this>
+# One agent per line, by slug or human name. Blank lines and # comments are ignored.
+#
+#   ./scripts/install.sh --tool claude-code --agents-file scripts/agents-to-install.example
+#
+frontend-developer
+backend-architect
+security-architect
+# Names work too (case-insensitive):
+Penetration Tester

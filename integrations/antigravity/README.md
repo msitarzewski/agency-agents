@@ -1,6 +1,6 @@
 # Antigravity Integration
 
-Installs all 61 Agency agents as Antigravity skills. Each agent is prefixed
+Installs the full Agency roster as Antigravity skills. Each agent is prefixed
 with `agency-` to avoid conflicts with existing skills.
 
 ## Install
@@ -10,7 +10,8 @@ with `agency-` to avoid conflicts with existing skills.
 ```
 
 This copies files from `integrations/antigravity/` to
-`~/.gemini/antigravity/skills/`.
+`~/.gemini/config/skills/` (global). For project-scoped skills, Antigravity
+also reads `<project>/.agents/skills/`.
 
 ## Activate a Skill
 
