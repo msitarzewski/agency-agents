@@ -20,6 +20,7 @@
 #   qwen         — Qwen Code SubAgent files (~/.qwen/agents/*.md)
 #   zcode        — ZCode agent files (.zcode/agents/*.md · ~/.config/zcode/agents/*.md)
 #   kimi         — Kimi Code CLI agent files (~/.config/kimi/agents/)
+#   kiro         — Kiro IDE custom agent files (~/.kiro/agents/*.md)
 #   codex        — Codex custom agent TOML files (~/.codex/agents/*.toml)
 #   osaurus      — Osaurus skill files (~/.osaurus/skills/<name>/SKILL.md)
 #   hermes       — Hermes lazy-router plugin (one plugin + on-disk agent index)
@@ -524,8 +525,7 @@ ${body}
 HEREDOC
 }
 
-convert_vibe() {
-  local file="$1"
+convert_vibe() {  local file="$1"
   local name description slug outdir agent_file prompt_file body
 
   name="$(get_field "name" "$file")"
@@ -558,8 +558,32 @@ ${body}
 HEREDOC
 }
 
-# Aider and Windsurf are single-file formats — accumulate into temp files
-# then write at the end.
+convert_kiro() {
+  local file="$1"
+  local name description slug outfile body
+
+  name="$(get_field "name" "$file")"
+  description="$(get_field "description" "$file")"
+  slug="$(slugify "$name")"
+  body="$(get_body "$file")"
+
+  outfile="$OUT_DIR/kiro/${slug}.md"
+  mkdir -p "$OUT_DIR/kiro"
+
+  # Kiro IDE custom agent format: flat .md file per agent with YAML frontmatter.
+  # Installed into ~/.kiro/agents/ (global) or .kiro/agents/ (project-scoped).
+  # No subdirectory needed — Kiro reads agents directly from the agents folder.
+  cat > "$outfile" <<HEREDOC
+---
+name: $(yaml_quote "$slug")
+description: $(yaml_quote "$description")
+tools: ["read", "write", "shell", "web"]
+---
+${body}
+HEREDOC
+}
+
+# Aider and Windsurf are single-file formats — accumulate into temp files# then write at the end.
 AIDER_TMP="$(mktemp)"
 WINDSURF_TMP="$(mktemp)"
 trap 'rm -f "$AIDER_TMP" "$WINDSURF_TMP"' EXIT
@@ -679,6 +703,7 @@ run_conversions() {
         qwen)        convert_qwen        "$file" ;;
         zcode)       convert_zcode       "$file" ;;
         kimi)        convert_kimi        "$file" ;;
+        kiro)        convert_kiro        "$file" ;;
         osaurus)     convert_osaurus     "$file" ;;
         vibe)        convert_vibe        "$file" ;;
         aider)       accumulate_aider    "$file" ;;
@@ -711,7 +736,7 @@ main() {
     esac
   done
 
-  local valid_tools=("antigravity" "gemini-cli" "opencode" "cursor" "aider" "windsurf" "openclaw" "qwen" "zcode" "kimi" "codex" "osaurus" "hermes" "vibe" "all")
+  local valid_tools=("antigravity" "gemini-cli" "opencode" "cursor" "aider" "windsurf" "openclaw" "qwen" "zcode" "kimi" "kiro" "codex" "osaurus" "hermes" "vibe" "all")
   local valid=false
   for t in "${valid_tools[@]}"; do [[ "$t" == "$tool" ]] && valid=true && break; done
   if ! $valid; then
@@ -730,7 +755,7 @@ main() {
 
   local tools_to_run=()
   if [[ "$tool" == "all" ]]; then
-    tools_to_run=("antigravity" "gemini-cli" "opencode" "cursor" "aider" "windsurf" "openclaw" "qwen" "zcode" "kimi" "codex" "osaurus" "hermes" "vibe")
+    tools_to_run=("antigravity" "gemini-cli" "opencode" "cursor" "aider" "windsurf" "openclaw" "qwen" "zcode" "kimi" "kiro" "codex" "osaurus" "hermes" "vibe")
   else
     tools_to_run=("$tool")
   fi
@@ -741,7 +766,7 @@ main() {
 
   if $use_parallel && [[ "$tool" == "all" ]]; then
     # Tools that write to separate dirs can run in parallel; buffer output so each tool's output stays together
-    local parallel_tools=(antigravity gemini-cli opencode cursor openclaw qwen zcode kimi codex osaurus hermes vibe)
+    local parallel_tools=(antigravity gemini-cli opencode cursor openclaw qwen zcode kimi kiro codex osaurus hermes vibe)
     local parallel_out_dir
     parallel_out_dir="$(mktemp -d)"
     info "Converting: ${#parallel_tools[@]}/${n_tools} tools in parallel (output buffered per tool)..."
