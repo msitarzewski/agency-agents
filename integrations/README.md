@@ -13,7 +13,7 @@ supported agentic coding tools.
 - **[OpenClaw](#openclaw)** — `SOUL.md` + `AGENTS.md` + `IDENTITY.md` workspaces
 - **[Cursor](#cursor)** — `.mdc` rule files in `cursor/`
 - **[Aider](#aider)** — `CONVENTIONS.md` in `aider/`
-- **[Windsurf](#windsurf)** — `.windsurfrules` in `windsurf/`
+- **[Windsurf](#windsurf)** — one rule per agent in `windsurf/rules/`
 - **[Kimi Code](#kimi-code)** — YAML agent specs in `kimi/`
 - **[Qwen Code](#qwen-code)** — project-scoped `.md` SubAgents in `.qwen/agents/`
 - **[Codex](#codex)** — `.toml` custom agents in `codex/`
@@ -184,8 +184,9 @@ See [aider/README.md](aider/README.md) for details.
 
 ## Windsurf
 
-All agents are consolidated into a single `.windsurfrules` file for your
-project root.
+Each agent becomes one workspace rule in `.windsurf/rules/` under your project
+root. Windsurf caps a rule file at 12,000 characters, so the roster cannot be
+one file.
 
 ```bash
 cd /your/project && /path/to/agency-agents/scripts/install.sh --tool windsurf

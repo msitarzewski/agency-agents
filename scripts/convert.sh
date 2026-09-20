@@ -15,7 +15,7 @@
 #   opencode     — OpenCode agent files (.opencode/agents/*.md)
 #   cursor       — Cursor rule files (.cursor/rules/*.mdc)
 #   aider        — Single CONVENTIONS.md for Aider
-#   windsurf     — Single .windsurfrules for Windsurf
+#   windsurf     — Windsurf workspace rules, one per agent (.windsurf/rules/*.md)
 #   openclaw     — OpenClaw workspaces (integrations/openclaw/<agent>/SOUL.md)
 #   qwen         — Qwen Code SubAgent files (~/.qwen/agents/*.md)
 #   zcode        — ZCode agent files (.zcode/agents/*.md · ~/.config/zcode/agents/*.md)
@@ -558,13 +558,110 @@ ${body}
 HEREDOC
 }
 
-# Aider and Windsurf are single-file formats — accumulate into temp files
-# then write at the end.
-AIDER_TMP="$(mktemp)"
-WINDSURF_TMP="$(mktemp)"
-trap 'rm -f "$AIDER_TMP" "$WINDSURF_TMP"' EXIT
+# Windsurf reads workspace rules from .windsurf/rules/*.md, one file per rule,
+# and caps each at 12,000 characters. 58% of agent bodies are longer than that,
+# so a body that does not fit is cut at a "## " boundary and the file says where
+# the rest lives. The old single .windsurfrules held every agent end to end —
+# 3.9 million characters, of which Windsurf read the first few thousand.
+WINDSURF_RULE_LIMIT=12000
 
-# Write Aider/Windsurf headers once
+# windsurf_trim_body <body> <budget> — the longest prefix of <body> that fits
+# <budget>, ending on a clean break rather than mid-sentence.
+#
+# Breaks are tried coarsest first: a "## " section, then "### ", then a blank
+# line. The coarsest one wins as long as it still uses most of the budget —
+# some agents put 8000 characters under one heading, and stopping at the
+# previous "## " there would throw away three quarters of what fits. If no
+# break is good enough, it keeps the most content any of them allows, and
+# falls back to the last whole line outside a fence.
+#
+# Fences are tracked the way the OpenClaw split tracks them (#849): a break
+# inside a fenced block is not a break, and cutting there would leave the rule
+# holding a dangling ``` that renders as broken markdown.
+windsurf_trim_body() {
+  printf '%s' "$1" | awk -v budget="$2" '
+    { lines[NR] = $0 }
+    END {
+      total = 0; line_cut = 0; h2 = 0; h3 = 0; para = 0
+      fence = ""; flen = 0
+      for (i = 1; i <= NR; i++) {
+        total += length(lines[i]) + 1
+        if (total > budget) break
+        used[i] = total
+        if (match(lines[i], /^ {0,3}(`{3,}|~{3,})/)) {
+          run = substr(lines[i], RSTART, RLENGTH); sub(/^ +/, "", run)
+          if (fence == "") { fence = substr(run, 1, 1); flen = length(run) }
+          else if (substr(run, 1, 1) == fence && length(run) >= flen) { fence = ""; flen = 0 }
+        }
+        if (fence != "") continue            # inside a block: no break here
+        line_cut = i
+        if (lines[i] ~ /^## /)  h2 = i - 1
+        if (lines[i] ~ /^### /) h3 = i - 1
+        if (lines[i] == "")     para = i - 1
+      }
+      if (i > NR) { cut = NR }                         # whole body fits
+      else {
+        floor = budget * 0.7
+        cut = 0
+        if      (h2   > 0 && used[h2]   >= floor) cut = h2
+        else if (h3   > 0 && used[h3]   >= floor) cut = h3
+        else if (para > 0 && used[para] >= floor) cut = para
+        if (cut == 0) {                                # nothing clean is close
+          if (used[para] >= used[h3] && used[para] >= used[h2]) cut = para
+          else if (used[h3] >= used[h2])                        cut = h3
+          else                                                  cut = h2
+        }
+        if (cut < 1) cut = line_cut
+      }
+      for (j = 1; j <= cut; j++) print lines[j]
+    }
+  '
+}
+
+convert_windsurf() {
+  local file="$1"
+  local name description slug outfile body header footer trimmed source
+
+  name="$(get_field "name" "$file")"
+  description="$(get_field "description" "$file")"
+  slug="$(slugify "$name")"
+  body="$(get_body "$file")"
+  source="${file#"$REPO_ROOT"/}"
+
+  outfile="$OUT_DIR/windsurf/rules/${slug}.md"
+  mkdir -p "$OUT_DIR/windsurf/rules"
+
+  # trigger: model_decision puts only the description in Cascade's system
+  # prompt; it opens the file when the description looks relevant. That is the
+  # activation mode a 279-agent roster needs — always_on would mean every
+  # specialist in every prompt.
+  # Every agent body opens with its own "# <Name>" heading, so the rule file
+  # does not add a second one.
+  header="---
+trigger: model_decision
+description: $(yaml_quote "$description")
+---
+"
+  footer="
+---
+Trimmed to fit Windsurf's ${WINDSURF_RULE_LIMIT}-character rule limit.
+Full agent: ${source}"
+
+  trimmed="$(windsurf_trim_body "$body" \
+    "$(( WINDSURF_RULE_LIMIT - ${#header} - ${#footer} - 1 ))")"
+
+  if [[ "$trimmed" == "$body" ]]; then
+    printf '%s%s\n' "$header" "$body" > "$outfile"
+  else
+    printf '%s%s%s\n' "$header" "$trimmed" "$footer" > "$outfile"
+  fi
+}
+
+# Aider is a single-file format — accumulate into a temp file, write at the end.
+AIDER_TMP="$(mktemp)"
+trap 'rm -f "$AIDER_TMP"' EXIT
+
+# Write the Aider header once
 cat > "$AIDER_TMP" <<'HEREDOC'
 # The Agency — AI Agent Conventions
 #
@@ -573,16 +670,6 @@ cat > "$AIDER_TMP" <<'HEREDOC'
 #
 # To activate an agent, reference it by name in your Aider session prompt, e.g.:
 #   "Use the Frontend Developer agent to review this component."
-#
-# Generated by scripts/convert.sh — do not edit manually.
-
-HEREDOC
-
-cat > "$WINDSURF_TMP" <<'HEREDOC'
-# The Agency — AI Agent Rules for Windsurf
-#
-# Full roster of specialized AI agents from The Agency.
-# To activate an agent, reference it by name in your Windsurf conversation.
 #
 # Generated by scripts/convert.sh — do not edit manually.
 
@@ -605,26 +692,6 @@ accumulate_aider() {
 > ${description}
 
 ${body}
-HEREDOC
-}
-
-accumulate_windsurf() {
-  local file="$1"
-  local name description body
-
-  name="$(get_field "name" "$file")"
-  description="$(get_field "description" "$file")"
-  body="$(get_body "$file")"
-
-  cat >> "$WINDSURF_TMP" <<HEREDOC
-
-================================================================================
-## ${name}
-${description}
-================================================================================
-
-${body}
-
 HEREDOC
 }
 
@@ -682,7 +749,7 @@ run_conversions() {
         osaurus)     convert_osaurus     "$file" ;;
         vibe)        convert_vibe        "$file" ;;
         aider)       accumulate_aider    "$file" ;;
-        windsurf)    accumulate_windsurf "$file" ;;
+        windsurf)    convert_windsurf    "$file" ;;
       esac
 
       (( count++ )) || true
@@ -741,7 +808,7 @@ main() {
 
   if $use_parallel && [[ "$tool" == "all" ]]; then
     # Tools that write to separate dirs can run in parallel; buffer output so each tool's output stays together
-    local parallel_tools=(antigravity gemini-cli opencode cursor openclaw qwen zcode kimi codex osaurus hermes vibe)
+    local parallel_tools=(antigravity gemini-cli opencode cursor openclaw qwen zcode kimi codex osaurus hermes vibe windsurf)
     local parallel_out_dir
     parallel_out_dir="$(mktemp -d)"
     info "Converting: ${#parallel_tools[@]}/${n_tools} tools in parallel (output buffered per tool)..."
@@ -754,7 +821,7 @@ main() {
     done
     rm -rf "$parallel_out_dir"
     local idx=$(( ${#parallel_tools[@]} + 1 ))
-    for t in aider windsurf; do
+    for t in aider; do
       progress_bar "$idx" "$n_tools"
       printf "\n"
       header "Converting: $t ($idx/$n_tools)"
@@ -778,16 +845,11 @@ main() {
     done
   fi
 
-  # Write single-file outputs after accumulation
+  # Write the single-file output after accumulation
   if [[ "$tool" == "all" || "$tool" == "aider" ]]; then
     mkdir -p "$OUT_DIR/aider"
     cp "$AIDER_TMP" "$OUT_DIR/aider/CONVENTIONS.md"
     info "Wrote integrations/aider/CONVENTIONS.md"
-  fi
-  if [[ "$tool" == "all" || "$tool" == "windsurf" ]]; then
-    mkdir -p "$OUT_DIR/windsurf"
-    cp "$WINDSURF_TMP" "$OUT_DIR/windsurf/.windsurfrules"
-    info "Wrote integrations/windsurf/.windsurfrules"
   fi
 
   echo ""

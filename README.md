@@ -734,7 +734,7 @@ The Agency works natively with Claude Code, and ships conversion + install scrip
 - **[OpenCode](https://opencode.ai)** — `.md` agent files → `.opencode/agents/`
 - **[Cursor](https://cursor.sh)** — `.mdc` rule files → `.cursor/rules/`
 - **[Aider](https://aider.chat)** — single `CONVENTIONS.md` → `./CONVENTIONS.md`
-- **[Windsurf](https://codeium.com/windsurf)** — single `.windsurfrules` → `./.windsurfrules`
+- **[Windsurf](https://codeium.com/windsurf)** — one workspace rule per agent → `.windsurf/rules/`
 - **[OpenClaw](https://github.com/openclaw/openclaw)** — `SOUL.md` + `AGENTS.md` + `IDENTITY.md` per agent
 - **[Qwen Code](https://github.com/QwenLM/qwen-code)** — `.md` SubAgent files → `~/.qwen/agents/`
 - **[Kimi Code](https://github.com/MoonshotAI/kimi-cli)** — YAML agent specs → `~/.config/kimi/agents/`
@@ -775,7 +775,7 @@ The installer scans your system for installed tools, shows a checkbox UI, and le
   [ ]  6)  [ ]  OpenClaw        (~/.openclaw/agency-agents)
   [x]  7)  [*]  Cursor          (.cursor/rules)
   [ ]  8)  [ ]  Aider           (CONVENTIONS.md)
-  [ ]  9)  [ ]  Windsurf        (.windsurfrules)
+  [ ]  9)  [ ]  Windsurf        (.windsurf/rules)
   [ ] 10)  [ ]  Qwen Code       (~/.qwen/agents)
   [ ] 11)  [ ]  Kimi Code       (~/.config/kimi/agents)
   [ ] 12)  [ ]  Codex           (~/.codex/agents)
@@ -944,17 +944,29 @@ See [integrations/aider/README.md](integrations/aider/README.md) for details.
 <details>
 <summary><strong>Windsurf</strong></summary>
 
-All agents are compiled into `.windsurfrules` in your project root.
+Each agent becomes one workspace rule in `.windsurf/rules/` in your project root.
 
 ```bash
 cd /your/project
 /path/to/agency-agents/scripts/install.sh --tool windsurf
 ```
 
+Windsurf caps a rule file at 12,000 characters, so the roster cannot live in one
+file. Rules use `trigger: model_decision`: only each agent's description sits in
+Cascade's system prompt, and Cascade opens the full rule when it looks relevant.
+Installing all 279 puts 279 descriptions there, so most projects want a subset:
+
+```bash
+./scripts/install.sh --tool windsurf --division engineering,testing
+```
+
 Reference agents in Windsurf's Cascade:
 ```
 Use the Reality Checker agent to verify this is production ready.
 ```
+
+If you installed before this layout, delete the old `.windsurfrules` from your
+project root.
 
 See [integrations/windsurf/README.md](integrations/windsurf/README.md) for details.
 </details>

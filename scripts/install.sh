@@ -19,7 +19,7 @@
 #   opencode     -- Copy agents to .opencode/agents/ in current directory
 #   cursor       -- Copy rules to .cursor/rules/ in current directory
 #   aider        -- Copy CONVENTIONS.md to current directory
-#   windsurf     -- Copy .windsurfrules to current directory
+#   windsurf     -- Copy rules to .windsurf/rules/ in current directory
 #   openclaw     -- Copy workspaces to ~/.openclaw/agency-agents/
 #   qwen         -- Copy SubAgents to ~/.qwen/agents/ (user-wide) or .qwen/agents/ (project)
 #   zcode        -- Copy agents to ~/.zcode/agents/ (global) or .zcode/agents/ (project)
@@ -51,7 +51,8 @@
 #
 # Env: CLAUDE_CONFIG_DIR, COPILOT_AGENT_DIR, CURSOR_RULES_DIR, GEMINI_AGENTS_DIR,
 #      OPENCODE_AGENTS_DIR, OPENCLAW_DIR, QWEN_AGENTS_DIR, CODEX_AGENTS_DIR,
-#      OSAURUS_SKILLS_DIR, HERMES_HOME, HERMES_PLUGIN_DIR, VIBE_HOME
+#      OSAURUS_SKILLS_DIR, HERMES_HOME, HERMES_PLUGIN_DIR, VIBE_HOME,
+#      WINDSURF_RULES_DIR
 #      override default install paths (checked before hardcoded defaults).
 #
 # --- USAGE-END ---  (sentinel for usage(); do not remove)
@@ -291,7 +292,7 @@ install_file() {
 path_collision_group() {
   case "$1" in
     claude-code|copilot)             printf 'raw-source-md' ;;  # <division>-<slug>.md
-    gemini-cli|opencode|qwen|zcode)  printf 'slug-md' ;;        # <slug>.md
+    gemini-cli|opencode|qwen|zcode|windsurf) printf 'slug-md' ;; # <slug>.md
     antigravity|osaurus)             printf 'agency-skill' ;;   # agency-<slug>/SKILL.md
     *)                               printf '' ;;
   esac
@@ -313,6 +314,7 @@ resolve_dest() {
     osaurus)     var="OSAURUS_SKILLS_DIR" ;;
     hermes)      var="HERMES_PLUGIN_DIR" ;;
     vibe)        var="VIBE_HOME" ;;
+    windsurf)    var="WINDSURF_RULES_DIR" ;;
   esac
   if [[ -n "$var" && -n "${!var:-}" ]]; then
     if [[ "$tool" == "claude-code" ]]; then
@@ -478,7 +480,7 @@ tool_label() {
     openclaw)    printf "%-14s  %s" "OpenClaw"     "(~/.openclaw/agency-agents)" ;;
     cursor)      printf "%-14s  %s" "Cursor"       "(.cursor/rules)"         ;;
     aider)       printf "%-14s  %s" "Aider"        "(CONVENTIONS.md)"        ;;
-    windsurf)    printf "%-14s  %s" "Windsurf"     "(.windsurfrules)"        ;;
+    windsurf)    printf "%-14s  %s" "Windsurf"     "(.windsurf/rules)"       ;;
     qwen)        printf "%-14s  %s" "Qwen Code"    "(~/.qwen/agents)"        ;;
     zcode)       printf "%-14s  %s" "ZCode"        "(~/.zcode/agents)" ;;
     kimi)        printf "%-14s  %s" "Kimi Code"    "(~/.config/kimi/agents)" ;;
@@ -931,16 +933,25 @@ install_aider() {
 }
 
 install_windsurf() {
-  local src="$INTEGRATIONS/windsurf/.windsurfrules"
-  local dest="${PWD}/.windsurfrules"
-  [[ -f "$src" ]] || { err "integrations/windsurf/.windsurfrules missing. Run convert.sh first."; return 1; }
-  if [[ -f "$dest" ]]; then
-    warn "Windsurf: .windsurfrules already exists at $dest (remove to reinstall)."
-    return 0
+  local src="$INTEGRATIONS/windsurf/rules"
+  local dest; dest="$(resolve_dest windsurf "${PWD}/.windsurf/rules")"
+  local count=0
+  [[ -d "$src" ]] || { err "integrations/windsurf/rules missing. Run convert.sh first."; return 1; }
+  mkdir -p "$dest"
+  local f
+  while IFS= read -r -d '' f; do
+    slug_allowed "$(basename "$f" .md)" || continue
+    install_file "$f" "$dest/"
+    incr count
+  done < <(find "$src" -maxdepth 1 -name "*.md" -print0)
+  ok "Windsurf: $count rules -> $dest"
+  # Anyone who installed before the per-agent layout has a 3.9 MB .windsurfrules
+  # sitting in this directory. Windsurf still reads it, and it still overflows
+  # the limit, so say so rather than leaving both in place.
+  if [[ -f "${PWD}/.windsurfrules" ]]; then
+    warn "Windsurf: a .windsurfrules from an older install is still in $PWD."
+    dim  "         Windsurf caps that file at 6,000 characters — delete it; these rules replace it."
   fi
-  install_file "$src" "$dest"
-  ok "Windsurf: installed -> $dest"
-  $SELECTION_ACTIVE && warn "Windsurf: single-file format — team/agent filtering N/A (installs the full roster)."
   warn "Windsurf: project-scoped. Run from your project root to install there."
 }
 
