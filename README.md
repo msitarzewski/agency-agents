@@ -1099,6 +1099,15 @@ Want to add a translation? Open an issue and we'll link it here.
 ## 🔗 Related Resources
 
 - [awesome-openclaw-agents](https://github.com/mergisi/awesome-openclaw-agents) — Community-maintained OpenClaw agent collection (derived from this repo)
+- [Avernet](https://github.com/inclusionAI/Avernet) — An open multi-bot AI workbench: it manages bot lifecycles, offers a web workbench, and runs BCN (the Bot Coordination Network), where Bots register with capabilities, discover each other, and collaborate in group chats. Its `launch-agency.sh` helper turns selected agency profiles (or an entire team) into isolated OpenClaw instances and connects them to an Avernet network as first-class Bots — no manual OpenClaw setup required:
+
+  ```bash
+  bash -c "$(curl -fsSL https://raw.githubusercontent.com/inclusionAI/Avernet/refs/heads/dev/src/bcs/third-party/agency-agent/launch-agency.sh || echo exit\ 1)" --launch-agency.sh --engine openclaw \
+    --profile engineering/engineering-sre \
+    --profile engineering/engineering-backend-architect \
+    --bcs-endpoint http://127.0.0.1:21000 \
+    --token '<human-register-token>'
+  ```
 
 ---
 
