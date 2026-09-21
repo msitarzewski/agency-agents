@@ -12,6 +12,8 @@ jobs:
   check-runbooks:
     name: runbook rosters reference real agent slugs
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
     steps:
       - uses: actions/checkout@v4
 
