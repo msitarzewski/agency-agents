@@ -1096,12 +1096,6 @@ Want to add a translation? Open an issue and we'll link it here.
 
 ---
 
-## 🔗 Related Resources
-
-- [awesome-openclaw-agents](https://github.com/mergisi/awesome-openclaw-agents) — Community-maintained OpenClaw agent collection (derived from this repo)
-
----
-
 ## 📜 License
 
 MIT License - Use freely, commercially or personally. Attribution appreciated but not required.
