@@ -28,7 +28,7 @@ command -v python3 >/dev/null 2>&1 || {
   exit 2
 }
 
-python3 - <<'PYEOF'
+PYTHONUTF8=1 python3 - <<'PYEOF'
 import json, os, subprocess, sys
 
 JSON = "strategy/runbooks.json"
