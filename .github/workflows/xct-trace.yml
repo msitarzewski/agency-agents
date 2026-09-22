@@ -1,0 +1,70 @@
+name: xct-trace
+description: XCT-Trace Rule check (advisory) — every PR must reference its Multica issue (XCT-N)
+on:
+  pull_request:
+    types: [opened, edited, synchronize, reopened]
+  pull_request_target:
+    types: [opened, edited, synchronize, reopened]
+
+# Advisory: failures are visible on the PR but do not block merge. After
+# compliance > 80% across XcityUS repos, set `continue-on-error: false` to
+# make this a required check.
+permissions:
+  contents: read
+  pull-requests: read
+
+jobs:
+  check-xct-trace:
+    name: Verify XCT-N reference or exempt label/prefix
+    runs-on: ubuntu-latest
+    continue-on-error: true  # advisory — see above
+    steps:
+      - name: XCT-Trace Rule check
+        env:
+          PR_TITLE: ${{ github.event.pull_request.title }}
+          PR_BODY: ${{ github.event.pull_request.body }}
+          PR_BRANCH: ${{ github.head_ref }}
+          PR_LABELS: ${{ toJSON(github.event.pull_request.labels.*.name) }}
+        run: |
+          echo "PR title: $PR_TITLE"
+          echo "PR branch: $PR_BRANCH"
+          echo "PR labels: $PR_LABELS"
+
+          # Rule 1: title contains XCT-N
+          if echo "$PR_TITLE" | grep -qE 'XCT-[0-9]+'; then
+            echo "✅ XCT-Trace: title contains XCT-N"
+            exit 0
+          fi
+
+          # Rule 2: body contains XCT-N
+          if echo "$PR_BODY" | grep -qE 'XCT-[0-9]+'; then
+            echo "✅ XCT-Trace: body contains XCT-N"
+            exit 0
+          fi
+
+          # Rule 3: branch name contains XCT-N
+          if echo "$PR_BRANCH" | grep -qE 'XCT-[0-9]+'; then
+            echo "✅ XCT-Trace: branch contains XCT-N"
+            exit 0
+          fi
+
+          # Rule 4: exempt label
+          for label in no-multica chore deps infra dependencies; do
+            if echo "$PR_LABELS" | grep -qi ""$label""; then
+              echo "✅ XCT-Trace: exempt label found: $label"
+              exit 0
+            fi
+          done
+
+          # Rule 5: [skip-multica] title prefix (escape hatch)
+          if echo "$PR_TITLE" | grep -qE '^\[skip-multica\]'; then
+            echo "✅ XCT-Trace: [skip-multica] prefix in title"
+            exit 0
+          fi
+
+          # ❌ Violation
+          echo "::error::XCT-Trace Rule violation: this PR does not reference a Multica issue (XCT-N) in title, body, or branch — and has no exempt label (no-multica/chore/deps/infra) or [skip-multica] title prefix."
+          echo "::error::See: _Agents/orchestrator/governance/XCT-Trace-Rule.md (Xcity War Room vault)"
+          echo "::error::Fix: add XCT-N to PR title/body, OR label as no-multica/chore/deps/infra, OR prefix title with [skip-multica]."
+          echo "::error::This is an ADVISORY failure (the check has continue-on-error: true), so the PR can still be merged. Please fix before merge to keep the XcityUS ↔ Multica sync intact."
+          exit 1
