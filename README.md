@@ -364,6 +364,7 @@ The unique specialists who don't fit in a box.
 
 | Agent | Specialty | When to Use |
 |-------|-----------|-------------|
+| 🛎️ [Agency Concierge](specialized/specialized-agency-concierge.md) | Request intake, clarifying questions, agent routing, roster gap analysis | You don't know which agent you need — start here to get scoped and dispatched |
 | 🎭 [Agents Orchestrator](specialized/agents-orchestrator.md) | Multi-agent coordination, workflow management | Complex projects requiring multiple agent coordination |
 | 🔍 [LSP/Index Engineer](specialized/lsp-index-engineer.md) | Language Server Protocol, code intelligence | Code intelligence systems, LSP implementation, semantic indexing |
 | 📥 [Sales Data Extraction Agent](specialized/sales-data-extraction-agent.md) | Excel monitoring, sales metric extraction | Sales data ingestion, MTD/YTD/Year End metrics |
