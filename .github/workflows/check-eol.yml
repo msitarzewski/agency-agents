@@ -1,0 +1,20 @@
+name: Check Line Endings
+
+# Runs on every PR (without path filtering): line-ending discrepancies
+# constitute a cross-cutting regression; all files must end with LF.
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+jobs:
+  check-eol:
+    name: LF everywhere
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Verify tracked files are LF-clean
+        run: |
+          chmod +x scripts/check-eol.sh
+          ./scripts/check-eol.sh
