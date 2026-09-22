@@ -27,16 +27,20 @@
 有专属智能体的创意？太棒了！按以下步骤添加：
 
 1. Fork 本仓库
-2. 选择合适的分类（或提议新增分类）：
-   - `engineering/` —— 软件开发专家
-   - `design/` —— UX/UI 与创意设计专家
-   - `marketing/` —— 增长与营销专家
-   - `product/` —— 产品管理专家
-   - `project-management/` —— 项目管理与协调专家
-   - `testing/` —— 质量保证与测试专家
-   - `support/` —— 运营与支持专家
-   - `spatial-computing/` —— AR/VR/XR 专家
-   - `specialized/` —— 无法归入其他分类的独特专家
+2. 选择合适的分类（或提议新增分类）。分类是存放智能体的顶层目录（例如
+   `engineering/`、`security/`、`gis/`、`marketing/`、`finance/` 等）；请先浏览
+   这些目录，选择最符合智能体定位的分类。仓库根目录的
+   [`divisions.json`](divisions.json) 是分类名称、显示标签、图标与颜色的唯一权威来源，
+   请以其中的当前列表为准。
+
+   > **分类由 `divisions.json` 统一定义**，CI 会通过
+   > `scripts/check-divisions.sh` 检查各处是否一致。若要提议新分类，需要创建对应目录、
+   > 在 `divisions.json` 中添加标签/图标/颜色，并将其加入
+   > `scripts/convert.sh` 与 `scripts/lint-agents.sh` 的 `AGENT_DIRS`；提交前请运行
+   > `./scripts/check-divisions.sh`，脚本会指出仍需同步的位置。
+   >
+   > 注意：`strategy/` 存放不含智能体 frontmatter 的 NEXUS playbook/runbook，
+   > `integrations/` 存放 `convert.sh` 生成的各工具输出；两者都**不是分类**，不得加入分类列表。
 3. 按照下方模板创建智能体文件
 4. 在真实场景中测试你的智能体
 5. 提交 Pull Request（拉取请求）
