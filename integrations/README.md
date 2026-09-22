@@ -15,6 +15,7 @@ supported agentic coding tools.
 - **[Aider](#aider)** — `CONVENTIONS.md` roster index in `aider/`
 - **[Windsurf](#windsurf)** — `.windsurfrules` in `windsurf/`
 - **[Kimi Code](#kimi-code)** — YAML agent specs in `kimi/`
+- **[Kiro](#kiro)** — flat `.md` agent files in `kiro/`
 - **[Qwen Code](#qwen-code)** — project-scoped `.md` SubAgents in `.qwen/agents/`
 - **[Codex](#codex)** — `.toml` custom agents in `codex/`
 - **[Mistral Vibe](vibe/README.md)** — `.toml` agents + prompt files generated in `vibe/`
@@ -35,6 +36,10 @@ supported agentic coding tools.
 ./scripts/install.sh --tool codex
 ./scripts/install.sh --tool osaurus
 ./scripts/install.sh --tool hermes
+
+# Kiro also needs generated agent files on a fresh clone
+./scripts/convert.sh --tool kiro
+./scripts/install.sh --tool kiro
 
 # Gemini CLI needs generated integration files on a fresh clone
 ./scripts/convert.sh --tool gemini-cli
@@ -264,3 +269,27 @@ directly, run the converter before installing from a fresh clone:
 ```
 
 See [codex/README.md](codex/README.md) for details.
+
+---
+
+## Kiro
+
+Each agent becomes a Kiro IDE custom agent — a flat `.md` file per agent with
+YAML frontmatter and the full persona as the body.
+Agents are installed to `~/.kiro/agents/` (global) or `.kiro/agents/`
+(project-scoped).
+
+Because the Kiro agent files are generated artifacts, run
+`./scripts/convert.sh --tool kiro` before installing from a fresh clone:
+
+```bash
+./scripts/convert.sh --tool kiro
+./scripts/install.sh --tool kiro
+```
+
+### Usage
+
+After installation, open the agent picker in the Kiro chat panel (click the
+current agent name in the chat header) and select any Agency agent from the list.
+
+See [kiro/README.md](kiro/README.md) for details.

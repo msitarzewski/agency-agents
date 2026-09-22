@@ -85,6 +85,7 @@ Browse the agents below and copy/adapt the ones you need!
 ./scripts/install.sh --tool aider
 ./scripts/install.sh --tool windsurf
 ./scripts/install.sh --tool kimi
+./scripts/install.sh --tool kiro
 ./scripts/install.sh --tool codex
 ./scripts/install.sh --tool osaurus
 ./scripts/install.sh --tool hermes
@@ -1032,6 +1033,25 @@ See [integrations/kimi/README.md](integrations/kimi/README.md) for details.
 </details>
 
 <details>
+<summary><strong>Kiro</strong></summary>
+
+Agents are converted to Kiro IDE custom agent format (`agent.md` with YAML frontmatter) and installed to `~/.kiro/agents/` (global) or `.kiro/agents/` (project-scoped).
+
+```bash
+# Convert and install globally
+./scripts/convert.sh --tool kiro
+./scripts/install.sh --tool kiro
+```
+
+**Usage in Kiro:**
+
+Open the agent picker in the chat panel (click the current agent name in the chat header) and select any Agency agent from the list.
+
+See [integrations/kiro/README.md](integrations/kiro/README.md) for details.
+
+</details>
+
+<details>
 <summary><strong>Codex</strong></summary>
 
 Each agent is converted into a Codex custom agent TOML file and installed to `~/.codex/agents/`.
@@ -1068,7 +1088,7 @@ When you add new agents or edit existing ones, regenerate all integration files:
 
 - [ ] Interactive agent selector web tool
 - [x] Multi-agent workflow examples -- see [examples/](examples/)
-- [x] Multi-tool integration scripts (Claude Code, GitHub Copilot, Antigravity, Gemini CLI, OpenCode, OpenClaw, Cursor, Aider, Windsurf, Qwen Code, Kimi Code, Codex, Osaurus, Hermes)
+- [x] Multi-tool integration scripts (Claude Code, GitHub Copilot, Antigravity, Gemini CLI, OpenCode, OpenClaw, Cursor, Aider, Windsurf, Qwen Code, Kimi Code, Kiro, Codex, Osaurus, Hermes)
 - [ ] Video tutorials on agent design
 - [ ] Community agent marketplace
 - [ ] Agent "personality quiz" for project matching

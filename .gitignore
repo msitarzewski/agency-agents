@@ -86,3 +86,5 @@ integrations/vibe/agents/
 integrations/vibe/prompts/
 integrations/zcode/agents/
 graphify-out/
+integrations/kiro/*.md
+!integrations/kiro/README.md
