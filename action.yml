@@ -1,0 +1,250 @@
+name: 'Agency Agents — Spawn Agent'
+description: >
+  Load one or more AI agent personalities from The Agency and expose
+  their system prompts as step outputs. Use the outputs to seed an AI
+  session, a Claude Code sub-agent, or any LLM API call in your workflow.
+
+branding:
+  icon: 'user-check'
+  color: 'purple'
+
+inputs:
+  agent:
+    description: >
+      Agent name or slug to load (e.g. "frontend-developer" or
+      "Frontend Developer"). Mutually exclusive with `agents`.
+    required: false
+    default: ''
+
+  agents:
+    description: >
+      Comma-separated list of agent slugs/names for swarm mode
+      (e.g. "frontend-developer,backend-architect").
+      When provided, a combined orchestrator prompt is generated.
+    required: false
+    default: ''
+
+  category:
+    description: >
+      Load *all* agents from a specific category
+      (e.g. "engineering", "design", "marketing").
+      Ignored when `agent` or `agents` is set.
+    required: false
+    default: ''
+
+  swarm_name:
+    description: 'Display name for a swarm (only used with `agents` or `category`).'
+    required: false
+    default: 'Agency Swarm'
+
+  mission:
+    description: 'High-level mission statement prepended to the swarm orchestrator prompt.'
+    required: false
+    default: ''
+
+outputs:
+  system_prompt:
+    description: 'The agent system prompt (Markdown). For swarms this is the full orchestrator prompt.'
+    value: ${{ steps.load.outputs.system_prompt }}
+
+  agent_name:
+    description: 'Resolved agent name (single-agent mode only).'
+    value: ${{ steps.load.outputs.agent_name }}
+
+  agent_json:
+    description: 'Agent metadata as a JSON string (single-agent mode only).'
+    value: ${{ steps.load.outputs.agent_json }}
+
+  swarm_json:
+    description: 'Array of agent metadata objects as a JSON string (swarm mode).'
+    value: ${{ steps.load.outputs.swarm_json }}
+
+runs:
+  using: 'composite'
+  steps:
+    - name: Load agent(s)
+      id: load
+      shell: node {0}
+      env:
+        AGENCY_AGENT: ${{ inputs.agent }}
+        AGENCY_AGENTS: ${{ inputs.agents }}
+        AGENCY_CATEGORY: ${{ inputs.category }}
+        AGENCY_SWARM_NAME: ${{ inputs.swarm_name }}
+        AGENCY_MISSION: ${{ inputs.mission }}
+        AGENCY_ACTION_PATH: ${{ github.action_path }}
+      run: |
+        // -----------------------------------------------------------------------
+        // agency-agents GitHub Action — inline Node.js loader
+        //
+        // Pure Node.js, zero npm dependencies. Mirrors the bash get_field logic
+        // from scripts/lint-agents.sh: reads frontmatter lines and extracts
+        // `key: rest-of-line` without a strict YAML parser.
+        // -----------------------------------------------------------------------
+        const fs   = require('fs');
+        const path = require('path');
+        const os   = require('os');
+
+        const AGENT_CATEGORIES = [
+          'design', 'engineering', 'game-development', 'marketing',
+          'paid-media', 'product', 'project-management', 'testing',
+          'support', 'spatial-computing', 'specialized',
+        ];
+
+        // ── helpers ──────────────────────────────────────────────────────────
+        function slugify(name) {
+          return name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '');
+        }
+
+        function parseFrontmatter(raw) {
+          const data  = {};
+          const lines = raw.split('\n');
+          if ((lines[0] || '').trimEnd() !== '---') return { data, body: raw };
+          let closingIdx = -1;
+          for (let i = 1; i < lines.length; i++) {
+            if ((lines[i] || '').trimEnd() === '---') { closingIdx = i; break; }
+          }
+          if (closingIdx === -1) return { data, body: raw };
+          for (const line of lines.slice(1, closingIdx)) {
+            const idx = line.indexOf(': ');
+            if (idx !== -1) {
+              data[line.slice(0, idx).trim()] = line.slice(idx + 2).trim();
+            }
+          }
+          return { data, body: lines.slice(closingIdx + 1).join('\n') };
+        }
+
+        function collectMdFiles(dir) {
+          const results = [];
+          for (const entry of fs.readdirSync(dir, { withFileTypes: true })
+                                  .sort((a, b) => a.name.localeCompare(b.name))) {
+            const full = path.join(dir, entry.name);
+            if (entry.isDirectory()) results.push(...collectMdFiles(full));
+            else if (entry.isFile() && entry.name.endsWith('.md')) results.push(full);
+          }
+          return results;
+        }
+
+        function loadAgentFile(filePath, category) {
+          const raw = fs.readFileSync(filePath, 'utf-8');
+          const { data, body } = parseFrontmatter(raw);
+          if (!data.name || !data.description) return null;
+          return {
+            name:         data.name,
+            slug:         slugify(data.name),
+            description:  data.description,
+            color:        data.color || 'gray',
+            category,
+            filePath,
+            systemPrompt: body.trim(),
+          };
+        }
+
+        function loadAll(rootDir) {
+          const agents = [];
+          for (const cat of AGENT_CATEGORIES) {
+            const catDir = path.join(rootDir, cat);
+            if (!fs.existsSync(catDir)) continue;
+            for (const fp of collectMdFiles(catDir)) {
+              const a = loadAgentFile(fp, cat);
+              if (a) agents.push(a);
+            }
+          }
+          return agents;
+        }
+
+        function buildSwarmPrompt(agents, swarmName, mission) {
+          const summaries = agents.map(a => `### ${a.name} (${a.category})\n> ${a.description}`).join('\n\n');
+          const names     = agents.map(a => a.name).join(', ');
+          return [
+            `# ${swarmName}`,
+            '',
+            mission ? `**Mission**: ${mission}\n` : '',
+            `You are coordinating a swarm of ${agents.length} specialist AI agents: ${names}.`,
+            '',
+            '## Agent Roster',
+            '',
+            summaries,
+            '',
+            '## Coordination Rules',
+            '',
+            '1. **Assign tasks** to the most qualified agent based on their specialty.',
+            '2. **Handoff context** clearly between agents — include relevant prior outputs.',
+            '3. **One agent per task**: avoid overlapping responsibilities.',
+            '4. **Quality gates**: each agent output must be reviewed before advancing.',
+            '5. **Escalate blockers** immediately rather than stalling the pipeline.',
+            '',
+            '## Agent System Prompts',
+            '',
+            ...agents.map(a => `### ${a.name}\n\n<system-prompt>\n${a.systemPrompt}\n</system-prompt>`),
+          ].join('\n').trim();
+        }
+
+        // ── GITHUB_OUTPUT helper ──────────────────────────────────────────────
+        function setOutput(key, value) {
+          const outFile = process.env.GITHUB_OUTPUT;
+          if (outFile) {
+            const delimiter = `EOF_${Date.now()}`;
+            fs.appendFileSync(outFile, `${key}<<${delimiter}\n${value}\n${delimiter}\n`);
+          } else {
+            // Fallback for local testing: encode newlines for the legacy set-output command
+            const encoded = String(value).replace(/%/g, '%25').replace(/\r/g, '%0D').replace(/\n/g, '%0A');
+            console.log(`::set-output name=${key}::${encoded}`);
+          }
+        }
+
+        // ── main ─────────────────────────────────────────────────────────────
+        const rootDir    = process.env.AGENCY_ACTION_PATH || process.cwd();
+        const agentInput = (process.env.AGENCY_AGENT    || '').trim();
+        const agentsRaw  = (process.env.AGENCY_AGENTS   || '').trim();
+        const category   = (process.env.AGENCY_CATEGORY || '').trim();
+        const swarmName  = (process.env.AGENCY_SWARM_NAME || 'Agency Swarm').trim();
+        const mission    = (process.env.AGENCY_MISSION   || '').trim();
+
+        const all = loadAll(rootDir);
+
+        // ── single agent ──
+        if (agentInput) {
+          const norm = slugify(agentInput);
+          const agent = all.find(a => a.slug === norm || a.name.toLowerCase() === agentInput.toLowerCase());
+          if (!agent) {
+            console.error(`::error::Agency Agents: agent "${agentInput}" not found.`);
+            process.exit(1);
+          }
+          setOutput('system_prompt', agent.systemPrompt);
+          setOutput('agent_name',    agent.name);
+          setOutput('agent_json',    JSON.stringify({ name: agent.name, slug: agent.slug, description: agent.description, color: agent.color, category: agent.category }));
+          setOutput('swarm_json',    '[]');
+          console.log(`✅ Loaded agent: ${agent.name} (${agent.category})`);
+          process.exit(0);
+        }
+
+        // ── swarm mode ──
+        let swarmAgents = [];
+        if (agentsRaw) {
+          const slugs = agentsRaw.split(',').map(s => s.trim()).filter(Boolean);
+          for (const s of slugs) {
+            const norm  = slugify(s);
+            const found = all.find(a => a.slug === norm || a.name.toLowerCase() === s.toLowerCase());
+            if (!found) {
+              console.error(`::error::Agency Agents: agent "${s}" not found.`);
+              process.exit(1);
+            }
+            swarmAgents.push(found);
+          }
+        } else if (category) {
+          swarmAgents = all.filter(a => a.category === category);
+          if (swarmAgents.length === 0) {
+            console.error(`::error::Agency Agents: no agents found for category "${category}".`);
+            process.exit(1);
+          }
+        } else {
+          console.error('::error::Agency Agents: provide one of: agent, agents, or category.');
+          process.exit(1);
+        }
+
+        const prompt = buildSwarmPrompt(swarmAgents, swarmName, mission);
+        setOutput('system_prompt', prompt);
+        setOutput('agent_name',    '');
+        setOutput('agent_json',    '{}');
+        setOutput('swarm_json',    JSON.stringify(swarmAgents.map(a => ({ name: a.name, slug: a.slug, description: a.description, color: a.color, category: a.category }))));
+        console.log(`✅ Loaded swarm: ${swarmAgents.length} agents (${swarmName})`);
