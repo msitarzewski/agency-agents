@@ -1,0 +1,19 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "client-acquisition/lead.schema.json",
+  "title": "Client Acquisition Lead",
+  "type": "object",
+  "required": ["id", "company_name", "status"],
+  "properties": {
+    "id": {"type": "string"},
+    "company_name": {"type": "string", "minLength": 1},
+    "contact_name": {"type": ["string", "null"]},
+    "contact_email": {"type": ["string", "null"]},
+    "website": {"type": ["string", "null"]},
+    "source": {"type": ["string", "null"]},
+    "status": {"enum": ["NEW", "RESEARCHING", "QUALIFIED", "READY_FOR_OUTREACH", "OUTREACH_PENDING_APPROVAL", "CONTACTED", "REPLIED", "INTERESTED", "MEETING_BOOKED", "PROPOSAL_SENT", "WON", "LOST"]},
+    "score": {"type": ["number", "null"], "minimum": 0, "maximum": 100},
+    "metadata": {"type": "object", "additionalProperties": true}
+  },
+  "additionalProperties": false
+}
