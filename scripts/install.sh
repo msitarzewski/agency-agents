@@ -206,7 +206,11 @@ build_selection() {
   for s in ${FILTER_AGENTS[@]+"${FILTER_AGENTS[@]}"}; do
     requested="$(slugify "$s")"
     if ! agent_slug_exists "$requested"; then
-      err "Unknown agent '$s'. Use --list agents to see the available roster."
+      err "Unknown agent '$s'."
+      err "Use --list agents to see the full roster, or pass the exact slug from the agent file name."
+      printf '  Example slugs: frontend-developer  backend-architect  security-architect\n' >&2
+      printf '                 reality-checker     devops-automator  data-engineer\n' >&2
+      err "Total: $(selected_agent_count_all) agents across $(printf '%s\n' "${ALL_DIVISIONS[@]}" | wc -l) divisions."
       exit 1
     fi
     slugs+="$requested"$'\n'
@@ -220,6 +224,7 @@ build_selection() {
       requested="$(slugify "$line")"
       if ! agent_slug_exists "$requested"; then
         err "Unknown agent '$line' in agents-file '$AGENTS_FILE'."
+        err "Use --list agents to see the available roster."
         exit 1
       fi
       slugs+="$requested"$'\n'
