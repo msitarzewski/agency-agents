@@ -47,6 +47,9 @@ logs/
 *.temp
 .cache/
 
+# Agent catalog generator cache (machine translation)
+docs/.agent-catalog-zh-cache.json
+
 # Testing
 coverage/
 .nyc_output/
