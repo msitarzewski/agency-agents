@@ -179,6 +179,7 @@ Building the future, one commit at a time.
 | 📑 [PDF Engine Architect](engineering/engineering-pdf-engine-architect.md) | Deterministic HTML-to-PDF compilation, tagged PDF/UA and PDF/A | Playwright render pools, dynamic page sizing, archival-grade document output |
 | 🎯 [ATS Validator Architect](engineering/engineering-ats-validator-architect.md) | Resume parseability, ATS ingestion pipelines | BM25/TF-IDF relevance scoring, layout linearization audits, EU AI Act and NYC LL144 compliance |
 | 📑 [Universal Document Compiler](engineering/engineering-universal-document-compiler.md) | Schema-agnostic document ASTs, data-shape layout inference, paged publishing | Compiling arbitrary YAML trees into proposals, technical specs, executive dossiers |
+| 🧰 [Daily Dev Companion](engineering/engineering-daily-dev-companion.md) | Everyday debugging, quick scripts, git/env fixes | Fast root-cause fixes, code explanations, and one-off scripting for daily engineering work |
 
 ### 🎨 Design Division
 
