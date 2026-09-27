@@ -92,7 +92,7 @@ Every agent should follow this structure:
 ---
 name: Agent Name
 description: One-line description of the agent's specialty and focus
-color: colorname or "#hexcode"
+color: colorname or "#hexcode"        # see the note below — not any name works
 emoji: 🎯
 vibe: One-line personality hook — what makes this agent memorable
 services:                              # optional — only if the agent requires external services
@@ -153,6 +153,13 @@ Measurable outcomes:
 ## 🚀 Advanced Capabilities
 Advanced techniques and approaches the agent masters
 ```
+
+**About `color`.** A `#RRGGBB` value always works. A color *name* only works if
+`resolve_opencode_color()` in `scripts/convert.sh` knows it — anything else is
+silently rewritten to grey in the OpenCode integration, which reads as a choice
+rather than a mistake. `scripts/lint-agents.sh` reads that list straight out of
+the converter, rejects a name that is not in it, and prints the names that are.
+To use a new name, add it to the map in the same PR.
 
 ### Agent Structure
 

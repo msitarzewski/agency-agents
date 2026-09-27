@@ -21,6 +21,12 @@ on:
       - "support/**"
       - "spatial-computing/**"
       - "specialized/**"
+      # Changing the linter itself has to run it. Without these the whole-roster
+      # job below never fires, and a new rule ships untested: the color check
+      # went in this way and nothing in CI had ever looked at a color value.
+      - "scripts/lint-agents.sh"
+      - "scripts/convert.sh"
+      - "scripts/lib.sh"
 
 jobs:
   lint:
@@ -65,3 +71,36 @@ jobs:
         run: |
           chmod +x scripts/check-agent-originality.sh
           ./scripts/check-agent-originality.sh $CHANGED_FILES
+
+  lint-all:
+    name: Whole roster, when the linter changes
+    runs-on: ubuntu-latest
+    # The job above lints the agents a PR touched, which is the right scope for
+    # an agent PR and the wrong one for a rule change: a new rule has to run
+    # against every agent before it lands, or it either breaks a division nobody
+    # edited or quietly does nothing.
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Did the linter or the color map change?
+        id: rules
+        run: |
+          RULES="scripts/lint-agents.sh scripts/convert.sh scripts/lib.sh"
+          CHANGED=$(git diff --name-only --diff-filter=ACMR \
+            "origin/${{ github.base_ref }}...HEAD" -- $RULES)
+          if [ -n "$CHANGED" ]; then
+            echo "changed=true" >> "$GITHUB_OUTPUT"
+            echo "Linting the whole roster because these changed:"
+            echo "$CHANGED"
+          else
+            echo "changed=false" >> "$GITHUB_OUTPUT"
+            echo "Linter unchanged - the changed-files job is the right scope here."
+          fi
+
+      - name: Lint every agent in the roster
+        if: steps.rules.outputs.changed == 'true'
+        run: |
+          chmod +x scripts/lint-agents.sh
+          ./scripts/lint-agents.sh

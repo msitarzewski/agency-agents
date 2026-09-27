@@ -289,6 +289,125 @@ for tool in TOOLS:
     report(tool, bad_parse, bad_trip,
            "parse and round-trip" if fmt in ("yaml-fm", "toml") else "parse, carry their slug, and have their prose file")
 
+# --- Layer A (color): a grey agent should be a grey agent ---------------------
+# resolve_opencode_color() maps a name it does not know to #6B7280 and says
+# nothing, so a typo or an unlisted name (`slate`, `navy`) reaches users as a
+# deliberate-looking grey. Grey is a real choice for the agents that ask for it,
+# so the check is not "never grey" — it is "grey only when the source said so".
+GREY = "#6B7280"
+grey_names = {"gray", "grey", "#6b7280", "6b7280"}
+colour_bad = 0
+for f in sorted(glob.glob(os.path.join(OUT, "opencode", "agents", "*.md"))):
+    slug = os.path.splitext(os.path.basename(f))[0]
+    entry = src.get(slug)
+    if entry is None:
+        continue
+    try:
+        emitted = str(frontmatter(open(f, encoding="utf-8").read()).get("color", "")).strip()
+        source_color = str(frontmatter(open(os.path.join(R, entry[2]), encoding="utf-8").read())
+                           .get("color", "")).strip().lower()
+    except Exception:
+        continue   # the strict-parse pass above already reported this
+    if emitted.upper() == GREY and source_color not in grey_names:
+        colour_bad += 1
+        if colour_bad <= 3:
+            bad(f"opencode: {slug} asked for color {source_color!r} and got {GREY} — "
+                f"resolve_opencode_color() does not know that name")
+if colour_bad > 3:
+    bad(f"opencode: ...and {colour_bad-3} more colors silently replaced with grey")
+elif not colour_bad:
+    ok(f"opencode: every agent color resolves; none fell through to {GREY} by accident")
+
+# --- Layer A (split integrity): a source fenced block must survive whole -------
+# openclaw is the one tool that splits a single agent body across two files, at
+# `## ` headings: SOUL.md (persona) / AGENTS.md (operations). A heading inside a
+# fenced code block is block content, not a boundary. Splitting on one cuts the
+# block in half and leaves each file holding a dangling fence, which renders as
+# broken markdown for every user of that integration (#849). So every fenced
+# block in a source must land intact in exactly one of the two files.
+SPLIT_FENCE = re.compile(r"^(`{3,}|~{3,})")
+
+def body_lines(text):
+    """Mirror lib.sh's get_body, including `$(...)`'s trailing-newline strip."""
+    out, fm = [], 0
+    for line in text.split("\n"):
+        if line == "---":
+            fm += 1
+            continue
+        if fm >= 2:
+            out.append(line)
+    while out and out[-1] == "":
+        out.pop()
+    return out
+
+def fence_blocks(lines):
+    """Inclusive (opener, closer) index pairs; closer = last line if unterminated."""
+    res, marker, mlen, start = [], "", 0, None
+    for i, line in enumerate(lines):
+        m = SPLIT_FENCE.match(line)
+        if not m:
+            continue
+        tok = m.group(1)
+        if not marker:
+            marker, mlen, start = tok[0], len(tok), i
+        elif tok[0] == marker and len(tok) >= mlen:
+            res.append((start, i)); marker, mlen, start = "", 0, None
+    if marker and start is not None:
+        res.append((start, len(lines) - 1))
+    return res
+
+def has_run(hay, needle):
+    n = len(needle)
+    return n > 0 and n <= len(hay) and any(hay[i:i+n] == needle for i in range(len(hay) - n + 1))
+
+split_bad = 0
+for slug, (_d, _n, path) in sorted(src.items()):
+    sfile = os.path.join(OUT, "openclaw", slug, "SOUL.md")
+    afile = os.path.join(OUT, "openclaw", slug, "AGENTS.md")
+    if not (os.path.isfile(sfile) and os.path.isfile(afile)):
+        continue
+    body = body_lines(open(os.path.join(R, path), encoding="utf-8").read())
+    bl = fence_blocks(body)
+    if not bl:
+        continue
+    outs = [open(sfile, encoding="utf-8").read().split("\n"),
+            open(afile, encoding="utf-8").read().split("\n")]
+    for a, b in bl:
+        if not any(has_run(o, body[a:b + 1]) for o in outs):
+            split_bad += 1
+            if split_bad <= 3:
+                bad(f"openclaw: {slug} source fenced block at lines {a+1}-{b+1} is torn across "
+                    f"SOUL.md/AGENTS.md — a `## ` heading inside the fence was treated as a section boundary")
+if split_bad:
+    if split_bad > 3: bad(f"openclaw: ...and {split_bad-3} more torn fenced blocks")
+else:
+    ok(f"openclaw: all {N} agents keep every source fenced block whole in one output file")
+
+# --- Layer A (context budget): the Aider index has to stay an index ----------
+# Aider keeps a conventions file in context for the whole session. Inlining the
+# agent bodies made CONVENTIONS.md 3.8 million characters, which no model will
+# take, so it carries one index entry per agent instead: description plus the
+# path to the real file. Two things have to hold for that to be worth anything —
+# the file stays small enough to load, and every path it prints resolves.
+AIDER_INDEX_CEILING = 250_000
+aider_index = os.path.join(OUT, "aider", "CONVENTIONS.md")
+if os.path.isfile(aider_index):
+    text = open(aider_index, encoding="utf-8").read()
+    if len(text) > AIDER_INDEX_CEILING:
+        bad(f"aider: CONVENTIONS.md is {len(text):,} characters — it is loaded into "
+            f"every request, so it has to stay an index, not the agents themselves")
+    paths = re.findall(r"^Full instructions: (.+)$", text, re.M)
+    dangling = sorted({p for p in paths if not os.path.isfile(os.path.join(R, p))})
+    if len(paths) != N:
+        bad(f"aider: CONVENTIONS.md points at {len(paths)} agent files, roster has {N}")
+    elif dangling:
+        for d in dangling[:3]:
+            bad(f"aider: CONVENTIONS.md points at a file that does not exist: {d}")
+        if len(dangling) > 3:
+            bad(f"aider: ...and {len(dangling)-3} more dangling paths")
+    elif len(text) <= AIDER_INDEX_CEILING:
+        ok(f"aider: index is {len(text):,} characters and all {N} agent paths resolve")
+
 # --- Layer A (app-facing): every SOURCE frontmatter strict-parsed above -------
 for m in src_bad[:5]: bad(m)
 if len(src_bad) > 5: bad(f"...and {len(src_bad)-5} more source frontmatter problems")

@@ -10,6 +10,10 @@
 
 set -euo pipefail
 
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+# shellcheck source=lib.sh
+. "$SCRIPT_DIR/lib.sh"
+
 # Keep in sync with AGENT_DIRS in scripts/convert.sh
 AGENT_DIRS=(
   academic
@@ -34,6 +38,19 @@ AGENT_DIRS=(
 
 REQUIRED_FRONTMATTER=("name" "description" "color")
 RECOMMENDED_SECTIONS=("Identity" "Core Mission" "Critical Rules")
+
+# The color names convert.sh's resolve_opencode_color() knows, read out of the
+# converter rather than copied, so this can never drift from the map that does
+# the work. A name that is not in it falls through to grey in the OpenCode
+# integration, which reads as a deliberate grey instead of a miss: `slate` and
+# `navy` sat there unnoticed across four agents.
+KNOWN_COLORS="$(
+  awk '/^resolve_opencode_color\(\)/{f=1; next} f && /^}/{exit} f' "$SCRIPT_DIR/convert.sh" 2>/dev/null \
+    | grep -oE '^ +[a-z-]+\)' | tr -d ' )'
+)"
+# If the map could not be read, check hex values only rather than rejecting
+# every named color on the strength of an empty list.
+[[ -n "$KNOWN_COLORS" ]] || echo "WARN  could not read resolve_opencode_color() from $SCRIPT_DIR/convert.sh — skipping the color-name check"
 
 errors=0
 warnings=0
@@ -98,6 +115,20 @@ lint_file() {
     fi
   done
 
+  # 2b. The color has to be one the converters can resolve. Checking only that
+  # the field exists let four agents ship a name nothing maps, and they render
+  # grey in OpenCode with no warning anywhere.
+  local color
+  color="$(get_field color "$file" | tr '[:upper:]' '[:lower:]')"
+  if [[ -n "$color" && -n "$KNOWN_COLORS" ]] \
+     && [[ ! "$color" =~ ^#?[0-9a-f]{6}$ ]] \
+     && ! grep -qxF "$color" <<<"$KNOWN_COLORS"; then
+    echo "ERROR $file: color '${color}' is not a #RRGGBB value or a name the converters know"
+    echo "      known names: $(tr '\n' ' ' <<<"$KNOWN_COLORS")"
+    echo "      use a hex value, or add '${color}' to resolve_opencode_color() in scripts/convert.sh"
+    errors=$((errors + 1))
+  fi
+
   # 3. Check recommended sections (warn only)
   local body
   body=$(awk 'BEGIN{n=0} /^---$/{n++; next} n>=2{print}' "$file")
@@ -123,7 +154,24 @@ lint_file() {
 
   local soul_headers=0
   local agents_headers=0
+  local fence_marker="" fence_len=0 fence_indent=0
   while IFS= read -r line; do
+    # Skip fenced code blocks so ## doc-comment lines (e.g. GDScript `##`)
+    # and in-fence markdown headers aren't miscounted (issue #849).
+    if [[ -n "$fence_marker" ]]; then
+      if fence_closes_p "$line" "$fence_marker" "$fence_len" "$fence_indent"; then
+        fence_marker=""
+        fence_len=0
+        fence_indent=0
+      fi
+      continue
+    fi
+    if fence_open_p "$line"; then
+      fence_marker="${BASH_REMATCH[2]:0:1}"
+      fence_len=${#BASH_REMATCH[2]}
+      fence_indent=${#BASH_REMATCH[1]}
+      continue
+    fi
     if [[ "$line" =~ ^##[[:space:]] ]]; then
       local header_lower
       header_lower=$(printf '%s' "$line" | tr '[:upper:]' '[:lower:]')

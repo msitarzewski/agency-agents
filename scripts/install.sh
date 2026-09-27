@@ -18,7 +18,7 @@
 #   gemini-cli   -- Install agents to ~/.gemini/agents/
 #   opencode     -- Copy agents to .opencode/agents/ in current directory
 #   cursor       -- Copy rules to .cursor/rules/ in current directory
-#   aider        -- Copy CONVENTIONS.md to current directory
+#   aider        -- Copy the CONVENTIONS.md roster index to current directory
 #   windsurf     -- Copy .windsurfrules to current directory
 #   openclaw     -- Copy workspaces to ~/.openclaw/agency-agents/
 #   qwen         -- Copy SubAgents to ~/.qwen/agents/ (user-wide) or .qwen/agents/ (project)
@@ -949,11 +949,28 @@ install_aider() {
   local dest="${PWD}/CONVENTIONS.md"
   [[ -f "$src" ]] || { err "integrations/aider/CONVENTIONS.md missing. Run convert.sh first."; return 1; }
   if [[ -f "$dest" ]]; then
-    warn "Aider: CONVENTIONS.md already exists at $dest (remove to reinstall)."
+    # Never overwrite: CONVENTIONS.md is aider's own user-authored file, and the
+    # one sitting here may well be the reader's rather than ours. But the guard
+    # used to strand the very users this integration was fixed for — anyone
+    # holding the pre-index roster (3.8M characters, far past what aider can keep
+    # in context for a session) re-ran the installer, read "already exists", and
+    # kept the broken file. Our generated file has always opened with the same
+    # marker, so tell our stale copy apart from someone else's conventions.
+    if head -n 1 "$dest" | grep -q 'The Agency'; then
+      local bytes; bytes="$(wc -c < "$dest" | tr -d ' ')"
+      warn "Aider: $dest is an Agency roster index from an earlier install ($bytes bytes)."
+      dim  "       The roster is an index now, not the agents themselves. Delete it and"
+      dim  "       re-run this installer to pick up the smaller file."
+    else
+      warn "Aider: CONVENTIONS.md already exists at $dest — leaving your file alone."
+      dim  "       Remove it and re-run to install the Agency roster index instead."
+    fi
     return 0
   fi
   install_file "$src" "$dest"
   ok "Aider: installed -> $dest"
+  dim  "       CONVENTIONS.md is the roster index. Load one agent's full instructions with"
+  dim  "       /read-only $REPO_ROOT/<path shown in the index>"
   $SELECTION_ACTIVE && warn "Aider: single-file format — team/agent filtering N/A (installs the full roster)."
   warn "Aider: project-scoped. Run from your project root to install there."
 }
