@@ -86,3 +86,6 @@ integrations/vibe/agents/
 integrations/vibe/prompts/
 integrations/zcode/agents/
 graphify-out/
+
+# Agent catalog site — built by scripts/build-catalog.py (CI deploys it to GitHub Pages)
+_site/
