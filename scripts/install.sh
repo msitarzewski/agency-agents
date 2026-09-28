@@ -1085,7 +1085,7 @@ ensure_hermes_plugin_enabled() {
   mkdir -p "$hermes_home"
   backup="${config}.bak.agency-agents-plugin.$$"
   [[ -f "$config" ]] && cp "$config" "$backup"
-  python3 - "$config" "$plugin" <<'PY'
+  python3 - "$config" "$plugin" <<'PY' || return 1
 from pathlib import Path
 import sys
 import re
@@ -1111,7 +1111,9 @@ for i, line in enumerate(lines):
         broke = False
         while j < len(lines):
             jl = lines[j]
-            if jl and not jl.startswith((" ", "\t")):
+            # Only a top-level KEY ends the block. Hermes writes enabled:/disabled: below a
+            # column-0 "# ====" section banner; treating that comment as the end hid them.
+            if jl and not jl.startswith((" ", "\t")) and not jl.startswith("#"):
                 broke = True
                 break
             stripped = jl.strip()

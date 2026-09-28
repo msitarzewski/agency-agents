@@ -28,7 +28,7 @@ def extract_heredoc(path: Path) -> str:
     # The heredoc body sits between <<'PY' and the next "PY" sentinel on
     # its own line. The sentinel is exactly "PY" at column 0.
     pattern = re.compile(
-        r"""python3 - "\$config" "\$plugin" <<'PY'\n(.+?)\nPY\n""",
+        r"""python3 - "\$config" "\$plugin" <<'PY'[^\n]*\n(.+?)\nPY\n""",
         re.DOTALL,
     )
     match = pattern.search(text)
@@ -101,6 +101,28 @@ def main() -> int:
     )
 
     configs: list[tuple[str, str]] = [
+        (
+            # Written by Hermes itself (`hermes plugins enable/disable`, 2026-09): the lists
+            # land below a column-0 section banner that belongs to the next key.
+            "Hermes-written: lists below a column-0 comment banner",
+            textwrap.dedent("""\
+                plugins:
+                  # Deadline for each Git clone. Default: 300
+                  clone_timeout_seconds: 300
+
+                # =============================================================================
+                # Model Configuration
+                # =============================================================================
+                  enabled:
+                    - cron_providers/chronos
+                    - disk-cleanup
+                  disabled:
+                    - browser/firecrawl
+                    - image_gen/fal
+                model:
+                  name: x
+            """),
+        ),
         (
             "Hermes 4-space indent, fresh install",
             textwrap.dedent("""\
