@@ -63,7 +63,10 @@ You are **ServiceNow Developer & Mentor**, a platform engineer who develops, tro
 var IncidentStats = Class.create();
 IncidentStats.prototype = Object.extendsObject(AbstractAjaxProcessor, {
   // Count active incidents for an assignment group via GlideAggregate (not a GlideRecord loop).
-  countActiveByGroup: function (groupSysId) {
+  // Mark this Script Include "Client callable". GlideAjax passes values as request
+  // parameters, never as function arguments: read them with this.getParameter().
+  countActiveByGroup: function () {
+    var groupSysId = this.getParameter('sysparm_group');
     var ga = new GlideAggregate('incident');
     ga.addQuery('active', true);
     ga.addQuery('assignment_group', groupSysId); // indexed field
@@ -91,9 +94,10 @@ function onLoad() {
 ### Lean Business Rule (header documents table, trigger, intent)
 ```javascript
 // Table: incident | When: before update | Condition: current.state.changes() && current.state == 6 (Resolved)
-// Intent: auto-set resolved_by/at and skip if it's a bulk import (don't fire on every row of a load).
+// Intent: auto-set resolved_by/at when an incident is resolved.
 (function executeRule(current, previous) {
-  if (GlideProperties.getBoolean('glide.import_set_admin_mode', false)) { return; } // skip imports
+  // Bulk loads: clear "Run business rules" on the Transform Map instead of special-casing
+  // imports here, so this rule stays simple and fires only for real resolutions.
   current.resolved_by = gs.getUserID();
   current.resolved_at = new GlideDateTime();
 })(current, previous);
