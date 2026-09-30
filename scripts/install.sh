@@ -352,7 +352,7 @@ install_file() {
 # claude-code and copilot copy the source file under its own name. For most
 # agents that is <division>-<slug>.md, but 73 of 279 are named <slug>.md
 # already (all of game-development/, most of specialized/), and for those the
-# name is exactly what gemini-cli, opencode, qwen and zcode write. Measuring
+# name is exactly what gemini-cli, opencode, qwen, zcode and windsurf write. Measuring
 # with one engineering agent missed that, so `--tool claude-code,qwen --path X`
 # reported both installs OK while qwen overwrote the Claude Code file. One
 # group, because a full install collides on 73 files, not zero.

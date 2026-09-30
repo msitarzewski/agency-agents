@@ -668,11 +668,37 @@ WINDSURF_RULE_LIMIT=12000
 # break is good enough, it keeps the most content any of them allows, and
 # falls back to the last whole line outside a fence.
 #
-# Fences are tracked the way the OpenClaw split tracks them (#849): a break
-# inside a fenced block is not a break, and cutting there would leave the rule
-# holding a dangling ``` that renders as broken markdown.
+# A break inside a fenced block is not a break: cutting there leaves the rule
+# holding a dangling ``` and everything after it, footer included, renders as
+# code. Fences follow CommonMark: 3+ backticks or tildes behind at most three
+# spaces open one, and only a bare run of the same character, at least as
+# long, closes it. "```python" inside an open block is content, not a closer.
+#
+# The fence scan is written out character by character rather than as
+# /^ {0,3}(`{3,}|~{3,})/ on purpose. mawk before 1.3.4-20200717 (Debian 12's
+# awk) reads {n,m} as literal braces, so that regex never matches there, fence
+# tracking silently switches off, and the trim cuts through code blocks.
 windsurf_trim_body() {
   printf '%s' "$1" | awk -v budget="$2" '
+    # fence_step(line) — update fence/flen for one line.
+    function fence_step(s,    ind, c, n, rest) {
+      ind = 0
+      while (ind < 4 && substr(s, ind + 1, 1) == " ") ind++
+      if (ind > 3) return
+      c = substr(s, ind + 1, 1)
+      if (c != "`" && c != "~") return
+      n = 0
+      while (substr(s, ind + n + 1, 1) == c) n++
+      if (n < 3) return
+      rest = substr(s, ind + n + 1)
+      if (fence == "") {
+        # a backtick fence may not carry a backtick in its info string
+        if (c == "`" && index(rest, "`")) return
+        fence = c; flen = n
+      } else if (c == fence && n >= flen && rest !~ /[^ \t]/) {
+        fence = ""; flen = 0
+      }
+    }
     { lines[NR] = $0 }
     END {
       total = 0; line_cut = 0; h2 = 0; h3 = 0; para = 0
@@ -681,11 +707,7 @@ windsurf_trim_body() {
         total += length(lines[i]) + 1
         if (total > budget) break
         used[i] = total
-        if (match(lines[i], /^ {0,3}(`{3,}|~{3,})/)) {
-          run = substr(lines[i], RSTART, RLENGTH); sub(/^ +/, "", run)
-          if (fence == "") { fence = substr(run, 1, 1); flen = length(run) }
-          else if (substr(run, 1, 1) == fence && length(run) >= flen) { fence = ""; flen = 0 }
-        }
+        fence_step(lines[i])
         if (fence != "") continue            # inside a block: no break here
         line_cut = i
         if (lines[i] ~ /^## /)  h2 = i - 1

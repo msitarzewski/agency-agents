@@ -433,16 +433,26 @@ if os.path.isfile(aider_index):
 WINDSURF_LIMIT = 12000
 
 def fence_left_open(lines):
-    """True if the text stops while a fenced block is still open."""
+    """True if the text stops while a fenced block is still open.
+
+    CommonMark rules, walked to the end of the text: 3+ backticks or tildes
+    behind at most three spaces open a block, and only a bare run of the same
+    character, at least as long, closes it. Counting fence lines for parity is
+    not enough, and neither is treating any fence-looking line as a closer: an
+    agent that shows a ```python example inside a ````markdown template has
+    fence lines that are content.
+    """
     marker, mlen = "", 0
     for line in lines:
-        m = re.match(r"^ {0,3}(`{3,}|~{3,})", line)
+        m = re.match(r"^ {0,3}(`{3,}|~{3,})(.*)$", line)
         if not m:
             continue
-        tok = m.group(1)
+        tok, rest = m.group(1), m.group(2)
         if not marker:
+            if tok[0] == "`" and "`" in rest:
+                continue          # not a fence: a backtick info string can't hold `
             marker, mlen = tok[0], len(tok)
-        elif tok[0] == marker and len(tok) >= mlen:
+        elif tok[0] == marker and len(tok) >= mlen and not rest.strip():
             marker, mlen = "", 0
     return bool(marker)
 
@@ -464,16 +474,19 @@ for f in ws_files:
                 f"Cascade would never load it on its own")
     except Exception:
         pass   # the strict-parse pass above already reported this
-    if fence_left_open(text.split("\n")):
+    # Only a trimmed rule is checked: an untrimmed one is the source body
+    # verbatim, and a fence the source itself leaves open is a source bug.
+    trimmed = "Trimmed to fit Windsurf" in text
+    if trimmed and fence_left_open(text.split("\n")):
         ws_fence += 1
         if ws_fence <= 3:
             bad(f"windsurf: {slug} ends inside an unclosed code fence — the trim "
                 f"cut through a fenced block")
-    if "Trimmed to fit Windsurf" in text:
+    if trimmed:
         ws_trimmed += 1
 if ws_files and not (ws_over or ws_fence or ws_trigger):
     ok(f"windsurf: all {len(ws_files)} rules fit the {WINDSURF_LIMIT}-character limit, "
-       f"carry trigger: model_decision, and close every fence "
+       f"carry trigger: model_decision, and every trimmed rule closes its fences "
        f"({ws_trimmed} trimmed with a pointer to the full agent)")
 
 # --- Layer A (tool names): Qwen only grants tools it can name ---------------
