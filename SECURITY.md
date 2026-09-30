@@ -28,4 +28,3 @@ This repository contains Markdown-based agent definitions and shell scripts for 
 - Never add executable code inside agent Markdown files
 - Shell scripts must be reviewed before merging
 - Report suspicious agent definitions that attempt prompt injection
-EOFcat SECURITY.md

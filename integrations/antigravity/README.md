@@ -10,7 +10,8 @@ with `agency-` to avoid conflicts with existing skills.
 ```
 
 This copies files from `integrations/antigravity/` to
-`~/.gemini/antigravity/skills/`.
+`~/.gemini/config/skills/` (global). For project-scoped skills, Antigravity
+also reads `<project>/.agents/skills/`.
 
 ## Activate a Skill
 

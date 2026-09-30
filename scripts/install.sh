@@ -1,5 +1,6 @@
 #!/usr/bin/env bash
 #
+# --- USAGE-START ---  (sentinel for usage(); do not remove)
 # install.sh -- Install The Agency agents into your local agentic tool(s).
 #
 # Reads converted files from integrations/ and copies them to the appropriate
@@ -7,29 +8,55 @@
 # is missing or stale.
 #
 # Usage:
-#   ./scripts/install.sh [--tool <name>] [--interactive] [--no-interactive] [--parallel] [--jobs N] [--help]
+#   ./scripts/install.sh [selection] [mode] [behavior]
+#   Bare invocation installs all teams to detected tools (interactive when a TTY).
 #
 # Tools:
 #   claude-code  -- Copy agents to ~/.claude/agents/
 #   copilot      -- Copy agents to ~/.github/agents/ and ~/.copilot/agents/
-#   antigravity  -- Copy skills to ~/.gemini/antigravity/skills/
-#   gemini-cli   -- Install extension to ~/.gemini/extensions/agency-agents/
+#   antigravity  -- Copy skills to ~/.gemini/config/skills/
+#   gemini-cli   -- Install agents to ~/.gemini/agents/
 #   opencode     -- Copy agents to .opencode/agents/ in current directory
 #   cursor       -- Copy rules to .cursor/rules/ in current directory
-#   aider        -- Copy CONVENTIONS.md to current directory
+#   aider        -- Copy the CONVENTIONS.md roster index to current directory
 #   windsurf     -- Copy .windsurfrules to current directory
 #   openclaw     -- Copy workspaces to ~/.openclaw/agency-agents/
 #   qwen         -- Copy SubAgents to ~/.qwen/agents/ (user-wide) or .qwen/agents/ (project)
+#   zcode        -- Copy agents to ~/.zcode/agents/ (global) or .zcode/agents/ (project)
+#   codex        -- Copy custom agent TOML files to ~/.codex/agents/
+#   osaurus      -- Copy skills to ~/.osaurus/skills/
+#   hermes       -- Copy lazy-router plugin to ~/.hermes/plugins/ and enable it
+#   vibe         -- Copy agents and prompts to ~/.vibe/agents/ and ~/.vibe/prompts/
+#   dsh          -- Copy skills to ~/.dsh/skills/ (user-wide) or .dsh/skills/ (project)
 #   all          -- Install for all detected tools (default)
 #
-# Flags:
-#   --tool <name>     Install only the specified tool
-#   --interactive     Show interactive selector (default when run in a terminal)
-#   --no-interactive  Skip interactive selector, install all detected tools
-#   --parallel        Run install for each selected tool in parallel (output order may vary)
-#   --jobs N          Max parallel jobs when using --parallel (default: nproc or 4)
-#   --help            Show this help
+# Selection (compose freely; empty = everything):
+#   --tool <a,b>          Only these tools
+#   --division <a,b>      Only these teams/divisions (comma-separated)
+#   --agent <slug,slug>   Only these specific agents
+#   --agents-file <path>  Agents listed in a file (one slug/name per line, # comments ok)
 #
+# Mode:
+#   --link                Symlink instead of copy (updates propagate)
+#   --path <dir>          Override the install directory (single destination)
+#
+# Behavior:
+#   --interactive         Show the interactive wizard (default when run in a terminal)
+#   --no-interactive      Skip the wizard, install all detected tools
+#   --no-convert          Don't auto-run convert.sh when integration files are missing
+#   --dry-run             Print the plan and exit without writing anything
+#   --list [tools|teams|agents]   List and exit
+#   --parallel            Install tools in parallel (output buffered per tool)
+#   --jobs N              Max parallel jobs (default: nproc or 4)
+#   --help                Show this help
+#
+# Env: CLAUDE_CONFIG_DIR, COPILOT_AGENT_DIR, CURSOR_RULES_DIR, GEMINI_AGENTS_DIR,
+#      OPENCODE_AGENTS_DIR, OPENCLAW_DIR, QWEN_AGENTS_DIR, ZCODE_AGENTS_DIR,
+#      CODEX_AGENTS_DIR, OSAURUS_SKILLS_DIR, HERMES_HOME, HERMES_PLUGIN_DIR,
+#      VIBE_HOME, DSH_HOME, DSH_SKILLS_DIR
+#      override default install paths (checked before hardcoded defaults).
+#
+# --- USAGE-END ---  (sentinel for usage(); do not remove)
 # Platform support:
 #   Linux, macOS (requires bash 3.2+), Windows Git Bash / WSL
 
@@ -101,19 +128,336 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 REPO_ROOT="$(cd "$SCRIPT_DIR/.." && pwd)"
 INTEGRATIONS="$REPO_ROOT/integrations"
 
-ALL_TOOLS=(claude-code copilot antigravity gemini-cli opencode openclaw cursor aider windsurf qwen kimi)
+# Shared helpers (get_field, agent_slug, slugify, incr, ANSI + TUI primitives)
+# shellcheck source=lib.sh
+. "$SCRIPT_DIR/lib.sh"
 
-# Standard agent category directories (keep sorted, sync with convert.sh / lint-agents.sh)
-AGENT_DIRS=(
-  academic design engineering finance game-development marketing paid-media product project-management
-  sales spatial-computing specialized devrel strategy support testing
-)
+ALL_TOOLS=(claude-code copilot antigravity gemini-cli opencode openclaw cursor aider windsurf qwen zcode kimi codex osaurus hermes vibe dsh)
+
+# The division set is derived from divisions.json (the single source of truth)
+# so the installer can never drift from the catalog — a hardcoded copy silently
+# dropped healthcare (#655/#668) and can't be seen by check-divisions.sh. Same
+# no-jq awk/grep/sed parse as scripts/check-divisions.sh (macOS + Linux).
+divisions_from_json() {
+  local json="$REPO_ROOT/divisions.json"
+  [[ -f "$json" ]] || { err "divisions.json not found at $json"; exit 1; }
+  awk '/"divisions"[[:space:]]*:[[:space:]]*\{/{f=1; next} f' "$json" \
+    | grep -oE '"[a-z0-9-]+"[[:space:]]*:[[:space:]]*\{' \
+    | sed -E 's/"([a-z0-9-]+)".*/\1/'
+}
+
+# Selectable divisions = exactly the divisions.json entries.
+ALL_DIVISIONS=()
+while IFS= read -r _div; do [[ -n "$_div" ]] && ALL_DIVISIONS+=("$_div"); done < <(divisions_from_json)
+[[ ${#ALL_DIVISIONS[@]} -gt 0 ]] || { err "no divisions parsed from divisions.json"; exit 1; }
+
+# Directories scanned for installable agents = the divisions plus strategy/.
+# strategy/ holds frontmatter-less NEXUS docs (filtered out by is_agent_file at
+# scan time), so it is scanned but selectable only via ALL_DIVISIONS above.
+AGENT_DIRS=("${ALL_DIVISIONS[@]}" strategy)
+
+# ---------------------------------------------------------------------------
+# Selection engine (team / agent / agents-file filtering)
+# ---------------------------------------------------------------------------
+FILTER_DIVISIONS=()      # --division
+FILTER_AGENTS=()         # --agent
+AGENTS_FILE=""           # --agents-file
+DRY_RUN=false            # --dry-run
+SELECTION_ACTIVE=false   # true once any agent-level filter is applied
+_ALLOWED_SLUGS=""        # newline-delimited cache of allowed slugs
+
+# division_files <division> — agent file paths (frontmatter only) in a division.
+division_files() {
+  local d="$REPO_ROOT/$1" f
+  [[ -d "$d" ]] || return 0
+  while IFS= read -r -d '' f; do
+    is_agent_file "$f" && printf '%s\n' "$f"
+  done < <(find "$d" -name "*.md" -type f -print0 2>/dev/null)
+}
+
+# division_count <division> — number of agents in a division.
+division_count() { division_files "$1" | grep -c . ; }
+
+# agent_slug_exists <slug> — verify a requested agent against the source roster.
+# Selection filters should fail before installation when they name nothing that
+# can be installed; otherwise dry-run counts and completion messages lie.
+agent_slug_exists() {
+  local target="$1" div f
+  for div in "${ALL_DIVISIONS[@]}"; do
+    while IFS= read -r f; do
+      [[ "$(agent_slug "$f")" == "$target" ]] && return 0
+    done < <(division_files "$div")
+  done
+  return 1
+}
+
+# build_selection — compute the allowed slug set from --division/--agent/--agents-file.
+# With no filter flags, SELECTION_ACTIVE stays false (install everything).
+build_selection() {
+  if [[ ${#FILTER_DIVISIONS[@]} -eq 0 && ${#FILTER_AGENTS[@]} -eq 0 && -z "$AGENTS_FILE" ]]; then
+    SELECTION_ACTIVE=false
+    return
+  fi
+  SELECTION_ACTIVE=true
+  local slugs="" div f s line requested
+  for div in ${FILTER_DIVISIONS[@]+"${FILTER_DIVISIONS[@]}"}; do
+    while IFS= read -r f; do
+      s="$(agent_slug "$f")"; [[ -n "$s" ]] && slugs+="$s"$'\n'
+    done < <(division_files "$div")
+  done
+  for s in ${FILTER_AGENTS[@]+"${FILTER_AGENTS[@]}"}; do
+    requested="$(slugify "$s")"
+    if ! agent_slug_exists "$requested"; then
+      err "Unknown agent '$s'. Use --list agents to see the available roster."
+      exit 1
+    fi
+    slugs+="$requested"$'\n'
+  done
+  if [[ -n "$AGENTS_FILE" ]]; then
+    [[ -f "$AGENTS_FILE" ]] || { err "agents-file not found: $AGENTS_FILE"; exit 1; }
+    while IFS= read -r line || [[ -n "$line" ]]; do
+      line="${line%%#*}"                              # strip trailing comment
+      line="$(printf '%s' "$line" | xargs 2>/dev/null)" # trim
+      [[ -z "$line" ]] && continue
+      requested="$(slugify "$line")"
+      if ! agent_slug_exists "$requested"; then
+        err "Unknown agent '$line' in agents-file '$AGENTS_FILE'."
+        exit 1
+      fi
+      slugs+="$requested"$'\n'
+    done < "$AGENTS_FILE"
+  fi
+  _ALLOWED_SLUGS="$(printf '%s' "$slugs" | sort -u | sed '/^$/d')"
+}
+
+# slug_allowed <slug> — true if installable under the active selection
+# (always true when no filter). Tolerates the antigravity "agency-" prefix.
+slug_allowed() {
+  $SELECTION_ACTIVE || return 0
+  local s="${1#agency-}"
+  # grep -q closes a pipe as soon as it finds an early match. With pipefail,
+  # printf may then get SIGPIPE and make a valid slug look unselected.
+  grep -qxF "$s" <<< "$_ALLOWED_SLUGS"
+}
+
+# selected_agent_count — how many agents the current selection installs.
+selected_agent_count() {
+  if ! $SELECTION_ACTIVE; then
+    local d n=0; for d in "${ALL_DIVISIONS[@]}"; do incr_by n "$(division_count "$d")"; done; echo "$n"
+  else
+    printf '%s\n' "$_ALLOWED_SLUGS" | grep -c .
+  fi
+}
+incr_by() { printf -v "$1" '%d' "$(( ${!1:-0} + ${2:-0} ))"; }
+
+# selected_agent_count_all — total agents across all divisions (ignores filter).
+selected_agent_count_all() {
+  local d n=0; for d in "${ALL_DIVISIONS[@]}"; do incr_by n "$(division_count "$d")"; done; echo "$n"
+}
+
+# worker_flags — re-emit the active selection/mode flags for parallel workers.
+worker_flags() {
+  local out="" d a
+  $USE_LINK && out="$out --link"
+  $AUTO_CONVERT || out="$out --no-convert"
+  [[ -n "$OVERRIDE_PATH" ]] && out="$out --path $OVERRIDE_PATH"
+  for d in ${FILTER_DIVISIONS[@]+"${FILTER_DIVISIONS[@]}"}; do out="$out --division $d"; done
+  for a in ${FILTER_AGENTS[@]+"${FILTER_AGENTS[@]}"}; do out="$out --agent $a"; done
+  [[ -n "$AGENTS_FILE" ]] && out="$out --agents-file $AGENTS_FILE"
+  printf '%s' "$out"
+}
+
+# validate_division <name> — exit on unknown division.
+validate_division() {
+  local _ad
+  for _ad in "${ALL_DIVISIONS[@]}"; do [[ "$_ad" == "$1" ]] && return 0; done
+  err "Unknown division '$1'. Valid: ${ALL_DIVISIONS[*]}"
+  exit 1
+}
+
+# ---------------------------------------------------------------------------
+# Install mechanics (copy vs symlink, path override, capacity guard)
+# ---------------------------------------------------------------------------
+USE_LINK=false        # --link
+OVERRIDE_PATH=""      # --path (single-destination override)
+
+# install_file <src> <dest> — copy, or symlink when --link is set.
+install_file() {
+  if $USE_LINK; then
+    ln -sf "$1" "$2"
+  else
+    local target="$2"
+    [[ -d "$target" ]] && target="${target%/}/$(basename "$1")"
+    if [[ -L "$target" ]]; then
+      # cp would follow the link and overwrite whatever it points at.
+      local link_to; link_to="$(readlink "$target")"
+      if [[ "$link_to" == "$REPO_ROOT/"* ]]; then
+        # Our own --link install: switching to a copy is the intended change.
+        rm -f -- "$target"
+      else
+        # Someone else's link: leave it and its target alone, keep installing
+        # the rest, and say so in the summary (one stray link must not abort
+        # the install halfway through the roster).
+        warn "Skipped $target — it is a symlink to $link_to; not overwriting it."
+        [[ -n "${SKIPPED_LOG:-}" ]] && printf '%s -> %s\n' "$target" "$link_to" >> "$SKIPPED_LOG"
+        return 0
+      fi
+    fi
+    cp "$1" "$2"
+  fi
+}
+
+# resolve_dest <tool> <default> — --path > $ENV_VAR > default.
+# path_collision_group <tool> — tools in the same group write identical
+# filenames into a shared --path and would overwrite each other; empty means
+# the tool's output is distinct and may share a path with anything. Derived by
+# installing one agent with every tool into a sandbox and comparing what
+# landed; re-measure if a converter's output naming changes.
+path_collision_group() {
+  case "$1" in
+    claude-code|copilot)             printf 'raw-source-md' ;;  # <division>-<slug>.md
+    gemini-cli|opencode|qwen|zcode)  printf 'slug-md' ;;        # <slug>.md
+    antigravity|osaurus|dsh)         printf 'agency-skill' ;;   # agency-<slug>/SKILL.md
+    *)                               printf '' ;;
+  esac
+}
+
+# Validate after tool selection so --tool all and the interactive picker get
+# the same protection as an explicit comma-separated list.
+validate_path_collisions() {
+  [[ -n "$OVERRIDE_PATH" && $# -gt 1 ]] || return 0
+  local _ta _tb _ga _gb
+  for _ta in "$@"; do
+    _ga="$(path_collision_group "$_ta")"; [[ -z "$_ga" ]] && continue
+    for _tb in "$@"; do
+      [[ "$_tb" == "$_ta" ]] && continue
+      _gb="$(path_collision_group "$_tb")"
+      if [[ "$_ga" == "$_gb" ]]; then
+        err "--path is one shared directory, and $_ta and $_tb write the same filenames into it — they would overwrite each other. Use one of them per --path (tools with distinct outputs may share one)."
+        return 1
+      fi
+    done
+  done
+}
+
+resolve_dest() {
+  local tool="$1" def="$2" var=""
+  [[ -n "$OVERRIDE_PATH" ]] && { printf '%s' "$OVERRIDE_PATH"; return; }
+  case "$tool" in
+    claude-code) var="CLAUDE_CONFIG_DIR" ;;
+    copilot)     var="COPILOT_AGENT_DIR" ;;
+    cursor)      var="CURSOR_RULES_DIR" ;;
+    gemini-cli)  var="GEMINI_AGENTS_DIR" ;;
+    opencode)    var="OPENCODE_AGENTS_DIR" ;;
+    openclaw)    var="OPENCLAW_DIR" ;;
+    qwen)        var="QWEN_AGENTS_DIR" ;;
+    zcode)       var="ZCODE_AGENTS_DIR" ;;
+    codex)       var="CODEX_AGENTS_DIR" ;;
+    osaurus)     var="OSAURUS_SKILLS_DIR" ;;
+    hermes)      var="HERMES_PLUGIN_DIR" ;;
+    vibe)        var="VIBE_HOME" ;;
+    dsh)         var="DSH_SKILLS_DIR" ;;
+  esac
+  if [[ -n "$var" && -n "${!var:-}" ]]; then
+    if [[ "$tool" == "claude-code" ]]; then
+      # CLAUDE_CONFIG_DIR is the config root (it replaces ~/.claude);
+      # agents live in its agents/ subdirectory (fixes #578). Strip one
+      # trailing slash; a value already ending in /agents is used verbatim
+      # so users who worked around the old bug are not double-nested.
+      local cfg="${!var}"; cfg="${cfg%/}"
+      if [[ "$cfg" == */agents ]]; then printf '%s' "$cfg"; else printf '%s' "$cfg/agents"; fi
+    else
+      printf '%s' "${!var}"
+    fi
+  else
+    printf '%s' "$def"
+  fi
+}
+
+# resolve_tool_path <tool> — best-effort binary path for the detection UI.
+resolve_tool_path() {
+  local bin=""
+  case "$1" in
+    claude-code) bin="claude" ;; copilot) bin="code" ;; gemini-cli) bin="gemini" ;;
+    opencode) bin="opencode" ;; openclaw) bin="openclaw" ;; cursor) bin="cursor" ;;
+    aider) bin="aider" ;; windsurf) bin="windsurf" ;; qwen) bin="qwen" ;;
+    zcode) bin="zcode" ;;
+    kimi) bin="kimi" ;; codex) bin="codex" ;; antigravity) bin="" ;;
+    osaurus) bin="osaurus" ;; hermes) bin="hermes" ;; vibe) bin="vibe" ;;
+    dsh) bin="dsh" ;;
+  esac
+  [[ -n "$bin" ]] && command -v "$bin" 2>/dev/null
+}
+
+# ensure_converted <tool> — auto-run convert.sh if a converted tool's output
+# is missing (absorbs #426). No-op for source tools and when --no-convert.
+ensure_converted() {
+  local tool="$1"
+  $AUTO_CONVERT || return 0
+  case "$tool" in claude-code|copilot) return 0 ;; esac
+  local d="$INTEGRATIONS/$tool"
+  # Every integrations/<tool>/ ships a committed README.md, so "any file
+  # present" mistook the README for generated output and never converted in a
+  # fresh checkout (the installer then hard-failed "<tool> missing"). Only files
+  # other than the README count as output.
+  if [[ ! -d "$d" ]] || [[ -z "$(find "$d" -type f ! -name 'README.md' 2>/dev/null | head -1)" ]]; then
+    warn "$tool: integration files missing — running convert.sh --tool $tool"
+    if "$SCRIPT_DIR/convert.sh" --tool "$tool" >/dev/null 2>&1; then
+      ok "$tool: generated integration files"
+    else
+      # A failed conversion may have written only part of the roster. Remove
+      # that partial output so the next install retries conversion instead of
+      # treating it as a complete generated integration.
+      if [[ -d "$d" ]]; then
+        find "$d" -mindepth 1 -maxdepth 1 ! -name 'README.md' -exec rm -rf {} +
+      fi
+      err "$tool: convert.sh failed; run it manually"
+      return 1
+    fi
+  fi
+}
+AUTO_CONVERT=true     # --no-convert disables
+
+# Per-tool soft capacity (opencode silently drops past ~119 — upstream #27988).
+tool_cap() { case "$1" in opencode) echo 119 ;; *) echo 0 ;; esac; }
+
+# capacity_warn <tool> <count> — warn if a tool can't register this many.
+capacity_warn() {
+  local cap; cap="$(tool_cap "$1")"
+  if [[ "$cap" -gt 0 && "$2" -gt "$cap" ]]; then
+    warn "$1: registers only ~$cap agents (upstream bug anomalyco/opencode#27988)."
+    warn "      You selected $2 — ~$(( $2 - cap )) won't load. Narrow with --division to fix."
+  fi
+}
+
+# do_list <what> — print tools/teams/agents and exit.
+do_list() {
+  case "$1" in
+    tools)
+      printf '%s\n' "${ALL_TOOLS[@]}" ;;
+    teams|divisions)
+      local d; for d in "${ALL_DIVISIONS[@]}"; do printf '%-22s %3s agents\n' "$d" "$(division_count "$d")"; done ;;
+    agents)
+      local d f; for d in "${ALL_DIVISIONS[@]}"; do
+        while IFS= read -r f; do printf '%-20s %s\n' "$d" "$(agent_slug "$f")"; done < <(division_files "$d")
+      done ;;
+    *)
+      echo "Tools (${#ALL_TOOLS[@]}):"; printf '  %s\n' "${ALL_TOOLS[@]}"; echo
+      echo "Teams (${#ALL_DIVISIONS[@]}):"
+      local d; for d in "${ALL_DIVISIONS[@]}"; do printf '  %-22s %3s agents\n' "$d" "$(division_count "$d")"; done ;;
+  esac
+}
 
 # ---------------------------------------------------------------------------
 # Usage
 # ---------------------------------------------------------------------------
 usage() {
-  sed -n '3,32p' "$0" | sed 's/^# \{0,1\}//'
+  # Extract everything between the USAGE-START / USAGE-END sentinels
+  # (excluding the sentinel lines themselves) and strip the leading "# ".
+  # Using sentinels instead of hard-coded line numbers means adding lines
+  # to the header comment block won't silently break --help output.
+  sed -n '/^# --- USAGE-START ---/,/^# --- USAGE-END ---/p' "$0" \
+    | sed -e '1d;$d' -e 's/^# \{0,1\}//'
   exit 0
 }
 
@@ -138,9 +482,9 @@ check_integrations() {
 # ---------------------------------------------------------------------------
 # Tool detection
 # ---------------------------------------------------------------------------
-detect_claude_code() { [[ -d "${HOME}/.claude" ]]; }
+detect_claude_code() { [[ -d "${CLAUDE_CONFIG_DIR:-${HOME}/.claude}" ]]; }
 detect_copilot()      { command -v code >/dev/null 2>&1 || [[ -d "${HOME}/.github" || -d "${HOME}/.copilot" ]]; }
-detect_antigravity()  { [[ -d "${HOME}/.gemini/antigravity/skills" ]]; }
+detect_antigravity()  { [[ -d "${HOME}/.gemini/config/skills" ]]; }
 detect_gemini_cli()   { command -v gemini >/dev/null 2>&1 || [[ -d "${HOME}/.gemini" ]]; }
 detect_cursor()       { command -v cursor >/dev/null 2>&1 || [[ -d "${HOME}/.cursor" ]]; }
 detect_opencode()     { command -v opencode >/dev/null 2>&1 || [[ -d "${HOME}/.config/opencode" ]]; }
@@ -148,7 +492,13 @@ detect_aider()        { command -v aider >/dev/null 2>&1; }
 detect_openclaw()     { command -v openclaw >/dev/null 2>&1 || [[ -d "${HOME}/.openclaw" ]]; }
 detect_windsurf()     { command -v windsurf >/dev/null 2>&1 || [[ -d "${HOME}/.codeium" ]]; }
 detect_qwen()         { command -v qwen >/dev/null 2>&1 || [[ -d "${HOME}/.qwen" ]]; }
+detect_zcode()        { command -v zcode >/dev/null 2>&1 || [[ -d "${HOME}/.zcode" ]]; }
 detect_kimi()         { command -v kimi >/dev/null 2>&1; }
+detect_codex()        { command -v codex >/dev/null 2>&1 || [[ -d "${HOME}/.codex" ]]; }
+detect_osaurus()      { command -v osaurus >/dev/null 2>&1 || [[ -d "${HOME}/.osaurus" ]]; }
+detect_hermes()       { command -v hermes >/dev/null 2>&1 || [[ -d "${HERMES_HOME:-${HOME}/.hermes}" ]]; }
+detect_vibe()         { command -v vibe >/dev/null 2>&1 || [[ -d "${VIBE_HOME:-${HOME}/.vibe}" ]]; }
+detect_dsh()          { command -v dsh >/dev/null 2>&1 || [[ -d "${DSH_HOME:-${HOME}/.dsh}" ]]; }
 
 is_detected() {
   case "$1" in
@@ -162,7 +512,13 @@ is_detected() {
     aider)       detect_aider       ;;
     windsurf)    detect_windsurf    ;;
     qwen)        detect_qwen        ;;
+    zcode)       detect_zcode       ;;
     kimi)        detect_kimi        ;;
+    codex)       detect_codex       ;;
+    osaurus)     detect_osaurus     ;;
+    hermes)      detect_hermes      ;;
+    vibe)        detect_vibe        ;;
+    dsh)         detect_dsh         ;;
     *)           return 1 ;;
   esac
 }
@@ -172,130 +528,284 @@ tool_label() {
   case "$1" in
     claude-code) printf "%-14s  %s" "Claude Code"  "(claude.ai/code)"        ;;
     copilot)     printf "%-14s  %s" "Copilot"      "(~/.github + ~/.copilot)" ;;
-    antigravity) printf "%-14s  %s" "Antigravity"  "(~/.gemini/antigravity)" ;;
-    gemini-cli)  printf "%-14s  %s" "Gemini CLI"   "(gemini extension)"      ;;
+    antigravity) printf "%-14s  %s" "Antigravity"  "(~/.gemini/config/skills)" ;;
+    gemini-cli)  printf "%-14s  %s" "Gemini CLI"   "(~/.gemini/agents)"      ;;
     opencode)    printf "%-14s  %s" "OpenCode"     "(opencode.ai)"           ;;
     openclaw)    printf "%-14s  %s" "OpenClaw"     "(~/.openclaw/agency-agents)" ;;
     cursor)      printf "%-14s  %s" "Cursor"       "(.cursor/rules)"         ;;
     aider)       printf "%-14s  %s" "Aider"        "(CONVENTIONS.md)"        ;;
     windsurf)    printf "%-14s  %s" "Windsurf"     "(.windsurfrules)"        ;;
     qwen)        printf "%-14s  %s" "Qwen Code"    "(~/.qwen/agents)"        ;;
+    zcode)       printf "%-14s  %s" "ZCode"        "(~/.zcode/agents)" ;;
     kimi)        printf "%-14s  %s" "Kimi Code"    "(~/.config/kimi/agents)" ;;
+    codex)       printf "%-14s  %s" "Codex"        "(~/.codex/agents)"       ;;
+    osaurus)     printf "%-14s  %s" "Osaurus"      "(~/.osaurus/skills)"     ;;
+    hermes)      printf "%-14s  %s" "Hermes"       "(~/.hermes/plugins)"     ;;
+    vibe)        printf "%-14s  %s" "Mistral Vibe" "(~/.vibe/agents)"        ;;
+    dsh)         printf "%-14s  %s" "DeepSeek Harness" "(~/.dsh/skills)"     ;;
   esac
 }
 
 # ---------------------------------------------------------------------------
 # Interactive selector
 # ---------------------------------------------------------------------------
-interactive_select() {
-  # bash 3-compatible arrays
-  declare -a selected=()
-  declare -a detected_map=()
+# ---------------------------------------------------------------------------
+# Interactive wizard (pure-bash TUI):  Tools -> Teams -> Review -> install
+# Uses lib.sh primitives (tui_begin/read_key/draw_frame). Falls back to the
+# legacy auto-detect path when there is no TTY.
+# ---------------------------------------------------------------------------
 
-  local t
-  for t in "${ALL_TOOLS[@]}"; do
-    if is_detected "$t" 2>/dev/null; then
-      selected+=(1); detected_map+=(1)
-    else
-      selected+=(0); detected_map+=(0)
-    fi
-  done
+# Persistent selection state across screens.
+TOOL_SEL=()      # 1/0 per ALL_TOOLS
+TEAM_SEL=()      # 1/0 per ALL_DIVISIONS
 
+# division_emoji <div> — a glyph for the team list (unicode only).
+division_emoji() {
+  if ! supports_unicode; then printf '*'; return; fi
+  case "$1" in
+    academic) printf '📚';; design) printf '🎨';; engineering) printf '💻';;
+    finance) printf '💵';; game-development) printf '🎮';; gis) printf '🌍';; marketing) printf '📢';;
+    paid-media) printf '💰';; product) printf '📊';; project-management) printf '🎬';;
+    research) printf '🔍';; sales) printf '💼';; security) printf '🔒';; spatial-computing) printf '🥽';;
+    specialized) printf '🎯';; support) printf '🛟';; testing) printf '🧪';; *) printf '•';;
+  esac
+}
+
+# Generic multi-select. Inputs (globals): OPT_LABEL[], OPT_SEL[];
+# SEL_TITLE, SEL_HINT, SEL_SUMMARY_FN, SEL_NAV, SEL_WARN_FN.
+# Mutates OPT_SEL[]; sets SEL_RESULT = next|back|quit.
+selector() {
+  local n=${#OPT_LABEL[@]} cur=0 top=0 query="" searching=false key i idx vn rows W
+  rows=$(( $(term_rows) - 9 )); (( rows < 3 )) && rows=3
   while true; do
-    # --- header ---
-    printf "\n"
-    box_top
-    box_row "${C_BOLD}  The Agency -- Tool Installer${C_RESET}"
-    box_bot
-    printf "\n"
-    printf "  ${C_DIM}System scan:  [*] = detected on this machine${C_RESET}\n"
-    printf "\n"
-
-    # --- tool rows ---
-    local i=0
-    for t in "${ALL_TOOLS[@]}"; do
-      local num=$(( i + 1 ))
-      local label
-      label="$(tool_label "$t")"
-      local dot
-      if [[ "${detected_map[$i]}" == "1" ]]; then
-        dot="${C_GREEN}[*]${C_RESET}"
-      else
-        dot="${C_DIM}[ ]${C_RESET}"
+    local view=() qlc
+    qlc="$(printf '%s' "$query" | tr '[:upper:]' '[:lower:]')"
+    for (( i=0; i<n; i++ )); do
+      if [[ -z "$query" || "$(printf '%s' "${OPT_LABEL[$i]}" | tr '[:upper:]' '[:lower:]')" == *"$qlc"* ]]; then
+        view+=("$i")
       fi
-      local chk
-      if [[ "${selected[$i]}" == "1" ]]; then
-        chk="${C_GREEN}[x]${C_RESET}"
-      else
-        chk="${C_DIM}[ ]${C_RESET}"
-      fi
-      printf "  %s  %s)  %s  %s\n" "$chk" "$num" "$dot" "$label"
-      (( i++ )) || true
     done
+    vn=${#view[@]}
+    (( cur>=vn )) && cur=$(( vn>0 ? vn-1 : 0 ))
+    (( cur<top )) && top=$cur
+    (( cur>=top+rows )) && top=$(( cur-rows+1 ))
+    W=$(( $(term_cols) - 4 )); (( W>74 )) && W=74; (( W<40 )) && W=40
+    local buf="" hlen=$(( W - ${#SEL_TITLE} - 5 )); (( hlen<1 )) && hlen=1
+    buf+="  ${C_BOLD}${C_CYAN}${BX_TL}${BX_H}${BX_H} ${SEL_TITLE} $(repeat "$BX_H" "$hlen")${BX_TR}${C_RESET}"$'\n'
+    buf+="  ${C_DIM}${SEL_HINT}${C_RESET}"$'\n\n'
+    (( vn==0 )) && buf+="   ${C_DIM}(no matches)${C_RESET}"$'\n'
+    for (( i=top; i<top+rows && i<vn; i++ )); do
+      idx=${view[$i]}
+      local mark cg label="${OPT_LABEL[$idx]}"
+      [[ "${OPT_SEL[$idx]}" == 1 ]] && mark="${C_GREEN}${GLYPH_ON}${C_RESET}" || mark="${C_DIM}·${C_RESET}"
+      if (( i==cur )); then cg="${C_CYAN}${GLYPH_CUR}${C_RESET}"; label="${C_BOLD}${label}${C_RESET}"; else cg=" "; fi
+      buf+="   $cg [$mark] $label"$'\n'
+    done
+    local shown=$(( vn<rows ? vn : rows )); for (( i=shown; i<rows; i++ )); do buf+=$'\n'; done
+    # Consistent footer: summary -> nav -> warnings (-> search line)
+    buf+=$'\n'"  ${C_BOLD}$("$SEL_SUMMARY_FN")${C_RESET}"$'\n'
+    buf+="  ${C_DIM}${SEL_NAV}${C_RESET}"$'\n'
+    local _w; _w="$("$SEL_WARN_FN")"; [[ -n "$_w" ]] && buf+="  ${C_YELLOW}${_w}${C_RESET}"$'\n'
+    if $searching; then buf+="  ${C_CYAN}search:${C_RESET} ${query}_"$'\n'
+    elif [[ -n "$query" ]]; then buf+="  ${C_CYAN}/${query}${C_RESET}  ${C_DIM}(esc clears)${C_RESET}"$'\n'; fi
+    draw_frame "$buf"
 
-    # --- controls ---
-    printf "\n"
-    printf "  ------------------------------------------------\n"
-    printf "  ${C_CYAN}[1-%s]${C_RESET} toggle   ${C_CYAN}[a]${C_RESET} all   ${C_CYAN}[n]${C_RESET} none   ${C_CYAN}[d]${C_RESET} detected\n" "${#ALL_TOOLS[@]}"
-    printf "  ${C_GREEN}[Enter]${C_RESET} install   ${C_RED}[q]${C_RESET} quit\n"
-    printf "\n"
-    printf "  >> "
-    read -r input </dev/tty
-
-    case "$input" in
-      q|Q)
-        printf "\n"; ok "Aborted."; exit 0 ;;
-      a|A)
-        for (( j=0; j<${#ALL_TOOLS[@]}; j++ )); do selected[$j]=1; done ;;
-      n|N)
-        for (( j=0; j<${#ALL_TOOLS[@]}; j++ )); do selected[$j]=0; done ;;
-      d|D)
-        for (( j=0; j<${#ALL_TOOLS[@]}; j++ )); do selected[$j]="${detected_map[$j]}"; done ;;
-      "")
-        local any=false
-        local s
-        for s in "${selected[@]}"; do [[ "$s" == "1" ]] && any=true && break; done
-        if $any; then
-          break
-        else
-          printf "  ${C_YELLOW}Nothing selected -- pick a tool or press q to quit.${C_RESET}\n"
-          sleep 1
-        fi ;;
-      *)
-        local toggled=false
-        local num
-        for num in $input; do
-          if [[ "$num" =~ ^[0-9]+$ ]]; then
-            local idx=$(( num - 1 ))
-            if (( idx >= 0 && idx < ${#ALL_TOOLS[@]} )); then
-              if [[ "${selected[$idx]}" == "1" ]]; then
-                selected[$idx]=0
-              else
-                selected[$idx]=1
-              fi
-              toggled=true
-            fi
-          fi
-        done
-        if ! $toggled; then
-          printf "  ${C_RED}Invalid. Enter a number 1-%s, or a command.${C_RESET}\n" "${#ALL_TOOLS[@]}"
-          sleep 1
-        fi ;;
+    key="$(read_key)"
+    if $searching; then
+      case "$key" in
+        ENTER) searching=false ;;
+        ESC)   query=""; searching=false ;;
+        BACKSPACE) query="${query%?}" ;;
+        *) [[ ${#key} -eq 1 ]] && query="$query$key" ;;
+      esac
+      continue
+    fi
+    case "$key" in
+      UP|k)        (( cur>0 ))    && cur=$(( cur-1 )) ;;
+      DOWN|j)      (( cur<vn-1 )) && cur=$(( cur+1 )) ;;
+      SPACE)       (( vn>0 )) && { idx=${view[$cur]}; OPT_SEL[$idx]=$(( 1 - ${OPT_SEL[$idx]} )); } ;;
+      a|A)         for (( i=0; i<n; i++ )); do OPT_SEL[$i]=1; done ;;
+      n|N)         for (( i=0; i<n; i++ )); do OPT_SEL[$i]=0; done ;;
+      /)           searching=true ;;
+      ENTER|RIGHT) SEL_RESULT=next; return ;;
+      LEFT)        SEL_RESULT=back; return ;;
+      ESC)         [[ -n "$query" ]] && query="" || { SEL_RESULT=back; return; } ;;
+      q|Q)         SEL_RESULT=quit; return ;;
+      EOF)         SEL_RESULT=quit; return ;;
     esac
-
-    # Clear UI for redraw
-    local lines=$(( ${#ALL_TOOLS[@]} + 14 ))
-    local l
-    for (( l=0; l<lines; l++ )); do printf '\033[1A\033[2K'; done
   done
+}
 
-  # Build output array
+# --- Screen: Tools ---
+_no_warn() { :; }
+_tools_summary() {
+  local i c=0; for (( i=0; i<${#OPT_SEL[@]}; i++ )); do [[ "${OPT_SEL[$i]}" == 1 ]] && c=$(( c+1 )); done
+  printf '%s of %s tools selected' "$c" "${#OPT_SEL[@]}"
+}
+screen_tools() {
+  OPT_LABEL=(); OPT_SEL=()
+  local i det path label
+  for (( i=0; i<${#ALL_TOOLS[@]}; i++ )); do
+    local t="${ALL_TOOLS[$i]}"
+    path="$(resolve_tool_path "$t" 2>/dev/null || true)"
+    if is_detected "$t" 2>/dev/null; then det="${C_GREEN}${GLYPH_DET}${C_RESET}"; else det="${C_DIM}${GLYPH_OFF}${C_RESET}"; fi
+    label="$(printf '%s %-13s %s' "$det" "$(tool_simple_name "$t")" "${C_DIM}${path:-not found}${C_RESET}")"
+    OPT_LABEL+=("$label"); OPT_SEL+=("${TOOL_SEL[$i]:-0}")
+  done
+  SEL_TITLE="The Agency · Installer  —  1/3 · Tools"
+  SEL_HINT="Pick where to install.  ${GLYPH_DET} = detected on this machine."
+  SEL_SUMMARY_FN=_tools_summary
+  SEL_NAV="space toggle · a all · n none · / search · enter next · q quit"
+  SEL_WARN_FN=_no_warn
+  selector
+  for (( i=0; i<${#OPT_SEL[@]}; i++ )); do TOOL_SEL[$i]="${OPT_SEL[$i]}"; done
+}
+
+tool_simple_name() {
+  case "$1" in
+    claude-code) echo "Claude Code";; copilot) echo "Copilot";; antigravity) echo "Antigravity";;
+    gemini-cli) echo "Gemini CLI";; opencode) echo "OpenCode";; openclaw) echo "OpenClaw";;
+    cursor) echo "Cursor";; aider) echo "Aider";; windsurf) echo "Windsurf";;
+    qwen) echo "Qwen Code";; zcode) echo "ZCode";; kimi) echo "Kimi Code";; codex) echo "Codex";; osaurus) echo "Osaurus";; dsh) echo "DeepSeek Harness";; *) echo "$1";;
+  esac
+}
+
+# --- Screen: Teams ---
+_teams_agents() {
+  local i c=0 d
+  for (( i=0; i<${#ALL_DIVISIONS[@]}; i++ )); do
+    [[ "${OPT_SEL[$i]}" == 1 ]] && { d="${ALL_DIVISIONS[$i]}"; c=$(( c + ${TEAM_COUNTS[$i]} )); }
+  done
+  echo "$c"
+}
+_teams_summary() {
+  local sel=0 i a; a="$(_teams_agents)"
+  for (( i=0; i<${#OPT_SEL[@]}; i++ )); do [[ "${OPT_SEL[$i]}" == 1 ]] && sel=$(( sel+1 )); done
+  printf '%s agents · %s of %s teams' "$a" "$sel" "${#OPT_SEL[@]}"
+}
+_teams_warn() {
+  local a cap; a="$(_teams_agents)"; cap="$(tool_cap opencode)"
+  if _opencode_selected && [[ "$a" -gt "$cap" ]]; then
+    printf "⚠ OpenCode registers ~%s; ~%s of %s won't load (#27988)" "$cap" "$(( a - cap ))" "$a"
+  fi
+}
+_opencode_selected() {
+  local i; for (( i=0; i<${#TOOL_SEL[@]}; i++ )); do
+    [[ "${ALL_TOOLS[$i]}" == "opencode" && "${TOOL_SEL[$i]}" == 1 ]] && return 0
+  done; return 1
+}
+screen_teams() {
+  OPT_LABEL=(); OPT_SEL=()
+  local i
+  for (( i=0; i<${#ALL_DIVISIONS[@]}; i++ )); do
+    local d="${ALL_DIVISIONS[$i]}"
+    OPT_LABEL+=("$(printf '%s %-20s %s' "$(division_emoji "$d")" "$d" "${C_DIM}${TEAM_COUNTS[$i]} agents${C_RESET}")")
+    OPT_SEL+=("${TEAM_SEL[$i]:-1}")
+  done
+  SEL_TITLE="The Agency · Installer  —  2/3 · Teams"
+  SEL_HINT="Pick which teams to install.  Fewer teams keeps OpenCode under its limit."
+  SEL_SUMMARY_FN=_teams_summary
+  SEL_NAV="space toggle · a all · n none · / search · enter next · ← back · q quit"
+  SEL_WARN_FN=_teams_warn
+  selector
+  for (( i=0; i<${#OPT_SEL[@]}; i++ )); do TEAM_SEL[$i]="${OPT_SEL[$i]}"; done
+}
+
+# --- Screen: Review ---
+REVIEW_RESULT=""
+# grid_2col <cellwidth> <items...> — lay items out in two column-major columns
+# (left column filled top-to-bottom first). Plain text cells (no ANSI) so the
+# width padding stays correct.
+grid_2col() {
+  local w="$1"; shift
+  local n=$# r rows left right out=""
+  (( n==0 )) && { printf '     %snone%s\n' "$C_DIM" "$C_RESET"; return; }
+  local items=("$@")
+  rows=$(( (n + 1) / 2 ))
+  for (( r=0; r<rows; r++ )); do
+    left="${items[$r]}"
+    right="${items[$(( r + rows ))]:-}"
+    if [[ -n "$right" ]]; then out+="$(printf '     %-*s  %s' "$w" "$left" "$right")"$'\n'
+    else out+="     $left"$'\n'; fi
+  done
+  printf '%s' "$out"
+}
+
+screen_review() {
+  local tools=() teams=() i agents
+  for (( i=0; i<${#TOOL_SEL[@]}; i++ )); do [[ "${TOOL_SEL[$i]}" == 1 ]] && tools+=("$(tool_simple_name "${ALL_TOOLS[$i]}")"); done
+  for (( i=0; i<${#TEAM_SEL[@]}; i++ )); do [[ "${TEAM_SEL[$i]}" == 1 ]] && teams+=("${ALL_DIVISIONS[$i]}"); done
+  agents=0; for (( i=0; i<${#TEAM_SEL[@]}; i++ )); do [[ "${TEAM_SEL[$i]}" == 1 ]] && agents=$(( agents + ${TEAM_COUNTS[$i]} )); done
+  local cur=0   # 0=Install 1=mode toggle
+  while true; do
+    local buf="" m
+    # pager
+    buf+="  ${C_BOLD}${C_CYAN}${BX_TL}${BX_H}${BX_H} The Agency · Installer  —  3/3 · Review $(repeat "$BX_H" 28)${BX_TR}${C_RESET}"$'\n'
+    # description
+    buf+="  ${C_DIM}Confirm your selection, then install.${C_RESET}"$'\n\n'
+    # content: the selections + the mode toggle
+    buf+="   ${C_BOLD}Tools${C_RESET} ${C_DIM}(${#tools[@]})${C_RESET}"$'\n'
+    buf+="$(grid_2col 16 ${tools[@]+"${tools[@]}"})"$'\n'
+    buf+="   ${C_BOLD}Teams${C_RESET} ${C_DIM}(${#teams[@]})${C_RESET}"$'\n'
+    buf+="$(grid_2col 20 ${teams[@]+"${teams[@]}"})"$'\n\n'
+    $USE_LINK && m="symlink" || m="copy"
+    if (( cur==1 )); then buf+="   ${C_CYAN}${GLYPH_CUR}${C_RESET} Mode: ${C_BOLD}${m}${C_RESET}  ${C_DIM}(space toggles copy/symlink)${C_RESET}"$'\n'
+    else buf+="     Mode: ${m}  ${C_DIM}(space toggles copy/symlink)${C_RESET}"$'\n'; fi
+    buf+=$'\n'
+    # summary
+    buf+="  ${C_BOLD}Installing ${agents} agents · ${#teams[@]} teams · ${#tools[@]} tools${C_RESET}"$'\n'
+    # navigation (Install is the action cursor target)
+    if (( cur==0 )); then buf+="  ${C_CYAN}${GLYPH_CUR}${C_RESET} ${C_BOLD}${C_GREEN}Install${C_RESET}   ${C_DIM}↑/↓ move · enter install · ← back · q quit${C_RESET}"$'\n'
+    else buf+="    ${C_GREEN}Install${C_RESET}   ${C_DIM}↑/↓ move · space toggle mode · ← back · q quit${C_RESET}"$'\n'; fi
+    # warnings
+    local cap; cap="$(tool_cap opencode)"
+    if printf '%s\n' "${tools[@]}" | grep -qx "OpenCode" && [[ "$agents" -gt "$cap" ]]; then
+      buf+="  ${C_YELLOW}⚠ OpenCode registers ~${cap}; ~$(( agents - cap )) of ${agents} won't load (#27988)${C_RESET}"$'\n'
+    fi
+    draw_frame "$buf"
+    local key; key="$(read_key)"
+    case "$key" in
+      UP|DOWN|k|j|TAB) cur=$(( 1 - cur )) ;;
+      SPACE) (( cur==1 )) && { $USE_LINK && USE_LINK=false || USE_LINK=true; } ;;
+      ENTER) if (( cur==0 )); then REVIEW_RESULT=install; return; fi ;;
+      LEFT)  REVIEW_RESULT=back; return ;;
+      q|Q|EOF) REVIEW_RESULT=quit; return ;;
+    esac
+  done
+}
+
+# interactive_wizard — drive the three screens; commit to SELECTED_TOOLS /
+# FILTER_DIVISIONS / USE_LINK. Returns 1 if no TTY (caller falls back).
+interactive_wizard() {
+  init_ansi
+  TEAM_COUNTS=(); local i
+  for (( i=0; i<${#ALL_DIVISIONS[@]}; i++ )); do TEAM_COUNTS+=("$(division_count "${ALL_DIVISIONS[$i]}")"); done
+  # seed defaults: tools = detected, teams = all
+  TOOL_SEL=(); for (( i=0; i<${#ALL_TOOLS[@]}; i++ )); do is_detected "${ALL_TOOLS[$i]}" 2>/dev/null && TOOL_SEL+=(1) || TOOL_SEL+=(0); done
+  TEAM_SEL=(); for (( i=0; i<${#ALL_DIVISIONS[@]}; i++ )); do TEAM_SEL+=(1); done
+
+  tui_begin || return 1
+  local screen=tools
+  while true; do
+    case "$screen" in
+      tools)  screen_tools;  case "$SEL_RESULT" in next) screen=teams;; quit) tui_end; exit 0;; esac ;;
+      teams)  screen_teams;  case "$SEL_RESULT" in next) screen=review;; back) screen=tools;; quit) tui_end; exit 0;; esac ;;
+      review) screen_review; case "$REVIEW_RESULT" in install) break;; back) screen=teams;; quit) tui_end; exit 0;; esac ;;
+    esac
+  done
+  tui_end
+
+  # commit
   SELECTED_TOOLS=()
-  local i=0
-  for t in "${ALL_TOOLS[@]}"; do
-    [[ "${selected[$i]}" == "1" ]] && SELECTED_TOOLS+=("$t")
-    (( i++ )) || true
-  done
+  for (( i=0; i<${#TOOL_SEL[@]}; i++ )); do [[ "${TOOL_SEL[$i]}" == 1 ]] && SELECTED_TOOLS+=("${ALL_TOOLS[$i]}"); done
+  FILTER_DIVISIONS=()
+  local all=1
+  for (( i=0; i<${#TEAM_SEL[@]}; i++ )); do [[ "${TEAM_SEL[$i]}" == 1 ]] || all=0; done
+  if [[ "$all" == 0 ]]; then
+    for (( i=0; i<${#TEAM_SEL[@]}; i++ )); do [[ "${TEAM_SEL[$i]}" == 1 ]] && FILTER_DIVISIONS+=("${ALL_DIVISIONS[$i]}"); done
+  fi
+  build_selection
+  return 0
 }
 
 # ---------------------------------------------------------------------------
@@ -303,125 +813,178 @@ interactive_select() {
 # ---------------------------------------------------------------------------
 
 install_claude_code() {
-  local dest="${HOME}/.claude/agents"
-  local count=0
+  local dest; dest="$(resolve_dest claude-code "${HOME}/.claude/agents")"
+  local count=0 dir f slug
   mkdir -p "$dest"
-  local dir f first_line
   for dir in "${AGENT_DIRS[@]}"; do
     [[ -d "$REPO_ROOT/$dir" ]] || continue
     while IFS= read -r -d '' f; do
-      first_line="$(head -1 "$f")"
-      [[ "$first_line" == "---" ]] || continue
-      cp "$f" "$dest/"
-      (( count++ )) || true
+      is_agent_file "$f" || continue
+      slug="$(agent_slug "$f")"; slug_allowed "$slug" || continue
+      install_file "$f" "$dest/"; incr count
     done < <(find "$REPO_ROOT/$dir" -name "*.md" -type f -print0)
   done
   ok "Claude Code: $count agents -> $dest"
 }
 
 install_copilot() {
-  local dest_github="${HOME}/.github/agents"
-  local dest_copilot="${HOME}/.copilot/agents"
-  local count=0
-  mkdir -p "$dest_github" "$dest_copilot"
-  local dir f first_line
+  local dest_github; dest_github="$(resolve_dest copilot "${HOME}/.github/agents")"
+  local dest_copilot=""
+  # The two default locations are intentional, but an explicit destination
+  # must not also write into the user's default Copilot directory.
+  if [[ -z "$OVERRIDE_PATH" && -z "${COPILOT_AGENT_DIR:-}" ]]; then
+    dest_copilot="${HOME}/.copilot/agents"
+  fi
+  local count=0 dir f slug
+  mkdir -p "$dest_github"
+  [[ -n "$dest_copilot" ]] && mkdir -p "$dest_copilot"
   for dir in "${AGENT_DIRS[@]}"; do
     [[ -d "$REPO_ROOT/$dir" ]] || continue
     while IFS= read -r -d '' f; do
-      first_line="$(head -1 "$f")"
-      [[ "$first_line" == "---" ]] || continue
-      cp "$f" "$dest_github/"
-      cp "$f" "$dest_copilot/"
-      (( count++ )) || true
+      is_agent_file "$f" || continue
+      slug="$(agent_slug "$f")"; slug_allowed "$slug" || continue
+      install_file "$f" "$dest_github/"
+      [[ -n "$dest_copilot" ]] && install_file "$f" "$dest_copilot/"
+      incr count
     done < <(find "$REPO_ROOT/$dir" -name "*.md" -type f -print0)
   done
   ok "Copilot: $count agents -> $dest_github"
-  ok "Copilot: $count agents -> $dest_copilot"
+  [[ -n "$dest_copilot" ]] && ok "Copilot: $count agents -> $dest_copilot"
   warn "Copilot: Verify VS Code setting 'chat.agentFilesLocations' includes your install path."
   dim  "         Open Settings (Ctrl/Cmd+,) -> search 'chat.agentFilesLocations'"
 }
 
 install_antigravity() {
   local src="$INTEGRATIONS/antigravity"
-  local dest="${HOME}/.gemini/antigravity/skills"
+  local dest; dest="$(resolve_dest antigravity "${HOME}/.gemini/config/skills")"
   local count=0
   [[ -d "$src" ]] || { err "integrations/antigravity missing. Run convert.sh first."; return 1; }
   mkdir -p "$dest"
   local d
   while IFS= read -r -d '' d; do
     local name; name="$(basename "$d")"
+    slug_allowed "$name" || continue
     mkdir -p "$dest/$name"
-    cp "$d/SKILL.md" "$dest/$name/SKILL.md"
-    (( count++ )) || true
+    install_file "$d/SKILL.md" "$dest/$name/SKILL.md"
+    incr count
   done < <(find "$src" -mindepth 1 -maxdepth 1 -type d -print0)
   ok "Antigravity: $count skills -> $dest"
 }
 
-install_gemini_cli() {
-  local src="$INTEGRATIONS/gemini-cli"
-  local dest="${HOME}/.gemini/extensions/agency-agents"
+install_osaurus() {
+  local src="$INTEGRATIONS/osaurus"
+  local dest; dest="$(resolve_dest osaurus "${HOME}/.osaurus/skills")"
   local count=0
-  local manifest="$src/gemini-extension.json"
-  local skills_dir="$src/skills"
-  [[ -d "$src" ]] || { err "integrations/gemini-cli missing. Run ./scripts/convert.sh --tool gemini-cli first."; return 1; }
-  [[ -f "$manifest" ]] || { err "integrations/gemini-cli/gemini-extension.json missing. Run ./scripts/convert.sh --tool gemini-cli first."; return 1; }
-  [[ -d "$skills_dir" ]] || { err "integrations/gemini-cli/skills missing. Run ./scripts/convert.sh --tool gemini-cli first."; return 1; }
-  mkdir -p "$dest/skills"
-  cp "$manifest" "$dest/gemini-extension.json"
+  [[ -d "$src" ]] || { err "integrations/osaurus missing. Run convert.sh first."; return 1; }
+  mkdir -p "$dest"
   local d
   while IFS= read -r -d '' d; do
     local name; name="$(basename "$d")"
-    mkdir -p "$dest/skills/$name"
-    cp "$d/SKILL.md" "$dest/skills/$name/SKILL.md"
-    (( count++ )) || true
-  done < <(find "$skills_dir" -mindepth 1 -maxdepth 1 -type d -print0)
-  ok "Gemini CLI: $count skills -> $dest"
+    slug_allowed "$name" || continue
+    mkdir -p "$dest/$name"
+    install_file "$d/SKILL.md" "$dest/$name/SKILL.md"
+    incr count
+  done < <(find "$src" -mindepth 1 -maxdepth 1 -type d -print0)
+  ok "Osaurus: $count skills -> $dest"
+}
+
+install_dsh() {
+  local src="$INTEGRATIONS/dsh"
+  local dest; dest="$(resolve_dest dsh "${DSH_HOME:-${HOME}/.dsh}/skills")"
+  local count=0
+  [[ -d "$src" ]] || { err "integrations/dsh missing. Run convert.sh first."; return 1; }
+  mkdir -p "$dest"
+  local d
+  while IFS= read -r -d '' d; do
+    local name; name="$(basename "$d")"
+    slug_allowed "$name" || continue
+    mkdir -p "$dest/$name"
+    install_file "$d/SKILL.md" "$dest/$name/SKILL.md"
+    incr count
+  done < <(find "$src" -mindepth 1 -maxdepth 1 -type d -print0)
+  ok "DeepSeek Harness: $count skills -> $dest"
+  warn "DeepSeek Harness: set DSH_SKILLS_DIR=.dsh/skills (in a project) to install there instead."
+  if command -v dsh >/dev/null 2>&1; then
+    warn "DeepSeek Harness: activate an agent with /agency-<slug> or by name in conversation."
+  fi
+}
+
+install_gemini_cli() {
+  local src="$INTEGRATIONS/gemini-cli/agents"
+  local dest; dest="$(resolve_dest gemini-cli "${HOME}/.gemini/agents")"
+  local count=0
+  [[ -d "$src" ]] || { err "integrations/gemini-cli/agents missing. Run ./scripts/convert.sh --tool gemini-cli first."; return 1; }
+  mkdir -p "$dest"
+  local f
+  while IFS= read -r -d '' f; do
+    slug_allowed "$(basename "$f" .md)" || continue
+    install_file "$f" "$dest/"
+    incr count
+  done < <(find "$src" -maxdepth 1 -name "*.md" -print0)
+  ok "Gemini CLI: $count agents -> $dest"
 }
 
 install_opencode() {
   local src="$INTEGRATIONS/opencode"
-  local dest="${PWD}/.opencode/agents"
+  local dest; dest="$(resolve_dest opencode "${PWD}/.opencode/agents")"
   local count=0
   [[ -d "$src" ]] || { err "integrations/opencode missing. Run convert.sh first."; return 1; }
   # Support both flat layout (integrations/opencode/*.md) and nested (integrations/opencode/agents/*.md)
   local search_dir="$src"
   [[ -d "$src/agents" ]] && search_dir="$src/agents"
   mkdir -p "$dest"
-  local f
+  local f base
   while IFS= read -r -d '' f; do
-    local base; base="$(basename "$f")"
+    base="$(basename "$f")"
     [[ "$base" == "README.md" ]] && continue
-    cp "$f" "$dest/"; (( count++ )) || true
+    slug_allowed "${base%.md}" || continue
+    install_file "$f" "$dest/"; incr count
   done < <(find "$search_dir" -maxdepth 1 -name "*.md" -print0)
   if (( count == 0 )); then
     warn "OpenCode: no agent files found in $search_dir. Run convert.sh --tool opencode first."
   else
     ok "OpenCode: $count agents -> $dest"
   fi
+  capacity_warn opencode "$count"
   warn "OpenCode: project-scoped. Run from your project root to install there."
 }
 
 install_openclaw() {
   local src="$INTEGRATIONS/openclaw"
-  local dest="${HOME}/.openclaw/agency-agents"
+  local dest; dest="$(resolve_dest openclaw "${HOME}/.openclaw/agency-agents")"
   local count=0
   local existing_agents=""
+  local failed_names=""   # a string, not an array: bash 3.2 + set -u rejects "${empty[@]}"
   [[ -d "$src" ]] || { err "integrations/openclaw missing. Run convert.sh first."; return 1; }
   mkdir -p "$dest"
   if command -v openclaw >/dev/null 2>&1; then
-    existing_agents=$'\n'"$(openclaw agents list --json 2>/dev/null | sed -n 's/^[[:space:]]*\"id\": \"\\([^\"]*\\)\".*/\\1/p')"$'\n'
+    local agents_json
+    if ! agents_json="$(openclaw agents list --json 2>/dev/null)"; then
+      err "OpenClaw: could not list registered agents; refusing to guess which workspaces need registration."
+      return 1
+    fi
+    # IDs may appear in compact or pretty JSON, and several may share a line.
+    # Agent IDs are slugs, so quoted id tokens need no JSON parser dependency.
+    existing_agents=$'\n'"$(printf '%s' "$agents_json" | grep -oE '"id"[[:space:]]*:[[:space:]]*"[^"]*"' \
+      | sed -E 's/^"id"[[:space:]]*:[[:space:]]*"([^"]*)"$/\1/' || true)"$'\n'
   fi
   local d
   while IFS= read -r -d '' d; do
     local name; name="$(basename "$d")"
+    slug_allowed "$name" || continue
     [[ -f "$d/SOUL.md" && -f "$d/AGENTS.md" && -f "$d/IDENTITY.md" ]] || continue
     mkdir -p "$dest/$name"
-    cp "$d/SOUL.md" "$dest/$name/SOUL.md"
-    cp "$d/AGENTS.md" "$dest/$name/AGENTS.md"
-    cp "$d/IDENTITY.md" "$dest/$name/IDENTITY.md"
+    install_file "$d/SOUL.md" "$dest/$name/SOUL.md"
+    install_file "$d/AGENTS.md" "$dest/$name/AGENTS.md"
+    install_file "$d/IDENTITY.md" "$dest/$name/IDENTITY.md"
     if command -v openclaw >/dev/null 2>&1; then
       if [[ "$existing_agents" != *$'\n'"$name"$'\n'* ]]; then
-        openclaw agents add "$name" --workspace "$dest/$name" --non-interactive || true
+        if ! openclaw agents add "$name" --workspace "$dest/$name" --non-interactive; then
+          err "OpenClaw: failed to register '$name'; the copied workspace is not active."
+          # Keep registering the rest: one bad registration must not cost the others.
+          failed_names="${failed_names:+$failed_names }$name"
+          continue
+        fi
       fi
     fi
     (( count++ )) || true
@@ -434,17 +997,22 @@ install_openclaw() {
   if command -v openclaw >/dev/null 2>&1; then
     warn "OpenClaw: run 'openclaw gateway restart' to activate new agents"
   fi
+  if [[ -n "$failed_names" ]]; then
+    err "OpenClaw: not registered: $failed_names. Their workspaces are copied; re-run to retry registration."
+    return 1
+  fi
 }
 
 install_cursor() {
   local src="$INTEGRATIONS/cursor/rules"
-  local dest="${PWD}/.cursor/rules"
+  local dest; dest="$(resolve_dest cursor "${PWD}/.cursor/rules")"
   local count=0
   [[ -d "$src" ]] || { err "integrations/cursor missing. Run convert.sh first."; return 1; }
   mkdir -p "$dest"
   local f
   while IFS= read -r -d '' f; do
-    cp "$f" "$dest/"; (( count++ )) || true
+    slug_allowed "$(basename "$f" .mdc)" || continue
+    install_file "$f" "$dest/"; incr count
   done < <(find "$src" -maxdepth 1 -name "*.mdc" -print0)
   ok "Cursor: $count rules -> $dest"
   warn "Cursor: project-scoped. Run from your project root to install there."
@@ -452,33 +1020,56 @@ install_cursor() {
 
 install_aider() {
   local src="$INTEGRATIONS/aider/CONVENTIONS.md"
-  local dest="${PWD}/CONVENTIONS.md"
+  local dest_dir; dest_dir="$(resolve_dest aider "$PWD")"
+  local dest="$dest_dir/CONVENTIONS.md"
   [[ -f "$src" ]] || { err "integrations/aider/CONVENTIONS.md missing. Run convert.sh first."; return 1; }
+  mkdir -p "$dest_dir"
   if [[ -f "$dest" ]]; then
-    warn "Aider: CONVENTIONS.md already exists at $dest (remove to reinstall)."
+    # Never overwrite: CONVENTIONS.md is aider's own user-authored file, and the
+    # one sitting here may well be the reader's rather than ours. But the guard
+    # used to strand the very users this integration was fixed for — anyone
+    # holding the pre-index roster (3.8M characters, far past what aider can keep
+    # in context for a session) re-ran the installer, read "already exists", and
+    # kept the broken file. Our generated file has always opened with the same
+    # marker, so tell our stale copy apart from someone else's conventions.
+    if head -n 1 "$dest" | grep -q 'The Agency'; then
+      local bytes; bytes="$(wc -c < "$dest" | tr -d ' ')"
+      warn "Aider: $dest is an Agency roster index from an earlier install ($bytes bytes)."
+      dim  "       The roster is an index now, not the agents themselves. Delete it and"
+      dim  "       re-run this installer to pick up the smaller file."
+    else
+      warn "Aider: CONVENTIONS.md already exists at $dest — leaving your file alone."
+      dim  "       Remove it and re-run to install the Agency roster index instead."
+    fi
     return 0
   fi
-  cp "$src" "$dest"
+  install_file "$src" "$dest"
   ok "Aider: installed -> $dest"
+  dim  "       CONVENTIONS.md is the roster index. Load one agent's full instructions with"
+  dim  "       /read-only $REPO_ROOT/<path shown in the index>"
+  $SELECTION_ACTIVE && warn "Aider: single-file format — team/agent filtering N/A (installs the full roster)."
   warn "Aider: project-scoped. Run from your project root to install there."
 }
 
 install_windsurf() {
   local src="$INTEGRATIONS/windsurf/.windsurfrules"
-  local dest="${PWD}/.windsurfrules"
+  local dest_dir; dest_dir="$(resolve_dest windsurf "$PWD")"
+  local dest="$dest_dir/.windsurfrules"
   [[ -f "$src" ]] || { err "integrations/windsurf/.windsurfrules missing. Run convert.sh first."; return 1; }
+  mkdir -p "$dest_dir"
   if [[ -f "$dest" ]]; then
     warn "Windsurf: .windsurfrules already exists at $dest (remove to reinstall)."
     return 0
   fi
-  cp "$src" "$dest"
+  install_file "$src" "$dest"
   ok "Windsurf: installed -> $dest"
+  $SELECTION_ACTIVE && warn "Windsurf: single-file format — team/agent filtering N/A (installs the full roster)."
   warn "Windsurf: project-scoped. Run from your project root to install there."
 }
 
 install_qwen() {
   local src="$INTEGRATIONS/qwen/agents"
-  local dest="${PWD}/.qwen/agents"
+  local dest; dest="$(resolve_dest qwen "${PWD}/.qwen/agents")"
   local count=0
 
   [[ -d "$src" ]] || { err "integrations/qwen missing. Run convert.sh first."; return 1; }
@@ -487,8 +1078,9 @@ install_qwen() {
 
   local f
   while IFS= read -r -d '' f; do
-    cp "$f" "$dest/"
-    (( count++ )) || true
+    slug_allowed "$(basename "$f" .md)" || continue
+    install_file "$f" "$dest/"
+    incr count
   done < <(find "$src" -maxdepth 1 -name "*.md" -print0)
 
   ok "Qwen Code: installed $count agents to $dest"
@@ -496,9 +1088,29 @@ install_qwen() {
   warn "Tip: Run '/agents manage' in Qwen Code to refresh, or restart session"
 }
 
+install_zcode() {
+  local src="$INTEGRATIONS/zcode/agents"
+  local dest; dest="$(resolve_dest zcode "${HOME}/.zcode/agents")"
+  local count=0
+
+  [[ -d "$src" ]] || { err "integrations/zcode missing. Run convert.sh first."; return 1; }
+
+  mkdir -p "$dest"
+
+  local f
+  while IFS= read -r -d '' f; do
+    slug_allowed "$(basename "$f" .md)" || continue
+    install_file "$f" "$dest/"
+    incr count
+  done < <(find "$src" -maxdepth 1 -name "*.md" -print0)
+
+  ok "ZCode: installed $count agents to $dest"
+  warn "ZCode: set ZCODE_AGENTS_DIR=.zcode/agents (in a project) to install there instead."
+}
+
 install_kimi() {
   local src="$INTEGRATIONS/kimi"
-  local dest="${HOME}/.config/kimi/agents"
+  local dest; dest="$(resolve_dest kimi "${HOME}/.config/kimi/agents")"
   local count=0
 
   [[ -d "$src" ]] || { err "integrations/kimi missing. Run convert.sh first."; return 1; }
@@ -508,17 +1120,375 @@ install_kimi() {
   local d
   while IFS= read -r -d '' d; do
     local name; name="$(basename "$d")"
+    slug_allowed "$name" || continue
     mkdir -p "$dest/$name"
-    cp "$d/agent.yaml" "$dest/$name/agent.yaml"
-    cp "$d/system.md" "$dest/$name/system.md"
-    (( count++ )) || true
+    install_file "$d/agent.yaml" "$dest/$name/agent.yaml"
+    install_file "$d/system.md" "$dest/$name/system.md"
+    incr count
   done < <(find "$src" -mindepth 1 -maxdepth 1 -type d -print0)
 
   ok "Kimi Code: installed $count agents to $dest"
   ok "Usage: kimi --agent-file ~/.config/kimi/agents/<agent-name>/agent.yaml"
 }
 
+install_codex() {
+  local src="$INTEGRATIONS/codex/agents"
+  local dest; dest="$(resolve_dest codex "${HOME}/.codex/agents")"
+  local count=0
+  [[ -d "$src" ]] || { err "integrations/codex missing. Run convert.sh first."; return 1; }
+  mkdir -p "$dest"
+  local f
+  while IFS= read -r -d '' f; do
+    slug_allowed "$(basename "$f" .toml)" || continue
+    install_file "$f" "$dest/"
+    incr count
+  done < <(find "$src" -maxdepth 1 -name "*.toml" -print0)
+  ok "Codex: $count agents -> $dest"
+}
+
+install_vibe() {
+  local src_agents="$INTEGRATIONS/vibe/agents"
+  local src_prompts="$INTEGRATIONS/vibe/prompts"
+  local dest; dest="$(resolve_dest vibe "${HOME}/.vibe")"
+  local count=0
+  
+  [[ -d "$src_agents" && -d "$src_prompts" ]] || { err "integrations/vibe missing. Run convert.sh first."; return 1; }
+  
+  mkdir -p "$dest/agents" "$dest/prompts"
+  
+  local agent_file prompt_file slug
+  
+  while IFS= read -r -d '' agent_file; do
+    slug="$(basename "$agent_file" .toml)"
+    slug_allowed "$slug" || continue
+    
+    # Find the corresponding prompt file
+    prompt_file="$src_prompts/$slug.md"
+    
+    [[ -f "$prompt_file" ]] || continue
+    
+    install_file "$agent_file" "$dest/agents/"
+    install_file "$prompt_file" "$dest/prompts/"
+    incr count
+  done < <(find "$src_agents" -maxdepth 1 -name "*.toml" -print0)
+  
+  ok "Mistral Vibe: $count agents -> $dest/agents/ and $dest/prompts/"
+}
+
+vibe_home_dir() {
+  printf '%s\n' "${VIBE_HOME:-${HOME}/.vibe}"
+}
+
+hermes_home_dir() {
+  printf '%s\n' "${HERMES_HOME:-${HOME}/.hermes}"
+}
+
+ensure_hermes_plugin_enabled() {
+  local hermes_home config plugin backup
+  hermes_home="$(hermes_home_dir)"
+  config="${hermes_home}/config.yaml"
+  plugin="agency-agents-router"
+  mkdir -p "$hermes_home"
+  backup="${config}.bak.agency-agents-plugin.$$"
+  [[ -f "$config" ]] && cp "$config" "$backup"
+  python3 - "$config" "$plugin" <<'PY' || return 1
+from pathlib import Path
+import sys
+import re
+
+path = Path(sys.argv[1])
+plugin = sys.argv[2]
+text = path.read_text() if path.exists() else ""
+lines = text.splitlines()
+plugin_strip = plugin.strip()
+
+# plugins block + enabled: key/indent/rest. Avoids old 2-space hardcode and cross-list scan into disabled:/entries: (#879).
+plugin_start = None
+end_line = None
+enabled_idx = None
+enabled_indent = ""
+enabled_rest = ""
+item_indent = ""
+has_enabled = False
+for i, line in enumerate(lines):
+    if line.startswith("plugins:"):
+        plugin_start = i
+        j = i + 1
+        broke = False
+        while j < len(lines):
+            jl = lines[j]
+            # Only a top-level KEY ends the block. Hermes writes enabled:/disabled: below a
+            # column-0 "# ====" section banner; treating that comment as the end hid them.
+            if jl and not jl.startswith((" ", "\t")) and not jl.startswith("#"):
+                broke = True
+                break
+            stripped = jl.strip()
+            if stripped.startswith("enabled:") and not has_enabled:
+                has_enabled = True
+                enabled_idx = j
+                enabled_indent = jl[: len(jl) - len(stripped)]
+                enabled_rest = stripped[len("enabled:") :].strip()
+            j += 1
+        # ran off EOF: end_line = one past last scanned line so inserts land right.
+        end_line = j if broke else len(lines)
+        break
+
+# plugins: must be bare key; inline {} or scalar can't be edited line-wise — bail.
+if plugin_start is not None:
+    if re.sub(r"\s*#.*$", "", lines[plugin_start]).strip() != "plugins:":
+        sys.exit(1)
+
+# Classify enabled: rest: empty (block), [] (empty), [a,b] (flow); else bail.
+enabled_empty = False
+inline_flow = False
+inline_items = []
+inline_comment = ""
+if has_enabled:
+    rest_nc = re.sub(r"\s*#.*$", "", enabled_rest).strip()
+    if rest_nc == "":
+        pass  # block-style list (or an empty key) — handled below
+    elif re.fullmatch(r"\[[^\[\]]*\]", rest_nc):
+        inner = rest_nc[1:-1]
+        inline_items = [
+            p.strip().strip("\"'") for p in inner.split(",") if p.strip()
+        ]
+        if inline_items:
+            inline_flow = True
+            inline_comment = enabled_rest[enabled_rest.find("]") + 1 :]
+        else:
+            enabled_empty = True
+    else:
+        sys.exit(1)
+
+# enabled: sub-block ends at first sibling key (indent <= enabled_indent); blanks/comments/items don't end it (#879).
+enabled_end = end_line
+if has_enabled:
+    for j in range(enabled_idx + 1, end_line):
+        line = lines[j]
+        stripped = line.strip()
+        if not stripped or stripped.startswith("#"):
+            continue
+        this_indent = line[: len(line) - len(stripped)]
+        if not stripped.startswith("-") and len(this_indent) <= len(enabled_indent):
+            enabled_end = j
+            break
+
+# item_indent from within (enabled_idx, enabled_end) so sibling lists can't leak in (#879).
+if has_enabled and not enabled_empty and not inline_flow:
+    for idx in range(enabled_idx + 1, enabled_end):
+        stripped = lines[idx].strip()
+        if stripped.startswith("-"):
+            item_indent = lines[idx][: len(lines[idx]) - len(stripped)]
+            break
+
+# Detect "already enabled" + corrupted-scalar form (glued "- " from old 2-space bug); repair splits to one per line.
+corrupted_lines = []
+has_plugin_already = False
+if inline_flow:
+    has_plugin_already = plugin_strip in inline_items
+elif has_enabled and not enabled_empty:
+    for idx in range(enabled_idx + 1, enabled_end):
+        l = lines[idx]
+        stripped = l.strip()
+        if not stripped.startswith("-"):
+            continue
+        # >1 "- " in stripped line = corrupted glue (strict match won't work: names contain dashes).
+        if stripped.count("- ") > 1:
+            corrupted_lines.append(idx)
+        else:
+            value = stripped[1:].strip().strip("\"'")
+            if value == plugin_strip:
+                has_plugin_already = True
+
+# Repair in reverse to keep indices. Splice grows the block — sync enabled_end with end_line or the stale sweep eats the new plugin (#879).
+for idx in sorted(corrupted_lines, reverse=True):
+    l = lines[idx]
+    stripped = l.strip()
+    if not item_indent:
+        item_indent = l[: len(l) - len(stripped)] or (enabled_indent + "  ")
+    content = stripped[1:].strip()
+    parts = re.split(r"\s+-\s+", content)
+    new_lines = [f"{item_indent}- {parts[0]}"]
+    for p in parts[1:]:
+        new_lines.append(f"{item_indent}- {p}")
+    lines[idx : idx + 1] = new_lines
+    end_line += len(new_lines) - 1
+    enabled_end += len(new_lines) - 1
+    # Re-check presence after rewrite.
+    has_plugin_already = False
+    for nl in lines[enabled_idx + 1 : enabled_end]:
+        if nl.strip().startswith("-") and nl[len(item_indent) :].strip() == f"- {plugin_strip}":
+            has_plugin_already = True
+            break
+
+# Remove stale plugin entries elsewhere in the block (disabled:, entries:); sweep whole block if no enabled: yet (#879).
+if plugin_start is not None:
+    stale = []
+    if has_enabled:
+        scan_ranges = [
+            range(plugin_start + 1, enabled_idx),
+            range(enabled_end, end_line),
+        ]
+    else:
+        scan_ranges = [range(plugin_start + 1, end_line)]
+    for rng in scan_ranges:
+        for idx in rng:
+            stripped = lines[idx].strip()
+            if stripped.startswith("-"):
+                value = stripped[1:].strip().strip("\"'")
+                if value == plugin_strip:
+                    stale.append(idx)
+    for idx in sorted(stale, reverse=True):
+        del lines[idx]
+        end_line -= 1
+        if has_enabled and idx < enabled_idx:
+            enabled_idx -= 1
+            enabled_end -= 1
+        elif has_enabled and idx < enabled_end:
+            enabled_end -= 1
+
+# Idempotent fast path.
+if has_plugin_already:
+    path.write_text("\n".join(lines) + "\n")
+    sys.exit(0)
+
+new_item_line = f"{item_indent or (enabled_indent + '  ')}- {plugin}"
+
+# Case 1: no plugins: block at all.
+if plugin_start is None:
+    if lines and lines[-1].strip():
+        lines.append("")
+    lines.append("plugins:")
+    lines.append(f"{enabled_indent or '  '}enabled:")
+    lines.append(new_item_line)
+    path.write_text("\n".join(lines) + "\n")
+    sys.exit(0)
+
+# Case 2: no enabled: key — create as first child at existing child indent (else sibling items dedent to col 0 → invalid YAML).
+if not has_enabled:
+    child_indent = ""
+    for idx in range(plugin_start + 1, end_line):
+        stripped = lines[idx].strip()
+        if not stripped or stripped.startswith("#"):
+            continue
+        child_indent = lines[idx][: len(lines[idx]) - len(stripped)]
+        break
+    child_indent = child_indent or "  "
+    lines[plugin_start + 1 : plugin_start + 1] = [
+        f"{child_indent}enabled:",
+        f"{child_indent}  - {plugin}",
+    ]
+    path.write_text("\n".join(lines) + "\n")
+    sys.exit(0)
+
+# Case 3: enabled: [] — replace key line with block list (keyed off enabled_idx; disabled: may precede).
+if enabled_empty:
+    new_block = [
+        f"{enabled_indent}enabled:",
+        new_item_line,
+    ]
+    lines[enabled_idx : enabled_idx + 1] = new_block
+    path.write_text("\n".join(lines) + "\n")
+    sys.exit(0)
+
+# Case 4: enabled: [a,b] — append inside brackets, keep trailing comment.
+if inline_flow:
+    rendered = "[" + ", ".join(inline_items + [plugin_strip]) + "]"
+    lines[enabled_idx] = f"{enabled_indent}enabled: {rendered}{inline_comment}"
+    path.write_text("\n".join(lines) + "\n")
+    sys.exit(0)
+
+# Case 5: block-style enabled: key with no items yet.
+if not item_indent:
+    lines.insert(enabled_idx + 1, new_item_line)
+    path.write_text("\n".join(lines) + "\n")
+    sys.exit(0)
+
+# Case 6: append at end of enabled block at item indent, never past enabled_end; normalize mismatched indents (#879).
+insert_at = None
+for idx in range(enabled_end - 1, enabled_idx, -1):
+    l = lines[idx]
+    stripped = l.strip()
+    if stripped.startswith("-"):
+        if l != item_indent + stripped:
+            lines[idx] = item_indent + stripped
+        insert_at = idx + 1
+        break
+# Fallback: insert under the enabled: key (shouldn't happen after Case 5).
+if insert_at is None:
+    insert_at = enabled_idx + 1
+lines.insert(insert_at, new_item_line)
+path.write_text("\n".join(lines) + "\n")
+PY
+  if [[ -f "$backup" ]]; then
+    ok "Hermes: enabled plugin $plugin in $config (backup: $backup)"
+  else
+    ok "Hermes: created config.yaml with plugins.enabled: $plugin"
+  fi
+}
+
+install_hermes() {
+  local src="$INTEGRATIONS/hermes/agency-agents-router"
+  local hermes_home; hermes_home="$(hermes_home_dir)"
+  local dest; dest="$(resolve_dest hermes "${hermes_home}/plugins/agency-agents-router")"
+  # Strip trailing slashes first: basename ignores them, but `rm -rf link/`
+  # follows a symlink and empties its target instead of removing the link.
+  while [[ "$dest" == */ && "$dest" != "/" ]]; do dest="${dest%/}"; done
+  # HERMES_PLUGIN_DIR is ambiguous: its name invites setting it to the plugins
+  # parent (~/.hermes/plugins) rather than the full plugin path. Always target
+  # the agency-agents-router subdir so we never rm -rf a shared plugins dir that
+  # holds other plugins.
+  if [[ "$(basename "$dest")" != "agency-agents-router" ]]; then
+    dest="${dest%/}/agency-agents-router"
+  fi
+  [[ -f "$src/plugin.yaml" && -f "$src/__init__.py" && -f "$src/data/agents.json" ]] || {
+    err "integrations/hermes/agency-agents-router missing. Run ./scripts/convert.sh --tool hermes first."
+    return 1
+  }
+  mkdir -p "$(dirname "$dest")"
+  # Safety net: only ever remove our own plugin directory, never a parent.
+  if [[ "$(basename "$dest")" != "agency-agents-router" ]]; then
+    err "Hermes: refusing to remove '$dest' — expected an agency-agents-router directory."
+    return 1
+  fi
+  # The basename alone does not establish ownership: --path or an existing
+  # Hermes setup may point here with unrelated user files. Replace only a
+  # previous copy of this plugin, identified by its generated manifest.
+  if [[ -e "$dest" || -L "$dest" ]]; then
+    if [[ ! -f "$dest/plugin.yaml" ]] || \
+       ! grep -Eq '^[[:space:]]*name:[[:space:]]*agency-agents-router[[:space:]]*$' "$dest/plugin.yaml"; then
+      err "Hermes: refusing to replace '$dest' because it is not an existing agency-agents-router plugin."
+      return 1
+    fi
+  fi
+  # A symlink (e.g. from an earlier --link install) is replaced, never followed.
+  if [[ -L "$dest" ]]; then
+    rm -f -- "$dest"
+  else
+    rm -rf -- "$dest"
+  fi
+  if $USE_LINK; then
+    ln -s "$src" "$dest"
+  else
+    cp -R "$src" "$dest"
+  fi
+  ensure_hermes_plugin_enabled || warn "Hermes: plugin installed but config.yaml was not updated."
+  local count
+  count="$(python3 - "$src/data/agents.json" <<'PY'
+from pathlib import Path
+import json, sys
+print(len(json.loads(Path(sys.argv[1]).read_text())))
+PY
+)"
+  ok "Hermes: lazy-router plugin ($count agents on disk) -> $dest"
+  warn "Hermes: restart sessions/gateway so the new plugin toolset is discovered."
+  if $SELECTION_ACTIVE; then
+    warn "Hermes: selection flags ignored; router keeps the full roster on disk and loads agents lazily."
+  fi
+}
+
 install_tool() {
+  ensure_converted "$1"
   case "$1" in
     claude-code) install_claude_code ;;
     copilot)     install_copilot     ;;
@@ -530,7 +1500,13 @@ install_tool() {
     aider)       install_aider       ;;
     windsurf)    install_windsurf    ;;
     qwen)        install_qwen        ;;
+    zcode)       install_zcode       ;;
     kimi)        install_kimi        ;;
+    codex)       install_codex       ;;
+    osaurus)     install_osaurus     ;;
+    hermes)      install_hermes      ;;
+    vibe)        install_vibe        ;;
+    dsh)         install_dsh         ;;
   esac
 }
 
@@ -538,15 +1514,40 @@ install_tool() {
 # Entry point
 # ---------------------------------------------------------------------------
 main() {
+  SKIPPED_LOG="$(mktemp "${TMPDIR:-/tmp}/agency-install-skipped.XXXXXX")"
+  export SKIPPED_LOG
+  trap 'rm -f "$SKIPPED_LOG"' EXIT
   local tool="all"
   local interactive_mode="auto"
   local use_parallel=false
   local parallel_jobs
   parallel_jobs="$(parallel_jobs_default)"
 
+  local list_what=""
   while [[ $# -gt 0 ]]; do
     case "$1" in
       --tool)            tool="${2:?'--tool requires a value'}"; shift 2; interactive_mode="no" ;;
+      --division)
+        local _d
+        IFS=',' read -ra _divs <<< "${2:?'--division requires a value'}"
+        for _d in "${_divs[@]}"; do
+          _d="$(printf '%s' "$_d" | xargs)"; [[ -z "$_d" ]] && continue
+          validate_division "$_d"; FILTER_DIVISIONS+=("$_d")
+        done
+        interactive_mode="no"; shift 2 ;;
+      --agent)
+        local _a
+        IFS=',' read -ra _ags <<< "${2:?'--agent requires a value'}"
+        for _a in "${_ags[@]}"; do
+          _a="$(printf '%s' "$_a" | xargs)"; [[ -n "$_a" ]] && FILTER_AGENTS+=("$_a")
+        done
+        interactive_mode="no"; shift 2 ;;
+      --agents-file)     AGENTS_FILE="${2:?'--agents-file requires a value'}"; interactive_mode="no"; shift 2 ;;
+      --link)            USE_LINK=true; shift ;;
+      --path)            OVERRIDE_PATH="${2:?'--path requires a value'}"; shift 2 ;;
+      --no-convert)      AUTO_CONVERT=false; shift ;;
+      --dry-run)         DRY_RUN=true; interactive_mode="no"; shift ;;
+      --list)            if [[ -z "${2:-}" || "${2:-}" == --* ]]; then list_what="all"; shift; else list_what="$2"; shift 2; fi ;;
       --interactive)     interactive_mode="yes"; shift ;;
       --no-interactive)  interactive_mode="no"; shift ;;
       --parallel)        use_parallel=true; shift ;;
@@ -556,16 +1557,34 @@ main() {
     esac
   done
 
+  [[ -n "$list_what" ]] && { do_list "$list_what"; exit 0; }
+  build_selection
+
   check_integrations
 
-  # Validate explicit tool
+  # Validate explicit tool(s). --tool accepts a comma-separated list (like
+  # --division / --agent), e.g. --tool claude-code,cursor.
+  local _tool_list=()
   if [[ "$tool" != "all" ]]; then
-    local valid=false t
-    for t in "${ALL_TOOLS[@]}"; do [[ "$t" == "$tool" ]] && valid=true && break; done
-    if ! $valid; then
-      err "Unknown tool '$tool'. Valid: ${ALL_TOOLS[*]}"
-      exit 1
-    fi
+    local _t
+    IFS=',' read -ra _tool_list <<< "$tool"
+    local _cleaned=()
+    for _t in "${_tool_list[@]}"; do
+      _t="$(printf '%s' "$_t" | xargs)"; [[ -z "$_t" ]] && continue
+      local valid=false _vt
+      for _vt in "${ALL_TOOLS[@]}"; do [[ "$_vt" == "$_t" ]] && valid=true && break; done
+      $valid || { err "Unknown tool '$_t'. Valid: ${ALL_TOOLS[*]}"; exit 1; }
+      # A repeated --tool value would otherwise launch duplicate workers in
+      # --parallel mode and make the reported install count misleading.
+      local duplicate=false _selected
+      if [[ ${#_cleaned[@]} -gt 0 ]]; then
+        for _selected in "${_cleaned[@]}"; do
+          [[ "$_selected" == "$_t" ]] && { duplicate=true; break; }
+        done
+      fi
+      $duplicate || _cleaned+=("$_t")
+    done
+    _tool_list=("${_cleaned[@]}")
   fi
 
   # Decide whether to show interactive UI
@@ -578,14 +1597,14 @@ main() {
 
   SELECTED_TOOLS=()
 
-  if $use_interactive; then
-    interactive_select
+  if $use_interactive && interactive_wizard; then
+    : # wizard committed SELECTED_TOOLS + FILTER_DIVISIONS
 
   elif [[ "$tool" != "all" ]]; then
-    SELECTED_TOOLS=("$tool")
+    SELECTED_TOOLS=("${_tool_list[@]}")
 
   else
-    # Non-interactive: auto-detect
+    # Non-interactive (or no TTY): auto-detect
     header "The Agency -- Scanning for installed tools..."
     printf "\n"
     local t
@@ -607,6 +1626,31 @@ main() {
     exit 0
   fi
 
+  # --tool all and the interactive wizard only know their selected tools now.
+  validate_path_collisions "${SELECTED_TOOLS[@]}"
+
+  # --dry-run: print the plan and exit without writing anything.
+  if $DRY_RUN; then
+    local agents; agents="$(selected_agent_count)"
+    printf "\n"; header "The Agency -- Dry run (nothing written)"
+    printf "  Tools:   %s\n" "${SELECTED_TOOLS[*]}"
+    if $SELECTION_ACTIVE; then
+      [[ ${#FILTER_DIVISIONS[@]} -gt 0 ]] && printf "  Teams:   %s\n" "${FILTER_DIVISIONS[*]}"
+      [[ ${#FILTER_AGENTS[@]} -gt 0 ]]    && printf "  Agents:  %s\n" "${FILTER_AGENTS[*]}"
+      [[ -n "$AGENTS_FILE" ]]             && printf "  File:    %s\n" "$AGENTS_FILE"
+    else
+      printf "  Teams:   all (%s)\n" "${#ALL_DIVISIONS[@]}"
+    fi
+    printf "  Agents:  %s   Mode: %s\n" "$agents" "$($USE_LINK && echo symlink || echo copy)"
+    local _t _cap
+    for _t in "${SELECTED_TOOLS[@]}"; do
+      _cap="$(tool_cap "$_t")"
+      [[ "$_cap" -gt 0 && "$agents" -gt "$_cap" ]] && \
+        warn "$_t caps ~$_cap — ~$(( agents - _cap )) of $agents won't register (anomalyco/opencode#27988)"
+    done
+    printf "\n"; exit 0
+  fi
+
   # When parent runs install.sh --parallel, it spawns workers with AGENCY_INSTALL_WORKER=1
   # so each worker only runs install_tool(s) and skips header/done box (avoids duplicate output).
   if [[ -n "${AGENCY_INSTALL_WORKER:-}" ]]; then
@@ -622,6 +1666,11 @@ main() {
   printf "  Repo:       %s\n" "$REPO_ROOT"
   local n_selected=${#SELECTED_TOOLS[@]}
   printf "  Installing: %s\n" "${SELECTED_TOOLS[*]}"
+  if $SELECTION_ACTIVE; then
+    [[ ${#FILTER_DIVISIONS[@]} -gt 0 ]] && printf "  Teams:      %s\n" "${FILTER_DIVISIONS[*]}"
+    printf "  Agents:     %s of %s\n" "$(selected_agent_count)" "$(selected_agent_count_all)"
+  fi
+  $USE_LINK && printf "  Mode:       ${C_CYAN}symlink${C_RESET} (--link)\n"
   if $use_parallel; then
     ok "Installing $n_selected tools in parallel (output buffered per tool)."
   fi
@@ -633,7 +1682,8 @@ main() {
     install_out_dir="$(mktemp -d)"
     export AGENCY_INSTALL_OUT_DIR="$install_out_dir"
     export AGENCY_INSTALL_SCRIPT="$SCRIPT_DIR/install.sh"
-    printf '%s\n' "${SELECTED_TOOLS[@]}" | xargs -P "$parallel_jobs" -I {} sh -c 'AGENCY_INSTALL_WORKER=1 "$AGENCY_INSTALL_SCRIPT" --tool "{}" --no-interactive > "$AGENCY_INSTALL_OUT_DIR/{}" 2>&1'
+    export AGENCY_INSTALL_EXTRA="$(worker_flags)"
+    printf '%s\n' "${SELECTED_TOOLS[@]}" | xargs -P "$parallel_jobs" -I {} sh -c 'AGENCY_INSTALL_WORKER=1 "$AGENCY_INSTALL_SCRIPT" --tool "{}" --no-interactive $AGENCY_INSTALL_EXTRA > "$AGENCY_INSTALL_OUT_DIR/{}" 2>&1'
     for t in "${SELECTED_TOOLS[@]}"; do
       [[ -f "$install_out_dir/$t" ]] && cat "$install_out_dir/$t"
     done
@@ -657,6 +1707,11 @@ main() {
   box_row "${C_GREEN}${C_BOLD}${msg}${C_RESET}"
   box_bot
   printf "\n"
+  if [[ -s "$SKIPPED_LOG" ]]; then
+    warn "Not installed: $(wc -l < "$SKIPPED_LOG" | tr -d ' ') file(s) whose destination is a symlink to somewhere else:"
+    sed 's/^/    /' "$SKIPPED_LOG" >&2
+    warn "Remove or replace those links, then re-run to install them."
+  fi
   dim "  Run ./scripts/convert.sh to regenerate after adding or editing agents."
   printf "\n"
 }

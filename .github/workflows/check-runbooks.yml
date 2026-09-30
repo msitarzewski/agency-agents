@@ -1,0 +1,21 @@
+name: Check Runbooks Consistency
+
+# Runs on every PR (no path filter on purpose): renaming or removing an agent
+# must trip this check even when nobody touched strategy/runbooks.json, since a
+# dangling roster slug breaks the app's one-click team deploy.
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+jobs:
+  check-runbooks:
+    name: runbook rosters reference real agent slugs
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Validate runbook rosters
+        run: |
+          chmod +x scripts/check-runbooks.sh
+          ./scripts/check-runbooks.sh

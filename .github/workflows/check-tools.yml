@@ -1,0 +1,58 @@
+name: Check Tools Consistency
+
+# Runs on every PR (no path filter on purpose): a new or renamed tool must trip
+# this check even when nobody touched tools.json or the install/convert scripts.
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+jobs:
+  check-tools:
+    name: tools.json is the single source of truth
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Validate tool set
+        run: |
+          chmod +x scripts/check-tools.sh
+          ./scripts/check-tools.sh
+
+      - name: Validate generated Hermes plugin
+        run: python3 scripts/check-hermes-plugin.py
+
+      - name: Validate converted YAML frontmatter
+        run: bash scripts/test-convert-frontmatter.sh
+
+      - name: Reject colliding agent slugs before conversion
+        run: bash scripts/test-convert-slug-collisions.sh
+
+      - name: Refuse symlinked conversion output directories
+        run: bash scripts/test-convert-symlink-output.sh
+
+      - name: Validate converted outputs (round-trip, strict parse, counts, drift)
+        # Drift is advisory on pull requests (agent PRs always move their own manifest line;
+        # maintainers regenerate at landing) and enforced on pushes to main.
+        run: bash scripts/test-convert-outputs.sh ${{ github.event_name == 'pull_request' && '--drift=advisory' || '' }}
+
+      - name: Validate agent selection (install.sh --agent / --agents-file)
+        run: bash scripts/test-agent-selection.sh
+
+      - name: Protect unrelated Hermes destinations
+        run: bash scripts/test-install-hermes-destination.sh
+
+      - name: Reject partial installs after conversion failure
+        run: bash scripts/test-install-conversion-failure.sh
+
+      - name: Validate shared destinations for detected tools
+        run: bash scripts/test-install-all-path-collision.sh
+
+      - name: Validate complete selected installs
+        run: bash scripts/test-install-selection-completeness.sh
+
+      - name: Surface parallel conversion failures and clean temp output
+        run: bash scripts/test-convert-parallel-failure.sh
+
+      - name: Reject unclosed agent frontmatter
+        run: bash scripts/test-frontmatter-closing.sh

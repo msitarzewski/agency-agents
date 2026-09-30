@@ -10,6 +10,10 @@
 
 set -euo pipefail
 
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+# shellcheck source=lib.sh
+. "$SCRIPT_DIR/lib.sh"
+
 # Keep in sync with AGENT_DIRS in scripts/convert.sh
 AGENT_DIRS=(
   academic
@@ -17,22 +21,36 @@ AGENT_DIRS=(
   engineering
   finance
   game-development
+  gis
+  healthcare
   marketing
   paid-media
   product
   project-management
+  research
   sales
+  security
   spatial-computing
-
   specialized
-  devrel
-  strategy
   support
   testing
 )
 
 REQUIRED_FRONTMATTER=("name" "description" "color")
 RECOMMENDED_SECTIONS=("Identity" "Core Mission" "Critical Rules")
+
+# The color names convert.sh's resolve_opencode_color() knows, read out of the
+# converter rather than copied, so this can never drift from the map that does
+# the work. A name that is not in it falls through to grey in the OpenCode
+# integration, which reads as a deliberate grey instead of a miss: `slate` and
+# `navy` sat there unnoticed across four agents.
+KNOWN_COLORS="$(
+  awk '/^resolve_opencode_color\(\)/{f=1; next} f && /^}/{exit} f' "$SCRIPT_DIR/convert.sh" 2>/dev/null \
+    | grep -oE '^ +[a-z-]+\)' | tr -d ' )'
+)"
+# If the map could not be read, check hex values only rather than rejecting
+# every named color on the strength of an empty list.
+[[ -n "$KNOWN_COLORS" ]] || echo "WARN  could not read resolve_opencode_color() from $SCRIPT_DIR/convert.sh — skipping the color-name check"
 
 errors=0
 warnings=0
@@ -61,11 +79,25 @@ lint_file() {
     return
   fi
 
+  # 0. Reject CRLF line endings (repo standard is LF — see .gitattributes).
+  # A trailing \r otherwise makes the frontmatter check below fail with a
+  # confusing "missing frontmatter ---" even when the file clearly starts ---.
+  if LC_ALL=C grep -q $'\r' "$file"; then
+    echo "ERROR $file: CRLF line endings detected — convert to LF (e.g. 'perl -i -pe \"s/\\r\$//\" $file'); repo uses LF per .gitattributes"
+    errors=$((errors + 1))
+    return
+  fi
+
   # 1. Check frontmatter delimiters
   local first_line
   first_line=$(head -1 "$file")
   if [[ "$first_line" != "---" ]]; then
     echo "ERROR $file: missing frontmatter opening ---"
+    errors=$((errors + 1))
+    return
+  fi
+  if ! awk 'NR > 1 && $0 == "---" {found = 1; exit} END {exit !found}' "$file"; then
+    echo "ERROR $file: missing frontmatter closing ---"
     errors=$((errors + 1))
     return
   fi
@@ -82,18 +114,39 @@ lint_file() {
 
   # 2. Check required frontmatter fields
   for field in "${REQUIRED_FRONTMATTER[@]}"; do
-    if ! echo "$frontmatter" | grep -qE "^${field}:"; then
+    if ! grep -qE -- "^${field}:" <<<"$frontmatter"; then
       echo "ERROR $file: missing frontmatter field '${field}'"
+      errors=$((errors + 1))
+    elif [[ ! "$(get_field "$field" "$file")" =~ [^[:space:]] ]]; then
+      echo "ERROR $file: frontmatter field '${field}' must not be empty"
       errors=$((errors + 1))
     fi
   done
+
+  # 2b. The color has to be one the converters can resolve. Checking only that
+  # the field exists let four agents ship a name nothing maps, and they render
+  # grey in OpenCode with no warning anywhere.
+  local color
+  color="$(get_field color "$file" | tr '[:upper:]' '[:lower:]')"
+  if [[ -n "$color" && -n "$KNOWN_COLORS" ]] \
+     && [[ ! "$color" =~ ^#?[0-9a-f]{6}$ ]] \
+     && ! grep -qxF "$color" <<<"$KNOWN_COLORS"; then
+    echo "ERROR $file: color '${color}' is not a #RRGGBB value or a name the converters know"
+    echo "      known names: $(tr '\n' ' ' <<<"$KNOWN_COLORS")"
+    echo "      use a hex value, or add '${color}' to resolve_opencode_color() in scripts/convert.sh"
+    errors=$((errors + 1))
+  fi
 
   # 3. Check recommended sections (warn only)
   local body
   body=$(awk 'BEGIN{n=0} /^---$/{n++; next} n>=2{print}' "$file")
 
+  # Feed grep from a herestring, not a pipe: `grep -q` exits at the first match
+  # without draining its input, which kills a piping `echo` with SIGPIPE. Under
+  # `set -o pipefail` that 141 becomes the pipeline's status and is indistinguishable
+  # from "no match", so a large body raced its way to a spurious WARN.
   for section in "${RECOMMENDED_SECTIONS[@]}"; do
-    if ! echo "$body" | grep -qi "$section"; then
+    if ! grep -qi -- "$section" <<<"$body"; then
       echo "WARN  $file: missing recommended section '${section}'"
       warnings=$((warnings + 1))
     fi
@@ -109,7 +162,24 @@ lint_file() {
 
   local soul_headers=0
   local agents_headers=0
+  local fence_marker="" fence_len=0 fence_indent=0
   while IFS= read -r line; do
+    # Skip fenced code blocks so ## doc-comment lines (e.g. GDScript `##`)
+    # and in-fence markdown headers aren't miscounted (issue #849).
+    if [[ -n "$fence_marker" ]]; then
+      if fence_closes_p "$line" "$fence_marker" "$fence_len" "$fence_indent"; then
+        fence_marker=""
+        fence_len=0
+        fence_indent=0
+      fi
+      continue
+    fi
+    if fence_open_p "$line"; then
+      fence_marker="${BASH_REMATCH[2]:0:1}"
+      fence_len=${#BASH_REMATCH[2]}
+      fence_indent=${#BASH_REMATCH[1]}
+      continue
+    fi
     if [[ "$line" =~ ^##[[:space:]] ]]; then
       local header_lower
       header_lower=$(printf '%s' "$line" | tr '[:upper:]' '[:lower:]')

@@ -159,6 +159,44 @@ For each conflict:
 - [ ] Verify canonical tags are self-referencing (no cross-canonicals unless merging)
 ```
 
+### Cannibalization Audit Without GSC (Pre-Access Fallback)
+The template above assumes Search Console access. When it isn't available yet — new site, client
+hasn't granted access, or you're auditing a competitor — use this sitemap + query-intent method
+instead. Battle-tested on a single-page-anchor + sub-page architecture (e.g. a game-guide site where
+the homepage holds anchor sections for multiple entities and each entity also has a dedicated
+`/guides/entity-build` sub-page).
+
+```markdown
+# Pre-GSC Cannibalization Audit: [Topic Cluster]
+
+## Step 1: Inventory Every URL Touching the Topic
+Pull the full sitemap.xml and list every URL whose <title>, H1, or body mentions the target entity
+(e.g. a character name). Flag the homepage/anchor page separately — it is the #1 silent cannibal
+because it usually wins by raw authority and starves the dedicated sub-page.
+
+| URL | Mentions Topic? | Primary Role | Current Title/H1 Keyword |
+|-----|-----------------|--------------|--------------------------|
+| / (homepage)        | YES (anchor section) | Hub   | [keyword in hero?] |
+| /guides/entity-build | YES              | Dedicated | [entity] build     |
+
+## Step 2: Query-Intent Overlap Check
+For each URL pair, ask: "If a user searches [primary keyword], which ONE page should win?"
+- Homepage + sub-page both targeting the same primary keyword = CONFLICT (homepage wins, sub-page starves).
+- Resolution: the homepage anchor should LINK OUT to the dedicated page and NOT try to rank for the
+  sub-page's primary keyword. Give the homepage its own distinct primary keyword.
+
+## Step 3: Title/H1 Deconfliction (no GSC needed)
+Grep every page's <title> and H1 for the target primary keyword. Two pages sharing the same primary
+keyword in title+H1 = guaranteed internal competition. Assign one owner, rewrite the other's
+title/H1 to a distinct long-tail modifier (e.g. "...build" vs "...best team comps 2026").
+
+## Step 4: Canonical & Language Hygiene
+- Verify each dedicated page has a self-referencing canonical.
+- If a URL mixes languages (e.g. Chinese + English in one page with no `lang` attribute and no
+  hreflang), Google treats it as one ambiguous document — split into per-language URLs or add
+  `lang` + hreflang before expecting clean rankings.
+```
+
 ### On-Page Optimization Checklist
 ```markdown
 # On-Page SEO Optimization: [Target Page]
@@ -295,6 +333,17 @@ For each conflict:
 - Country-specific keyword research accounting for cultural search behavior differences
 - International site architecture decisions: ccTLDs vs. subdirectories vs. subdomains
 - Geotargeting configuration and Search Console international targeting setup
+
+**Hreflang Implementation Template** (validated on a mixed CN/EN game-guide site):
+```html
+<!-- On EVERY language-variant URL, declare the full set RECIPROCALLY -->
+<link rel="alternate" hreflang="en" href="https://site.com/guides/zhongli-build-en" />
+<link rel="alternate" hreflang="zh" href="https://site.com/guides/zhongli-build-zh" />
+<link rel="alternate" hreflang="x-default" href="https://site.com/guides/zhongli-build-en" />
+```
+- **Reciprocity is mandatory**: every `hreflang` URL must link back to all others, or Google ignores the entire set.
+- **`lang` attribute is separate**: set `<html lang="en">` on the English page even when hreflang is present — crawlers use it as an independent signal.
+- **Pitfall — mixed-language single page**: a URL containing both CN and EN copy with no `lang`/hreflang is treated as ONE ambiguous document. Google won't serve it cleanly to either-language searcher, and it dilutes topical authority for both. Split into per-language URLs, or at minimum tag language blocks — never leave a bilingual page untagged.
 
 ### Programmatic SEO
 - Template-based page generation for scalable long-tail keyword targeting

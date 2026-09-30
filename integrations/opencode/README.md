@@ -1,5 +1,22 @@
 # OpenCode Integration
 
+> **❌ Don't do this:**
+>
+> ```bash
+> # WRONG — will fail with schema validation errors
+> cp agency-agents/engineering/*.md .opencode/agents/
+> ```
+>
+> **✅ Do this instead:**
+>
+> ```bash
+> /path/to/agency-agents/scripts/install.sh --tool opencode
+> ```
+>
+> The source files use named colors and a `tools` field that OpenCode rejects.
+> The installer converts them to `#RRGGBB` hex and strips incompatible fields
+> automatically.
+
 OpenCode agents are `.md` files with YAML frontmatter stored in
 `.opencode/agents/`. The converter maps named colors to hex codes and adds
 `mode: subagent` so agents are invoked on-demand via `@agent-name` rather
