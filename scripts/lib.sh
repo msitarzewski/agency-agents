@@ -20,14 +20,29 @@
 get_field() {
   local field="$1" file="$2"
   awk -v f="$field" '
-    /^---$/ { fm++; next }
-    fm == 1 && $0 ~ "^" f ": " { sub("^" f ": ", ""); print; exit }
+    # A quoted YAML scalar carries its quotes as delimiters, not content:
+    # strip one matching outer pair and unescape (\047 is a literal apostrophe;
+    # this program sits inside shell single quotes). A plain scalar may also
+    # continue onto indented lines; YAML folds those into one line joined by
+    # single spaces, and so do we — otherwise the generated description is
+    # silently truncated to its first line (three healthcare agents were).
+    function emit(v) {
+      sub(/^[ \t]+/, "", v); sub(/[ \t]+$/, "", v)   # YAML: plain-scalar padding is not content
+      if (v ~ /^".*"$/)            { v = substr(v, 2, length(v) - 2); gsub(/\\"/, "\"", v); gsub(/\\\\/, "\\", v) }
+      else if (v ~ /^\047.*\047$/) { v = substr(v, 2, length(v) - 2); gsub(/\047\047/, "\047", v) }
+      print v; printed = 1; exit
+    }
+    /^---$/ { fm++; if (fm == 2 && found) emit(val); next }
+    fm == 1 && !found && $0 ~ "^" f ": " { sub("^" f ": ", ""); val = $0; found = 1; next }
+    fm == 1 && found && /^[ \t]+[^ \t]/ { sub(/^[ \t]+/, ""); val = val " " $0; next }
+    fm == 1 && found { emit(val) }
+    END { if (found && !printed) emit(val) }
   ' "$file"
 }
 
 # get_body <file> — file contents with the leading frontmatter block stripped.
 get_body() {
-  awk 'BEGIN{fm=0} /^---$/{fm++; next} fm>=2{print}' "$1"
+  awk 'BEGIN{fm=0} fm<2 && /^---$/{fm++; next} fm>=2{print}' "$1"
 }
 
 # slugify <string> — "Frontend Developer" -> "frontend-developer"
@@ -46,6 +61,34 @@ agent_slug() {
 # is_agent_file <file> — true if the file starts with a YAML frontmatter fence.
 is_agent_file() {
   [[ -f "$1" ]] && [[ "$(head -1 "$1")" == "---" ]]
+}
+
+# ---------------------------------------------------------------------------
+# 1b. Markdown fenced-code-block helpers (issue #849)
+# ---------------------------------------------------------------------------
+
+# fence_open_p <line> — 0 if <line> opens a fence (3+ ` or ~, 0–3 leading
+# spaces); sets BASH_REMATCH[1]=indent, [2]=marker run. Read those directly,
+# not via $(), so the per-line convert/lint loops stay subshell-free. Else 1.
+fence_open_p() {
+  local line="$1"
+  local re='^( {0,3})(`{3,}|~{3,})'
+  [[ "$line" =~ $re ]]
+}
+
+# fence_closes_p <line> <open_marker> <open_len> <open_indent> — 0 if <line>
+# closes the open fence (same char, run len >= open, indent <= open); 1
+# otherwise, including non-fence lines (callers need not pre-classify).
+fence_closes_p() {
+  local line="$1" open_marker="$2" open_len="$3" open_indent="$4"
+  local re='^( {0,3})(`{3,}|~{3,})'
+  [[ "$line" =~ $re ]] || return 1
+  local close_indent=${#BASH_REMATCH[1]}
+  local close_run="${BASH_REMATCH[2]}"
+  [[ "${close_run:0:1}" == "$open_marker" ]] || return 1
+  (( ${#close_run} >= open_len )) || return 1
+  (( close_indent <= open_indent )) || return 1
+  return 0
 }
 
 # ---------------------------------------------------------------------------

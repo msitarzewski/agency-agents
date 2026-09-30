@@ -14,15 +14,17 @@
 #   gemini-cli   — Gemini CLI subagent files (~/.gemini/agents/*.md)
 #   opencode     — OpenCode agent files (.opencode/agents/*.md)
 #   cursor       — Cursor rule files (.cursor/rules/*.mdc)
-#   aider        — Single CONVENTIONS.md for Aider
+#   aider        — Single CONVENTIONS.md roster index for Aider
 #   windsurf     — Single .windsurfrules for Windsurf
 #   openclaw     — OpenClaw workspaces (integrations/openclaw/<agent>/SOUL.md)
 #   qwen         — Qwen Code SubAgent files (~/.qwen/agents/*.md)
+#   zcode        — ZCode agent files (.zcode/agents/*.md · ~/.config/zcode/agents/*.md)
 #   kimi         — Kimi Code CLI agent files (~/.config/kimi/agents/)
 #   codex        — Codex custom agent TOML files (~/.codex/agents/*.toml)
 #   osaurus      — Osaurus skill files (~/.osaurus/skills/<name>/SKILL.md)
 #   hermes       — Hermes lazy-router plugin (one plugin + on-disk agent index)
 #   vibe         — Mistral Vibe agent TOML + prompt files (~/.vibe/agents/*.toml + ~/.vibe/prompts/*.md)
+#   dsh          — DeepSeek Harness skill files (~/.dsh/skills/<name>/SKILL.md · .dsh/skills/<name>/SKILL.md)
 #   all          — All tools (default)
 #
 # Output is written to integrations/<tool>/ relative to the repo root.
@@ -71,12 +73,12 @@ TODAY="$(date +%Y-%m-%d)"
 
 AGENT_DIRS=(
   academic design engineering finance game-development gis healthcare marketing paid-media product project-management
-  sales security spatial-computing specialized support testing
+  research sales security spatial-computing specialized support testing
 )
 
 # --- Usage ---
 usage() {
-  sed -n '3,27p' "$0" | sed 's/^# \{0,1\}//'
+  sed -n '3,28p' "$0" | sed 's/^# \{0,1\}//'
   exit 0
 }
 
@@ -105,6 +107,13 @@ toml_escape_string() {
   '
 }
 
+# Quote a single-line value for a YAML frontmatter scalar. Single-quoted YAML
+# strings keep colons, hashes, backslashes, and Unicode literal, while doubling
+# an apostrophe is the only escaping rule required here.
+yaml_quote() {
+  printf "'%s'" "$(printf '%s' "$1" | sed "s/'/''/g")"
+}
+
 # --- Per-tool converters ---
 
 convert_antigravity() {
@@ -126,8 +135,8 @@ convert_antigravity() {
   # valid Agent-Skills skill for any host (and deterministic — no date stamp).
   cat > "$outfile" <<HEREDOC
 ---
-name: ${slug}
-description: ${description}
+name: $(yaml_quote "$slug")
+description: $(yaml_quote "$description")
 ---
 ${body}
 HEREDOC
@@ -153,8 +162,38 @@ convert_osaurus() {
   # Kept to the standard fields so it stays compatible with any Agent-Skills host.
   cat > "$outfile" <<HEREDOC
 ---
-name: ${slug}
-description: ${description}
+name: $(yaml_quote "$slug")
+description: $(yaml_quote "$description")
+---
+${body}
+HEREDOC
+}
+
+convert_dsh() {
+  local file="$1"
+  local name description slug outdir outfile body
+
+  name="$(get_field "name" "$file")"
+  description="$(get_field "description" "$file")"
+  slug="agency-$(slugify "$name")"
+  body="$(get_body "$file")"
+
+  outdir="$OUT_DIR/dsh/$slug"
+  outfile="$outdir/SKILL.md"
+  mkdir -p "$outdir"
+
+  # DeepSeek Harness skill format: the Agent-Skills SKILL.md — a directory
+  # named for the skill containing a SKILL.md with name + description
+  # frontmatter (strict kebab-case, validated by the harness) and the persona
+  # as the instruction body. DSH scans ~/.dsh/skills/ (user) and
+  # <project>/.dsh/skills/ (project); skills there are user- and
+  # model-invocable by default, so an agent activates as /agency-<slug> or by
+  # name in conversation. Byte-identical to the antigravity/osaurus skill-md
+  # shape, which the Agency Agents app renders natively.
+  cat > "$outfile" <<HEREDOC
+---
+name: $(yaml_quote "$slug")
+description: $(yaml_quote "$description")
 ---
 ${body}
 HEREDOC
@@ -198,14 +237,18 @@ convert_gemini_cli() {
 
   cat > "$outfile" <<HEREDOC
 ---
-name: ${slug}
-description: ${description}
+name: $(yaml_quote "$slug")
+description: $(yaml_quote "$description")
 ---
 ${body}
 HEREDOC
 }
 
 # Map known color names and normalize to OpenCode-safe #RRGGBB values.
+# An unknown name lands on grey, which looks like a choice rather than a miss,
+# so scripts/lint-agents.sh reads this list and rejects a color that is not in
+# it. Values follow the CSS named color where one exists (teal, navy) and
+# Tailwind's 500 shade otherwise (gray, slate).
 resolve_opencode_color() {
   local c="$1"
   local mapped
@@ -233,6 +276,8 @@ resolve_opencode_color() {
     lime)           mapped="#84CC16" ;;
     gray)           mapped="#6B7280" ;;
     fuchsia)        mapped="#D946EF" ;;
+    slate)          mapped="#64748B" ;;
+    navy)           mapped="#000080" ;;
     *)              mapped="$c" ;;
   esac
 
@@ -266,8 +311,8 @@ convert_opencode() {
   # Named colors are resolved to hex via resolve_opencode_color().
   cat > "$outfile" <<HEREDOC
 ---
-name: ${name}
-description: ${description}
+name: $(yaml_quote "$name")
+description: $(yaml_quote "$description")
 mode: subagent
 color: '${color}'
 ---
@@ -290,7 +335,7 @@ convert_cursor() {
   # Cursor .mdc format: description + globs + alwaysApply frontmatter
   cat > "$outfile" <<HEREDOC
 ---
-description: ${description}
+description: $(yaml_quote "$description")
 globs: ""
 alwaysApply: false
 ---
@@ -320,8 +365,29 @@ convert_openclaw() {
 
   local current_target="agents"  # default bucket
   local current_section=""
+  # While fence_marker is set, ## lines are code content, not section
+  # boundaries (issue #849). See lib.sh fence_open_p / fence_closes_p.
+  local fence_marker="" fence_len=0 fence_indent=0
 
   while IFS= read -r line; do
+    if [[ -n "$fence_marker" ]]; then
+      current_section+="$line"$'\n'
+      if fence_closes_p "$line" "$fence_marker" "$fence_len" "$fence_indent"; then
+        fence_marker=""
+        fence_len=0
+        fence_indent=0
+      fi
+      continue
+    fi
+
+    if fence_open_p "$line"; then
+      fence_marker="${BASH_REMATCH[2]:0:1}"
+      fence_len=${#BASH_REMATCH[2]}
+      fence_indent=${#BASH_REMATCH[1]}
+      current_section+="$line"$'\n'
+      continue
+    fi
+
     # Detect ## headers (with or without emoji prefixes)
     if [[ "$line" =~ ^##[[:space:]] ]]; then
       # Flush previous section
@@ -408,17 +474,54 @@ convert_qwen() {
   if [[ -n "$tools" ]]; then
     cat > "$outfile" <<HEREDOC
 ---
-name: ${slug}
-description: ${description}
-tools: ${tools}
+name: $(yaml_quote "$slug")
+description: $(yaml_quote "$description")
+tools: $(yaml_quote "$tools")
 ---
 ${body}
 HEREDOC
   else
     cat > "$outfile" <<HEREDOC
 ---
-name: ${slug}
-description: ${description}
+name: $(yaml_quote "$slug")
+description: $(yaml_quote "$description")
+---
+${body}
+HEREDOC
+  fi
+}
+
+convert_zcode() {
+  local file="$1"
+  local name description tools slug outfile body
+
+  name="$(get_field "name" "$file")"
+  description="$(get_field "description" "$file")"
+  tools="$(get_field "tools" "$file")"
+  slug="$(slugify "$name")"
+  body="$(get_body "$file")"
+
+  outfile="$OUT_DIR/zcode/agents/${slug}.md"
+  mkdir -p "$(dirname "$outfile")"
+
+  # ZCode agent format (Z.ai GLM harness): .md with YAML frontmatter in
+  # .zcode/agents/ (project) or ~/.config/zcode/agents/ (global). name and
+  # description required; tools optional (only if present in source). Byte-
+  # identical to the qwen-md shape, which the Agency Agents app renders natively.
+  if [[ -n "$tools" ]]; then
+    cat > "$outfile" <<HEREDOC
+---
+name: $(yaml_quote "$slug")
+description: $(yaml_quote "$description")
+tools: $(yaml_quote "$tools")
+---
+${body}
+HEREDOC
+  else
+    cat > "$outfile" <<HEREDOC
+---
+name: $(yaml_quote "$slug")
+description: $(yaml_quote "$description")
 ---
 ${body}
 HEREDOC
@@ -496,17 +599,28 @@ HEREDOC
 # then write at the end.
 AIDER_TMP="$(mktemp)"
 WINDSURF_TMP="$(mktemp)"
-trap 'rm -f "$AIDER_TMP" "$WINDSURF_TMP"' EXIT
+PARALLEL_OUT_DIR=""
+trap 'rm -f "$AIDER_TMP" "$WINDSURF_TMP"; [[ -z "$PARALLEL_OUT_DIR" ]] || rm -rf "$PARALLEL_OUT_DIR"' EXIT
 
 # Write Aider/Windsurf headers once
 cat > "$AIDER_TMP" <<'HEREDOC'
 # The Agency — AI Agent Conventions
 #
-# This file provides Aider with the full roster of specialized AI agents from
-# The Agency (https://github.com/msitarzewski/agency-agents).
+# The roster of specialized AI agents from The Agency
+# (https://github.com/msitarzewski/agency-agents): each one's name, what it is
+# for, and where its full instructions live.
 #
-# To activate an agent, reference it by name in your Aider session prompt, e.g.:
-#   "Use the Frontend Developer agent to review this component."
+# Aider keeps a conventions file in context for the whole session, so this is an
+# index and not the agents themselves. Inlining every body would make this file
+# about 3.8 million characters, which no model will take.
+#
+# To use an agent:
+#   1. Name it in your prompt — "Use the Frontend Developer agent to review
+#      this component." The description below is usually enough for that.
+#   2. For its full instructions, pull the agent file into the session:
+#        /read-only /path/to/agency-agents/engineering/engineering-frontend-developer.md
+#
+# Paths below are relative to an agency-agents checkout.
 #
 # Generated by scripts/convert.sh — do not edit manually.
 
@@ -524,12 +638,16 @@ HEREDOC
 
 accumulate_aider() {
   local file="$1"
-  local name description body
+  local name description source division
 
   name="$(get_field "name" "$file")"
   description="$(get_field "description" "$file")"
-  body="$(get_body "$file")"
+  source="${file#"$REPO_ROOT"/}"
+  division="${source%%/*}"
 
+  # One index entry per agent, not the agent. A conventions file is read into
+  # every request; the bodies together are 3.8 million characters and this
+  # index is about 90,000.
   cat >> "$AIDER_TMP" <<HEREDOC
 
 ---
@@ -538,7 +656,8 @@ accumulate_aider() {
 
 > ${description}
 
-${body}
+Division: ${division}
+Full instructions: ${source}
 HEREDOC
 }
 
@@ -569,9 +688,44 @@ HEREDOC
 # but never pruned stale output). Preserves the committed README.md — the only
 # tracked file under integrations/<tool>/ for conversion targets.
 clean_tool_output() {
+  # Defensive: tool names are plain slugs; refuse anything else so a future
+  # caller can never steer this rm -rf outside $OUT_DIR via "../" or "/".
+  [[ "$1" =~ ^[a-z0-9-]+$ ]] || { echo "ERROR: clean_tool_output: refusing non-slug tool name '$1'" >&2; return 1; }
   local dir="$OUT_DIR/$1"
+  # The converter writes into this directory after cleaning it. Following a
+  # symlink here could overwrite an unrelated directory's existing agent files.
+  [[ ! -L "$dir" ]] || { error "refusing symlinked output directory: $dir"; return 1; }
   [[ -d "$dir" ]] || return 0
   find "$dir" -mindepth 1 -maxdepth 1 ! -name 'README.md' -exec rm -rf {} +
+}
+
+# Every per-agent integration writes to a path derived from the normalized
+# name. Refuse collisions before cleaning any existing output: otherwise the
+# later source file silently replaces the earlier agent in the generated tree.
+check_agent_slug_collisions() {
+  local dir dirpath file slug relative i
+  local seen_slugs=() seen_files=()
+  local collisions=0
+  for dir in "${AGENT_DIRS[@]}"; do
+    dirpath="$REPO_ROOT/$dir"
+    [[ -d "$dirpath" ]] || continue
+    while IFS= read -r -d '' file; do
+      is_agent_file "$file" || continue
+      slug="$(agent_slug "$file")"
+      [[ -n "$slug" ]] || continue
+      relative="${file#"$REPO_ROOT"/}"
+      for i in "${!seen_slugs[@]}"; do
+        if [[ "${seen_slugs[i]}" == "$slug" ]]; then
+          error "duplicate agent slug '$slug': ${seen_files[i]} and $relative"
+          collisions=$((collisions + 1))
+          break
+        fi
+      done
+      seen_slugs+=("$slug")
+      seen_files+=("$relative")
+    done < <(find "$dirpath" -name "*.md" -type f -print0)
+  done
+  (( collisions == 0 ))
 }
 
 run_conversions() {
@@ -579,12 +733,12 @@ run_conversions() {
   local count=0
 
   if [[ "$tool" == "hermes" ]]; then
-    clean_tool_output "$tool"
+    clean_tool_output "$tool" || return 1
     python3 "$SCRIPT_DIR/build-hermes-plugin.py" --repo-root "$REPO_ROOT" --out "$OUT_DIR/hermes"
     return
   fi
 
-  clean_tool_output "$tool"
+  clean_tool_output "$tool" || return 1
 
   for dir in "${AGENT_DIRS[@]}"; do
     local dirpath="$REPO_ROOT/$dir"
@@ -608,8 +762,10 @@ run_conversions() {
         cursor)      convert_cursor      "$file" ;;
         openclaw)    convert_openclaw    "$file" ;;
         qwen)        convert_qwen        "$file" ;;
+        zcode)       convert_zcode       "$file" ;;
         kimi)        convert_kimi        "$file" ;;
         osaurus)     convert_osaurus     "$file" ;;
+        dsh)         convert_dsh         "$file" ;;
         vibe)        convert_vibe        "$file" ;;
         aider)       accumulate_aider    "$file" ;;
         windsurf)    accumulate_windsurf "$file" ;;
@@ -641,13 +797,15 @@ main() {
     esac
   done
 
-  local valid_tools=("antigravity" "gemini-cli" "opencode" "cursor" "aider" "windsurf" "openclaw" "qwen" "kimi" "codex" "osaurus" "hermes" "vibe" "all")
+  local valid_tools=("antigravity" "gemini-cli" "opencode" "cursor" "aider" "windsurf" "openclaw" "qwen" "zcode" "kimi" "codex" "osaurus" "hermes" "vibe" "dsh" "all")
   local valid=false
   for t in "${valid_tools[@]}"; do [[ "$t" == "$tool" ]] && valid=true && break; done
   if ! $valid; then
     error "Unknown tool '$tool'. Valid: ${valid_tools[*]}"
     exit 1
   fi
+
+  check_agent_slug_collisions || exit 1
 
   header "The Agency -- Converting agents to tool-specific formats"
   echo "  Repo:   $REPO_ROOT"
@@ -660,7 +818,7 @@ main() {
 
   local tools_to_run=()
   if [[ "$tool" == "all" ]]; then
-    tools_to_run=("antigravity" "gemini-cli" "opencode" "cursor" "aider" "windsurf" "openclaw" "qwen" "kimi" "codex" "osaurus" "hermes" "vibe")
+    tools_to_run=("antigravity" "gemini-cli" "opencode" "cursor" "aider" "windsurf" "openclaw" "qwen" "zcode" "kimi" "codex" "osaurus" "hermes" "vibe" "dsh")
   else
     tools_to_run=("$tool")
   fi
@@ -671,19 +829,28 @@ main() {
 
   if $use_parallel && [[ "$tool" == "all" ]]; then
     # Tools that write to separate dirs can run in parallel; buffer output so each tool's output stays together
-    local parallel_tools=(antigravity gemini-cli opencode cursor openclaw qwen codex osaurus hermes vibe)
+    local parallel_tools=(antigravity gemini-cli opencode cursor openclaw qwen zcode kimi codex osaurus hermes vibe dsh)
     local parallel_out_dir
-    parallel_out_dir="$(mktemp -d)"
+    parallel_out_dir="$(mktemp -d "${TMPDIR:-/tmp}/agency-convert-parallel.XXXXXX")"
+    PARALLEL_OUT_DIR="$parallel_out_dir"
     info "Converting: ${#parallel_tools[@]}/${n_tools} tools in parallel (output buffered per tool)..."
     export AGENCY_CONVERT_OUT_DIR="$parallel_out_dir"
     export AGENCY_CONVERT_SCRIPT="$SCRIPT_DIR/convert.sh"
     export AGENCY_CONVERT_OUT="$OUT_DIR"
-    printf '%s\n' "${parallel_tools[@]}" | xargs -P "$parallel_jobs" -I {} sh -c '"$AGENCY_CONVERT_SCRIPT" --tool "{}" --out "$AGENCY_CONVERT_OUT" > "$AGENCY_CONVERT_OUT_DIR/{}" 2>&1'
+    local parallel_status=0
+    printf '%s\n' "${parallel_tools[@]}" | xargs -P "$parallel_jobs" -I {} sh -c '"$AGENCY_CONVERT_SCRIPT" --tool "{}" --out "$AGENCY_CONVERT_OUT" > "$AGENCY_CONVERT_OUT_DIR/{}" 2>&1' || parallel_status=$?
     for t in "${parallel_tools[@]}"; do
-      [[ -f "$parallel_out_dir/$t" ]] && cat "$parallel_out_dir/$t"
+      if [[ -f "$parallel_out_dir/$t" ]]; then
+        cat "$parallel_out_dir/$t"
+      fi
     done
     rm -rf "$parallel_out_dir"
-    local idx=8
+    PARALLEL_OUT_DIR=""
+    if (( parallel_status != 0 )); then
+      error "Parallel conversion failed (xargs exit $parallel_status); see tool output above."
+      return "$parallel_status"
+    fi
+    local idx=$(( ${#parallel_tools[@]} + 1 ))
     for t in aider windsurf; do
       progress_bar "$idx" "$n_tools"
       printf "\n"

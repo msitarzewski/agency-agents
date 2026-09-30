@@ -92,7 +92,7 @@ Every agent should follow this structure:
 ---
 name: Agent Name
 description: One-line description of the agent's specialty and focus
-color: colorname or "#hexcode"
+color: colorname or "#hexcode"        # see the note below — not any name works
 emoji: 🎯
 vibe: One-line personality hook — what makes this agent memorable
 services:                              # optional — only if the agent requires external services
@@ -153,6 +153,13 @@ Measurable outcomes:
 ## 🚀 Advanced Capabilities
 Advanced techniques and approaches the agent masters
 ```
+
+**About `color`.** A `#RRGGBB` value always works. A color *name* only works if
+`resolve_opencode_color()` in `scripts/convert.sh` knows it — anything else is
+silently rewritten to grey in the OpenCode integration, which reads as a choice
+rather than a mistake. `scripts/lint-agents.sh` reads that list straight out of
+the converter, rejects a name that is not in it, and prints the names that are.
+To use a new name, add it to the map in the same PR.
 
 ### Agent Structure
 
@@ -240,6 +247,23 @@ Want agency-agents to install into a new tool (a CLI, editor, or agent runtime)?
 4. **`.gitignore`** — add a rule for your tool's generated output under `integrations/<tool>/`. **This step is required and easy to miss.** Converted agent/skill files are generated locally by `convert.sh` and are **never committed** (see "Things we'll always close" below) — only `integrations/<tool>/README.md` is tracked. Match an existing per-tool entry.
 5. **`integrations/<tool>/README.md`** — a short doc for the integration (every tool has one; it's the only committed file in the tool's directory).
 6. **Run `./scripts/check-tools.sh`** — it must pass. It cross-checks `tools.json` against `install.sh` and `convert.sh` and flags anything missing.
+7. **Run `./scripts/test-install.sh`** — it must pass. It installs into throwaway
+   sandboxes (never your real `$HOME`) and pins the installer's observable
+   contract: where files land, that `--path` beats the tool's env var, that
+   `--division` / `--agent` / `--agents-file` filter, that `--dry-run` writes
+   nothing, and that paths with spaces survive. CI runs it on Linux and macOS.
+8. **Run `./scripts/test-convert-outputs.sh`** — it must pass. It regenerates
+   every tool's output into a scratch directory and checks the *product*, not
+   the syntax: every agent's description round-trips intact, every generated
+   file parses with a real YAML/TOML parser, every tool emits exactly one output
+   per agent, and every source file parses the way the desktop app reads it.
+   When you've changed a converter on purpose it will report **manifest drift**
+   on that tool's line — that's expected. Look over what changed, run it again
+   with `--update`, and commit the refreshed `scripts/convert-outputs.sha256` so
+   reviewers can see the blast radius at a glance. The manifest holds one line
+   per agent and one per tool, and its hashes are the same on every platform
+   (forward-slash paths, LF line endings), so a Windows checkout produces the
+   same file. CI runs it on every PR.
 
 If your PR commits the converted output (the generated `integrations/<tool>/*` files), CI and review will ask you to remove it and add the `.gitignore` rule instead.
 
@@ -296,6 +320,9 @@ We love ambitious ideas — a [Discussion](https://github.com/msitarzewski/agenc
 4. **Define Metrics**: Include specific, measurable success criteria
 5. **Proofread**: Check for typos, formatting issues, clarity
 6. **Check it's original**: Run `./scripts/check-agent-originality.sh path/to/your-agent.md`. It compares your agent against the whole roster and flags near-duplicates (a swapped country/platform name won't fool it). A new agent should be genuinely new — if you're localizing for a market, make the platforms, tactics, and examples actually different, not a find-replace.
+7. **Check it comes through every tool intact**: Run `./scripts/test-convert-outputs.sh`. It regenerates every tool's output and confirms your agent survives each converter — description round-tripped, files parsing, nothing dropped — and that its frontmatter parses the way the desktop app reads it. Adding or editing an agent changes the generated product, so it will report **manifest drift** naming your agent — that's expected, and it is **advisory** on pull requests: CI prints it but does not fail on it. You don't need to touch `scripts/convert-outputs.sha256` at all; the maintainers regenerate it when your PR lands. (If you do run `--update`, that's fine too — the manifest has one line per agent, so it won't conflict with anyone else's PR, and the hashes are identical on Windows, macOS and Linux.)
+
+A word on why these checks exist. People are building genuinely remarkable things on top of these agents, and thousands rely on them every day across a dozen different tools. That's wonderful — and it means a small slip in one converter, or a stray quote in one file, quietly reaches all of them at once. Running the suite locally is how we keep that smooth for everyone downstream. It takes about a minute, and it means your work arrives exactly as you wrote it, in every tool, for everyone. Thank you for taking the extra step — it's a real kindness to people you'll never meet.
 
 ### Submitting Your PR
 

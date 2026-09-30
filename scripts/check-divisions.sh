@@ -95,6 +95,25 @@ if [[ -f "$WF" ]]; then
   while IFS= read -r div; do
     grep -qE "\b${div}/" "$WF" || fail "$WF has no path filter for division '$div'"
   done < <(canonical)
+  # The workflow's inner git diff pathspecs must select every tracked agent.
+  # Git's ordinary `division/**/*.md` pattern misses files directly in division/.
+  changed_paths=()
+  while IFS= read -r pathspec; do changed_paths+=("$pathspec"); done < <(
+    sed -n '/FILES=$(git diff/,/^[[:space:]]*{[[:space:]]*$/p' "$WF" \
+      | grep -oE "'[^']+\.md'" | tr -d "'"
+  )
+  if [[ ${#changed_paths[@]} -eq 0 ]]; then
+    fail "$WF has no changed-agent git diff pathspecs"
+  else
+    expected_agents="$(while IFS= read -r div; do
+      git ls-files -- "$div/*.md"
+    done < <(canonical) | sort -u)"
+    selected_agents="$(git ls-files -- "${changed_paths[@]}" | sort -u)"
+    missed_agents="$(comm -23 <(printf '%s\n' "$expected_agents") <(printf '%s\n' "$selected_agents"))"
+    if [[ -n "$missed_agents" ]]; then
+      fail "$WF changed-agent git diff pathspecs miss $(printf '%s\n' "$missed_agents" | wc -l | tr -d ' ') tracked agents (e.g. $(printf '%s\n' "$missed_agents" | head -n 1))"
+    fi
+  fi
 else
   fail "$WF not found"
 fi

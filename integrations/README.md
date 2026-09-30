@@ -12,7 +12,7 @@ supported agentic coding tools.
 - **[OpenCode](#opencode)** — `.md` agent files in `opencode/`
 - **[OpenClaw](#openclaw)** — `SOUL.md` + `AGENTS.md` + `IDENTITY.md` workspaces
 - **[Cursor](#cursor)** — `.mdc` rule files in `cursor/`
-- **[Aider](#aider)** — `CONVENTIONS.md` in `aider/`
+- **[Aider](#aider)** — `CONVENTIONS.md` roster index in `aider/`
 - **[Windsurf](#windsurf)** — `.windsurfrules` in `windsurf/`
 - **[Kimi Code](#kimi-code)** — YAML agent specs in `kimi/`
 - **[Qwen Code](#qwen-code)** — project-scoped `.md` SubAgents in `.qwen/agents/`
@@ -171,8 +171,10 @@ See [cursor/README.md](cursor/README.md) for details.
 
 ## Aider
 
-All agents are consolidated into a single `CONVENTIONS.md` file that Aider
-reads automatically when present in your project root.
+`CONVENTIONS.md` is the roster index — name, description, and the path to each
+agent's full instructions. Aider keeps a conventions file in context for the
+whole session, so the file lists the agents instead of inlining a million
+tokens of them.
 
 ```bash
 cd /your/project && /path/to/agency-agents/scripts/install.sh --tool aider
