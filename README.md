@@ -932,7 +932,7 @@ See [integrations/cursor/README.md](integrations/cursor/README.md) for details.
 
 `CONVENTIONS.md` is the roster index — every agent's name, description, and the
 path to its full instructions. Aider keeps a conventions file in context for the
-whole session, and the 279 bodies together are about a million tokens, so the
+whole session, and the full agent bodies together are about a million tokens, so the
 file lists the agents rather than inlining them.
 
 ```bash
