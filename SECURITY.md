@@ -2,7 +2,9 @@
 
 ## Reporting a Vulnerability
 
-If you discover a security vulnerability in this project, please report it responsibly. Do NOT open a public GitHub issue for security vulnerabilities. Open a private security advisory via GitHub Security tab.
+If you discover a security vulnerability in this project, please report it responsibly. Do NOT open a public GitHub issue for security vulnerabilities. Open a private security advisory via the repository's [Security tab](https://github.com/msitarzewski/agency-agents/security/advisories/new).
+
+If that link 404s for you, private vulnerability reporting has not been enabled yet on this repository. In that case, please reach the maintainer directly through the contact methods on their [GitHub profile](https://github.com/msitarzewski) (website, LinkedIn, or Bluesky) instead of filing a public issue.
 
 ## Response Timeline
 
