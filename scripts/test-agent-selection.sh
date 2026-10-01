@@ -9,7 +9,7 @@ AGENTS_FILE="$(mktemp "${TMPDIR:-/tmp}/agency-agent-selection.XXXXXX")"
 trap 'rm -f "$AGENTS_FILE"' EXIT
 
 set +e
-output="$($INSTALLER --tool claude-code --agent definitely-not-an-agent --dry-run 2>&1)"
+output="$("$INSTALLER" --tool claude-code --agent definitely-not-an-agent --dry-run 2>&1)"
 status=$?
 set -e
 [[ "$status" -ne 0 ]] || {
@@ -23,7 +23,7 @@ set -e
 
 printf '%s\n' 'definitely-not-an-agent' > "$AGENTS_FILE"
 set +e
-output="$($INSTALLER --tool claude-code --agents-file "$AGENTS_FILE" --dry-run 2>&1)"
+output="$("$INSTALLER" --tool claude-code --agents-file "$AGENTS_FILE" --dry-run 2>&1)"
 status=$?
 set -e
 [[ "$status" -ne 0 ]] || {
@@ -35,10 +35,24 @@ set -e
   exit 1
 }
 
-output="$($INSTALLER --tool claude-code --agent 'Developer Tooling Engineer' --dry-run 2>&1)"
+output="$("$INSTALLER" --tool claude-code --agent 'Developer Tooling Engineer' --dry-run 2>&1)"
 [[ "$output" == *"Agents:  1"* ]] || {
   printf 'Valid display-name selection did not resolve to one agent:\n%s\n' "$output" >&2
   exit 1
 }
 
 echo "PASS: install.sh rejects unknown agent selections and accepts display names"
+
+# PR-3 addition: the unknown-agent error surfaces a way to find valid options.
+set +e
+output="$("$INSTALLER" --tool claude-code --agent definitely-not-an-agent-v2 --dry-run 2>&1)"
+status=$?
+set -e
+[[ "$status" -ne 0 ]] || { printf 'Unknown --agent unexpectedly succeeded (post-improve):\n%s\n' "$output" >&2; exit 1; }
+# Assert that the new error includes either the literal "--list agents" hint
+# OR a "Valid" line. Either form satisfies the "shows valid options" goal.
+if [[ "$output" != *"--list agents"* ]] && [[ "$output" != *"Valid"* ]]; then
+  printf 'Unknown-agent error did not surface a hint to discover valid options:\n%s\n' "$output" >&2
+  exit 1
+fi
+echo "PASS: install.sh unknown-agent error surfaces valid-agent discovery hint"
