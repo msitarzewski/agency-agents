@@ -290,19 +290,15 @@ assert_eq 0 "$(find "$home" -maxdepth 1 -name 'My' -o -maxdepth 1 -name 'Agents'
 
 # Windsurf's --path is a directory override, just like Aider's. A caller may
 # run this from another project, so installing into PWD silently edits the
-# wrong project's .windsurfrules.
+# wrong project's rules. --path names the rules directory itself.
 home="$(sandbox windsurf-path)"
 work="$home/current project"
 dest="$home/target project/rules"
 mkdir -p "$work"
 (cd "$work" && HOME="$home" bash "$INSTALL" --no-interactive --tool windsurf --path "$dest" > "$home/windsurf.log" 2>&1)
 assert_eq 0 "$?" "Windsurf --path install exits successfully"
-[[ -f "$dest/.windsurfrules" ]] \
-  && pass "Windsurf --path installs into the requested directory" \
-  || fail "Windsurf --path installs into the requested directory"
-[[ ! -e "$work/.windsurfrules" ]] \
-  && pass "Windsurf --path leaves the current project alone" \
-  || fail "Windsurf --path leaves the current project alone"
+assert_eq "$TOTAL_AGENTS" "$(count_md "$dest")"   "Windsurf --path installs one rule per agent into the requested directory"
+[[ ! -e "$work/.windsurf" && ! -e "$work/.windsurfrules" ]]   && pass "Windsurf --path leaves the current project alone"   || fail "Windsurf --path leaves the current project alone"
 
 # ---------------------------------------------------------------------------
 # 4b. Parallel workers get their arguments intact (PR #755)
