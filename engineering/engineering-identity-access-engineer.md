@@ -69,18 +69,26 @@ export async function handleCallback(req: Request, session: Session) {
   const { code, state } = params(req);
   if (!session.auth || state !== session.auth.state) throw new AuthError('state_mismatch');
 
-  const tokens = await exchangeCode(code, session.auth.verifier); // includes PKCE verifier
+  // Capture and consume the validated flow before any asynchronous operation.
+  // A second callback must not exchange it; a new login must not replace its nonce.
+  const auth = session.auth;
+  delete session.auth;
+  const tokens = await exchangeCode(code, auth.verifier);       // includes PKCE verifier
   const claims = await verifyIdToken(tokens.id_token, {
     issuer: 'https://idp.example.com',
     audience: process.env.OIDC_CLIENT_ID!,
     algorithms: ['RS256'],                                      // allowlist — never trust the header alone
   });
-  if (claims.nonce !== session.auth.nonce) throw new AuthError('nonce_mismatch');
+  if (claims.nonce !== auth.nonce) throw new AuthError('nonce_mismatch');
 
-  delete session.auth;                                          // one-time use
   return establishSession(claims.sub, claims.email);
 }
 ```
+
+For a shared or multi-process session store, claiming the flow must be one atomic
+consume operation in that store (with its short TTL), not an unsynchronized
+read/delete pair. The in-memory example above has no asynchronous gap between
+checking and consuming. An exchange failure requires starting a fresh login flow.
 
 ### Session & Token Architecture Decision Table
 
