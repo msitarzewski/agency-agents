@@ -124,7 +124,8 @@ const request = (options) => {
 // WeChat login flow with server-side session
 const login = async () => {
   const { code } = await wx.login();
-  const { data } = await request({
+  // request() already resolves res.data; do not unwrap a second data envelope.
+  const data = await request({
     url: '/auth/wechat-login',
     method: 'POST',
     data: { code },
