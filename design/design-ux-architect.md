@@ -216,7 +216,7 @@ body {
 // Theme Management System
 class ThemeManager {
   constructor() {
-    this.currentTheme = this.getStoredTheme() || this.getSystemTheme();
+    this.currentTheme = this.getStoredTheme() || 'system';
     this.applyTheme(this.currentTheme);
     this.initializeToggle();
   }
@@ -226,7 +226,8 @@ class ThemeManager {
   }
 
   getStoredTheme() {
-    return localStorage.getItem('theme');
+    const stored = localStorage.getItem('theme');
+    return stored === 'dark' || stored === 'light' ? stored : null;
   }
 
   applyTheme(theme) {
