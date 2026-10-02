@@ -99,8 +99,14 @@ def fetch_thread(imap_conn, thread_ids):
     """Fetch and parse raw messages, preserving full MIME structure."""
     messages = []
     for msg_id in thread_ids:
-        _, data = imap_conn.fetch(msg_id, "(RFC822)")
-        raw = data[0][1]
+        status, data = imap_conn.fetch(msg_id, "(RFC822)")
+        if status != 'OK':
+            raise RuntimeError(f'IMAP fetch failed for message {msg_id}: {status}')
+        raw = next((item[1] for item in data or []
+                    if isinstance(item, tuple) and len(item) == 2
+                    and isinstance(item[1], bytes)), None)
+        if raw is None:
+            raise RuntimeError(f'IMAP returned no RFC822 body for message {msg_id}')
         parsed = email.message_from_bytes(raw, policy=policy.default)
         messages.append({
             "message_id": parsed["Message-ID"],
