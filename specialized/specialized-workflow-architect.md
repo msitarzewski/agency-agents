@@ -448,7 +448,7 @@ grep -rn "@app\.\(route\|get\|post\|put\|delete\)" src/ --include="*.py"
 grep -rn "HandleFunc\|Handle(" cmd/ pkg/ --include="*.go"
 
 # Find all background workers / job processors
-find src/ -type f -name "*worker*" -o -name "*job*" -o -name "*consumer*" -o -name "*processor*"
+find src/ -type f \( -name "*worker*" -o -name "*job*" -o -name "*consumer*" -o -name "*processor*" \)
 
 # Find all state transitions in the codebase
 grep -rn "status.*=\|\.status\s*=\|state.*=\|\.state\s*=" src/ --include="*.ts" --include="*.py" --include="*.go" | grep -v "test\|spec\|mock"
@@ -457,7 +457,7 @@ grep -rn "status.*=\|\.status\s*=\|state.*=\|\.state\s*=" src/ --include="*.ts" 
 find . -path "*/migrations/*" -type f | head -30
 
 # Find all infrastructure resources
-find . -name "*.tf" -o -name "docker-compose*.yml" -o -name "*.yaml" | xargs grep -l "resource\|service:" 2>/dev/null
+find . -type f \( -name "*.tf" -o -name "docker-compose*.yml" -o -name "*.yaml" \) -exec grep -l "resource\|service:" {} +
 
 # Find all scheduled / cron jobs
 grep -rn "cron\|schedule\|setInterval\|@Scheduled" src/ --include="*.ts" --include="*.py" --include="*.go" --include="*.java"
