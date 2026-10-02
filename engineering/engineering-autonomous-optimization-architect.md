@@ -58,7 +58,14 @@ export async function optimizeAndRoute(
       
       // Background Self-Learning: Asynchronously test the output 
       // against a cheaper model to see if we can optimize later.
-      shadowTestAgainstAlternative(serviceTask, result, getCheapestProvider(providers));
+      // Shadow failures must not enter the production retry/circuit-breaker path.
+      // Deferring the call also captures synchronous adapter failures.
+      void Promise.resolve()
+        .then(() => shadowTestAgainstAlternative(
+          serviceTask, result, getCheapestProvider(providers)))
+        .catch((error) => {
+          console.error('Shadow evaluation failed', error);
+        });
       
       return result;
 
