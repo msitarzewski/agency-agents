@@ -19,12 +19,12 @@ Thumbs.db
 *.sublime-project
 *.sublime-workspace
 
-# Node.js (if adding web tools later)
+# Node.js
 node_modules/
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
-package-lock.json
+# package-lock.json is committed for reproducible CI installs
 yarn.lock
 
 # Python (if adding scripts)
@@ -52,7 +52,7 @@ coverage/
 .nyc_output/
 *.lcov
 
-# Build outputs
+# Build outputs — compiled TypeScript; regenerate with `npm run build`
 dist/
 build/
 *.egg-info/
