@@ -115,10 +115,16 @@ def customer_segmentation_analysis(df):
         'revenue': 'monetary'
     })
     
-    # Create RFM scores
-    rfm['r_score'] = pd.qcut(rfm['recency'], 5, labels=[5,4,3,2,1])
-    rfm['f_score'] = pd.qcut(rfm['frequency'].rank(method='first'), 5, labels=[1,2,3,4,5])
-    rfm['m_score'] = pd.qcut(rfm['monetary'], 5, labels=[1,2,3,4,5])
+    # Percentile bands tolerate sparse cohorts and keep identical values together.
+    # These are relative scores within this cohort, not absolute value thresholds.
+    def score(values, higher_is_better=True):
+        percentile = values.rank(method='average', pct=True)
+        band = np.ceil(percentile * 5).clip(1, 5).astype(int)
+        return band if higher_is_better else 6 - band
+
+    rfm['r_score'] = score(rfm['recency'], higher_is_better=False)
+    rfm['f_score'] = score(rfm['frequency'])
+    rfm['m_score'] = score(rfm['monetary'])
     
     # Customer segments
     rfm['rfm_score'] = rfm['r_score'].astype(str) + rfm['f_score'].astype(str) + rfm['m_score'].astype(str)
