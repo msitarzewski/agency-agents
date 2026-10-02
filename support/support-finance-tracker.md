@@ -100,7 +100,7 @@ ORDER BY department, quarter;
 ```python
 import pandas as pd
 import numpy as np
-from datetime import datetime, timedelta
+from datetime import datetime
 import matplotlib.pyplot as plt
 
 class CashFlowManager:
@@ -112,7 +112,9 @@ class CashFlowManager:
         """
         Generate 12-month rolling cash flow forecast
         """
-        forecast = pd.DataFrame()
+        rows = []
+        cumulative_cash = self.current_cash
+        start_month = pd.Timestamp(datetime.now()).to_period('M')
         
         # Historical patterns analysis
         monthly_patterns = self.data.groupby('month').agg({
@@ -123,7 +125,7 @@ class CashFlowManager:
         
         # Generate forecast with seasonality
         for i in range(periods):
-            forecast_date = datetime.now() + timedelta(days=30*i)
+            forecast_date = (start_month + i).to_timestamp()
             month = forecast_date.month
             
             # Apply seasonality factors
@@ -136,17 +138,21 @@ class CashFlowManager:
             
             net_flow = forecasted_receipts - forecasted_payments
             
-            forecast = forecast.append({
+            cumulative_cash += net_flow
+            rows.append({
                 'date': forecast_date,
                 'forecasted_receipts': forecasted_receipts,
                 'forecasted_payments': forecasted_payments,
                 'net_cash_flow': net_flow,
-                'cumulative_cash': self.current_cash + forecast['net_cash_flow'].sum() if len(forecast) > 0 else self.current_cash + net_flow,
+                'cumulative_cash': cumulative_cash,
                 'confidence_interval_low': net_flow * 0.85,
                 'confidence_interval_high': net_flow * 1.15
-            }, ignore_index=True)
+            })
         
-        return forecast
+        return pd.DataFrame(rows, columns=[
+            'date', 'forecasted_receipts', 'forecasted_payments', 'net_cash_flow',
+            'cumulative_cash', 'confidence_interval_low', 'confidence_interval_high'
+        ])
     
     def identify_cash_flow_risks(self, forecast_df):
         """
