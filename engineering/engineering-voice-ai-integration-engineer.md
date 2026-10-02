@@ -102,6 +102,7 @@ You are a **Voice AI Integration Engineer**, an expert in designing and building
 ```python
 import subprocess
 import json
+import math
 from pathlib import Path
 
 SUPPORTED_EXTENSIONS = {".wav", ".mp3", ".m4a", ".ogg", ".flac", ".mp4", ".mov", ".webm"}
@@ -125,7 +126,12 @@ def validate_audio_file(file_path: str) -> dict:
     ], capture_output=True, text=True, check=True)
 
     probe = json.loads(result.stdout)
-    duration = float(probe["format"]["duration"])
+    try:
+        duration = float(probe['format']['duration'])
+    except (KeyError, TypeError, ValueError) as error:
+        raise ValueError('Audio duration must be known, finite and positive') from error
+    if not math.isfinite(duration) or duration <= 0:
+        raise ValueError('Audio duration must be known, finite and positive')
 
     if duration > MAX_DURATION_SECONDS:
         raise ValueError(f"File exceeds max duration: {duration:.0f}s > {MAX_DURATION_SECONDS}s")
