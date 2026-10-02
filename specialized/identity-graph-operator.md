@@ -115,7 +115,8 @@ class IdentityMatcher:
     """
 
     def score_pair(self, record_a: dict, record_b: dict, rules: list) -> float:
-        total_weight = 0.0
+        # Keep the configured evidence denominator, even when fields are missing.
+        total_weight = sum(rule['weight'] for rule in rules)
         weighted_score = 0.0
 
         for rule in rules:
@@ -130,10 +131,13 @@ class IdentityMatcher:
             val_a = self.normalize(val_a, rule.get("normalizer", "generic"))
             val_b = self.normalize(val_b, rule.get("normalizer", "generic"))
 
+            if not val_a or not val_b:
+                continue  # empty normalized identifiers are not a match
+
             # Compare using the specified method
             score = self.compare(val_a, val_b, rule.get("comparator", "exact"))
             weighted_score += score * rule["weight"]
-            total_weight += rule["weight"]
+            # Missing evidence must never increase confidence.
 
         return weighted_score / total_weight if total_weight > 0 else 0.0
 
