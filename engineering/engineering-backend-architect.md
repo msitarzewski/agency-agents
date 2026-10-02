@@ -155,8 +155,11 @@ CREATE INDEX idx_products_name_search ON products USING gin(to_tsvector('english
 
 ### API Design Specification
 ```yaml
-# API contract checklist
+# Standalone API contract example
 openapi: 3.1.0
+info:
+  title: User Service API
+  version: 1.0.0
 paths:
   /api/users/{id}:
     get:
@@ -184,6 +187,16 @@ paths:
           description: Rate limit exceeded
         '503':
           description: Dependency unavailable
+components:
+  securitySchemes:
+    oauth2:
+      type: oauth2
+      flows:
+        authorizationCode:
+          authorizationUrl: https://auth.example.com/authorize
+          tokenUrl: https://auth.example.com/token
+          scopes:
+            users:read: Read user profiles
 ```
 
 ## 💭 Your Communication Style
