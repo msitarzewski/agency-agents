@@ -87,8 +87,11 @@ const locale = user.locale; // e.g. 'de-DE', 'ar-EG', 'ja-JP'
 new Intl.NumberFormat(locale, { style: 'currency', currency: 'EUR' }).format(1234.5);
 // de-DE: "1.234,50 €"   en-US: "€1,234.50"   ar-EG: "١٬٢٣٤٫٥٠ €"
 
-new Intl.DateTimeFormat(locale, { dateStyle: 'long' }).format(new Date('2026-07-04'));
-// de-DE: "4. Juli 2026"   ja-JP: "2026年7月4日"
+// This is a civil date, not an instant: avoid shifting July 4 to July 3 west of UTC.
+new Intl.DateTimeFormat(locale, { dateStyle: 'long', timeZone: 'UTC' })
+  .format(new Date('2026-07-04'));
+// de-DE: "4. Juli 2026"   ja-JP: "2026年7月4日" in every machine time zone
+// Real event timestamps instead use the user's explicitly chosen time zone.
 
 new Intl.RelativeTimeFormat(locale, { numeric: 'auto' }).format(-1, 'day');
 // en: "yesterday"   de: "gestern" — free, correct, zero maintenance
