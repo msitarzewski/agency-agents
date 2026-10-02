@@ -27,8 +27,24 @@ on:
       - "scripts/lint-agents.sh"
       - "scripts/convert.sh"
       - "scripts/lib.sh"
+      # The catalog build (GitHub Pages) parses every agent; see the catalog job.
+      - "scripts/build-catalog.py"
+      - "site/**"
+      - "divisions.json"
 
 jobs:
+  catalog:
+    name: Agent catalog builds
+    runs-on: ubuntu-latest
+    # Parses the whole roster the way the Pages catalog does and fails on a
+    # missing name/description/color/emoji, a .md without frontmatter, or two
+    # agents sharing a slug. Writes nothing; takes about a second.
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Check the catalog parses
+        run: python3 scripts/build-catalog.py --check
+
   lint:
     name: Validate agent frontmatter and structure
     runs-on: ubuntu-latest
