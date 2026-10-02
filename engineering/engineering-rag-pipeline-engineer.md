@@ -160,7 +160,11 @@ async def embed_batch(texts: list[str], batch_size: int = 100) -> list[list[floa
             input=batch,
             model="text-embedding-3-small"
         )
-        all_embeddings.extend([r.embedding for r in response.data])
+        # The API supplies each embedding's input index; do not rely on wire order.
+        indexed = sorted(response.data, key=lambda item: item.index)
+        if [item.index for item in indexed] != list(range(len(batch))):
+            raise ValueError('Incomplete or duplicate embedding indices')
+        all_embeddings.extend(item.embedding for item in indexed)
     return all_embeddings
 
 async def ingest_document(document_id: str, chunks: list[dict], pool: asyncpg.Pool):
@@ -170,6 +174,8 @@ async def ingest_document(document_id: str, chunks: list[dict], pool: asyncpg.Po
     """
     texts = [c["content"] for c in chunks]
     embeddings = await embed_batch(texts)
+    if len(embeddings) != len(chunks):
+        raise ValueError('Embedding count must match chunk count before inserting')
 
     async with pool.acquire() as conn:
         await register_vector(conn)
