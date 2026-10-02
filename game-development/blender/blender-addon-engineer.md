@@ -132,10 +132,12 @@ class PIPELINE_OT_export_selected(bpy.types.Operator):
 
 ### Naming Audit Report
 ```python
+import re
+
 def build_naming_report(objects):
     report = {"ok": [], "problems": []}
     for obj in objects:
-        if "." in obj.name and obj.name[-3:].isdigit():
+        if re.search(r"\.[0-9]{3,}$", obj.name):
             report["problems"].append(f"{obj.name}: Blender duplicate suffix detected")
         elif " " in obj.name:
             report["problems"].append(f"{obj.name}: spaces in name")
