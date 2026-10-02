@@ -463,7 +463,7 @@ class IOCClassifier:
         """Check if an IP is in private/reserved ranges."""
         try:
             addr = ip_address(value)
-            return any(addr in net for net in cls.PRIVATE_RANGES)
+            return addr.is_private or addr.is_loopback or addr.is_link_local
         except ValueError:
             return False
 
@@ -493,8 +493,12 @@ class IOCEnrichmentPipeline:
                 if self.classifier.is_private_ip(raw):
                     continue
 
+            value = raw.strip()
+            if ioc_type != IOCType.URL:
+                value = value.lower()
+
             ioc = IOC(
-                value=raw.strip().lower(),
+                value=value,
                 ioc_type=ioc_type,
                 first_seen=now,
                 last_seen=now,
