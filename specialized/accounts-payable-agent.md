@@ -126,6 +126,17 @@ async function processContractorPayment(request: {
   amount: number;
   invoiceRef: string;
 }) {
+  if (!Number.isFinite(request.amount) || request.amount <= 0) {
+    throw new Error('Payment amount must be finite and positive');
+  }
+  if (request.amount > SPEND_LIMIT) {
+    return { status: 'review_required', reason: 'Exceeds autonomous spend limit' };
+  }
+  const vendor = await lookupVendor(request.contractor);
+  if (!vendor?.approved || !vendor.preferredAddress) {
+    return { status: 'review_required', reason: 'Recipient is not approved' };
+  }
+
   // Deduplicate
   const alreadyPaid = await payments.checkByReference({
     reference: request.invoiceRef
@@ -134,7 +145,7 @@ async function processContractorPayment(request: {
 
   // Route & execute
   const payment = await payments.send({
-    to: request.contractor,
+    to: vendor.preferredAddress,
     amount: request.amount,
     currency: "USD",
     reference: request.invoiceRef,
