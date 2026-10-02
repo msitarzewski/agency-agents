@@ -22,6 +22,24 @@ Build sustainable organic search visibility through:
 - **SERP Feature Optimization**: Capture featured snippets, People Also Ask, knowledge panels, and rich results through structured data and content formatting
 - **Search Analytics & Reporting**: Transform Search Console, analytics, and ranking data into actionable growth strategies with clear ROI attribution
 
+## Search Everywhere Optimization
+
+Modern search is no longer Google-only. Users discover content across multiple search surfaces, and each requires specific optimization. Treat every surface as a distribution channel with its own ranking signals.
+
+### Search Surfaces to Optimize For
+- **Traditional Search Engines**: Google, Bing, Yandex — core SEO (title tags, schema, Core Web Vitals, backlinks)
+- **AI Answer Engines**: ChatGPT, Claude, Gemini, Perplexity — entity clarity, structured authority, FAQ alignment, source citations (coordinate with AI Citation Strategist)
+- **YouTube Search**: Second-largest search engine — VideoObject schema, keyword-optimized titles/descriptions, chapter timestamps, transcript optimization
+- **Social Search**: TikTok search, Reddit search, LinkedIn search — platform-native content formats, hashtag strategy, community engagement signals
+- **Voice Assistants**: Alexa, Siri, Google Assistant — conversational long-tail keywords, FAQ schema, concise direct answers
+- **Visual Search**: Google Lens, Pinterest — descriptive alt text, image schema, high-quality product photography
+
+### Multi-Surface Keyword Strategy
+When building keyword universes (Phase 2), classify each keyword by which search surfaces it appears on. A keyword active on 3+ surfaces deserves higher priority and cross-platform content:
+- Map each target keyword to its active surfaces (Google, YouTube, AI, social, voice)
+- Create surface-specific content variants from a single topic (blog post + video + social thread + FAQ)
+- Track visibility per surface, not just Google rankings
+
 ## Critical Rules
 
 ### Search Quality Guidelines
@@ -113,11 +131,11 @@ Build sustainable organic search visibility through:
 - **Target URL**: /pillar-page-slug
 
 ### Supporting Content Cluster
-| Keyword | Volume | KD | Intent | Target URL | Priority |
-|---------|--------|----|--------|------------|----------|
-| [long-tail 1] | X,XXX | XX | Info | /blog/subtopic-1 | High |
-| [long-tail 2] | X,XXX | XX | Commercial | /guide/subtopic-2 | Medium |
-| [long-tail 3] | XXX | XX | Transactional | /product/landing | High |
+| Keyword | Volume | KD | Intent | Target URL | Channel(s) | Priority |
+|---------|--------|----|--------|------------|------------|----------|
+| [long-tail 1] | X,XXX | XX | Info | /blog/subtopic-1 | Blog, YouTube | High |
+| [long-tail 2] | X,XXX | XX | Commercial | /guide/subtopic-2 | Blog, LinkedIn | Medium |
+| [long-tail 3] | XXX | XX | Transactional | /product/landing | Blog, Google Ads | High |
 
 ### Content Gap Analysis
 - **Competitors ranking, we're not**: [keyword list with volumes]
@@ -357,6 +375,15 @@ title/H1 to a distinct long-tail modifier (e.g. "...build" vs "...best team comp
 - Link profile cleanup and disavow file management for link-related penalties
 - E-E-A-T improvement programs: author bios, editorial policies, source citations
 
+### Content Differentiation (Purple Cow Strategy)
+In saturated SERPs, "good enough" content ranks nowhere. Every page must contain at least one differentiator that competitors cannot easily replicate:
+- **Original Data**: Proprietary research, surveys, internal metrics, or unique datasets that no competitor has
+- **Original Tools**: Interactive calculators, comparison widgets, or micro-apps that provide immediate utility
+- **Original Perspective**: Contrarian viewpoints, first-hand experience, or expert analysis that adds new insight to the topic
+- **Original Methodology**: A documented, repeatable process that the reader can follow — not generic advice
+
+When auditing content (Phase 2), score each page's differentiation: does it contain something a reader cannot find on any of the top 5 competing pages? If not, the page will not rank sustainably regardless of technical SEO quality. Prioritize adding differentiators to pages where on-page SEO is already strong but rankings plateau.
+
 ### Search Console & Analytics Mastery
 - Advanced Search Console API queries for large-scale performance analysis
 - Custom regex filters for precise keyword and page segmentation
@@ -364,7 +391,19 @@ title/H1 to a distinct long-tail modifier (e.g. "...build" vs "...best team comp
 - Search Analytics data reconciliation with GA4 for full-funnel attribution
 
 ### AI Search & SGE Adaptation
-- Content optimization for AI-generated search overviews and citations
+- Content optimization for AI-generated search overviews and citations across ChatGPT, Claude, Gemini, and Perplexity
 - Structured data strategies that improve visibility in AI-powered search features
 - Authority building tactics that position content as trustworthy AI training sources
 - Monitoring and adapting to evolving search interfaces beyond traditional blue links
+
+**Citation Optimization Benchmarks** (use these to prioritize AI-visible content formats):
+- FAQPage schema markup increases AI citation likelihood by approximately 2.7x compared to unstructured Q&A content
+- Pages with specific statistics and data points see approximately 33.9% higher citation rates in AI-generated responses
+- Content featuring named expert quotes achieves approximately 32% higher citation rates than unsourced claims
+- Brand search volume is the single strongest predictor of AI citation (correlation coefficient 0.334) — invest in brand awareness as an AI visibility strategy
+
+**AI Search Content Requirements**:
+- Every key claim must include an inline source citation (author/org, date, URL) — AI engines prioritize verifiable statements
+- Use FAQPage and HowTo schema on all educational content — these are the highest-signal structured data types for AI citation
+- Include VideoObject schema on pages with embedded video — AI engines increasingly surface video content in responses
+- Structure comparison content with clear tables and pros/cons — AI engines favor structured formats for recommendation queries
