@@ -89,4 +89,41 @@ for field in name description color; do
   fi
 done
 
+# A nonempty display name still needs a nonempty ASCII slug for every tool's
+# output filename. The source linter and converter must agree on that rule.
+sed 's/^name:.*/name: 专家/' "$OUTPUT_DIR/agent.md" > "$OUTPUT_DIR/empty-slug.md"
+if "$SCRIPT_DIR/lint-agents.sh" "$OUTPUT_DIR/empty-slug.md" > /dev/null; then
+  echo "Expected linter to reject an agent name with an empty install slug" >&2
+  exit 1
+fi
+
+fixture_repo="$OUTPUT_DIR/fixture-repo"
+mkdir -p "$fixture_repo/scripts" "$fixture_repo/engineering"
+cp "$SCRIPT_DIR/convert.sh" "$SCRIPT_DIR/lib.sh" "$fixture_repo/scripts/"
+cp "$OUTPUT_DIR/empty-slug.md" "$fixture_repo/engineering/empty-slug.md"
+mkdir -p "$OUTPUT_DIR/empty-slug-output/codex"
+printf 'keep existing output\n' > "$OUTPUT_DIR/empty-slug-output/codex/sentinel"
+if "$fixture_repo/scripts/convert.sh" --tool codex --out "$OUTPUT_DIR/empty-slug-output" > "$OUTPUT_DIR/empty-slug-convert.log" 2>&1; then
+  echo "Expected converter to reject an agent name with an empty install slug" >&2
+  exit 1
+fi
+grep -q 'empty agent slug' "$OUTPUT_DIR/empty-slug-convert.log" || {
+  echo "Expected converter to explain the empty slug" >&2
+  exit 1
+}
+[[ "$(cat "$OUTPUT_DIR/empty-slug-output/codex/sentinel")" == 'keep existing output' ]] || {
+  echo "Expected empty-slug rejection to preserve existing output" >&2
+  exit 1
+}
+
+# Keep the Unicode display name, but provide an explicit ASCII alias rather
+# than guessing a transliteration. This remains a valid installable agent.
+sed 's/^name:.*/name: Expert 专家/' "$OUTPUT_DIR/agent.md" > "$fixture_repo/engineering/empty-slug.md"
+"$SCRIPT_DIR/lint-agents.sh" "$fixture_repo/engineering/empty-slug.md" > /dev/null
+"$fixture_repo/scripts/convert.sh" --tool codex --out "$OUTPUT_DIR/aliased-output" > /dev/null
+[[ -f "$OUTPUT_DIR/aliased-output/codex/agents/expert.toml" ]] || {
+  echo "Expected the aliased agent's Codex TOML output" >&2
+  exit 1
+}
+
 echo "PASS: converted YAML frontmatter stays quoted and required source metadata is nonempty"
