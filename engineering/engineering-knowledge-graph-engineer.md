@@ -185,9 +185,9 @@ from neo4j import AsyncGraphDatabase
 async def ingest(extraction: Extraction, source: dict, driver):
     """MERGE entities, source, and typed edges — append-only, never overwrite."""
     rels = [{**r, "source_sha": source["sha256"]} for r in extraction.relationships]
-    async with driver.session() as s:
+    async def write_graph(tx):
         # Threshold-gated entity promotion: always MERGE entity, flag single-source
-        await s.run("""
+        await tx.run("""
             MERGE (src:Source {sha256: $source.sha256})
               ON CREATE SET src.title=$source.title, src.date=$source.date,
                             src.url=$source.url, src.raw_path=$source.raw_path
@@ -211,12 +211,15 @@ async def ingest(extraction: Extraction, source: dict, driver):
             """, source=source, entities=extraction.entities)
 
         # Typed relationships — one edge per source so conflicts are detectable
-        await s.run("""
+        await tx.run("""
             UNWIND $rels AS r
             MATCH (a:Entity {entity_id: r.subject}), (b:Entity {entity_id: r.object})
             MERGE (a)-[rel:RELATES {type: r.type, source_sha: r.source_sha}]->(b)
               ON CREATE SET rel.confidence=r.confidence, rel.claim=r.claim, rel.created=date()
             """, rels=rels)
+
+    async with driver.session() as session:
+        await session.execute_write(write_graph)
 ```
 
 ### Contradiction Detection (Cypher)
