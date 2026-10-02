@@ -185,8 +185,9 @@ class WorkflowOptimizer:
         
         for opportunity in opportunities:
             step_name = opportunity["step"]
+            # Resolve against original names; earlier improvements rename the copy.
             step_index = next(
-                i for i, step in enumerate(optimized_steps) 
+                i for i, step in enumerate(current_steps)
                 if step.name == step_name
             )
             
