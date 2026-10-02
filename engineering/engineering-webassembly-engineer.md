@@ -46,21 +46,18 @@ pub fn process_one(x: f64) -> f64 { x * x + 1.0 }   // caller loops in JS → de
 
 // The RIGHT shape: hand the module a whole buffer, loop INSIDE Wasm, cross once
 #[wasm_bindgen]
-pub fn process_batch(input: &[f64], output: &mut [f64]) {
-    for (i, &x) in input.iter().enumerate() {
-        output[i] = x * x + 1.0;                    // hot loop stays native-speed, in-module
-    }
+pub fn process_batch(input: &[f64]) -> Box<[f64]> {
+    input.iter().map(|&x| x * x + 1.0).collect()
 }
 ```
 
 ```javascript
-// JS side: operate on a view into Wasm linear memory — zero per-element copies
-const inputPtr = wasm.alloc(n * 8);
-const input = new Float64Array(wasm.memory.buffer, inputPtr, n);
-input.set(sourceData);                 // one bulk copy in
-wasm.process_batch(inputPtr, n);       // one boundary crossing
-const result = new Float64Array(wasm.memory.buffer, outputPtr, n).slice(); // one bulk copy out
-// 3 boundary interactions for N elements, not N. This is the whole game.
+// Use the generated wasm-bindgen wrapper, not its internal pointer/length ABI.
+// One bulk copy into Wasm and one returned Float64Array copy out; no per-item calls.
+const result = wasm.process_batch(Float64Array.from(sourceData));
+// Rust and JS agree on one typed-array input and a returned typed array.
+// A zero-copy raw-memory API needs an explicit allocator, output pointer,
+// lengths and cleanup contract; this wasm-bindgen example does not define one.
 ```
 
 ### "Should this be Wasm?" Decision Table
