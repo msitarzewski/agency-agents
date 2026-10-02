@@ -97,6 +97,8 @@ def test_prompt(user_input, expected, desc):
 
 ### Few-Shot Example Builder
 ```python
+from xml.sax.saxutils import escape
+
 def build_few_shot_block(examples: list[dict]) -> str:
     """
     examples = [{"input": "...", "output": "..."}]
@@ -105,11 +107,16 @@ def build_few_shot_block(examples: list[dict]) -> str:
     lines = ["## Examples\n"]
     for i, ex in enumerate(examples, 1):
         lines.append(f"<example id='{i}'>")
-        lines.append(f"Input: {ex['input']}")
-        lines.append(f"Output: {ex['output']}")
+        # Literal XML/tag-like examples must remain text, never new delimiters.
+        lines.append(f"Input: {escape(str(ex['input']))}")
+        lines.append(f"Output: {escape(str(ex['output']))}")
         lines.append("</example>\n")
     return "\n".join(lines)
 ```
+
+Escaping preserves example boundaries when inputs or outputs contain `<`, `>`, or
+`&`. It is structural encoding, not a defense against semantic prompt injection;
+untrusted examples still require review before inclusion in a system prompt.
 
 ## 🔄 Your Workflow Process
 
