@@ -1,0 +1,16 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "client-acquisition/outreach.schema.json",
+  "title": "Outreach Draft",
+  "type": "object",
+  "required": ["lead_id", "channel", "body", "approved"],
+  "properties": {
+    "lead_id": {"type": "string"},
+    "channel": {"type": "string", "enum": ["email", "linkedin", "other"]},
+    "subject": {"type": ["string", "null"]},
+    "body": {"type": "string", "minLength": 1},
+    "rationale": {"type": "string"},
+    "approved": {"type": "boolean"}
+  },
+  "additionalProperties": false
+}
