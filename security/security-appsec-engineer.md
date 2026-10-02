@@ -140,10 +140,13 @@ function hashPassword(password: string): string {
 }
 
 function verifyPassword(password: string, storedHash: string): boolean {
-  const [salt, hash] = storedHash.split(':');
+  // Match the format produced by hashPassword before decoding or deriving.
+  const match = /^([0-9a-f]{64}):([0-9a-f]{128})$/i.exec(storedHash);
+  if (!match) return false;
+  const [, salt, hash] = match;
   const inputHash = scryptSync(password, salt, 64);
   const storedBuffer = Buffer.from(hash, 'hex');
-  // Constant-time comparison — same duration regardless of where mismatch occurs
+  // The validated hash has the same byte length, as timingSafeEqual requires.
   return timingSafeEqual(inputHash, storedBuffer);
 }
 
