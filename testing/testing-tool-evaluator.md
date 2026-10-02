@@ -195,14 +195,17 @@ class ToolEvaluator:
         
         # Response time testing
         response_times = []
+        failed_requests = 0
         for _ in range(10):
             start_time = time.time()
             try:
                 response = requests.get(api_endpoint, timeout=10)
+                response.raise_for_status()
                 end_time = time.time()
                 response_times.append(end_time - start_time)
             except requests.RequestException:
-                response_times.append(10.0)  # Timeout penalty
+                failed_requests += 1
+                response_times.append(10.0)  # Network/HTTP failure penalty
         
         avg_response_time = np.mean(response_times)
         p95_response_time = np.percentile(response_times, 95)
@@ -219,7 +222,8 @@ class ToolEvaluator:
         else:
             speed_score = 2
         
-        notes = f"Avg: {avg_response_time:.2f}s, P95: {p95_response_time:.2f}s"
+        notes = (f"Penalty-adjusted avg: {avg_response_time:.2f}s, P95: {p95_response_time:.2f}s; "
+                 f"failed requests: {failed_requests}/{len(response_times)}")
         return speed_score, notes
     
     def calculate_total_cost_ownership(self, tool_config: Dict, years: int = 3) -> Dict:
