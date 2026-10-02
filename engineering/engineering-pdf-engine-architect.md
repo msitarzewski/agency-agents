@@ -160,7 +160,8 @@ export class DOMSnapshotSerializer {
     const dangerousTags = clone.querySelectorAll('script, iframe, object, embed, applet');
     dangerousTags.forEach((el) => el.remove());
 
-    const allElements = clone.querySelectorAll('*');
+    // querySelectorAll('*') excludes the root itself.
+    const allElements = [clone, ...Array.from(clone.querySelectorAll('*'))];
     allElements.forEach((el) => {
       Array.from(el.attributes).forEach((attr) => {
         if (attr.name.toLowerCase().startsWith('on')) {
