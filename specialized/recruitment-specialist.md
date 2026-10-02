@@ -320,28 +320,34 @@ class RecruitmentFunnelAnalyzer:
             'quality_score': 'mean',         # Candidate quality score
         }).reset_index()
 
+        # Zero denominators mean no observed rate, not zero cost or perfect ROI.
+        def positive(values):
+            return values.where(values > 0)
+
         channel_data['cost_per_resume'] = (
-            channel_data['cost'] / channel_data['applications']
+            channel_data['cost'] / positive(channel_data['applications'])
         ).round(2)
         channel_data['cost_per_hire'] = (
-            channel_data['cost'] / channel_data['offers_accepted']
+            channel_data['cost'] / positive(channel_data['offers_accepted'])
         ).round(2)
         channel_data['cost_per_effective_hire'] = (
-            channel_data['cost'] / channel_data['probation_passed']
+            channel_data['cost'] / positive(channel_data['probation_passed'])
         ).round(2)
 
         # Channel efficiency ranking
         channel_data['composite_efficiency_score'] = (
             channel_data['quality_score'] * 0.4 +
-            (1 / channel_data['cost_per_hire']) * 10000 * 0.3 +
-            channel_data['probation_passed'] / channel_data['offers_accepted'] * 100 * 0.3
+            (1 / positive(channel_data['cost_per_hire'])) * 10000 * 0.3 +
+            channel_data['probation_passed'] / positive(channel_data['offers_accepted']) * 100 * 0.3
         ).round(2)
 
-        return channel_data.sort_values('composite_efficiency_score', ascending=False)
+        return channel_data.sort_values(
+            'composite_efficiency_score', ascending=False, na_position='last'
+        )
 
     def safe_divide(self, numerator, denominator):
         if denominator == 0:
-            return 0
+            return None
         return round(numerator / denominator * 100, 1)
 
     def filter_data(self, position_id=None, department=None, period=None):
