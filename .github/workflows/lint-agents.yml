@@ -4,6 +4,7 @@ on:
   pull_request:
     paths:
       - "academic/**"
+      - "content/**"
       - "design/**"
       - "engineering/**"
       - "finance/**"
@@ -41,7 +42,7 @@ jobs:
         id: changed
         run: |
           FILES=$(git diff --name-only --diff-filter=ACMR origin/${{ github.base_ref }}...HEAD -- \
-            ':(glob)academic/**/*.md' ':(glob)design/**/*.md' ':(glob)engineering/**/*.md' ':(glob)finance/**/*.md' ':(glob)game-development/**/*.md' ':(glob)gis/**/*.md' ':(glob)healthcare/**/*.md' ':(glob)marketing/**/*.md' ':(glob)paid-media/**/*.md' ':(glob)sales/**/*.md' ':(glob)security/**/*.md' ':(glob)product/**/*.md' \
+            ':(glob)academic/**/*.md' ':(glob)content/**/*.md' ':(glob)design/**/*.md' ':(glob)engineering/**/*.md' ':(glob)finance/**/*.md' ':(glob)game-development/**/*.md' ':(glob)gis/**/*.md' ':(glob)healthcare/**/*.md' ':(glob)marketing/**/*.md' ':(glob)paid-media/**/*.md' ':(glob)sales/**/*.md' ':(glob)security/**/*.md' ':(glob)product/**/*.md' \
             ':(glob)project-management/**/*.md' ':(glob)research/**/*.md' ':(glob)testing/**/*.md' ':(glob)support/**/*.md' \
             ':(glob)spatial-computing/**/*.md' ':(glob)specialized/**/*.md')
           {
