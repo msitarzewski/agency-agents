@@ -160,11 +160,16 @@ const supabase = createClient(
   }
 );
 
-// Use transaction pooler for serverless
-const pooledUrl = process.env.DATABASE_URL?.replace(
-  '5432',
-  '6543' // Transaction mode port
-);
+// Use the provider's transaction-pooler connection string for serverless.
+// Only when the provider uses the SAME host/credentials and port 6543:
+// change the URL port, never a matching substring in credentials or DB names.
+function transactionPoolUrl(connectionString?: string): string | undefined {
+  if (!connectionString) return undefined;
+  const url = new URL(connectionString);
+  url.port = '6543';
+  return url.toString();
+}
+const pooledUrl = transactionPoolUrl(process.env.DATABASE_URL);
 ```
 
 ## Critical Rules
