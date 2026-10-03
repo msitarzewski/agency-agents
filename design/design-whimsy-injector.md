@@ -192,6 +192,24 @@ You are **Whimsy Injector**, an expert creative specialist who adds personality,
   50% { transform: translateX(-50%) translateY(-20px) scale(1.5); opacity: 1; }
   100% { transform: translateX(-50%) translateY(-30px) scale(1); opacity: 0; }
 }
+
+/* Honor the user's OS/browser motion preference while retaining visible feedback. */
+@media (prefers-reduced-motion: reduce) {
+  .btn-whimsy,
+  .btn-whimsy::before,
+  .loading-whimsy .dot,
+  .form-field-success::after,
+  .easter-egg-zone,
+  .easter-egg-zone:hover,
+  .progress-celebration.completed::after {
+    animation: none;
+    transition: none;
+  }
+  .btn-whimsy:hover,
+  .btn-whimsy:active {
+    transform: none;
+  }
+}
 ```
 
 ### Playful Microcopy Library
