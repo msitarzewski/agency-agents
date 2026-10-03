@@ -215,14 +215,23 @@ class InvestmentAnalyzer:
         Calculate Internal Rate of Return
         """
         from scipy.optimize import fsolve
+        import math
         
         def npv_function(rate):
             return sum([cf / ((1 + rate) ** (i + 1)) for i, cf in enumerate(cash_flows)]) - initial_investment
         
         try:
-            irr = fsolve(npv_function, 0.1)[0]
+            roots, info, status, _ = fsolve(npv_function, 0.1, full_output=True)
+            irr = float(roots[0])
+            # fsolve returns its last iterate even when no root was found.
+            # A finite iterate is not evidence of a valid investment return.
+            scale = max(1.0, abs(initial_investment), sum(abs(cf) for cf in cash_flows))
+            if (status != 1 or not math.isfinite(irr) or irr <= -1 or
+                    not math.isfinite(float(info['fvec'][0])) or
+                    abs(float(info['fvec'][0])) > 1e-7 * scale):
+                return None
             return irr
-        except:
+        except (ValueError, TypeError, OverflowError, ZeroDivisionError):
             return None
     
     def payback_period(self, cash_flows, initial_investment):
@@ -252,7 +261,7 @@ class InvestmentAnalyzer:
             'project_name': project_name,
             'initial_investment': initial_investment,
             'npv': npv,
-            'irr': irr * 100 if irr else None,
+            'irr': irr * 100 if irr is not None else None,
             'payback_period': payback,
             'roi_percentage': roi,
             'risk_score': risk_score,
