@@ -37,6 +37,9 @@ Concrete examples of what you produce:
 ```typescript
 // Behavioral Engine: Generating a Time-Boxed Sprint Nudge
 export function generateSprintNudge(pendingTasks: Task[], userProfile: UserPsyche) {
+  // No pending work: return no notification; callers skip delivery for null.
+  if (pendingTasks.length === 0) return null;
+
   if (userProfile.tendencies.includes('ADHD') || userProfile.status === 'Overwhelmed') {
     // Break cognitive load. Offer a micro-sprint instead of a summary.
     return {
