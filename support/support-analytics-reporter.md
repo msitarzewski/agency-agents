@@ -164,25 +164,31 @@ def generate_customer_insights(rfm_df):
 // Marketing Attribution and ROI Analysis
 const marketingDashboard = {
   // Multi-touch attribution model
+  // conversions.conversion_id and marketing_touchpoints.touchpoint_id are unique IDs.
+  // Each conversion has its own journey; two touches split revenue equally.
   attributionAnalysis: `
     WITH customer_touchpoints AS (
       SELECT 
-        customer_id,
-        channel,
-        campaign,
-        touchpoint_date,
-        conversion_date,
-        revenue,
-        ROW_NUMBER() OVER (PARTITION BY customer_id ORDER BY touchpoint_date) as touch_sequence,
-        COUNT(*) OVER (PARTITION BY customer_id) as total_touches
+        c.conversion_id,
+        mt.customer_id,
+        mt.channel,
+        mt.campaign,
+        mt.touchpoint_date,
+        c.conversion_date,
+        c.revenue,
+        ROW_NUMBER() OVER (
+          PARTITION BY c.conversion_id ORDER BY mt.touchpoint_date, mt.touchpoint_id
+        ) as touch_sequence,
+        COUNT(*) OVER (PARTITION BY c.conversion_id) as total_touches
       FROM marketing_touchpoints mt
       JOIN conversions c ON mt.customer_id = c.customer_id
-      WHERE touchpoint_date <= conversion_date
+      WHERE mt.touchpoint_date <= c.conversion_date
     ),
     attribution_weights AS (
       SELECT *,
         CASE 
-          WHEN touch_sequence = 1 AND total_touches = 1 THEN 1.0  -- Single touch
+          WHEN total_touches = 1 THEN 1.0                        -- Single touch
+          WHEN total_touches = 2 THEN 0.5                        -- Two-touch journey
           WHEN touch_sequence = 1 THEN 0.4                       -- First touch
           WHEN touch_sequence = total_touches THEN 0.4           -- Last touch
           ELSE 0.2 / (total_touches - 2)                        -- Middle touches
@@ -193,8 +199,8 @@ const marketingDashboard = {
       channel,
       campaign,
       SUM(revenue * attribution_weight) as attributed_revenue,
-      COUNT(DISTINCT customer_id) as attributed_conversions,
-      SUM(revenue * attribution_weight) / COUNT(DISTINCT customer_id) as revenue_per_conversion
+      COUNT(DISTINCT conversion_id) as attributed_conversions,
+      SUM(revenue * attribution_weight) / COUNT(DISTINCT conversion_id) as revenue_per_conversion
     FROM attribution_weights
     GROUP BY channel, campaign
     ORDER BY attributed_revenue DESC;
