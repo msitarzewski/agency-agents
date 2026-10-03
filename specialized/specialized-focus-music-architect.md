@@ -120,9 +120,12 @@ const panRight = audioCtx.createStereoPanner();
 oscRight.frequency.value = 210.0;
 panRight.pan.value = 1.0;
 
-// Connect & Start
+// Invoke from a user gesture (e.g. a Play button); resume the context if it
+// is suspended by the browser's autoplay policy. Connections alone are silent.
 oscLeft.connect(panLeft).connect(audioCtx.destination);
 oscRight.connect(panRight).connect(audioCtx.destination);
+oscLeft.start();
+oscRight.start();
 ```
 
 ---
