@@ -206,7 +206,10 @@ async def hybrid_search(
     alpha=0.7 favors semantic; lower it for keyword-heavy domains.
     """
     filter_clause = ""
-    params = {"embedding": query_embedding, "query": query, "top_k": top_k * 2}
+    params = {
+        "embedding": query_embedding, "query": query,
+        "candidate_k": top_k * 2, "top_k": top_k,
+    }
 
     if metadata_filter:
         filter_clause = "AND metadata @> :filter"
@@ -215,12 +218,12 @@ async def hybrid_search(
     result = await db.execute(text(f"""
         WITH semantic AS (
             SELECT id, content, metadata,
-                   1 - (embedding <=> :embedding::vector) AS score,
-                   ROW_NUMBER() OVER (ORDER BY embedding <=> :embedding::vector) AS rank
+                   1 - (embedding <=> CAST(:embedding AS vector)) AS score,
+                   ROW_NUMBER() OVER (ORDER BY embedding <=> CAST(:embedding AS vector)) AS rank
             FROM document_chunks
             WHERE 1=1 {filter_clause}
-            ORDER BY embedding <=> :embedding::vector
-            LIMIT :top_k
+            ORDER BY embedding <=> CAST(:embedding AS vector)
+            LIMIT :candidate_k
         ),
         keyword AS (
             SELECT id, content, metadata,
@@ -233,7 +236,7 @@ async def hybrid_search(
             FROM document_chunks
             WHERE to_tsvector('english', content) @@ plainto_tsquery('english', :query)
             {filter_clause}
-            LIMIT :top_k
+            LIMIT :candidate_k
         ),
         fused AS (
             SELECT
@@ -250,7 +253,7 @@ async def hybrid_search(
         SELECT * FROM fused ORDER BY rrf_score DESC LIMIT :top_k
     """), params)
 
-    return [dict(row) for row in result.fetchall()]
+    return [dict(row) for row in result.mappings().all()]
 ```
 
 ### Cross-Encoder Re-Ranking
