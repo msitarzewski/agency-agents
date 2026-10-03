@@ -259,8 +259,10 @@ class ToolEvaluator:
             for eval in tool_evaluations
         ])
         
-        # Rank tools
-        comparison_df["Rank"] = comparison_df["Weighted Score"].rank(ascending=False)
+        # Equal best scores share rank 1; average ranking would give 1.5
+        # and make the existing Rank == 1 lookup fail. Stable input order
+        # selects the convenience top_performer field among tied leaders.
+        comparison_df["Rank"] = comparison_df["Weighted Score"].rank(method="min", ascending=False)
         
         # Identify strengths and weaknesses
         analysis = {
