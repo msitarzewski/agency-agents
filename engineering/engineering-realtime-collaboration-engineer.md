@@ -101,16 +101,20 @@ class SyncConnection {
 ### Presence System (ephemeral, TTL-scoped, coalesced)
 
 ```typescript
-// Redis-backed presence: heartbeat refreshes TTL; silence means gone.
+// Redis-backed presence: each peer heartbeat refreshes only its own TTL.
+// A room-wide hash TTL keeps departed peers forever while anyone remains active.
 // Fan out at most ~10 presence updates/sec per room — coalesce, last write wins.
 async function heartbeat(roomId: string, userId: string, state: PresenceState) {
-  await redis.hset(`presence:${roomId}`, userId, JSON.stringify({
+  const peerKey = `presence:${encodeURIComponent(roomId)}:${encodeURIComponent(userId)}`;
+  await redis.set(peerKey, JSON.stringify({
     ...state,                    // cursor, selection, viewport
     updatedAt: Date.now(),
-  }));
-  await redis.expire(`presence:${roomId}`, 60);            // room GC
-  await redis.publish(`room:${roomId}:presence`, userId);  // subscribers re-read the hash
+  }), 'EX', 60);                                         // atomic value + peer TTL
+  await redis.publish(`room:${roomId}:presence`, userId);  // subscribers GET the peer key
 }
+// Subscribers compose the same encoded peerKey and GET it after each published userId;
+// an expired key means the peer is gone. Rejoining gets an application-owned snapshot
+// or the next heartbeat; do not SCAN the keyspace on every room update.
 // Client rule: render peers whose updatedAt is fresh (< 30s); fade the rest.
 // Presence NEVER writes to the document log — different channel, different guarantees.
 ```
