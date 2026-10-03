@@ -88,10 +88,14 @@ class InventoryManager:
         EOQ = sqrt(2 * D * S / H)
         """
         d = self.params.annual_demand
+        if d <= 0:
+            raise ValueError("Discrete-unit EOQ requires positive annual demand")
         s = self.params.order_cost
         h = self.params.unit_price * self.params.holding_cost_rate
         eoq = np.sqrt(2 * d * s / h)
-        return round(eoq)
+        # This discrete-unit example must order at least one unit when demand
+        # is positive; rounding a small EOQ to zero breaks the annual report.
+        return max(1, round(eoq))
 
     def calculate_safety_stock(self) -> float:
         """
