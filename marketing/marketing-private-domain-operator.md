@@ -226,8 +226,8 @@ lifecycle_automation = {
 SELECT
     channel_code_name AS channel,
     COUNT(DISTINCT user_id) AS new_friends,
-    SUM(CASE WHEN first_reply_time IS NOT NULL THEN 1 ELSE 0 END) AS first_interactions,
-    ROUND(SUM(CASE WHEN first_reply_time IS NOT NULL THEN 1 ELSE 0 END)
+    COUNT(DISTINCT CASE WHEN first_reply_time IS NOT NULL THEN user_id END) AS first_interactions,
+    ROUND(COUNT(DISTINCT CASE WHEN first_reply_time IS NOT NULL THEN user_id END)
         * 100.0 / COUNT(DISTINCT user_id), 1) AS interaction_conversion_rate
 FROM scrm_user_channel
 WHERE add_date BETWEEN '{start_date}' AND '{end_date}'
