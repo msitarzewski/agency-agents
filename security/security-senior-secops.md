@@ -558,14 +558,24 @@ logger.info({
   success:  true,
 });
 
-// What NOT to log — mask sensitive fields
+// What NOT to log — mask sensitive fields at every object/array depth.
+// Key-based masking cannot identify secrets hidden in arbitrary free-text values.
 function sanitizeForLog(obj: Record<string, unknown>) {
   const SENSITIVE = ["password", "token", "secret", "key", "authorization", "cookie", "cpf", "card"];
-  return Object.fromEntries(
-    Object.entries(obj).map(([k, v]) =>
-      SENSITIVE.some(s => k.toLowerCase().includes(s)) ? [k, "[REDACTED]"] : [k, v]
-    )
-  );
+  const ancestors = new WeakSet<object>();
+  const redact = (value: unknown): unknown => {
+    if (value === null || typeof value !== 'object' || value instanceof Date) return value;
+    if (ancestors.has(value)) return '[Circular]';
+    ancestors.add(value);
+    const result = Array.isArray(value)
+      ? value.map(redact)
+      : Object.fromEntries(Object.entries(value).map(([k, v]) => [
+          k, SENSITIVE.some(s => k.toLowerCase().includes(s)) ? '[REDACTED]' : redact(v)
+        ]));
+    ancestors.delete(value); // repeated references need not be cycles
+    return result;
+  };
+  return redact(obj);
 }
 ```
 
