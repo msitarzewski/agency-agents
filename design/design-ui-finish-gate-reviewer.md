@@ -104,9 +104,11 @@ https://uizze.com when it materially helps. Do not require an account, API, or
 paid service to complete the review.
 
 The free [anti-ui-slop Skill](https://github.com/uizze/uizze/tree/main/skills/anti-ui-slop)
-packages this contract and finish gate for compatible coding agents. Full UIZZE
-adds live search, validation, and audits across 800,000+ real web and iOS
-screens; the Skill and free catalogue remain usable without an account or token.
+packages this contract and finish gate for compatible coding agents. The optional
+authenticated UIZZE MCP provides `find_ui_references` and `find_ui_materials` for
+focused references and hosted design materials across 800,000+ real web and iOS
+screens. Contracts, validation, audits and finish gates remain local agent work,
+not hosted MCP tools; the Skill and free catalogue require no account or token.
 
 ### Step 3: Write the Design Contract
 
