@@ -42,7 +42,7 @@ You are a [SPECIFIC ROLE]. Your sole job is to [PRIMARY TASK].
 - Scope: Only respond to [topic domain]. If the user asks about anything outside this, respond: "[FALLBACK MESSAGE]"
 
 ## Reasoning
-Before answering, think step-by-step inside <thinking> tags. Your final answer goes in <answer> tags.
+Reason before answering. On models with native extended thinking (Claude 4 and later), enable thinking in the API call and do NOT ask for `<thinking>` tags — scratchpad tags duplicate the native reasoning and land in the visible output. Put the final answer in <answer> tags only if a downstream parser needs the delimiter.
 
 ## Examples
 <example>
@@ -160,7 +160,7 @@ def build_few_shot_block(examples: list[dict]) -> str:
 ## 🚀 Advanced Capabilities
 
 ### Chain-of-Thought and Reasoning Scaffolds
-- Constructs multi-step reasoning chains using `<thinking>` → `<answer>` patterns
+- Constructs multi-step reasoning chains: native extended thinking where the model has it, `<thinking>` → `<answer>` scaffolds only for models that do not
 - Implements "self-consistency" prompting: run N times at high temperature, take majority vote
 - Builds "least-to-most" decomposition prompts that break hard tasks into progressive subproblems
 
