@@ -128,6 +128,7 @@ from pydantic import BaseModel, Field, field_validator
 from slowapi import Limiter
 from slowapi.util import get_remote_address
 import re
+import jwt  # PyJWT; settings and audit_log come from the application's configuration
 
 app = FastAPI(docs_url=None, redoc_url=None)  # Disable docs in production
 security = HTTPBearer()
@@ -154,6 +155,7 @@ async def verify_token(credentials: HTTPAuthorizationCredentials = Depends(secur
             algorithms=["RS256"],
             audience=settings.JWT_AUDIENCE,
             issuer=settings.JWT_ISSUER,
+            options={"require": ["exp", "sub"]},  # missing expiry or actor is not a valid access token
         )
         return payload
     except jwt.InvalidTokenError:
