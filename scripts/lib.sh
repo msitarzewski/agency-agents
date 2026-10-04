@@ -76,10 +76,19 @@ fence_open_p() {
   [[ "$line" =~ $re ]]
 }
 
-# fence_closes_p <line> <open_marker> <open_len> <open_indent> — 0 if <line>
-# closes the open fence (same char, run len >= open, indent <= open, nothing
-# but whitespace after the run); 1 otherwise, including non-fence lines
-# (callers need not pre-classify).
+# fence_closes_p <line> <open_marker> <open_len> [<open_indent>] — 0 if <line>
+# closes the open fence (same char, run len >= open, indent 0–3, nothing but
+# whitespace after the run); 1 otherwise, including non-fence lines (callers
+# need not pre-classify).
+#
+# The closing fence's indent is its own rule: CommonMark allows up to three
+# spaces whatever the opener's indent, and GitHub renders by it (verified
+# against GitHub's /markdown API: an unindented ``` block is closed by a
+# two-space "  ```"). The opener's indent is still passed as the fourth
+# argument, but it is deliberately not consulted — an earlier
+# `close_indent <= open_indent` check read that GitHub-valid document as still
+# open, so lint reported a false "does not nest" and the OpenClaw split kept
+# the next "##" heading inside the block.
 #
 # The "nothing after the run" part is CommonMark's rule, and GitHub renders by
 # it: inside an open ``` block, a "```python" line is content, not a closer
@@ -88,15 +97,13 @@ fence_open_p() {
 # GitHub saw one block that closed at the example's bare ``` — so a ## line
 # the split treated as code rendered as a heading, and the reverse.
 fence_closes_p() {
-  local line="$1" open_marker="$2" open_len="$3" open_indent="$4"
+  local line="$1" open_marker="$2" open_len="$3"
   local re='^( {0,3})(`{3,}|~{3,})'
   [[ "$line" =~ $re ]] || return 1
-  local close_indent=${#BASH_REMATCH[1]}
   local close_run="${BASH_REMATCH[2]}"
   local rest="${line:${#BASH_REMATCH[0]}}"
   [[ "${close_run:0:1}" == "$open_marker" ]] || return 1
   (( ${#close_run} >= open_len )) || return 1
-  (( close_indent <= open_indent )) || return 1
   [[ -z "${rest//[[:space:]]/}" ]] || return 1
   return 0
 }

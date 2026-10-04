@@ -6,6 +6,12 @@
 # a ```bash line is text, and the example's closing ``` ends the template, so
 # the rest of it renders as headings and prose. Seven roster agents shipped
 # that way, three of them with the last block left open to the end of the file.
+#
+# A closing fence is allowed up to three spaces of indentation regardless of how
+# far the opener was indented (CommonMark; GitHub renders it that way). The
+# helper used to also require the closer's indent to be <= the opener's, which
+# read GitHub-valid documents as still-open: lint reported a false "does not
+# nest" and the OpenClaw split kept the following "##" heading inside the block.
 set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
@@ -84,4 +90,54 @@ fence_closes_p '```' '`' 3 0       || fail "fence_closes_p rejected a bare closi
 fence_closes_p '````  ' '`' 3 0    || fail "fence_closes_p rejected a longer closing fence with trailing spaces"
 fence_closes_p '```' '`' 4 0       && fail "fence_closes_p let a shorter run close a longer fence"
 
-echo "PASS: nested and unclosed fences are rejected; correctly nested fences pass"
+# 5. A closing fence's indent is its own rule: up to three spaces, whatever the
+#    opener's indent. These used to be read as nestable openers, not closers.
+fence_closes_p '  ```' '`' 3 0   || fail "fence_closes_p rejected a bare closer indented 2 spaces under an unindented opener"
+fence_closes_p '   ```' '`' 3 0  || fail "fence_closes_p rejected a bare closer indented 3 spaces under an unindented opener"
+fence_closes_p '   ~~~' '~' 3 0  || fail "fence_closes_p rejected an indented tilde closer"
+fence_closes_p '  ```' '`' 4 0   && fail "fence_closes_p let an indented shorter run close a longer fence"
+fence_closes_p '    ```' '`' 3 0 && fail "fence_closes_p treated a 4-space-indented line as a closing fence"
+
+# 6. The linter must accept the GitHub-valid document and read '## Findings' as
+#    a heading, not as text inside the block.
+{ frontmatter; cat <<'EOF'
+### Template
+```text
+code
+  ```
+## Findings
+EOF
+} > "$FIXTURE/indented-closer.md"
+if ! bash "$SCRIPT_DIR/lint-agents.sh" "$FIXTURE/indented-closer.md" > "$FIXTURE/indented-closer.log" 2>&1; then
+  cat "$FIXTURE/indented-closer.log" >&2
+  fail "linter rejected a GitHub-valid indented closing fence"
+fi
+
+# 7. convert_openclaw shares the helper, so the section after an indented closer
+#    belongs in AGENTS.md; on the old helper it stayed inside the open SOUL
+#    section and AGENTS.md lost it.
+mkdir -p "$FIXTURE/repo/scripts" "$FIXTURE/repo/engineering" "$FIXTURE/output"
+cp "$SCRIPT_DIR/convert.sh" "$SCRIPT_DIR/lib.sh" "$FIXTURE/repo/scripts/"
+cat > "$FIXTURE/repo/engineering/fence-fixture.md" <<'EOF'
+---
+name: Fence Fixture
+description: Fixture agent for indented closing fences
+color: blue
+---
+## Identity
+```text
+code
+  ```
+## Core Mission
+mission text
+EOF
+if ! bash "$FIXTURE/repo/scripts/convert.sh" --tool openclaw --out "$FIXTURE/output" > "$FIXTURE/convert.log" 2>&1; then
+  cat "$FIXTURE/convert.log" >&2
+  fail "openclaw conversion failed on the indented-closer fixture"
+fi
+grep -q '^## Core Mission' "$FIXTURE/output/openclaw/fence-fixture/AGENTS.md" \
+  || fail "openclaw kept the section after an indented closer in SOUL.md"
+grep -q '^## Core Mission' "$FIXTURE/output/openclaw/fence-fixture/SOUL.md" \
+  && fail "openclaw wrote the section after an indented closer to both outputs"
+
+echo "PASS: nested and unclosed fences are rejected; correctly nested fences and indented closers pass"
