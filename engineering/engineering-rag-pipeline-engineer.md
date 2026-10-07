@@ -90,7 +90,7 @@ def chunk_document(text: str, doc_type: str) -> list[dict]:
         char_splitter = RecursiveCharacterTextSplitter(
             chunk_size=800,
             chunk_overlap=100,
-            separators=["\n\n", "\n", ". ", " "]
+            separators=["\n\n", "\n", ". ", " ", ""]
         )
         chunks = []
         for doc in header_chunks:
@@ -103,7 +103,7 @@ def chunk_document(text: str, doc_type: str) -> list[dict]:
         splitter = RecursiveCharacterTextSplitter(
             chunk_size=600,
             chunk_overlap=80,
-            separators=["\n\n", "\n", ". ", "! ", "? ", " "]
+            separators=["\n\n", "\n", ". ", "! ", "? ", " ", ""]
         )
         return [
             {"content": doc.page_content, "metadata": doc.metadata}
