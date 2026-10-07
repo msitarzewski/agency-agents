@@ -226,17 +226,25 @@ class ThemeManager {
   }
 
   getStoredTheme() {
-    const stored = localStorage.getItem('theme');
-    return stored === 'dark' || stored === 'light' ? stored : null;
+    try {
+      const stored = localStorage.getItem('theme');
+      return stored === 'dark' || stored === 'light' ? stored : null;
+    } catch {
+      return null; // Storage can be unavailable in sandboxed or restricted contexts.
+    }
   }
 
   applyTheme(theme) {
     if (theme === 'system') {
       document.documentElement.removeAttribute('data-theme');
-      localStorage.removeItem('theme');
     } else {
       document.documentElement.setAttribute('data-theme', theme);
-      localStorage.setItem('theme', theme);
+    }
+    try {
+      if (theme === 'system') localStorage.removeItem('theme');
+      else localStorage.setItem('theme', theme);
+    } catch {
+      // Apply the selected theme even when browser storage is unavailable.
     }
     this.currentTheme = theme;
     this.updateToggleUI();
