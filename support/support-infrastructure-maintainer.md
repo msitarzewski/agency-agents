@@ -305,9 +305,11 @@ handle_error() {
     local error_message="$1"
     log "ERROR: $error_message"
     
-    # Send notification
+    # Encode the message as JSON data: backup paths can contain quotes or newlines.
+    local payload
+    payload=$(python3 -c 'import json, sys; print(json.dumps({"text": "🚨 Backup Failed: " + sys.argv[1]}))' "$error_message")
     curl -X POST -H 'Content-type: application/json' \
-        --data "{\"text\":\"🚨 Backup Failed: $error_message\"}" \
+        --data "$payload" \
         "$NOTIFICATION_WEBHOOK"
     
     exit 1
