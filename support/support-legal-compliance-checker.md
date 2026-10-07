@@ -72,24 +72,27 @@ gdpr_compliance:
     
   data_categories:
     personal_identifiers:
-      - name
-      - email
-      - phone_number
-      - ip_address
+      fields:
+        - name
+        - email
+        - phone_number
+        - ip_address
       retention_period: "2 years"
       legal_basis: "contract"
       
     behavioral_data:
-      - website_interactions
-      - purchase_history
-      - preferences
+      fields:
+        - website_interactions
+        - purchase_history
+        - preferences
       retention_period: "3 years"
       legal_basis: "legitimate_interests"
       
     sensitive_data:
-      - health_information
-      - financial_data
-      - biometric_data
+      fields:
+        - health_information
+        - financial_data
+        - biometric_data
       retention_period: "1 year"
       legal_basis: "explicit_consent"
       special_protection: true
