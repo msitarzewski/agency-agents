@@ -348,6 +348,8 @@ IOC enrichment pipeline.
 Takes raw indicators and enriches with context from multiple sources.
 """
 
+import csv
+import io
 import json
 import re
 import uuid
@@ -541,13 +543,17 @@ class IOCEnrichmentPipeline:
 
     def export_csv(self) -> str:
         """Export IOCs as CSV for SIEM ingestion."""
-        lines = ["indicator,type,confidence,tags,first_seen,source"]
+        # Indicator URLs and source labels may contain commas, quotes or
+        # newlines. Let the CSV writer preserve field and record boundaries.
+        output = io.StringIO(newline="")
+        writer = csv.writer(output)
+        writer.writerow(["indicator", "type", "confidence", "tags", "first_seen", "source"])
         for ioc in self.enriched:
-            lines.append(
-                f"{ioc.value},{ioc.ioc_type.value},{ioc.confidence},"
-                f"{';'.join(ioc.tags)},{ioc.first_seen.isoformat()},{ioc.source}"
-            )
-        return "\n".join(lines)
+            writer.writerow([
+                ioc.value, ioc.ioc_type.value, ioc.confidence,
+                ";".join(ioc.tags), ioc.first_seen.isoformat(), ioc.source,
+            ])
+        return output.getvalue().removesuffix("\r\n")
 
 
 # Usage:
