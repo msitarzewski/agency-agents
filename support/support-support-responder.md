@@ -263,9 +263,13 @@ class SupportAnalytics:
         """
         Identify customers for proactive support outreach
         """
+        # Match the report's timestamp timezone; naive reports stay naive.
+        # Reuse one instant for all outreach windows.
+        now = datetime.now(tz=self.data['created_date'].dt.tz)
+
         # Customers with multiple recent tickets
         frequent_reporters = self.data[
-            self.data['created_date'] >= datetime.now() - timedelta(days=30)
+            self.data['created_date'] >= now - timedelta(days=30)
         ].groupby('customer_id').size()
         
         high_volume_customers = frequent_reporters[frequent_reporters >= 3].index.tolist()
@@ -273,13 +277,13 @@ class SupportAnalytics:
         # Customers with low satisfaction scores
         low_satisfaction = self.data[
             (self.data['csat_score'] <= 3) & 
-            (self.data['created_date'] >= datetime.now() - timedelta(days=7))
+            (self.data['created_date'] >= now - timedelta(days=7))
         ]['customer_id'].unique()
         
         # Customers with unresolved tickets over SLA
         overdue_tickets = self.data[
             (self.data['status'] != 'resolved') & 
-            (self.data['created_date'] <= datetime.now() - timedelta(hours=48))
+            (self.data['created_date'] <= now - timedelta(hours=48))
         ]['customer_id'].unique()
         
         return {
