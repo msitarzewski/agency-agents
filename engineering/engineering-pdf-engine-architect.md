@@ -574,12 +574,13 @@ export const CVPageViewportScaler: React.FC<ScalerProps> = ({
 
 ### 5. Accessible Tagged PDF & PDF/A-2b Post-Processing Pipeline (`pikepdf` Python)
 
-Applies non-destructive metadata post-processing using `pikepdf` to attach PDF/A-2b and PDF/UA-1 XMP metadata packets, enforce sRGB Output Intent, and linearize for instant web streaming:
+Requires `pikepdf[pdfa] >= 10.14`. Update descriptive metadata, install a real sRGB output intent and return bytes only after the PDF/A-2b save validator accepts the written document. Metadata declarations alone do not establish conformance; this helper does not establish or declare PDF/UA-1 compliance.
 
 ```python
 # pdf_post_processor.py
 import io
 import pikepdf
+from pikepdf import pdfa
 
 def post_process_pdf_a2b(
     pdf_bytes: bytes,
@@ -587,38 +588,22 @@ def post_process_pdf_a2b(
     author: str = "System",
     subject: str = "Standard Report"
 ) -> bytes:
-    """Post-process a Chromium tagged PDF into compliant PDF/A-2b and PDF/UA-1."""
-    pdf = pikepdf.open(io.BytesIO(pdf_bytes))
+    """Return a validated PDF/A-2b candidate, or raise pdfa.PdfaError."""
+    with pikepdf.open(io.BytesIO(pdf_bytes)) as pdf:
+        with pdf.open_metadata() as meta:
+            meta["dc:title"] = title
+            meta["dc:creator"] = [author]
+            meta["dc:description"] = subject
 
-    # 1. Update Document Info Dictionary
-    with pdf.open_metadata() as meta:
-        meta["dc:title"] = title
-        meta["dc:creator"] = [author]
-        meta["dc:description"] = subject
-        meta["pdfaid:part"] = "2"
-        meta["pdfaid:conformance"] = "B"
-        meta["pdfuaid:part"] = "1"
-
-    # 2. Attach sRGB Output Intent if not present
-    if "/OutputIntents" not in pdf.Root:
-        icc_profile_data = b"..." # Embed standard sRGB2014 ICC profile stream
-        icc_stream = pdf.make_stream(icc_profile_data)
-        icc_stream["/N"] = 3
-
-        output_intent = pdf.make_indirect({
-            "/Type": pikepdf.Name("/OutputIntent"),
-            "/S": pikepdf.Name("/GTS_PDFA1"),
-            "/OutputConditionIdentifier": pikepdf.String("sRGB IEC61966-2.1"),
-            "/Info": pikepdf.String("sRGB IEC61966-2.1"),
-            "/DestOutputProfile": icc_stream
-        })
-        pdf.Root["/OutputIntents"] = pdf.make_array([output_intent])
-
-    # 3. Save linearized (Fast Web View)
-    out_buf = io.BytesIO()
-    pdf.save(out_buf, linearize=True)
-    return out_buf.getvalue()
+        out_buf = io.BytesIO()
+        # save supplies a valid built-in ICC profile, prepares metadata,
+        # reopens the written bytes and rejects violations or unchecked constructs.
+        # It does not embed missing fonts or convert page colours/content.
+        pdfa.save(pdf, out_buf, "2b", output_intent="sRGB", linearize=True)
+        return out_buf.getvalue()
 ```
+
+Handle `pdfa.PdfaError` as a failed export gate, preserving its report for remediation. Fix unsupported content with an appropriate converter rather than stamping conformance identifiers onto it. Use [veraPDF](https://verapdf.org/) for authoritative PDF/A validation and a separate PDF/UA validation workflow before making accessibility claims. See [pikepdf's validation and repair contract](https://pikepdf.readthedocs.io/en/latest/topics/pdfa.html).
 
 ### 6. Automated PDF Vector & Text Integrity Auditor (Python)
 
@@ -685,7 +670,7 @@ class PDFVectorIntegrityAuditor:
    - Wait for `document.fonts.ready`.
    - Invoke `page.pdf({ width, height, preferCSSPageSize: true, printBackground: true, tagged: true })`.
 5. **Step 5: Metadata Post-Processing & Audit Gate**:
-   - Pass raw PDF through `pikepdf` to attach PDF/A-2b and PDF/UA-1 XMP metadata packets.
+   - Pass raw PDF through the validated PDF/A-2b save gate; remediate failures and independently validate PDF/UA accessibility before claiming it.
    - Execute `PDFVectorIntegrityAuditor` to confirm vector text operators and verify zero rasterization fallbacks.
 
 ## 💭 Your Communication Style
