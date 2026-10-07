@@ -759,7 +759,7 @@ clean_tool_output() {
 # name. Refuse collisions before cleaning any existing output: otherwise the
 # later source file silently replaces the earlier agent in the generated tree.
 check_agent_slug_collisions() {
-  local dir dirpath file slug relative i
+  local dir dirpath file slug name relative i
   local seen_slugs=() seen_files=()
   local collisions=0
   for dir in "${AGENT_DIRS[@]}"; do
@@ -768,8 +768,15 @@ check_agent_slug_collisions() {
     while IFS= read -r -d '' file; do
       is_agent_file "$file" || continue
       slug="$(agent_slug "$file")"
-      [[ -n "$slug" ]] || continue
       relative="${file#"$REPO_ROOT"/}"
+      if [[ -z "$slug" ]]; then
+        name="$(get_field name "$file")"
+        if [[ -n "$name" ]]; then
+          error "empty agent slug for $relative: name '$name' needs an ASCII alias"
+          collisions=$((collisions + 1))
+        fi
+        continue
+      fi
       for i in "${!seen_slugs[@]}"; do
         if [[ "${seen_slugs[i]}" == "$slug" ]]; then
           error "duplicate agent slug '$slug': ${seen_files[i]} and $relative"

@@ -132,6 +132,13 @@ lint_file() {
     fi
   done
 
+  local name
+  name="$(get_field name "$file")"
+  if [[ -n "$name" && -z "$(slugify "$name")" ]]; then
+    echo "ERROR $file: name '$name' produces an empty agent slug; include an ASCII alias"
+    errors=$((errors + 1))
+  fi
+
   # 2b. The color has to be one the converters can resolve. Checking only that
   # the field exists let four agents ship a name nothing maps, and they render
   # grey in OpenCode with no warning anywhere.
