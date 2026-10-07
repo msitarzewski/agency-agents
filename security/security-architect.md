@@ -143,7 +143,7 @@ class UserInput(BaseModel):
     @field_validator("username")
     @classmethod
     def validate_username(cls, v: str) -> str:
-        if not re.match(r"^[a-zA-Z0-9_-]+$", v):
+        if not re.fullmatch(r"[a-zA-Z0-9_-]+", v):
             raise ValueError("Username contains invalid characters")
         return v
 
