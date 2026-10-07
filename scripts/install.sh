@@ -1078,12 +1078,21 @@ install_aider() {
     # holding the pre-index roster (3.8M characters, far past what aider can keep
     # in context for a session) re-ran the installer, read "already exists", and
     # kept the broken file. Our generated file has always opened with the same
-    # marker, so tell our stale copy apart from someone else's conventions.
-    if head -n 1 "$dest" | grep -q 'The Agency'; then
-      local bytes; bytes="$(wc -c < "$dest" | tr -d ' ')"
-      warn "Aider: $dest is an Agency roster index from an earlier install ($bytes bytes)."
-      dim  "       The roster is an index now, not the agents themselves. Delete it and"
-      dim  "       re-run this installer to pick up the smaller file."
+    # marker, so tell our stale copy apart from someone else's conventions. The
+    # index and the old roster share that marker; only the index has
+    # "Full instructions:" lines, so that is what separates the two.
+    if cmp -s "$src" "$dest"; then
+      ok "Aider: $dest is already the current roster index."
+    elif head -n 1 "$dest" | grep -q 'The Agency'; then
+      if grep -q '^Full instructions: ' "$dest"; then
+        warn "Aider: $dest is an Agency roster index from an earlier install."
+        dim  "       Delete it and re-run this installer to pick up the current roster."
+      else
+        local bytes; bytes="$(wc -c < "$dest" | tr -d ' ')"
+        warn "Aider: $dest is the full Agency roster from an earlier install ($bytes bytes)."
+        dim  "       The roster is an index now, not the agents themselves. Delete it and"
+        dim  "       re-run this installer to pick up the smaller file."
+      fi
     else
       warn "Aider: CONVENTIONS.md already exists at $dest — leaving your file alone."
       dim  "       Remove it and re-run to install the Agency roster index instead."
