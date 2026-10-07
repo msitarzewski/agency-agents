@@ -122,7 +122,7 @@ def validate_audio_file(file_path: str) -> dict:
         "ffprobe", "-v", "quiet",
         "-print_format", "json",
         "-show_streams", "-show_format",
-        str(path)
+        "-i", str(path)  # Treat leading-dash filenames as input operands.
     ], capture_output=True, text=True, check=True)
 
     probe = json.loads(result.stdout)
@@ -177,7 +177,7 @@ def preprocess_audio(input_path: str, output_path: str) -> str:
         "-ar", "16000",               # 16kHz sample rate
         "-ac", "1",                   # mono
         "-af", "loudnorm=I=-16:TP=-1.5:LRA=11",  # EBU R128 loudness normalization
-        output_path
+        str(Path(output_path).absolute())  # Output paths must not look like options.
     ]
     subprocess.run(cmd, check=True, capture_output=True)
     return output_path
@@ -201,7 +201,7 @@ def chunk_audio(input_path: str, chunk_dir: str,
         raise ValueError("overlap must be finite and nonnegative")
     result = subprocess.run([
         "ffprobe", "-v", "quiet", "-show_entries", "format=duration",
-        "-of", "default=noprint_wrappers=1:nokey=1", input_path
+        "-of", "default=noprint_wrappers=1:nokey=1", "-i", input_path
     ], capture_output=True, text=True, check=True)
     total_duration = float(result.stdout.strip())
     if not math.isfinite(total_duration) or total_duration <= 0:
@@ -222,7 +222,7 @@ def chunk_audio(input_path: str, chunk_dir: str,
             "-t", str(end - start),
             "-map", "0:a:0", "-vn",
             "-acodec", "pcm_s16le", "-ar", "16000", "-ac", "1",
-            out_path
+            str(Path(out_path).absolute())
         ], check=True, capture_output=True)
         chunks.append({"path": out_path, "start_offset": start, "index": chunk_index})
         start += chunk_duration
