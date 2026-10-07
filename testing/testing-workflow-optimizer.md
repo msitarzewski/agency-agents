@@ -246,7 +246,7 @@ class WorkflowOptimizer:
     
     def calculate_improvement_impact(self, current_metrics: WorkflowMetrics, 
                                    optimized_metrics: WorkflowMetrics) -> Dict:
-        """Calculate quantified improvement impact"""
+        """Calculate impact; a zero cost baseline has no defined percentage."""
         improvements = {
             "cycle_time_reduction": {
                 "absolute": current_metrics.total_cycle_time - optimized_metrics.total_cycle_time,
@@ -255,8 +255,11 @@ class WorkflowOptimizer:
             },
             "cost_reduction": {
                 "absolute": current_metrics.cost_per_execution - optimized_metrics.cost_per_execution,
-                "percentage": ((current_metrics.cost_per_execution - optimized_metrics.cost_per_execution)
-                              / current_metrics.cost_per_execution) * 100
+                "percentage": (
+                    ((current_metrics.cost_per_execution - optimized_metrics.cost_per_execution)
+                     / current_metrics.cost_per_execution) * 100
+                    if current_metrics.cost_per_execution != 0 else None
+                )
             },
             "quality_improvement": {
                 "absolute": current_metrics.error_rate - optimized_metrics.error_rate,
