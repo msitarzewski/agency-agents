@@ -159,7 +159,7 @@ To prevent false positives when identifying metrics ($Y$):
 - When fonts are subsetted during PDF compilation without embedding a `/ToUnicode` CMap dictionary, character codes map to arbitrary internal glyph indices or Unicode Private Use Area (PUA) codepoints (`\uE000`–`\uF8FF`).
 - **Detection Regex**:
   ```typescript
-  const PUA_REGEX = /[\uE000-\uF8FF]|\uD83C[\uDC00-\uDFFF]|\uD83D[\uDC00-\uDFFF]|[\u{100000}-\u{10FFFD}]/u;
+  const PUA_REGEX = /[\uE000-\uF8FF\u{F0000}-\u{FFFFD}\u{100000}-\u{10FFFD}]/u;
   ```
   If detected in the extracted text stream, the document is corrupted and will be unsearchable in Workday/Taleo.
 
