@@ -43,6 +43,8 @@ brew install --cask msitarzewski/agency-agents/agency-agents
 
 Prefer the command line? The script-based options below install the same agents.
 
+> **On Windows:** the install and convert scripts under `scripts/` are Bash (POSIX shell) — run them from **Git Bash** or **WSL**, or use the app above, which is native on Windows. (One exception: `scripts/i18n/localize-agents-zh.ps1` is PowerShell and runs natively — see `scripts/i18n/README.md`.) The same convention holds inside agent files: a `bash` code fence is POSIX shell, a `powershell` fence is Windows.
+
 ### Option 2: Use with Claude Code
 
 ```bash

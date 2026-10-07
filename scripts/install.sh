@@ -57,9 +57,12 @@
 #      VIBE_HOME, DSH_HOME, DSH_SKILLS_DIR
 #      override default install paths (checked before hardcoded defaults).
 #
-# --- USAGE-END ---  (sentinel for usage(); do not remove)
 # Platform support:
-#   Linux, macOS (requires bash 3.2+), Windows Git Bash / WSL
+#   Linux, macOS (requires bash 3.2+), Windows Git Bash / WSL.
+#   There is no PowerShell port — on Windows run this from Git Bash or WSL,
+#   or use the desktop app: https://agencyagents.app
+#
+# --- USAGE-END ---  (sentinel for usage(); do not remove)
 
 set -euo pipefail
 
