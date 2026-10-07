@@ -358,6 +358,8 @@ def variable_stability_report(
     Flags variables exceeding PSI threshold vs. the first observed period.
     """
     periods = sorted(df[date_col].unique())
+    if len(periods) < 2:
+        raise ValueError("Stability reporting requires a baseline and an observed period")
     baseline = df[df[date_col] == periods[0]]
 
     results = []
