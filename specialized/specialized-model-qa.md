@@ -226,12 +226,15 @@ def hosmer_lemeshow_test(
 import shap
 import matplotlib.pyplot as plt
 
-def shap_global_analysis(model, X: pd.DataFrame, output_dir: str = "."):
+def shap_global_analysis(model, X: pd.DataFrame, output_dir: str = ".",
+                         output_index: int = 1):
     """
     Global interpretability via SHAP values.
     Produces summary plot (beeswarm) and bar plot of mean |SHAP|.
     Works with tree-based models (XGBoost, LightGBM, RF) and
     falls back to KernelExplainer for other model types.
+    Multi-output models explain the selected output (binary positive class by default).
+    Select another class/output explicitly; single-output regression is unchanged.
     """
     try:
         explainer = shap.TreeExplainer(model)
@@ -242,9 +245,12 @@ def shap_global_analysis(model, X: pd.DataFrame, output_dir: str = "."):
 
     shap_values = explainer.shap_values(X)
 
-    # If multi-output, take positive class
+    # SHAP >= 0.45 returns an output axis instead of the legacy list.
+    # Select before plotting and averaging so each feature has one attribution.
     if isinstance(shap_values, list):
-        shap_values = shap_values[1]
+        shap_values = shap_values[output_index]
+    elif shap_values.ndim == 3:
+        shap_values = shap_values[..., output_index]
 
     # Beeswarm: shows value direction + magnitude per feature
     shap.summary_plot(shap_values, X, show=False)
@@ -267,11 +273,13 @@ def shap_global_analysis(model, X: pd.DataFrame, output_dir: str = "."):
     return importance
 
 
-def shap_local_explanation(model, X: pd.DataFrame, idx: int):
+def shap_local_explanation(model, X: pd.DataFrame, idx: int,
+                           output_index: int = 1):
     """
     Local interpretability: explain a single prediction.
     Produces a waterfall plot showing how each feature pushed
     the prediction from the base value.
+    Multi-output models use the same selected output as the global analysis.
     """
     try:
         explainer = shap.TreeExplainer(model)
@@ -281,6 +289,9 @@ def shap_local_explanation(model, X: pd.DataFrame, idx: int):
         )
 
     explanation = explainer(X.iloc[[idx]])
+    if explanation.values.ndim == 3:
+        # Slice the whole Explanation so base values/data stay aligned.
+        explanation = explanation[..., output_index]
     shap.plots.waterfall(explanation[0], show=False)
     plt.tight_layout()
     plt.savefig(f"shap_waterfall_obs_{idx}.png", dpi=150)
