@@ -394,11 +394,18 @@ class IOC:
     def to_stix(self) -> dict:
         """Convert to STIX 2.1 indicator object."""
         pattern_map = {
-            IOCType.IPV4: f"[ipv4-addr:value = '{self.value}']",
-            IOCType.DOMAIN: f"[domain-name:value = '{self.value}']",
-            IOCType.SHA256: f"[file:hashes.'SHA-256' = '{self.value}']",
-            IOCType.URL: f"[url:value = '{self.value}']",
+            IOCType.IPV4: "ipv4-addr:value",
+            IOCType.IPV6: "ipv6-addr:value",
+            IOCType.DOMAIN: "domain-name:value",
+            IOCType.SHA256: "file:hashes.'SHA-256'",
+            IOCType.SHA1: "file:hashes.'SHA-1'",
+            IOCType.MD5: "file:hashes.MD5",
+            IOCType.EMAIL: "email-addr:value",
+            IOCType.URL: "url:value",
         }
+        # STIX string literals escape backslashes and apostrophes separately
+        # from JSON encoding, preserving the exact admitted indicator value.
+        literal = self.value.replace("\\", "\\\\").replace("'", "\\'")
         return {
             "type": "indicator",
             "spec_version": "2.1",
@@ -406,7 +413,7 @@ class IOC:
             "created": self.first_seen.isoformat(),
             "modified": self.last_seen.isoformat(),
             "name": f"{self.ioc_type.value}: {self.value}",
-            "pattern": pattern_map.get(self.ioc_type, f"[artifact:payload_bin = '{self.value}']"),
+            "pattern": f"[{pattern_map[self.ioc_type]} = '{literal}']",
             "pattern_type": "stix",
             "valid_from": self.first_seen.isoformat(),
             "confidence": int(self.confidence * 100),
