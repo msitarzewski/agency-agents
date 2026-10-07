@@ -89,17 +89,20 @@ set -euo pipefail
 message_file="${1:?commit message file is required}"
 branch="$(git rev-parse --abbrev-ref HEAD)"
 subject="$(head -n 1 "$message_file")"
+# Accept the documented Codex wrapper, then validate the repository branch inside it.
+# Remove one prefix only; the inner branch must still match the complete policy.
+validation_branch="${branch#codex/}"
 
 branch_regex='^(feature|bugfix|hotfix)/[A-Z]+-[0-9]+-[a-z0-9-]+$|^release/[0-9]+\.[0-9]+\.[0-9]+$'
 commit_regex='^(🚀|✨|🐛|♻️|📚|🧪|💄|🔧|📦) [A-Z]+-[0-9]+: .+$'
 
-if [[ ! "$branch" =~ $branch_regex ]]; then
+if [[ ! "$validation_branch" =~ $branch_regex ]]; then
   echo "Invalid branch name: $branch" >&2
   echo "Use feature/JIRA-ID-description, bugfix/JIRA-ID-description, hotfix/JIRA-ID-description, or release/version." >&2
   exit 1
 fi
 
-if [[ "$branch" != release/* && ! "$subject" =~ $commit_regex ]]; then
+if [[ "$validation_branch" != release/* && ! "$subject" =~ $commit_regex ]]; then
   echo "Invalid commit subject: $subject" >&2
   echo "Use: <gitmoji> JIRA-ID: short description" >&2
   exit 1
