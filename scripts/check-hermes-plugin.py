@@ -96,6 +96,28 @@ def main() -> int:
         assert inspected["success"] is True
         assert inspected["agent"]["slug"] == slug
 
+        # Runbook rosters and the desktop app address agents by their .md
+        # filename stem, which is not the rendered slug for most of the roster.
+        # The router must accept the stem as an alias (#1027) and still refuse
+        # an id that is neither a slug, a display name, nor a stem.
+        inspect = ctx.tools["agency_agents_inspect"]["handler"]
+        agents = json.loads(
+            (out_dir / builder.PLUGIN_NAME / "data" / "agents.json").read_text(encoding="utf-8")
+        )
+        for entry in agents:
+            stem = Path(entry["source_path"]).stem
+            payload = json.loads(inspect({"slug": stem}))
+            assert payload["success"] is True, f"runbook stem {stem!r} did not resolve"
+            assert payload["agent"]["slug"] == entry["slug"], (
+                f"runbook stem {stem!r} resolved to {payload['agent']['slug']!r}"
+            )
+        spaced = Path(agents[0]["source_path"]).stem.replace("-", " ")
+        payload = json.loads(inspect({"slug": spaced}))
+        assert payload["success"] is True and payload["agent"]["slug"] == agents[0]["slug"], (
+            f"spaced stem {spaced!r} did not resolve like a slug"
+        )
+        assert json.loads(inspect({"slug": "no-such-agent-stem"}))["success"] is False
+
     print("PASSED: generated Hermes plugin schemas and routing behavior are valid.")
     return 0
 

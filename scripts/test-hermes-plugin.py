@@ -14,6 +14,7 @@ from types import SimpleNamespace
 
 ROOT = Path(__file__).resolve().parents[1]
 PLUGIN = ROOT / "integrations" / "hermes" / "agency-agents-router" / "__init__.py"
+DATA = PLUGIN.parent / "data" / "agents.json"
 
 
 class State(str, Enum):
@@ -164,6 +165,35 @@ class DelegateBehaviorTests(unittest.TestCase):
         assert request is not None
         self.assertEqual(len(request.context), 32_000)
         self.assertTrue(request.context.endswith(module._TRUNCATION_MARKER))
+
+
+class LookupAliasTests(unittest.TestCase):
+    """Runbook/file-stem ids resolve alongside rendered slugs (#1027)."""
+
+    def inspect(self, identifier):
+        _, context = load_plugin(FakeLifecycle())
+        _, handler = context.tools["agency_agents_inspect"]
+        return json.loads(handler({"slug": identifier}))
+
+    def stem_entry(self):
+        agents = json.loads(DATA.read_text(encoding="utf-8"))
+        return next(e for e in agents if Path(e["source_path"]).stem != e["slug"])
+
+    def test_runbook_stem_resolves_to_its_agent(self):
+        entry = self.stem_entry()
+        payload = self.inspect(Path(entry["source_path"]).stem)
+        self.assertTrue(payload["success"])
+        self.assertEqual(payload["agent"]["slug"], entry["slug"])
+
+    def test_spaced_stem_normalizes_like_a_slug(self):
+        entry = self.stem_entry()
+        spaced = Path(entry["source_path"]).stem.replace("-", " ")
+        payload = self.inspect(spaced)
+        self.assertTrue(payload["success"])
+        self.assertEqual(payload["agent"]["slug"], entry["slug"])
+
+    def test_unknown_stem_is_not_found(self):
+        self.assertFalse(self.inspect("no-such-agent-stem")["success"])
 
 
 if __name__ == "__main__":
