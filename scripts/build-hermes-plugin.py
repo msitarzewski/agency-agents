@@ -121,6 +121,7 @@ def init_py() -> str:
     return r'''"""Hermes plugin: lazy router for The Agency agents."""
 from __future__ import annotations
 
+import bisect
 import json
 import math
 import re
@@ -129,6 +130,10 @@ from typing import Any
 
 _DATA_PATH = Path(__file__).parent / "data" / "agents.json"
 _AGENTS: list[dict[str, Any]] | None = None
+_INDEX: dict[str, dict[str, Any]] | None = None
+_IDF: dict[str, float] = {}
+_IDF_DEFAULT = 1.0
+_VOCAB: list[str] = []
 
 _WORD_RE = re.compile(r"[a-z0-9][a-z0-9+.#_-]*", re.I)
 _MAX_LIFECYCLE_CONTEXT_CHARS = 32_000
@@ -137,6 +142,57 @@ _CANCELLATION_WAIT_SECONDS = 30
 _TRUNCATION_MARKER = (
     "\n\n[Specialist instructions truncated to fit the Hermes lifecycle context limit.]"
 )
+
+# Only the head of a body is indexed: past this point a term is usually an
+# aside, not what the agent is for.
+_BODY_HEAD_CHARS = 8000
+
+# Which field a term lands in is most of the signal. A term in the name means
+# the agent is about that thing; the same term 6000 characters into the body
+# usually means it came up once. Weights and the two constants below were
+# picked by running scripts/test-hermes-search.py over the real roster.
+_FIELD_WEIGHT = {"name": 8.0, "description": 4.5, "division": 2.0, "vibe": 1.5}
+_BODY_WEIGHT = 1.0
+_PHRASE_BONUS = 8.0
+
+# Matching more of the query beats spiking on one term, but not so strongly
+# that a broad weak match outranks the agent the query is named after.
+_COVERAGE_FLOOR = 0.6
+
+# Query terms this long also match index terms they prefix, so "postgres"
+# reaches "postgresql" and "accessib" reaches "accessibility".
+_PREFIX_MIN = 5
+
+# Below this a result is noise rather than a weak answer.
+_MIN_SCORE = 1.5
+
+# A query term that only matches one segment of a compound word ("ops" in
+# DevOps, "sql" in PostgreSQL, "js" in Node.js) counts for this fraction of
+# what a whole-word match in the same field would. It has to count for
+# something: "ops" is a natural thing to type, and the roster spells most of
+# its compounds as one word. It has to count for less: the agent named "Ops
+# Lead" is a better answer to "ops" than the one that mentions DevOps once.
+_COMPOUND_WEIGHT = 0.6
+
+# Where a compound splits: a lower-to-upper case change (DevOps, GraphQL), an
+# acronym before a capitalised word (SQLServer), or a letter/digit change.
+# Case is the only thing that separates "Dev|Ops" from "t|rust", so this runs
+# on the original text, before anything is lowercased.
+_SEGMENT_RE = re.compile(r"[A-Z]+(?![a-z])|[A-Z]?[a-z]+|[0-9]+")
+_JOINER_RE = re.compile(r"[._+#-]+")
+
+# Query words that say nothing about which specialist is wanted. Searches
+# arrive as questions ("who can help me review my api"), so most of a query is
+# usually this list; scoring these like real terms drowns out the one word that
+# decides the answer.
+_STOPWORDS = frozenset("""
+a about all also am an and any are as at be been being but by can cant could
+did do does doing done for from get give got had has have having help how i if
+im in into is it its just like make me my need needs no not of on one only or
+our out over please should so some than that the their them then there these
+they this those to up us use used using want was way we well what when where
+which who why will with would you your
+""".split())
 
 
 def _load_agents() -> list[dict[str, Any]]:
@@ -147,7 +203,33 @@ def _load_agents() -> list[dict[str, Any]]:
 
 
 def _tokens(text: str) -> set[str]:
-    return {token.lower() for token in _WORD_RE.findall(text or "")}
+    # _WORD_RE lets "." "-" "_" through so node.js, ci-cd and snake_case stay
+    # whole, but that also swept up sentence punctuation: "Rust." at the end
+    # of a sentence was the token "rust.", and a query for rust missed it.
+    # Trailing + and # are kept; they are the point of c++ and c#.
+    return {token.lower().rstrip("._-") for token in _WORD_RE.findall(text or "")}
+
+
+def _segments(text: str) -> set[str]:
+    """Pieces of compound words, lowercased: DevOps -> dev, ops; Node.js ->
+    node, js; PostgreSQL -> postgre, sql.
+
+    Only words that actually split contribute, and only pieces of two or more
+    characters. "Trust" has no case change inside it, so "rust" is not one of
+    its segments; that is the whole point of splitting on case rather than
+    matching substrings. An all-caps plural ("APIs", "LLMs") is one word with
+    an s on the end, not two segments.
+    """
+    out: set[str] = set()
+    for word in _WORD_RE.findall(text or ""):
+        if re.fullmatch(r"[A-Z]{2,}s", word):
+            continue
+        pieces = [piece.lower()
+                  for chunk in _JOINER_RE.split(word) if chunk
+                  for piece in _SEGMENT_RE.findall(chunk)]
+        if len(pieces) > 1:
+            out.update(piece for piece in pieces if len(piece) >= 2)
+    return out
 
 
 def _agent_lookup(identifier: str) -> dict[str, Any] | None:
@@ -176,31 +258,146 @@ def _not_found(identifier: str) -> dict[str, Any]:
     }
 
 
-def _score(agent: dict[str, Any], query_tokens: set[str], query_text: str) -> float:
-    haystack_fields = [
-        agent.get("name", ""),
-        agent.get("description", ""),
-        agent.get("division", ""),
-        agent.get("vibe", ""),
-        agent.get("body", "")[:8000],
-    ]
-    haystack_text = "\n".join(haystack_fields).lower()
-    haystack_tokens = _tokens(haystack_text)
-    overlap = query_tokens & haystack_tokens
-    score = float(len(overlap))
-    if query_text and query_text in haystack_text:
-        score += 5.0
-    name = agent.get("name", "").lower()
-    description = agent.get("description", "").lower()
-    for token in query_tokens:
-        if token in name:
-            score += 3.0
-        if token in description:
-            score += 1.5
-    if score == 0.0:
+def _build_index() -> dict[str, dict[str, Any]]:
+    """Tokenize every agent once, per field, and count how many agents use each
+    term.
+
+    Whole tokens, not substrings. The earlier scorer asked `token in name`,
+    which made "go" a hit on Godot Multiplayer Engineer, "ai" a hit on Email
+    Marketing Strategist, and the letter "r" a hit on 253 of 279 names.
+    """
+    global _INDEX, _IDF, _IDF_DEFAULT, _VOCAB
+    if _INDEX is not None:
+        return _INDEX
+    agents = _load_agents()
+    index: dict[str, dict[str, Any]] = {}
+    doc_freq: dict[str, int] = {}
+    for agent in agents:
+        fields = {
+            "name": _tokens(agent.get("name", "")),
+            "description": _tokens(agent.get("description", "")),
+            "division": _tokens(agent.get("division", "")),
+            "vibe": _tokens(agent.get("vibe", "")),
+        }
+        body = _tokens(agent.get("body", "")[:_BODY_HEAD_CHARS])
+        # Segments are kept apart from whole tokens so a match on one can be
+        # scored lower. A segment that is also a whole word in the same field
+        # is just that word. The body is left out: a body mentions WordPress
+        # and JavaScript in passing, and "press" or "script" from there only
+        # adds noise to queries about press releases and scripts.
+        parts = {
+            "name": _segments(agent.get("name", "")),
+            "description": _segments(agent.get("description", "")),
+            "division": _segments(agent.get("division", "")),
+            "vibe": _segments(agent.get("vibe", "")),
+        }
+        parts = {field: parts[field] - fields[field] for field in parts}
+        text = "\n".join([
+            agent.get("name", ""),
+            agent.get("description", ""),
+            agent.get("division", ""),
+            agent.get("vibe", ""),
+            agent.get("body", "")[:_BODY_HEAD_CHARS],
+        ]).lower()
+        index[agent["slug"]] = {"fields": fields, "body": body, "text": text,
+                                "parts": parts}
+        for term in body.union(*fields.values(), *parts.values()):
+            doc_freq[term] = doc_freq.get(term, 0) + 1
+    total = max(len(agents), 1)
+    _IDF = {term: math.log(1.0 + total / count) for term, count in doc_freq.items()}
+    _IDF_DEFAULT = math.log(1.0 + total)
+    _VOCAB = sorted(doc_freq)
+    _INDEX = index
+    return _INDEX
+
+
+def _query_terms(query: str) -> set[str]:
+    """The words in a query that say something about which specialist is wanted."""
+    terms = _tokens(query)
+    meaningful = terms - _STOPWORDS
+    # A query made entirely of stop words still deserves its best effort.
+    return meaningful or terms
+
+
+def _expansions(term: str) -> set[str]:
+    """Index terms a query term is allowed to match.
+
+    Plain plural/singular pairs plus prefixes, so "emails" reaches the Email
+    Marketing Strategist and "postgres" reaches an agent that says PostgreSQL.
+    """
+    forms = {term}
+    if len(term) > 3:
+        if term.endswith("ies"):
+            forms.add(term[:-3] + "y")
+        if term.endswith("es"):
+            forms.add(term[:-2])
+        if term.endswith("s"):
+            forms.add(term[:-1])
+        forms.add(term + "s")
+    matches = {form for form in forms if form in _IDF}
+    if len(term) >= _PREFIX_MIN:
+        # _VOCAB is sorted, so every term with this prefix is one contiguous run.
+        for candidate in _VOCAB[bisect.bisect_left(_VOCAB, term):]:
+            if not candidate.startswith(term):
+                break
+            matches.add(candidate)
+    return matches or {term}
+
+
+def _phrase_in(phrase: str, text: str) -> bool:
+    """True if <phrase> occurs in <text> on word boundaries at both ends."""
+    phrase = phrase.strip()
+    if not phrase:
+        return False
+    return re.search(r"(?<![a-z0-9])" + re.escape(phrase) + r"(?![a-z0-9])", text) is not None
+
+
+def _score(agent: dict[str, Any], query_terms: dict[str, set[str]], query_text: str) -> float:
+    entry = _build_index().get(agent.get("slug", ""))
+    if entry is None or not query_terms:
         return 0.0
-    # Slightly prefer focused descriptions over huge bodies when scores tie.
-    return score + (1.0 / math.sqrt(max(len(haystack_tokens), 1)))
+    fields = entry["fields"]
+    parts = entry["parts"]
+    score = 0.0
+    matched = 0
+    titled = 0  # matched somewhere other than the body
+    for candidates in query_terms.values():
+        # The best place this term lands: a whole word in a field, else a
+        # segment of a compound in a field, else the body.
+        weight = 0.0
+        for field, field_weight in _FIELD_WEIGHT.items():
+            if fields[field] & candidates:
+                weight = max(weight, field_weight)
+            elif parts[field] & candidates:
+                weight = max(weight, field_weight * _COMPOUND_WEIGHT)
+        hits = candidates & entry["body"]
+        for field in fields:
+            hits |= candidates & (fields[field] | parts[field])
+        if not hits:
+            continue
+        if weight:
+            titled += 1
+        else:
+            weight = _BODY_WEIGHT
+        matched += 1
+        score += weight * max(_IDF.get(hit, _IDF_DEFAULT) for hit in hits)
+    if not matched:
+        return 0.0
+    # The phrase bonus is for a multi-word query that appears as written. It
+    # used to be a bare substring test, which let a one-word query back in
+    # through the side door: "ops" is a substring of "develops" and "stops", so
+    # every agent that mentions either got the full bonus for it.
+    if len(query_terms) > 1 and query_text and _phrase_in(query_text, entry["text"]):
+        score += _PHRASE_BONUS
+    # Covering more of the query beats spiking on a single term.
+    score *= _COVERAGE_FLOOR + (1.0 - _COVERAGE_FLOOR) * matched / len(query_terms)
+    if score < _MIN_SCORE:
+        return 0.0
+    # One common word somewhere in an 8000-character body is not a reason to
+    # return an agent. Without this every roster entry matched every query.
+    if not titled and matched == 1 and len(query_terms) > 2:
+        return 0.0
+    return score
 
 
 def _summary(agent: dict[str, Any], score: float | None = None) -> dict[str, Any]:
@@ -330,13 +527,14 @@ def register(ctx):
             limit = min(max(int(args.get("limit", 8)), 1), 25)
         except Exception:
             limit = 8
-        q_tokens = _tokens(query)
+        _build_index()
+        q_terms = {term: _expansions(term) for term in _query_terms(query)}
         q_text = query.lower()
         matches: list[tuple[float, dict[str, Any]]] = []
         for agent in _load_agents():
             if division and agent.get("division", "").lower() != division:
                 continue
-            score = _score(agent, q_tokens, q_text)
+            score = _score(agent, q_terms, q_text)
             if score > 0:
                 matches.append((score, agent))
         matches.sort(key=lambda item: (-item[0], item[1]["division"], item[1]["slug"]))
@@ -583,13 +781,17 @@ def build(repo_root: Path, out_dir: Path) -> int:
     if plugin_dir.exists():
         shutil.rmtree(plugin_dir)
     (plugin_dir / "data").mkdir(parents=True, exist_ok=True)
-    (plugin_dir / "plugin.yaml").write_text(plugin_yaml(), encoding="utf-8")
-    (plugin_dir / "__init__.py").write_text(init_py(), encoding="utf-8")
+    # newline="\n" everywhere: without it Python rewrites \n as \r\n on Windows,
+    # and running convert.sh there turns the tracked integrations/hermes/README.md
+    # into a CRLF diff (.gitattributes keeps this tree on LF).
+    (plugin_dir / "plugin.yaml").write_text(plugin_yaml(), encoding="utf-8", newline="\n")
+    (plugin_dir / "__init__.py").write_text(init_py(), encoding="utf-8", newline="\n")
     (plugin_dir / "data" / "agents.json").write_text(
         json.dumps(agents, ensure_ascii=False, indent=2) + "\n",
         encoding="utf-8",
+        newline="\n",
     )
-    (out_dir / "README.md").write_text(readme(len(agents)), encoding="utf-8")
+    (out_dir / "README.md").write_text(readme(len(agents)), encoding="utf-8", newline="\n")
     return len(agents)
 
 
