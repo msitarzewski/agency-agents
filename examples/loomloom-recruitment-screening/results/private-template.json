@@ -1,0 +1,10 @@
+{
+  "platform": "shengsuanyun",
+  "server": "https://loomloom.shengsuanyun.com/loom/v1",
+  "templateId": "76c4b6e6-de49-4bda-9755-9ea55eac9fa9",
+  "versionId": "ee1bd4ce-e372-4f31-9ad6-83b822a9878e",
+  "versionNumber": 1,
+  "status": "active",
+  "definitionHash": "d14570a484bbbdd7d1b1b3f049058c19c8ec79e3f02275264b7ec920d82bcdea",
+  "createdDate": "2026-08-07"
+}
