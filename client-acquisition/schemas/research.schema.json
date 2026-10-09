@@ -1,0 +1,15 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "client-acquisition/research.schema.json",
+  "title": "Lead Research",
+  "type": "object",
+  "required": ["lead_id", "summary", "evidence", "pain_points"],
+  "properties": {
+    "lead_id": {"type": "string"},
+    "summary": {"type": "string"},
+    "evidence": {"type": "array", "items": {"type": "string"}},
+    "pain_points": {"type": "array", "items": {"type": "object", "required": ["problem"], "properties": {"problem": {"type": "string"}, "evidence": {"type": "string"}, "confidence": {"type": "number", "minimum": 0, "maximum": 1}}, "additionalProperties": true}},
+    "confidence": {"type": ["number", "null"], "minimum": 0, "maximum": 1}
+  },
+  "additionalProperties": false
+}

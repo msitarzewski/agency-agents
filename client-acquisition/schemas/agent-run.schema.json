@@ -1,0 +1,20 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "client-acquisition/agent-run.schema.json",
+  "title": "Agent Run",
+  "type": "object",
+  "required": ["id", "trace_id", "agent", "lead_id", "status", "input", "output"],
+  "properties": {
+    "id": {"type": "string"},
+    "trace_id": {"type": "string"},
+    "agent": {"type": "string"},
+    "lead_id": {"type": "string"},
+    "status": {"enum": ["PENDING", "RUNNING", "SUCCEEDED", "FAILED", "ESCALATED"]},
+    "input": {"type": "object", "additionalProperties": true},
+    "output": {"type": "object", "additionalProperties": true},
+    "error": {"type": ["string", "null"]},
+    "started_at": {"type": ["string", "null"], "format": "date-time"},
+    "completed_at": {"type": ["string", "null"], "format": "date-time"}
+  },
+  "additionalProperties": false
+}
