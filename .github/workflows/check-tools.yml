@@ -11,6 +11,8 @@ jobs:
   check-tools:
     name: tools.json is the single source of truth
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
     steps:
       - uses: actions/checkout@v4
 
@@ -18,6 +20,9 @@ jobs:
         run: |
           chmod +x scripts/check-tools.sh
           ./scripts/check-tools.sh
+
+      - name: Validate tools.json schema
+        run: python3 scripts/check-tools-schema.py
 
       - name: Validate generated Hermes plugin
         run: python3 scripts/check-hermes-plugin.py
