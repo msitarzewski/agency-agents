@@ -121,6 +121,24 @@ lint_file() {
     return
   fi
 
+  # Repeated top-level keys are ambiguous: shell converters read the first
+  # scalar while the Hermes builder keeps the last. Reject them at lint.
+  local duplicate_fields duplicate
+  duplicate_fields=$(awk '
+    /^[[:alnum:]_-]+:/ {
+      field = $0
+      sub(/:.*/, "", field)
+      if (++seen[field] == 2) print field
+    }
+  ' <<<"$frontmatter")
+  if [[ -n "$duplicate_fields" ]]; then
+    while IFS= read -r duplicate; do
+      echo "ERROR $file: duplicate frontmatter field '${duplicate}'"
+      errors=$((errors + 1))
+    done <<<"$duplicate_fields"
+    return
+  fi
+
   # 2. Check required frontmatter fields
   for field in "${REQUIRED_FRONTMATTER[@]}"; do
     if ! grep -qE -- "^${field}:" <<<"$frontmatter"; then
