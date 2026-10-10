@@ -170,7 +170,9 @@ tui_begin() {
   stty -echo -icanon time 0 min 1 2>/dev/null || return 1
   printf '\033[?1049h\033[?25l'   # alt screen + hide cursor
   _TUI_ACTIVE=1
-  trap 'tui_end' EXIT INT TERM
+  trap 'tui_end' EXIT
+  trap 'tui_end; exit 130' INT
+  trap 'tui_end; exit 143' TERM
 }
 
 # tui_end — restore terminal (idempotent; safe from trap).

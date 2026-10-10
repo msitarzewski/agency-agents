@@ -25,6 +25,57 @@ INSTALL="$SCRIPT_DIR/install.sh"
 # shellcheck source=scripts/lib.sh
 . "$SCRIPT_DIR/lib.sh"
 
+# Exercise the real terminal primitives on private PTYs. A signal must restore
+# terminal modes and stop the wizard, rather than merely removing its traps.
+python3 - "$SCRIPT_DIR/lib.sh" <<'PY'
+import os
+import pty
+import select
+import signal
+import subprocess
+import sys
+import termios
+import time
+
+for signum, expected in ((signal.SIGINT, 130), (signal.SIGTERM, 143)):
+    master, slave = pty.openpty()
+    saved = termios.tcgetattr(slave)
+    child = subprocess.Popen(
+        ['bash', '-c', '. "$1"; tui_begin; printf READY; while :; do sleep 0.05; done',
+         'bash', sys.argv[1]], stdin=slave, stdout=slave, stderr=slave,
+        env={k: v for k, v in os.environ.items() if k != 'AGENCY_TUI_FORCE'},
+    )
+    try:
+        output = b''
+        deadline = time.monotonic() + 5
+        while b'READY' not in output and time.monotonic() < deadline:
+            if select.select([master], [], [], 0.1)[0]:
+                output += os.read(master, 4096)
+        assert b'READY' in output, 'terminal test did not start'
+        os.kill(child.pid, signum)
+        try:
+            status = child.wait(timeout=2)
+        except subprocess.TimeoutExpired:
+            raise AssertionError(f'TUI remained running after signal {signum}')
+        assert status == expected, (signum, status)
+        restored = termios.tcgetattr(slave)
+        # BSD stty may set transient PENDIN while restoring pending input.
+        # Check the modes tui_begin changed, rather than that OS bookkeeping.
+        mask = termios.ECHO | termios.ICANON
+        assert restored[3] & mask == saved[3] & mask, 'terminal modes not restored'
+        for index in (termios.VMIN, termios.VTIME):
+            assert restored[6][index] == saved[6][index], 'read timing not restored'
+    finally:
+        if child.poll() is None:
+            child.kill()
+            child.wait()
+        termios.tcsetattr(slave, termios.TCSANOW, saved)
+        os.close(slave)
+        os.close(master)
+print('PASS: terminal signals restore modes and terminate the wizard')
+PY
+[[ $? -eq 0 ]] || exit 1
+
 VERBOSE=false
 [[ "${1:-}" == "-v" ]] && VERBOSE=true
 
