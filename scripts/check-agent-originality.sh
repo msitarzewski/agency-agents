@@ -99,7 +99,7 @@ corpus = {}
 for d in AGENT_DIRS:
     for f in glob.glob(os.path.join(REPO_ROOT, d, '**', '*.md'), recursive=True):
         if is_agent(f):
-            corpus[os.path.abspath(f)] = shingles(tokens(open(f).read()))
+            corpus[os.path.realpath(f)] = shingles(tokens(open(f).read()))
 
 # --- Determine candidates ---------------------------------------------------
 args = sys.argv[1:]
@@ -107,7 +107,7 @@ if args:
     candidates = []
     for a in args:
         p = a if os.path.isabs(a) else os.path.join(os.getcwd(), a)
-        p = os.path.abspath(p)
+        p = os.path.realpath(p)
         if not os.path.isfile(p):
             print(f"  skip (not found): {a}")
             continue
