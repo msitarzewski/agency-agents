@@ -28,6 +28,26 @@ separator_count="$(get_body "$OUTPUT_DIR/body-with-separator.md" | grep -cx -- '
   exit 1
 }
 
+# YAML comments are metadata syntax, not installed names or descriptions.
+fixture="$OUTPUT_DIR/comment-fixture"
+mkdir -p "$fixture/scripts" "$fixture/engineering"
+cp "$SCRIPT_DIR/convert.sh" "$SCRIPT_DIR/lib.sh" "$fixture/scripts/"
+cat > "$fixture/engineering/comment-agent.md" <<'EOF'
+---
+name: 'Comment Agent' # source note
+description: Handles C# examples # source note
+color: blue
+---
+## Identity
+## Core Mission
+## Critical Rules
+EOF
+bash "$fixture/scripts/convert.sh" --tool opencode --out "$fixture/output" >/dev/null
+comment_output="$fixture/output/opencode/agents/comment-agent.md"
+[[ -f "$comment_output" ]] || { echo 'FAIL: YAML comments changed the installed slug' >&2; exit 1; }
+grep -q "^name: 'Comment Agent'$" "$comment_output"
+grep -q "^description: 'Handles C# examples'$" "$comment_output"
+
 for tool in gemini-cli opencode qwen; do
   "$SCRIPT_DIR/convert.sh" --tool "$tool" --out "$OUTPUT_DIR" >/dev/null
 done
@@ -82,11 +102,13 @@ color: red
 
 EOF
 for field in name description color; do
-  sed "s/^${field}:.*/${field}: \"\"/" "$OUTPUT_DIR/agent.md" > "$OUTPUT_DIR/empty-$field.md"
-  if "$SCRIPT_DIR/lint-agents.sh" "$OUTPUT_DIR/empty-$field.md" > /dev/null; then
-    printf 'Expected linter to reject empty %s metadata\n' "$field" >&2
-    exit 1
-  fi
+  for value in '""' '# source note'; do
+    sed "s/^${field}:.*/${field}: $value/" "$OUTPUT_DIR/agent.md" > "$OUTPUT_DIR/empty-$field.md"
+    if "$SCRIPT_DIR/lint-agents.sh" "$OUTPUT_DIR/empty-$field.md" > /dev/null; then
+      printf 'Expected linter to reject empty %s metadata\n' "$field" >&2
+      exit 1
+    fi
+  done
 done
 
 echo "PASS: converted YAML frontmatter stays quoted and required source metadata is nonempty"
