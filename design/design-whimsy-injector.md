@@ -326,7 +326,11 @@ class EasterEggManager {
     // Click-based easter eggs
     let clickSequence = [];
     document.addEventListener('click', (e) => {
-      if (e.target.classList.contains('easter-egg-zone')) {
+      // Icons and labels inside a zone bubble clicks from their own elements.
+      const zone = e.target instanceof Element
+        ? e.target.closest('.easter-egg-zone')
+        : null;
+      if (zone) {
         clickSequence.push(Date.now());
         clickSequence = clickSequence.filter(time => Date.now() - time < 2000);
         
