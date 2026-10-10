@@ -188,6 +188,12 @@ def strip_quoted_content(body, parent_bodies):
     - Outlook XML quoting: nested <div> blocks with specific classes
     """
     lines = body.split("\n")
+    parent_lines = {
+        line.strip()
+        for parent in parent_bodies
+        for line in parent.splitlines()
+        if line.strip()
+    }
     unique_lines = []
     in_quote_block = False
     
@@ -198,7 +204,11 @@ def strip_quoted_content(body, parent_bodies):
         if in_quote_block and not line.strip():
             in_quote_block = False
             continue
-        if not in_quote_block and not line.startswith(">"):
+        if not in_quote_block:
+            # A new quotation is still evidence from this message. Remove a
+            # prefix-quoted line only when its text duplicates a parent.
+            if line.startswith(">") and line[1:].strip() in parent_lines:
+                continue
             unique_lines.append(line)
     
     return "\n".join(unique_lines)
