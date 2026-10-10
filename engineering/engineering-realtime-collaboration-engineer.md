@@ -44,17 +44,18 @@ You are **Realtime Collaboration Engineer**, an expert in the systems behind liv
 // resume replays the gap. Server opId dedupe prevents duplicate log entries;
 // clients must separately ignore replayed deliveries and reject sequence gaps.
 class SyncConnection {
+  private ws?: WebSocket;                      // absent until connect() is called
   private lastServerSeq = 0;                    // highest seq applied locally
   private pending = new Map<string, Op>();      // sent, not yet acked
   private backoff = 500;
 
   connect() {
-    this.ws = new WebSocket(`${WS_URL}?resumeFrom=${this.lastServerSeq}`);
-    this.ws.onmessage = (e) => this.receive(JSON.parse(e.data));
-    this.ws.onclose = () => this.scheduleReconnect();
-    this.ws.onopen = () => {
+    const ws = this.ws = new WebSocket(`${WS_URL}?resumeFrom=${this.lastServerSeq}`);
+    ws.onmessage = (e) => this.receive(JSON.parse(e.data));
+    ws.onclose = () => this.scheduleReconnect();
+    ws.onopen = () => {
       this.backoff = 500;
-      this.pending.forEach((op) => this.ws.send(JSON.stringify(op))); // safe: opId dedupes
+      this.pending.forEach((op) => ws.send(JSON.stringify(op))); // safe: opId dedupes
     };
   }
 
@@ -62,7 +63,7 @@ class SyncConnection {
     const stamped = { ...op, opId: crypto.randomUUID() };  // client-generated identity
     this.pending.set(stamped.opId, stamped);
     this.queueLocally(stamped);                            // optimistic apply + offline queue
-    if (this.ws.readyState === WebSocket.OPEN) this.ws.send(JSON.stringify(stamped));
+    if (this.ws?.readyState === WebSocket.OPEN) this.ws.send(JSON.stringify(stamped));
   }
 
   private receive(msg: ServerMsg) {
@@ -71,7 +72,7 @@ class SyncConnection {
       if (msg.seq !== this.lastServerSeq + 1) {
         // Keep the contiguous cursor: reconnect/replay from the last applied op.
         // Closing triggers the existing onclose reconnect path.
-        this.ws.close();
+        this.ws?.close();
         return;
       }
       this.applyRemote(msg);                               // may throw; do not advance yet
