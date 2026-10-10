@@ -175,6 +175,15 @@ assert_eq "$TOTAL_AGENTS" "$(count_md "$home/.github/agents")" \
 assert_eq "$TOTAL_AGENTS" "$(count_md "$home/.copilot/agents")" \
   "copilot installs every agent to \$HOME/.copilot/agents"
 
+# --path is a single-destination override, so copilot's second default copy
+# (~/.copilot/agents) must be skipped too, not just the first.
+home="$(sandbox copilot-path)"
+dest="$home/custom-dir"
+run_install "$home" --tool copilot --path "$dest"
+assert_eq "$TOTAL_AGENTS" "$(count_md "$dest")" "copilot --path installs every agent to --path"
+assert_eq 0 "$(count_md "$home/.github/agents")" "copilot --path leaves \$HOME/.github/agents empty"
+assert_eq 0 "$(count_md "$home/.copilot/agents")" "copilot --path leaves \$HOME/.copilot/agents empty"
+
 home="$(sandbox path-override)"
 dest="$home/custom-dir"
 run_install "$home" --tool claude-code --path "$dest"
