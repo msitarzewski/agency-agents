@@ -838,6 +838,9 @@ interactive_wizard() {
   TEAM_SEL=(); for (( i=0; i<${#ALL_DIVISIONS[@]}; i++ )); do TEAM_SEL+=(1); done
 
   tui_begin || return 1
+  # Signal exits also need the installer's temporary-log cleanup restored.
+  trap 'finish_wizard; exit 130' INT
+  trap 'finish_wizard; exit 143' TERM
   local screen=tools
   while true; do
     case "$screen" in

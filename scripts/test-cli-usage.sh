@@ -57,6 +57,39 @@ for keys in ('q', '\nq', '\n\nq', 'n \n\n\n'):
 print('PASS: cancelling each screen and completing the wizard clean its temporary log')
 PY
 
+# A signal handler is deferred while Bash waits for the key-reading child;
+# one harmless key releases that wait before checking cleanup.
+python3 - "$SCRIPT_DIR" <<'PY'
+import os,pathlib,pty,select,shutil,signal,subprocess,sys,tempfile,termios,time
+source=pathlib.Path(sys.argv[1])
+with tempfile.TemporaryDirectory() as directory:
+ root=pathlib.Path(directory);scripts=root/'fixture/scripts';scripts.mkdir(parents=True)
+ for name in ('install.sh','lib.sh'):shutil.copy2(source/name,scripts/name)
+ shutil.copy2(source.parent/'divisions.json',scripts.parent/'divisions.json');(scripts.parent/'integrations').mkdir()
+ home=root/'home';home.mkdir();logs=root/'logs';logs.mkdir()
+ for signum,expected in ((signal.SIGINT,130),(signal.SIGTERM,143)):
+  master,slave=pty.openpty();saved=termios.tcgetattr(slave)
+  env={k:v for k,v in os.environ.items() if k!='AGENCY_TUI_FORCE'};env.update(HOME=str(home),TMPDIR=str(logs),TERM='xterm')
+  def reset_signals():
+   signal.signal(signal.SIGINT,signal.SIG_DFL);signal.signal(signal.SIGTERM,signal.SIG_DFL)
+  child=subprocess.Popen(['bash',str(scripts/'install.sh')],stdin=slave,stdout=slave,stderr=slave,env=env,preexec_fn=reset_signals)
+  try:
+   output=b'';deadline=time.monotonic()+20
+   while b'q quit' not in output and time.monotonic()<deadline:
+    if select.select([master],[],[],.1)[0]:output+=os.read(master,65536)
+   assert b'q quit' in output,('Wizard did not reach input',output[-500:])
+   assert list(logs.iterdir()),'Expected active wizard log'
+   os.kill(child.pid,signum);os.write(master,b' ');status=child.wait(timeout=5)
+   assert status==expected,(signum,status)
+   assert not list(logs.iterdir()),f'Signal {signum} leaked wizard temporary log'
+   restored=termios.tcgetattr(slave);mask=termios.ECHO|termios.ICANON
+   assert restored[3]&mask==saved[3]&mask
+  finally:
+   if child.poll() is None:child.kill();child.wait()
+   termios.tcsetattr(slave,termios.TCSANOW,saved);os.close(master);os.close(slave)
+print('PASS: actual wizard SIGINT/SIGTERM restore terminal, exit 130/143 and remove temporary logs')
+PY
+
 for opt in --tool --out --parallel --jobs; do
   grep -q -- "^  $opt " <(bash "$SCRIPT_DIR/convert.sh" --help) \
     || fail "convert.sh --help does not describe $opt"
