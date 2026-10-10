@@ -181,6 +181,14 @@ assert_eq "$TOTAL_AGENTS" "$(count_md "$home/.claude/agents")" \
   "claude-code installs every agent to \$HOME/.claude/agents"
 assert_eq 0 "$(count_md "$home/.claude")" "claude-code writes nothing into the config root"
 
+# copilot is the one tool with two default destinations; both must get the full set.
+home="$(sandbox copilot-default-dest)"
+run_install "$home" --tool copilot
+assert_eq "$TOTAL_AGENTS" "$(count_md "$home/.github/agents")" \
+  "copilot installs every agent to \$HOME/.github/agents"
+assert_eq "$TOTAL_AGENTS" "$(count_md "$home/.copilot/agents")" \
+  "copilot installs every agent to \$HOME/.copilot/agents"
+
 home="$(sandbox path-override)"
 dest="$home/custom-dir"
 run_install "$home" --tool claude-code --path "$dest"
@@ -399,12 +407,39 @@ dest="$home/dest"
 run_install "$home" --tool claude-code --agent "$FIRST_ENG_SLUG" --path "$dest"
 assert_eq 1 "$(count_md "$dest")" "--agent installs exactly one agent"
 
+# Slugs from two different divisions, so the comma list is resolved per agent,
+# not by narrowing to the first slug's division.
+home="$(sandbox multi-agent)"
+dest="$home/dest"
+FIRST_DESIGN_SLUG="$(agent_slug "$(agent_files_in design | awk 'NR==1')")"
+run_install "$home" --tool claude-code --agent "$FIRST_ENG_SLUG,$FIRST_DESIGN_SLUG" --path "$dest"
+assert_eq 2 "$(count_md "$dest")" "--agent a,b installs exactly both agents"
+
 home="$(sandbox agents-file)"
 dest="$home/dest"
 list="$home/agents.txt"
 { echo "# comment line"; echo ""; echo "$FIRST_ENG_SLUG"; } > "$list"
 run_install "$home" --tool claude-code --agents-file "$list" --path "$dest"
 assert_eq 1 "$(count_md "$dest")" "--agents-file skips comments and blank lines"
+
+home="$(sandbox multi-division)"
+dest="$home/dest"
+DESIGN_AGENTS=$(agent_files_in design | wc -l | tr -d ' ')
+run_install "$home" --tool claude-code --division engineering,design --path "$dest"
+assert_eq $((ENG_AGENTS + DESIGN_AGENTS)) "$(count_md "$dest")" "--division a,b installs both divisions"
+
+# A typo in a filter must fail loudly, never fall back to "install everything".
+home="$(sandbox unknown-agent)"
+dest="$home/dest"
+run_install "$home" --tool claude-code --agent definitely-not-an-agent --path "$dest"
+assert_eq 1 "$RUN_STATUS" "unknown --agent exits 1"
+assert_eq 0 "$(count_md "$dest")" "unknown --agent writes nothing"
+
+home="$(sandbox unknown-division)"
+dest="$home/dest"
+run_install "$home" --tool claude-code --division definitely-not-a-division --path "$dest"
+assert_eq 1 "$RUN_STATUS" "unknown --division exits 1"
+assert_eq 0 "$(count_md "$dest")" "unknown --division writes nothing"
 
 home="$(sandbox unknown-tool)"
 run_install "$home" --tool definitely-not-a-tool
