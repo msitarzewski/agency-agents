@@ -772,9 +772,10 @@ install_claude_code() {
 
 install_copilot() {
   local dest_github; dest_github="$(resolve_dest copilot "${HOME}/.github/agents")"
-  # --path is a single destination: skip the second copy so nothing lands outside it.
+  # --path / COPILOT_AGENT_DIR name a single destination: skip the second copy
+  # so nothing lands outside it.
   local dest_copilot=""
-  [[ -n "$OVERRIDE_PATH" ]] || dest_copilot="${HOME}/.copilot/agents"
+  [[ -n "$OVERRIDE_PATH" || -n "${COPILOT_AGENT_DIR:-}" ]] || dest_copilot="${HOME}/.copilot/agents"
   local count=0 dir f slug
   mkdir -p "$dest_github" ${dest_copilot:+"$dest_copilot"}
   for dir in "${AGENT_DIRS[@]}"; do

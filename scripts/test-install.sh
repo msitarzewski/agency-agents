@@ -196,6 +196,8 @@ home="$(sandbox env-override)"
 dest="$home/from-env"
 RUN_OUT="$(HOME="$home" COPILOT_AGENT_DIR="$dest" "$INSTALL" --no-interactive --tool copilot 2>&1)"
 assert_eq "$TOTAL_AGENTS" "$(count_md "$dest")" "COPILOT_AGENT_DIR overrides the default destination"
+assert_eq 0 "$(count_md "$home/.github/agents")" "COPILOT_AGENT_DIR leaves \$HOME/.github/agents empty"
+assert_eq 0 "$(count_md "$home/.copilot/agents")" "COPILOT_AGENT_DIR leaves \$HOME/.copilot/agents empty"
 
 home="$(sandbox env-vs-path)"
 RUN_OUT="$(HOME="$home" COPILOT_AGENT_DIR="$home/from-env" "$INSTALL" --no-interactive \
