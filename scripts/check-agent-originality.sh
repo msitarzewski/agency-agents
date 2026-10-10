@@ -70,9 +70,15 @@ def strip_frontmatter(t):
             return parts[2]
     return t
 
+# CJK prose often has no spaces between words. Preserve Unicode letters and
+# segment these characters so an all-CJK body still contributes 8-token
+# shingles, rather than disappearing as an empty, always-original document.
+CJK = re.compile(r'([\u3040-\u30ff\u3400-\u4dbf\u4e00-\u9fff\uf900-\ufaff\U00020000-\U0002ffff])')
+
 def tokens(text):
     text = ENTITY.sub(' ', strip_frontmatter(text).lower())
-    text = re.sub(r'[^a-z0-9 ]', ' ', text)
+    text = re.sub(r'[^\w ]', ' ', text).replace('_', ' ')
+    text = CJK.sub(r' \1 ', text)
     return text.split()
 
 def shingles(words, k=8):
