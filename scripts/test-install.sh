@@ -307,6 +307,14 @@ dest="$home/dest"
 run_install "$home" --tool claude-code --agent "$FIRST_ENG_SLUG" --path "$dest"
 assert_eq 1 "$(count_md "$dest")" "--agent installs exactly one agent"
 
+# Slugs from two different divisions, so the comma list is resolved per agent,
+# not by narrowing to the first slug's division.
+home="$(sandbox multi-agent)"
+dest="$home/dest"
+FIRST_DESIGN_SLUG="$(agent_slug "$(agent_files_in design | awk 'NR==1')")"
+run_install "$home" --tool claude-code --agent "$FIRST_ENG_SLUG,$FIRST_DESIGN_SLUG" --path "$dest"
+assert_eq 2 "$(count_md "$dest")" "--agent a,b installs exactly both agents"
+
 home="$(sandbox agents-file)"
 dest="$home/dest"
 list="$home/agents.txt"
