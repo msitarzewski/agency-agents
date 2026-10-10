@@ -139,10 +139,10 @@ def customer_segmentation_analysis(df):
             return 'Potential Loyalists'
         elif row['rfm_score'] in ['512', '511', '422', '421', '412', '411', '311']:
             return 'New Customers'
-        elif row['rfm_score'] in ['155', '154', '144', '214', '215', '115', '114']:
-            return 'At Risk'
-        elif row['rfm_score'] in ['155', '154', '144', '214', '215', '115', '114']:
+        elif row['r_score'] <= 2 and row['f_score'] == 5:
             return 'Cannot Lose Them'
+        elif row['r_score'] <= 2 and row['f_score'] in (3, 4):
+            return 'At Risk'
         else:
             return 'Others'
     
@@ -165,6 +165,13 @@ def generate_customer_insights(rfm_df):
     }
     return insights
 ```
+
+The example's churn rule separates lapsed top-frequency customers (recency 1–2,
+frequency 5) from other lapsed frequent customers (frequency 3–4), regardless
+of monetary band. The previous identical branch lists made `Cannot Lose Them`
+unreachable. These are explicit example thresholds, not universal campaign
+criteria; validate them for the customer lifecycle. See [CleverTap's RFM segment
+definitions](https://docs.clevertap.com/docs/rfm).
 
 ### Marketing Performance Dashboard
 ```javascript
