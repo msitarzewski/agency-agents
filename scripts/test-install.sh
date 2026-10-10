@@ -314,6 +314,25 @@ list="$home/agents.txt"
 run_install "$home" --tool claude-code --agents-file "$list" --path "$dest"
 assert_eq 1 "$(count_md "$dest")" "--agents-file skips comments and blank lines"
 
+home="$(sandbox multi-division)"
+dest="$home/dest"
+DESIGN_AGENTS=$(agent_files_in design | wc -l | tr -d ' ')
+run_install "$home" --tool claude-code --division engineering,design --path "$dest"
+assert_eq $((ENG_AGENTS + DESIGN_AGENTS)) "$(count_md "$dest")" "--division a,b installs both divisions"
+
+# A typo in a filter must fail loudly, never fall back to "install everything".
+home="$(sandbox unknown-agent)"
+dest="$home/dest"
+run_install "$home" --tool claude-code --agent definitely-not-an-agent --path "$dest"
+assert_eq 1 "$RUN_STATUS" "unknown --agent exits 1"
+assert_eq 0 "$(count_md "$dest")" "unknown --agent writes nothing"
+
+home="$(sandbox unknown-division)"
+dest="$home/dest"
+run_install "$home" --tool claude-code --division definitely-not-a-division --path "$dest"
+assert_eq 1 "$RUN_STATUS" "unknown --division exits 1"
+assert_eq 0 "$(count_md "$dest")" "unknown --division writes nothing"
+
 home="$(sandbox unknown-tool)"
 run_install "$home" --tool definitely-not-a-tool
 [[ "$RUN_STATUS" -ne 0 ]] && pass "unknown --tool exits non-zero" \
