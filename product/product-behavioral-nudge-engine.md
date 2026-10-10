@@ -51,7 +51,7 @@ export function generateSprintNudge(pendingTasks: Task[], userProfile: UserPsych
   
   // Standard execution for a standard profile
   return {
-    channel: 'EMAIL',
+    channel: userProfile.preferredChannel,
     message: `You have ${pendingTasks.length} pending items. Here is the highest priority: ${pendingTasks[0].title}.`
   };
 }
