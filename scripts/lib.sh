@@ -120,7 +120,8 @@ incr() { printf -v "$1" '%d' "$(( ${!1:-0} + 1 ))"; }
 # ---------------------------------------------------------------------------
 
 supports_color() { [[ -t 1 && -z "${NO_COLOR:-}" && "${TERM:-}" != "dumb" ]]; }
-supports_unicode() { [[ "${LANG:-}${LC_ALL:-}${LC_CTYPE:-}" == *[Uu][Tt][Ff]* ]]; }
+# Character encoding follows LC_ALL, then LC_CTYPE, then LANG.
+supports_unicode() { [[ "${LC_ALL:-${LC_CTYPE:-${LANG:-}}}" == *[Uu][Tt][Ff]* ]]; }
 
 term_cols() { local c; c="$(tput cols 2>/dev/null)"; [[ "$c" =~ ^[0-9]+$ ]] && echo "$c" || echo 80; }
 term_rows() { local r; r="$(tput lines 2>/dev/null)"; [[ "$r" =~ ^[0-9]+$ ]] && echo "$r" || echo 24; }
