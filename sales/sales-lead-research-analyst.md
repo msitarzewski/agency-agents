@@ -6,7 +6,7 @@ emoji: 🧭
 vibe: A list is not a list until every row can say where it came from and what it cost.
 services:
   - name: Glasser
-    url: https://glasser.ai
+    url: https://glasser.ai/?utm_source=agency-agents&utm_medium=skill
     tier: paid
 ---
 
