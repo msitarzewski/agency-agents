@@ -821,6 +821,12 @@ screen_review() {
   done
 }
 
+# finish_wizard — restore the terminal and the installer's temporary-log cleanup.
+finish_wizard() {
+  tui_end
+  trap 'rm -f "$SKIPPED_LOG"' EXIT
+}
+
 # interactive_wizard — drive the three screens; commit to SELECTED_TOOLS /
 # FILTER_DIVISIONS / USE_LINK. Returns 1 if no TTY (caller falls back).
 interactive_wizard() {
@@ -835,12 +841,12 @@ interactive_wizard() {
   local screen=tools
   while true; do
     case "$screen" in
-      tools)  screen_tools;  case "$SEL_RESULT" in next) screen=teams;; quit) tui_end; exit 0;; esac ;;
-      teams)  screen_teams;  case "$SEL_RESULT" in next) screen=review;; back) screen=tools;; quit) tui_end; exit 0;; esac ;;
-      review) screen_review; case "$REVIEW_RESULT" in install) break;; back) screen=teams;; quit) tui_end; exit 0;; esac ;;
+      tools)  screen_tools;  case "$SEL_RESULT" in next) screen=teams;; quit) finish_wizard; exit 0;; esac ;;
+      teams)  screen_teams;  case "$SEL_RESULT" in next) screen=review;; back) screen=tools;; quit) finish_wizard; exit 0;; esac ;;
+      review) screen_review; case "$REVIEW_RESULT" in install) break;; back) screen=teams;; quit) finish_wizard; exit 0;; esac ;;
     esac
   done
-  tui_end
+  finish_wizard
 
   # commit
   SELECTED_TOOLS=()

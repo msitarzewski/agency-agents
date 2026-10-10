@@ -27,6 +27,36 @@ for script in convert.sh install.sh; do
   ! grep -q 'USAGE-START\|USAGE-END' "$tmp/help" || fail "$script --help printed its sentinel lines"
 done
 
+python3 - "$SCRIPT_DIR" "$tmp" <<'PY'
+import os
+from pathlib import Path
+import shutil
+import subprocess
+import sys
+
+source, temporary = map(Path, sys.argv[1:])
+scripts = temporary / 'fixture' / 'scripts'
+scripts.mkdir(parents=True)
+for name in ('install.sh', 'lib.sh'):
+    shutil.copy2(source / name, scripts / name)
+shutil.copy2(source.parent / 'divisions.json', scripts.parent / 'divisions.json')
+(scripts.parent / 'integrations').mkdir()
+home = temporary / 'home'
+home.mkdir()
+logs = temporary / 'logs'
+logs.mkdir()
+env = {**os.environ, 'HOME': str(home), 'TMPDIR': str(logs), 'AGENCY_TUI_FORCE': '1'}
+for keys in ('q', '\nq', '\n\nq', 'n \n\n\n'):
+    result = subprocess.run(
+        ['bash', str(scripts / 'install.sh'), '--interactive', '--no-convert'],
+        input=keys, text=True, env=env, stdout=subprocess.DEVNULL,
+        stderr=subprocess.PIPE, timeout=20 if keys.startswith('n ') else 5,
+    )
+    assert result.returncode == 0, (keys, result.returncode, result.stderr)
+    assert not list(logs.iterdir()), f'closed wizard leaked temporary files for {keys!r}'
+print('PASS: cancelling each screen and completing the wizard clean its temporary log')
+PY
+
 for opt in --tool --out --parallel --jobs; do
   grep -q -- "^  $opt " <(bash "$SCRIPT_DIR/convert.sh" --help) \
     || fail "convert.sh --help does not describe $opt"
