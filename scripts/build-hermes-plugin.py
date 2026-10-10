@@ -34,6 +34,30 @@ def slugify(value: str) -> str:
     return value.strip("-")
 
 
+def scalar_line(value: str) -> str:
+    """Strip YAML comments while retaining literal hashes in scalar content."""
+    value = value.strip()
+    if not value or value.startswith("#"):
+        return ""
+    quote = value[0]
+    if quote not in ("'", '"'):
+        return re.split(r"\s+#", value, maxsplit=1)[0].rstrip()
+    index = 1
+    while index < len(value):
+        if quote == '"' and value[index] == "\\":
+            index += 2
+            continue
+        if value[index] == quote:
+            if quote == "'" and value[index:index + 2] == "''":
+                index += 2
+                continue
+            if re.match(r"\s+#", value[index + 1:]):
+                return value[:index + 1]
+            break
+        index += 1
+    return value
+
+
 def parse_agent(path: Path, repo_root: Path) -> dict[str, str] | None:
     text = path.read_text(encoding="utf-8")
     if not text.startswith("---\n"):
@@ -46,17 +70,20 @@ def parse_agent(path: Path, repo_root: Path) -> dict[str, str] | None:
     fields: dict[str, str] = {}
     current_key = None
     for line in frontmatter.splitlines():
+        if line.lstrip().startswith("#"):
+            continue
         # YAML folds indented plain-scalar continuation lines into one value.
         if line.startswith((" ", "\t")):
-            if current_key and line.strip():
-                fields[current_key] += " " + line.strip()
+            continuation = scalar_line(line)
+            if current_key and continuation:
+                fields[current_key] += " " + continuation
             continue
         current_key = None
         if ":" not in line:
             continue
         key, value = line.split(":", 1)
         current_key = key.strip()
-        fields[current_key] = value.strip()
+        fields[current_key] = scalar_line(value)
     for key, value in fields.items():
         if len(value) > 1 and value[0] == value[-1] and value[0] in ('"', "'"):
             fields[key] = value[1:-1]
