@@ -207,11 +207,12 @@ class ToolEvaluator:
         response_times = []
         failed_requests = 0
         for _ in range(10):
-            start_time = time.time()
+            # A wall-clock correction must not change the measured latency.
+            start_time = time.perf_counter()
             try:
                 response = requests.get(api_endpoint, timeout=10)
                 response.raise_for_status()
-                end_time = time.time()
+                end_time = time.perf_counter()
                 response_times.append(end_time - start_time)
             except requests.RequestException:
                 failed_requests += 1
