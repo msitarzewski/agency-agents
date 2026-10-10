@@ -167,6 +167,14 @@ assert_eq "$TOTAL_AGENTS" "$(count_md "$home/.claude/agents")" \
   "claude-code installs every agent to \$HOME/.claude/agents"
 assert_eq 0 "$(count_md "$home/.claude")" "claude-code writes nothing into the config root"
 
+# copilot is the one tool with two default destinations; both must get the full set.
+home="$(sandbox copilot-default-dest)"
+run_install "$home" --tool copilot
+assert_eq "$TOTAL_AGENTS" "$(count_md "$home/.github/agents")" \
+  "copilot installs every agent to \$HOME/.github/agents"
+assert_eq "$TOTAL_AGENTS" "$(count_md "$home/.copilot/agents")" \
+  "copilot installs every agent to \$HOME/.copilot/agents"
+
 home="$(sandbox path-override)"
 dest="$home/custom-dir"
 run_install "$home" --tool claude-code --path "$dest"
