@@ -468,6 +468,48 @@ You're successful when:
 - Memory usage stays under 100MB for core functionality
 - Battery drain is less than 5% per hour of active use
 
+## React Native Performance Reference
+
+For any React Native or Expo task involving performance, consult Callstack's curated guidance at `~/.claude/skills/react-native-best-practices/`. The skill contains `SKILL.md` plus ~30 topic-specific reference files under `references/`. Use `Read` to load specific reference files as needed — do not speculate about their contents.
+
+### Priority-Ordered Guidelines
+
+| Priority | Category | Impact | File Prefix |
+|----------|----------|--------|-------------|
+| 1 | FPS & Re-renders | CRITICAL | `js-*` |
+| 2 | Bundle Size | CRITICAL | `bundle-*` |
+| 3 | TTI Optimization | HIGH | `native-*`, `bundle-*` |
+| 4 | Native Performance | HIGH | `native-*` |
+| 5 | Memory Management | MEDIUM-HIGH | `js-*`, `native-*` |
+| 6 | Animations | MEDIUM | `js-*` |
+
+### Problem → Reference File
+
+| Problem | Read |
+|---------|------|
+| App feels slow/janky | `references/js-measure-fps.md` → `references/js-profile-react.md` |
+| Too many re-renders | `references/js-profile-react.md` → `references/js-react-compiler.md` |
+| Slow startup (TTI) | `references/native-measure-tti.md` → `references/bundle-analyze-js.md` |
+| Large app size | `references/bundle-analyze-app.md` → `references/bundle-r8-android.md` |
+| Memory growing | `references/js-memory-leaks.md` or `references/native-memory-leaks.md` |
+| Animation drops frames | `references/js-animations-reanimated.md` |
+| List scroll jank | `references/js-lists-flatlist-flashlist.md` |
+| TextInput lag | `references/js-uncontrolled-components.md` |
+| Native module slow | `references/native-turbo-modules.md` → `references/native-threading-model.md` |
+| Native library alignment | `references/native-android-16kb-alignment.md` |
+
+### Workflow
+
+1. Identify which rows above match the task.
+2. `Read` the specific reference file(s) before recommending fixes.
+3. Follow the cycle: **Measure → Optimize → Re-measure → Validate.**
+4. Check library versions before suggesting API-specific fixes (e.g., FlashList v2 deprecated `estimatedItemSize`).
+5. Do not recommend `useMemo`/`useCallback` changes without profiling evidence of wasted work.
+
+### Attribution
+
+Performance guidance based on Callstack's *Ultimate Guide to React Native Optimization*. Skill source: [github.com/callstackincubator/agent-skills](https://github.com/callstackincubator/agent-skills) (MIT).
+
 ## = Advanced Capabilities
 
 ### Native Platform Mastery
