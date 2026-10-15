@@ -162,7 +162,9 @@ class InventoryManager:
         eoq = self.calculate_eoq()
         safety_stock = self.calculate_safety_stock()
         rop = self.calculate_reorder_point()
-        annual_orders = round(self.params.annual_demand / eoq)
+        # The steady-state EOQ model uses an annual order rate, which can be
+        # fractional. Rounding it changes the ordering-cost objective.
+        annual_orders = self.params.annual_demand / eoq
         total_cost = (
             self.params.annual_demand * self.params.unit_price +                    # Procurement cost
             annual_orders * self.params.order_cost +                                 # Ordering cost
@@ -174,7 +176,7 @@ class InventoryManager:
             'eoq': eoq,                           # Economic Order Quantity
             'safety_stock': safety_stock,          # Safety stock
             'reorder_point': rop,                  # Reorder point
-            'annual_orders': annual_orders,        # Orders per year
+            'annual_orders': annual_orders,        # Average orders per year
             'total_annual_cost': round(total_cost, 2),  # Total annual cost
             'avg_inventory': round(eoq / 2 + safety_stock),  # Average inventory level
             'inventory_turns': round(self.params.annual_demand / (eoq / 2 + safety_stock), 1)  # Inventory turnover
