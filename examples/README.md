@@ -46,3 +46,24 @@ If you run an interesting multi-agent exercise, consider adding it here. Good ex
 - Multiple agents collaborating on a shared objective
 - The breadth of the agency's capabilities
 - Real-world applicability of the agent definitions
+
+
+### [workflow-security-audit.md](./workflow-security-audit.md)
+
+**What:** An end-to-end security audit using the security division — kickoff, code review, cloud config review, authorized pen test, threat model synthesis, and remediation certification.
+
+**The scenario:** A 200-person SaaS company pre-Series-C needs an independent security review in 3 weeks. Multi-tenant Node.js + Postgres on AWS, React SPA, internal Go services, Slack integration, no formal review in 18 months.
+
+**Agents used:**
+| Agent | Role |
+|---|---|
+| Senior SecOps Engineer | Kickoff, scope, rules of engagement |
+| Application Security Engineer | SAST, dependencies, secrets |
+| Cloud Security Architect | AWS config, IAM, network policy |
+| Penetration Tester | Authorized pen test, exploit chains |
+| Threat Detection Engineer | SIEM rule gaps, ATT&CK coverage |
+| Security Architect | Threat model synthesis |
+| Reality Checker | Remediation certification |
+| Incident Responder | Pre-positioned for active-incident findings |
+
+**Key takeaway:** Security work that needs more than one specialist benefits from a documented workflow. The Agency's security division covers the full audit loop, from kickoff to certification.
