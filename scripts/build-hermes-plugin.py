@@ -59,7 +59,11 @@ def parse_agent(path: Path, repo_root: Path) -> dict[str, str] | None:
         fields[current_key] = value.strip()
     for key, value in fields.items():
         if len(value) > 1 and value[0] == value[-1] and value[0] in ('"', "'"):
-            fields[key] = value[1:-1]
+            inner = value[1:-1]
+            if value[0] == "'":
+                fields[key] = inner.replace("''", "'")
+            else:
+                fields[key] = re.sub(r'\\(["\\])', r'\1', inner)
     name = fields.get("name", "").strip()
     if not name:
         return None
