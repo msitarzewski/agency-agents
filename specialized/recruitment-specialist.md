@@ -352,11 +352,11 @@ class RecruitmentFunnelAnalyzer:
 
     def filter_data(self, position_id=None, department=None, period=None):
         filtered = self.data.copy()
-        if position_id:
+        if position_id is not None:
             filtered = filtered[filtered['position_id'] == position_id]
-        if department:
+        if department is not None:
             filtered = filtered[filtered['department'] == department]
-        if period:
+        if period is not None:
             filtered = filtered[filtered['period'] == period]
         return filtered
 ```
