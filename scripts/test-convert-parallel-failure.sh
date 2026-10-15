@@ -10,6 +10,29 @@ trap 'rm -rf "$FIXTURE"' EXIT
 mkdir -p "$FIXTURE/repo/scripts"
 cp "$SCRIPT_DIR/convert.sh" "$SCRIPT_DIR/lib.sh" "$FIXTURE/repo/scripts/"
 
+# A filesystem write failure must not turn into a successful agent count.
+mkdir -p "$FIXTURE/repo/engineering" "$FIXTURE/blocked"
+cat > "$FIXTURE/repo/engineering/example.md" <<'EOF'
+---
+name: Example Agent
+description: Checks conversion
+color: blue
+---
+## Identity
+## Core Mission
+## Critical Rules
+EOF
+printf 'existing file\n' > "$FIXTURE/blocked/opencode"
+status=0
+"$FIXTURE/repo/scripts/convert.sh" --tool opencode --out "$FIXTURE/blocked" \
+  > "$FIXTURE/write-failure.log" 2>&1 || status=$?
+[[ "$status" -ne 0 ]] || {
+  echo 'converter reported success after its output writes failed' >&2
+  exit 1
+}
+[[ "$(cat "$FIXTURE/blocked/opencode")" == 'existing file' ]]
+rm -rf "$FIXTURE/repo/engineering"
+
 status=0
 TMPDIR="$FIXTURE" "$FIXTURE/repo/scripts/convert.sh" \
   --tool all --parallel --jobs 2 --out "$FIXTURE/output" \

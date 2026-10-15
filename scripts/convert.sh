@@ -912,7 +912,7 @@ main() {
       printf "\n"
       header "Converting: $t ($idx/$n_tools)"
       local count
-      count="$(run_conversions "$t")"
+      count="$(set -e; run_conversions "$t")"
       total=$(( total + count ))
       info "Converted $count agents for $t"
       (( idx++ )) || true
@@ -925,7 +925,9 @@ main() {
       printf "\n"
       header "Converting: $t ($i/$n_tools)"
       local count
-      count="$(run_conversions "$t")"
+      # Bash clears errexit inside command substitutions. Restore it so a
+      # failed mkdir/write cannot be hidden by the final successful count.
+      count="$(set -e; run_conversions "$t")"
       total=$(( total + count ))
       info "Converted $count agents for $t"
     done
