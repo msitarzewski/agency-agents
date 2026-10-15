@@ -658,6 +658,9 @@ selector() {
     draw_frame "$buf"
 
     key="$(read_key)"
+    # EOF also cancels while the search editor is active; otherwise its
+    # unconditional continue redraws forever after the input stream closes.
+    if [[ "$key" == EOF ]]; then SEL_RESULT=quit; return; fi
     if $searching; then
       case "$key" in
         ENTER) searching=false ;;
@@ -678,7 +681,6 @@ selector() {
       LEFT)        SEL_RESULT=back; return ;;
       ESC)         [[ -n "$query" ]] && query="" || { SEL_RESULT=back; return; } ;;
       q|Q)         SEL_RESULT=quit; return ;;
-      EOF)         SEL_RESULT=quit; return ;;
     esac
   done
 }
