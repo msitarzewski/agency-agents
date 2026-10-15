@@ -1212,7 +1212,10 @@ install_vibe() {
     # Find the corresponding prompt file
     prompt_file="$src_prompts/$slug.md"
     
-    [[ -f "$prompt_file" ]] || continue
+    [[ -f "$prompt_file" ]] || {
+      err "Mistral Vibe: $slug prompt missing at $prompt_file. Run convert.sh --tool vibe first."
+      return 1
+    }
     
     install_file "$agent_file" "$dest/agents/"
     install_file "$prompt_file" "$dest/prompts/"
