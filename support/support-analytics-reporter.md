@@ -92,6 +92,9 @@ ORDER BY month DESC;
 ```
 
 ### Customer Segmentation Analysis
+
+Input rows may represent individual order lines. Sum their revenue, and count distinct order IDs per customer when calculating purchase frequency.
+
 ```python
 import pandas as pd
 import numpy as np
@@ -108,7 +111,7 @@ def customer_segmentation_analysis(df):
     current_date = df['date'].max()
     rfm = df.groupby('customer_id').agg({
         'date': lambda x: (current_date - x.max()).days,  # Recency
-        'order_id': 'count',                               # Frequency
+        'order_id': 'nunique',                             # Frequency: distinct orders
         'revenue': 'sum'                                   # Monetary
     }).rename(columns={
         'date': 'recency',
