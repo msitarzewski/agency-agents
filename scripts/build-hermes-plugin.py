@@ -38,7 +38,9 @@ def parse_agent(path: Path, repo_root: Path) -> dict[str, str] | None:
     text = path.read_text(encoding="utf-8")
     if not text.startswith("---\n"):
         return None
-    parts = text.split("---\n", 2)
+    # Frontmatter ends at a standalone delimiter, not at a scalar ending in
+    # "---". Keep later body separators inside the body.
+    parts = re.split(r"^---(?:\n|$)", text, maxsplit=2, flags=re.MULTILINE)
     if len(parts) < 3:
         return None
     frontmatter = parts[1]

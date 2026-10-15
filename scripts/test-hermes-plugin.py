@@ -6,6 +6,7 @@ from __future__ import annotations
 import importlib.util
 import json
 import sys
+import tempfile
 import types
 import unittest
 from enum import Enum
@@ -98,6 +99,31 @@ def load_plugin(lifecycle):
     context = FakeContext(lifecycle)
     module.register(context)
     return module, context
+
+
+class BuilderFrontmatterTests(unittest.TestCase):
+    def test_separator_suffix_is_not_a_frontmatter_delimiter(self):
+        spec = importlib.util.spec_from_file_location(
+            "agency_builder_under_test", ROOT / "scripts" / "build-hermes-plugin.py"
+        )
+        assert spec and spec.loader
+        builder = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(builder)
+        with tempfile.TemporaryDirectory() as directory:
+            repo = Path(directory)
+            path = repo / "engineering" / "example.md"
+            path.parent.mkdir()
+            path.write_text(
+                "---\nname: Example Agent\ndescription: Explains ---\n"
+                "color: blue\n---\n# Identity\n\n---\nBody separator\n",
+                encoding="utf-8",
+            )
+            agent = builder.parse_agent(path, repo)
+            self.assertIsNotNone(agent)
+            assert agent is not None
+            self.assertEqual(agent["description"], "Explains ---")
+            self.assertEqual(agent["color"], "blue")
+            self.assertEqual(agent["body"], "# Identity\n\n---\nBody separator\n")
 
 
 class DelegateBehaviorTests(unittest.TestCase):
