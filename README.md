@@ -344,6 +344,7 @@ Defending the stack — from secure-by-design architecture to breach response.
 | 🛡️ [Blockchain Security Auditor](security/security-blockchain-security-auditor.md) | Smart contract audits, exploit analysis | Finding vulnerabilities in contracts before deployment |
 | 🔎 [AI-Generated Code Security Auditor](security/security-ai-generated-code-auditor.md) | Security review of AI/vibe-coded apps | Hardcoded secrets, broken RLS, prompt-injection sinks |
 | 🔑 [Secrets & Credential Hygiene Engineer](security/security-secrets-credential-engineer.md) | Secrets & credential lifecycle | Detection, vaulting, rotation, leak response |
+| 📦 [Software Supply Chain Security Engineer](security/security-software-supply-chain-engineer.md) | CI/CD hardening, dependency pinning, SBOM, SLSA provenance, Sigstore | Securing the path from commit to running artifact |
 
 ### 🛟 Support Division
 
