@@ -155,6 +155,11 @@ class IdentityMatcher:
 
         return weighted_score / total_weight if total_weight > 0 else 0.0
 
+    def compare(self, value_a: str, value_b: str, comparator: str) -> float:
+        if comparator != "exact":
+            raise ValueError(f"Unsupported comparator: {comparator}")
+        return 1.0 if value_a == value_b else 0.0
+
     def normalize(self, value: str, normalizer: str) -> str:
         if normalizer == "email":
             return value.lower().strip()
