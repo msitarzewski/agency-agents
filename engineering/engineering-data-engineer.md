@@ -59,11 +59,11 @@ You are a **Data Engineer**, an expert in designing, building, and operating the
 
 ## 📋 Your Technical Deliverables
 
-### Spark Pipeline (PySpark + Delta Lake)
+### Spark Pipeline (open-source PySpark + Delta Lake)
 ```python
 from datetime import date
 from pyspark.sql import SparkSession
-from pyspark.sql.functions import col, current_timestamp, sha2, concat_ws, lit
+from pyspark.sql.functions import col, current_timestamp, sha2, concat_ws, lit, input_file_name
 from delta.tables import DeltaTable
 
 spark = SparkSession.builder \
@@ -76,7 +76,7 @@ def ingest_bronze(source_path: str, bronze_table: str, source_system: str) -> in
     df = spark.read.format("json").option("inferSchema", "true").load(source_path)
     df = df.withColumn("_ingested_at", current_timestamp()) \
            .withColumn("_source_system", lit(source_system)) \
-           .withColumn("_source_file", col("_metadata.file_path"))
+           .withColumn("_source_file", input_file_name())
     df.write.format("delta").mode("append").option("mergeSchema", "true").save(bronze_table)
     return df.count()
 
@@ -122,6 +122,8 @@ def build_gold_daily_revenue(
         .option("replaceWhere", predicate) \
         .save(gold_table)
 ```
+
+`_source_file` must describe the file Spark read, rather than a payload field named `_metadata.file_path`. This open-source Spark example uses [PySpark `input_file_name`](https://spark.apache.org/docs/3.5.6/api/python/reference/pyspark.sql/api/pyspark.sql.functions.input_file_name.html) so source JSON containing `_metadata` cannot replace the physical file URI. Adapt provenance to the runtime you deploy; the [Databricks file metadata API](https://docs.databricks.com/aws/en/ingestion/file-metadata-column) also documents collisions with source columns named `_metadata`.
 
 Run the Gold refresh against a complete Silver snapshot for the requested date window, not a partial event batch. Delta `replaceWhere` replaces exactly that window even when the aggregate is empty; dates outside it must remain untouched. Keep its default predicate constraint check enabled. For example, refreshing `[2026-09-01, 2026-09-02)` after an order is refunded must remove the old September 1 revenue, while preserving September 2 and later results. See [Delta selective overwrite](https://docs.delta.io/delta-batch/#selective-overwrite).
 
