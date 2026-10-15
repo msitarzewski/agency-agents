@@ -1,0 +1,37 @@
+{
+  "records": [
+    {
+      "candidate_id": "candidate-consider",
+      "source_file": "candidate-consider.pdf",
+      "source_sha256": "3259d1562d9dfe3f21e63e3add8f269c2b56512cd491772ba33c27add5ba5302",
+      "parser": "pdfplumber",
+      "page_count": 1,
+      "character_count": 1195,
+      "output_file": "candidate-consider.txt",
+      "status": "parsed",
+      "errors": []
+    },
+    {
+      "candidate_id": "candidate-reject",
+      "source_file": "candidate-reject.pdf",
+      "source_sha256": "ca7d55587ef9078eb359f277f3aa62e38532a102656219285d84eb9702e4ec28",
+      "parser": "pdfplumber",
+      "page_count": 1,
+      "character_count": 973,
+      "output_file": "candidate-reject.txt",
+      "status": "parsed",
+      "errors": []
+    },
+    {
+      "candidate_id": "candidate-strong",
+      "source_file": "candidate-strong.pdf",
+      "source_sha256": "d21646c1fcd7bd40c67a2c7b6ba114a2a2d49c9e3d5e796f2b2d09e85ff36078",
+      "parser": "pdfplumber",
+      "page_count": 1,
+      "character_count": 1255,
+      "output_file": "candidate-strong.txt",
+      "status": "parsed",
+      "errors": []
+    }
+  ]
+}

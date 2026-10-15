@@ -1,0 +1,15 @@
+{
+  "templateId": "76c4b6e6-de49-4bda-9755-9ea55eac9fa9",
+  "versionId": "ee1bd4ce-e372-4f31-9ad6-83b822a9878e",
+  "inputFileId": "2431321e-1a8e-4668-81dc-94badb83eee9",
+  "rowCount": 3,
+  "estimatedTotalCost": {
+    "amount": "0.1074150",
+    "currency": "CNY"
+  },
+  "availableBalance": {
+    "amount": "700.7600000",
+    "currency": "CNY"
+  },
+  "balanceSufficient": true
+}

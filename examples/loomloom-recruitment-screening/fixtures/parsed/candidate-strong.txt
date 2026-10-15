@@ -1,0 +1,23 @@
+[Page 1]
+Candidate Strong
+Backend Engineer
+PROFESSIONAL SUMMARY
+Backend engineer with five years of production Python experience, focused on API reliability, performance, and service
+ownership.
+EXPERIENCE
+Senior Backend Engineer - Northstar Systems - 2023 to Present
+- Designed and operated Python REST APIs serving 4 million requests per day.
+- Reduced p95 API latency by 38 percent through query and caching improvements.
+- Owned PostgreSQL schema changes, production rollout plans, and on-call response.
+- Deployed services to AWS using Docker and Kubernetes.
+- Mentored three engineers and introduced API review checklists.
+Backend Engineer - Harbor Analytics - 2021 to 2023
+- Built Python data services and documented REST endpoints for partner teams.
+- Added service metrics and alerts that reduced repeated incidents by 24 percent.
+SKILLS
+Python, FastAPI, REST APIs, PostgreSQL, Redis, Docker, Kubernetes, AWS, observability
+SELECTED PROJECT
+Led a zero-downtime migration of a customer API from a monolith to three services, including load tests, rollback
+procedures, and production monitoring.
+This document contains fictional information created solely to test the Loomloom recruitment-screening workflow.
+Synthetic resume for testing only Page 1
