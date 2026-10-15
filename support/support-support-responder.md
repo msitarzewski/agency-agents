@@ -280,8 +280,9 @@ class SupportAnalytics:
             (self.data['created_date'] >= now - timedelta(days=7))
         ]['customer_id'].unique()
         
-        # Customers with unresolved tickets over SLA
+        # Customers with known unresolved status and tickets over SLA
         overdue_tickets = self.data[
+            self.data['status'].notna() &
             (self.data['status'] != 'resolved') & 
             (self.data['created_date'] <= now - timedelta(hours=48))
         ]['customer_id'].unique()
