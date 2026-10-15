@@ -239,9 +239,8 @@ def shap_global_analysis(model, X: pd.DataFrame, output_dir: str = ".",
     try:
         explainer = shap.TreeExplainer(model)
     except Exception:
-        explainer = shap.KernelExplainer(
-            model.predict_proba, shap.sample(X, 100)
-        )
+        predict = model.predict_proba if hasattr(model, "predict_proba") else model.predict
+        explainer = shap.KernelExplainer(predict, shap.sample(X, 100))
 
     shap_values = explainer.shap_values(X)
 
@@ -284,9 +283,8 @@ def shap_local_explanation(model, X: pd.DataFrame, idx: int,
     try:
         explainer = shap.TreeExplainer(model)
     except Exception:
-        explainer = shap.KernelExplainer(
-            model.predict_proba, shap.sample(X, 100)
-        )
+        predict = model.predict_proba if hasattr(model, "predict_proba") else model.predict
+        explainer = shap.KernelExplainer(predict, shap.sample(X, 100))
 
     explanation = explainer(X.iloc[[idx]])
     if explanation.values.ndim == 3:
