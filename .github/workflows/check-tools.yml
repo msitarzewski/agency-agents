@@ -22,6 +22,17 @@ jobs:
       - name: Validate generated Hermes plugin
         run: python3 scripts/check-hermes-plugin.py
 
+      # test-hermes-plugin.py reads integrations/hermes, so generate it first.
+      # test-hermes-search.py builds its own copy in a temp dir and needs nothing.
+      - name: Generate the Hermes plugin
+        run: bash scripts/convert.sh --tool hermes
+
+      - name: Hermes router behavior (delegation lifecycle)
+        run: python3 scripts/test-hermes-plugin.py
+
+      - name: Hermes router search quality (ranking floors)
+        run: python3 scripts/test-hermes-search.py
+
       - name: Validate converted YAML frontmatter
         run: bash scripts/test-convert-frontmatter.sh
 
