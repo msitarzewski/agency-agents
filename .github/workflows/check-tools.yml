@@ -1,9 +1,8 @@
 name: Check Tools Consistency
 
-# Runs on every PR (no path filter on purpose): a new or renamed tool must trip
-# this check even when nobody touched tools.json or the install/convert scripts.
 on:
   pull_request:
+    types: [opened, synchronize, reopened]
   push:
     branches: [main]
 
@@ -12,9 +11,16 @@ jobs:
     name: tools.json is the single source of truth
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.x'
 
       - name: Validate tool set
+        shell: bash
         run: |
           chmod +x scripts/check-tools.sh
           ./scripts/check-tools.sh
