@@ -27,9 +27,10 @@ JSON="divisions.json"
 # caught even if nobody remembered to register it).
 # integrations/ is convert.sh's OUTPUT tree (per-tool conversions written back
 # into the repo), not a source-agent category. strategy/ holds playbooks and
-# runbooks (no agent frontmatter), not agents. Neither is a division — they must
-# never be scanned as source-agent categories.
-NON_DIVISION_DIRS=(examples scripts integrations strategy)
+# runbooks (no agent frontmatter), not agents. src/ and __tests__/ are the npm
+# package's TypeScript source and test tree, also frontmatter-free. None of
+# these are divisions — they must never be scanned as source-agent categories.
+NON_DIVISION_DIRS=(examples scripts integrations strategy src __tests__)
 
 errors=0
 fail() { echo "ERROR $*"; errors=$((errors + 1)); }
