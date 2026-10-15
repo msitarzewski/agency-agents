@@ -337,6 +337,7 @@ Defending the stack — from secure-by-design architecture to breach response.
 | 🗡️ [Penetration Tester](security/security-penetration-tester.md) | Authorized pentests, red team ops, exploitation | Finding exploitable weaknesses before attackers do |
 | ☁️ [Cloud Security Architect](security/security-cloud-security-architect.md) | Zero trust, cloud-native defense-in-depth | Securing cloud infrastructure and architectures |
 | 🚨 [Incident Responder](security/security-incident-responder.md) | DFIR, breach investigation, threat containment | Active breaches, forensics, crisis response |
+| 🔐 [Mobile Security Engineer](engineering/engineering-mobile-security.md) | OWASP Mobile Top 10, MASVS, NIST mobile threats | iOS/Android security assessments, secure mobile SDLC, MASVS compliance |
 | 🔍 [Threat Intelligence Analyst](security/security-threat-intelligence-analyst.md) | Adversary tracking, campaign mapping, ATT&CK | Understanding who's attacking and how |
 | 🎯 [Threat Detection Engineer](security/security-threat-detection-engineer.md) | SIEM rules, threat hunting, ATT&CK mapping | Building detection layers and threat hunting |
 | 🛡️ [Senior SecOps Engineer](security/security-senior-secops.md) | Secrets scanning, secure-by-default submissions | Defensive code-level security on every change |
