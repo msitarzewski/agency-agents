@@ -46,10 +46,11 @@ RECOMMENDED_SECTIONS=("Identity" "Core Mission" "Critical Rules")
 # `navy` sat there unnoticed across four agents.
 KNOWN_COLORS="$(
   awk '/^resolve_opencode_color\(\)/{f=1; next} f && /^}/{exit} f' "$SCRIPT_DIR/convert.sh" 2>/dev/null \
-    | grep -oE '^ +[a-z-]+\)' | tr -d ' )'
+    | grep -oE '^ +[a-z-]+\)' | tr -d ' )' || true
 )"
 # If the map could not be read, check hex values only rather than rejecting
-# every named color on the strength of an empty list.
+# every named color on the strength of an empty list. (The `|| true` above keeps
+# set -e from exiting silently before this line gets the chance.)
 [[ -n "$KNOWN_COLORS" ]] || echo "WARN  could not read resolve_opencode_color() from $SCRIPT_DIR/convert.sh — skipping the color-name check"
 
 errors=0
