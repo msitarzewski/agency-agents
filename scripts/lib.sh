@@ -20,6 +20,26 @@
 get_field() {
   local field="$1" file="$2"
   awk -v f="$field" '
+    # Only whitespace-delimited hashes outside a quoted scalar start comments.
+    # A hash in C# or inside quotes remains part of the selected value.
+    function scalar_line(v, i, c, q) {
+      sub(/^[ \t]+/, "", v)
+      q = substr(v, 1, 1)
+      if (q == "#") return ""
+      if (q != "\"" && q != "\047") {
+        sub(/[ \t]+#.*/, "", v)
+        return v
+      }
+      for (i = 2; i <= length(v); i++) {
+        c = substr(v, i, 1)
+        if (q == "\"" && c == "\\") { i++; continue }
+        if (c != q) continue
+        if (q == "\047" && substr(v, i + 1, 1) == q) { i++; continue }
+        if (substr(v, i + 1) ~ /^[ \t]+#/) return substr(v, 1, i)
+        return v
+      }
+      return v
+    }
     # A quoted YAML scalar carries its quotes as delimiters, not content:
     # strip one matching outer pair and unescape (\047 is a literal apostrophe;
     # this program sits inside shell single quotes). A plain scalar may also
@@ -33,8 +53,9 @@ get_field() {
       print v; printed = 1; exit
     }
     /^---$/ { fm++; if (fm == 2 && found) emit(val); next }
-    fm == 1 && !found && $0 ~ "^" f ": " { sub("^" f ": ", ""); val = $0; found = 1; next }
-    fm == 1 && found && /^[ \t]+[^ \t]/ { sub(/^[ \t]+/, ""); val = val " " $0; next }
+    fm == 1 && !found && $0 ~ "^" f ": " { sub("^" f ": ", ""); val = scalar_line($0); found = 1; next }
+    fm == 1 && found && /^[ \t]*#/ { next }
+    fm == 1 && found && /^[ \t]+[^ \t]/ { val = val " " scalar_line($0); next }
     fm == 1 && found { emit(val) }
     END { if (found && !printed) emit(val) }
   ' "$file"
