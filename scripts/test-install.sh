@@ -275,6 +275,24 @@ assert_eq 0 "$RUN_STATUS" "DSH_SKILLS_DIR install exits 0"
   && pass "DSH_SKILLS_DIR leaves DSH_HOME unused" \
   || fail "DSH_SKILLS_DIR leaves DSH_HOME unused"
 
+# OpenAgent personas land in ~/.openagent/personas by default, and
+# OPENAGENT_PERSONAS_DIR moves them.
+home="$(sandbox openagent-home)"
+RUN_OUT="$(HOME="$home" "$INSTALL" --no-interactive --tool openagent --agent "$FIRST_ENG_SLUG" 2>&1)"; RUN_STATUS=$?
+assert_eq 0 "$RUN_STATUS" "OpenAgent install exits 0"
+[[ -f "$home/.openagent/personas/$FIRST_ENG_SLUG.persona.yaml" ]] \
+  && pass "OpenAgent installs personas into ~/.openagent/personas" \
+  || fail "OpenAgent installs personas into ~/.openagent/personas"
+
+home="$(sandbox openagent-dir)"
+oa_dir="$home/custom-personas"
+RUN_OUT="$(HOME="$home" OPENAGENT_PERSONAS_DIR="$oa_dir" "$INSTALL" --no-interactive \
+  --no-convert --tool openagent --agent "$FIRST_ENG_SLUG" 2>&1)"; RUN_STATUS=$?
+assert_eq 0 "$RUN_STATUS" "OPENAGENT_PERSONAS_DIR install exits 0"
+[[ -f "$oa_dir/$FIRST_ENG_SLUG.persona.yaml" && ! -e "$home/.openagent/personas" ]] \
+  && pass "OPENAGENT_PERSONAS_DIR overrides ~/.openagent/personas" \
+  || fail "OPENAGENT_PERSONAS_DIR overrides ~/.openagent/personas"
+
 # ---------------------------------------------------------------------------
 # 4. Paths with spaces (regression: word-splitting in the install loop)
 # ---------------------------------------------------------------------------

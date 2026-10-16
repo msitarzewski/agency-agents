@@ -66,7 +66,7 @@ Each agent file contains:
 
 Browse the agents below and copy/adapt the ones you need!
 
-### Option 4: Use with Other Tools (GitHub Copilot, Antigravity, Gemini CLI, OpenCode, OpenClaw, Cursor, Aider, Windsurf, Kimi Code, Codex, Osaurus, Hermes, Mistral Vibe, DeepSeek Harness)
+### Option 4: Use with Other Tools (GitHub Copilot, Antigravity, Gemini CLI, OpenCode, OpenClaw, Cursor, Aider, Windsurf, Kimi Code, Codex, Osaurus, Hermes, Mistral Vibe, DeepSeek Harness, OpenAgent)
 
 ```bash
 # Step 1 -- generate integration files for all supported tools
@@ -90,6 +90,7 @@ Browse the agents below and copy/adapt the ones you need!
 ./scripts/install.sh --tool hermes
 ./scripts/install.sh --tool vibe
 ./scripts/install.sh --tool dsh
+./scripts/install.sh --tool openagent
 ```
 
 **Install only the teams you need** (not everyone wants every division):
@@ -755,6 +756,7 @@ The Agency works natively with Claude Code, and ships conversion + install scrip
 - **Osaurus** -- `SKILL.md` skills -> `~/.osaurus/skills/`
 - **[Hermes](integrations/hermes/README.md)** -- lazy-router plugin -> `~/.hermes/plugins/`
 - **[DeepSeek Harness](https://github.com/deepseek-ai/deepseek-harness)** — `SKILL.md` skills → `~/.dsh/skills/` (user) or `.dsh/skills/` (project)
+- **[OpenAgent](integrations/openagent/README.md)** — `<slug>.persona.yaml` identity files (5dive-ai/openagent spec) → `~/.openagent/personas/`
 
 ---
 
@@ -1091,6 +1093,20 @@ Activate in DeepSeek Harness — user- and model-invocable by default:
 ```
 
 See [integrations/dsh/README.md](integrations/dsh/README.md) for details.
+</details>
+
+<details>
+<summary><strong>OpenAgent</strong></summary>
+
+Each agent becomes an [OpenAgent (5dive-ai/openagent)](https://github.com/5dive-ai/openagent) persona file: name, role, behavior, an emoji face and a written voice taken from its Communication Style section.
+
+```bash
+./scripts/convert.sh --tool openagent
+./scripts/install.sh --tool openagent
+npx @5dive/openagent validate ~/.openagent/personas/frontend-developer.persona.yaml
+```
+
+See [integrations/openagent/README.md](integrations/openagent/README.md) for details.
 </details>
 
 ---

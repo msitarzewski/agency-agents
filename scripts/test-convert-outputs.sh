@@ -97,7 +97,7 @@ N="$(wc -l < "$SOURCES" | tr -d ' ')"
 [[ "$N" -gt 0 ]] || { echo "ERROR: no source agents found." >&2; exit 2; }
 
 # --- generate: every converted tool, sequentially, into a scratch dir ---------
-TOOLS="antigravity gemini-cli opencode cursor aider windsurf openclaw qwen zcode kimi codex osaurus hermes vibe dsh"
+TOOLS="antigravity gemini-cli opencode cursor aider windsurf openclaw qwen zcode kimi codex osaurus hermes vibe dsh openagent"
 if [[ -z "$OUT" ]]; then
   OUT="$TMP/out"; mkdir -p "$OUT"
   for t in $TOOLS; do
@@ -155,6 +155,7 @@ SPEC = {
     "aider":       ("CONVENTIONS.md",    "accum"),
     "windsurf":    (".windsurfrules",    "accum"),
     "hermes":      ("agency-agents-router/data/agents.json", "json"),
+    "openagent":   ("*.persona.yaml",    "yaml-role"),
 }
 
 def slug_of(path):
@@ -162,6 +163,7 @@ def slug_of(path):
     if base in ("SKILL.md", "agent.yaml", "SOUL.md", "system.md", "AGENTS.md", "IDENTITY.md"):
         d = os.path.basename(os.path.dirname(path))
         return d[len("agency-"):] if d.startswith("agency-") else d
+    if base.endswith(".persona.yaml"): return base[:-len(".persona.yaml")]
     return os.path.splitext(base)[0]
 
 def find_desc(obj):
@@ -270,8 +272,14 @@ for tool in TOOLS:
         except Exception as e:
             bad_parse += 1; bad(f"{tool}: {os.path.relpath(f, OUT)} does not parse ({type(e).__name__}: {e})"); continue
 
-        if fmt in ("yaml-fm", "toml"):
-            got, want = find_desc(data), src[slug][0]
+        if fmt in ("yaml-fm", "toml", "yaml-role"):
+            # An OpenAgent persona carries the description as `role`, and its
+            # `name` must be the source name, not the slug.
+            if fmt == "yaml-role":
+                got = data.get("role") if data.get("name") == src[slug][1] else None
+            else:
+                got = find_desc(data)
+            want = src[slug][0]
             if want is None: continue   # source failed strict parse; reported below
             if got != want:
                 bad_trip += 1
@@ -292,7 +300,7 @@ for tool in TOOLS:
                 bad_trip += 1
                 if bad_trip <= 3: bad(f"{tool}: {slug} companion file missing: {os.path.relpath(companion, OUT)}")
     report(tool, bad_parse, bad_trip,
-           "parse and round-trip" if fmt in ("yaml-fm", "toml") else "parse, carry their slug, and have their prose file")
+           "parse and round-trip" if fmt in ("yaml-fm", "toml", "yaml-role") else "parse, carry their slug, and have their prose file")
 
 # --- Layer A (color): a grey agent should be a grey agent ---------------------
 # resolve_opencode_color() maps a name it does not know to #6B7280 and says

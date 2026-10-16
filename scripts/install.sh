@@ -28,6 +28,7 @@
 #   hermes       -- Copy lazy-router plugin to ~/.hermes/plugins/ and enable it
 #   vibe         -- Copy agents and prompts to ~/.vibe/agents/ and ~/.vibe/prompts/
 #   dsh          -- Copy skills to ~/.dsh/skills/ (user-wide) or .dsh/skills/ (project)
+#   openagent    -- Copy OpenAgent persona files to ~/.openagent/personas/
 #   all          -- Install for all detected tools (default)
 #
 # Selection (compose freely; empty = everything):
@@ -54,7 +55,7 @@
 # Env: CLAUDE_CONFIG_DIR, COPILOT_AGENT_DIR, CURSOR_RULES_DIR, GEMINI_AGENTS_DIR,
 #      OPENCODE_AGENTS_DIR, OPENCLAW_DIR, QWEN_AGENTS_DIR, ZCODE_AGENTS_DIR,
 #      CODEX_AGENTS_DIR, OSAURUS_SKILLS_DIR, HERMES_HOME, HERMES_PLUGIN_DIR,
-#      VIBE_HOME, DSH_HOME, DSH_SKILLS_DIR
+#      VIBE_HOME, DSH_HOME, DSH_SKILLS_DIR, OPENAGENT_PERSONAS_DIR
 #      override default install paths (checked before hardcoded defaults).
 #
 # --- USAGE-END ---  (sentinel for usage(); do not remove)
@@ -133,7 +134,7 @@ INTEGRATIONS="$REPO_ROOT/integrations"
 # shellcheck source=lib.sh
 . "$SCRIPT_DIR/lib.sh"
 
-ALL_TOOLS=(claude-code copilot antigravity gemini-cli opencode openclaw cursor aider windsurf qwen zcode kimi codex osaurus hermes vibe dsh)
+ALL_TOOLS=(claude-code copilot antigravity gemini-cli opencode openclaw cursor aider windsurf qwen zcode kimi codex osaurus hermes vibe dsh openagent)
 
 # The division set is derived from divisions.json (the single source of truth)
 # so the installer can never drift from the catalog — a hardcoded copy silently
@@ -399,6 +400,7 @@ resolve_dest() {
     hermes)      var="HERMES_PLUGIN_DIR" ;;
     vibe)        var="VIBE_HOME" ;;
     dsh)         var="DSH_SKILLS_DIR" ;;
+    openagent)   var="OPENAGENT_PERSONAS_DIR" ;;
   esac
   if [[ -n "$var" && -n "${!var:-}" ]]; then
     if [[ "$tool" == "claude-code" ]]; then
@@ -426,7 +428,7 @@ resolve_tool_path() {
     zcode) bin="zcode" ;;
     kimi) bin="kimi" ;; codex) bin="codex" ;; antigravity) bin="" ;;
     osaurus) bin="osaurus" ;; hermes) bin="hermes" ;; vibe) bin="vibe" ;;
-    dsh) bin="dsh" ;;
+    dsh) bin="dsh" ;; openagent) bin="openagent" ;;
   esac
   [[ -n "$bin" ]] && command -v "$bin" 2>/dev/null
 }
@@ -546,6 +548,7 @@ detect_osaurus()      { command -v osaurus >/dev/null 2>&1 || [[ -d "${HOME}/.os
 detect_hermes()       { command -v hermes >/dev/null 2>&1 || [[ -d "${HERMES_HOME:-${HOME}/.hermes}" ]]; }
 detect_vibe()         { command -v vibe >/dev/null 2>&1 || [[ -d "${VIBE_HOME:-${HOME}/.vibe}" ]]; }
 detect_dsh()          { command -v dsh >/dev/null 2>&1 || [[ -d "${DSH_HOME:-${HOME}/.dsh}" ]]; }
+detect_openagent()    { command -v openagent >/dev/null 2>&1 || [[ -d "${HOME}/.openagent" ]]; }
 
 is_detected() {
   case "$1" in
@@ -566,6 +569,7 @@ is_detected() {
     hermes)      detect_hermes      ;;
     vibe)        detect_vibe        ;;
     dsh)         detect_dsh         ;;
+    openagent)   detect_openagent   ;;
     *)           return 1 ;;
   esac
 }
@@ -590,6 +594,7 @@ tool_label() {
     hermes)      printf "%-14s  %s" "Hermes"       "(~/.hermes/plugins)"     ;;
     vibe)        printf "%-14s  %s" "Mistral Vibe" "(~/.vibe/agents)"        ;;
     dsh)         printf "%-14s  %s" "DeepSeek Harness" "(~/.dsh/skills)"     ;;
+    openagent)   printf "%-14s  %s" "OpenAgent"    "(~/.openagent/personas)" ;;
   esac
 }
 
@@ -713,7 +718,7 @@ tool_simple_name() {
     claude-code) echo "Claude Code";; copilot) echo "Copilot";; antigravity) echo "Antigravity";;
     gemini-cli) echo "Gemini CLI";; opencode) echo "OpenCode";; openclaw) echo "OpenClaw";;
     cursor) echo "Cursor";; aider) echo "Aider";; windsurf) echo "Windsurf";;
-    qwen) echo "Qwen Code";; zcode) echo "ZCode";; kimi) echo "Kimi Code";; codex) echo "Codex";; osaurus) echo "Osaurus";; dsh) echo "DeepSeek Harness";; *) echo "$1";;
+    qwen) echo "Qwen Code";; zcode) echo "ZCode";; kimi) echo "Kimi Code";; codex) echo "Codex";; osaurus) echo "Osaurus";; dsh) echo "DeepSeek Harness";; openagent) echo "OpenAgent";; *) echo "$1";;
   esac
 }
 
@@ -954,6 +959,26 @@ install_dsh() {
   if command -v dsh >/dev/null 2>&1; then
     warn "DeepSeek Harness: activate an agent with /agency-<slug> or by name in conversation."
   fi
+}
+
+install_openagent() {
+  local src="$INTEGRATIONS/openagent"
+  local dest; dest="$(resolve_dest openagent "${HOME}/.openagent/personas")"
+  local count=0
+
+  [[ -d "$src" ]] || { err "integrations/openagent missing. Run convert.sh first."; return 1; }
+
+  mkdir -p "$dest"
+
+  local f
+  while IFS= read -r -d '' f; do
+    slug_allowed "$(basename "$f" .persona.yaml)" || continue
+    install_file "$f" "$dest/"
+    incr count
+  done < <(find "$src" -maxdepth 1 -name "*.persona.yaml" -print0)
+
+  ok "OpenAgent: installed $count personas to $dest"
+  dim "         Check one: npx @5dive/openagent validate $dest/<slug>.persona.yaml"
 }
 
 install_gemini_cli() {
@@ -1562,6 +1587,7 @@ install_tool() {
     hermes)      install_hermes      ;;
     vibe)        install_vibe        ;;
     dsh)         install_dsh         ;;
+    openagent)   install_openagent   ;;
   esac
 }
 

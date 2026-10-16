@@ -86,4 +86,5 @@ integrations/vibe/agents/
 integrations/vibe/prompts/
 integrations/zcode/agents/
 integrations/dsh/agency-*/
+integrations/openagent/*.persona.yaml
 graphify-out/
