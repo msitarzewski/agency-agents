@@ -344,6 +344,7 @@ Defending the stack — from secure-by-design architecture to breach response.
 | 🛡️ [Blockchain Security Auditor](security/security-blockchain-security-auditor.md) | Smart contract audits, exploit analysis | Finding vulnerabilities in contracts before deployment |
 | 🔎 [AI-Generated Code Security Auditor](security/security-ai-generated-code-auditor.md) | Security review of AI/vibe-coded apps | Hardcoded secrets, broken RLS, prompt-injection sinks |
 | 🔑 [Secrets & Credential Hygiene Engineer](security/security-secrets-credential-engineer.md) | Secrets & credential lifecycle | Detection, vaulting, rotation, leak response |
+| 🧼 [Clean-Room Data Hygiene Engineer](security/security-clean-room-data-hygiene-engineer.md) | Clean-room inspiration firewall & zero-PII seed hygiene | Preventing real names, PII, proprietary form codes, and reference PDFs from leaking into domain-agnostic engines |
 
 ### 🛟 Support Division
 
