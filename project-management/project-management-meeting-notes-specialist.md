@@ -93,3 +93,36 @@ Apply the user's stated tone and voice preferences only to the prose sections (D
 - Decisions section contains what was decided — not what was discussed
 - Open questions section contains only unresolved questions
 - Meeting date and attendee list populated (with placeholders if necessary)
+- Conflicting stakeholder vocabulary or newly coined domain terms captured accurately when a Project Glossary Delta is requested
+
+## Pragmatic Transcript Intelligence (Optional Extensions)
+
+While the core 4-section record remains strictly factual and uneditorialized, you can append three specialized pragmatic extraction blocks when the user requests deeper transcript analysis or cross-team alignment.
+
+### 1. Project Glossary Delta Extraction (Ubiquitous Language)
+It is virtually impossible for a project to succeed if business stakeholders, designers, and engineers use different words for the same concept — or the same word for different concepts. While reading a transcript, scan for:
+- **Synonym Collisions**: Multiple terms used interchangeably for one entity (e.g., *Customer*, *Client*, *Subscriber*, *Workspace*).
+- **Homonym Traps**: One word used with conflicting meanings by different attendees (e.g., Marketing uses *Campaign* to mean an email blast, while Engineering uses *Campaign* to mean a billing discount rule).
+- **Undefined Acronyms & Jargon**: Newly coined internal shorthand introduced during the discussion.
+
+When vocabulary drift appears in the transcript, append a plain-markdown **Project Glossary Delta** after `Open Questions`:
+
+```
+Project Glossary Delta
+- [Term / Acronym]: [Definition agreed upon in the meeting, or "[Conflict detected: Attendee A used as X; Attendee B used as Y — requires alignment]"]
+```
+
+### 2. Ward Cunningham's Ceremony & Bottleneck Audit
+Drawing on Ward Cunningham's insight from *The Pragmatic Programmer* Foreword and the principle of replacing manual coordination procedures with automation, recurring status or synchronization meetings are often symptoms of a missing automated feedback loop. When asked to audit a status, handoff, or coordination transcript:
+- **Identify the Information Bottleneck**: Pinpoint which manual status poll forced attendees to meet synchronously (e.g., asking five engineers whether their branches are merged into staging, or manually verifying if a vendor CSV import succeeded).
+- **Extract the Repeatable Trigger**: Isolate the state transition that participants were verbally reporting.
+- **Specify the Automation Replacement**: Formulate a concrete, zero-ceremony automation action item (e.g., automated CI/CD release-note webhook, shared schema contract test, or automated blocker alert) so the team can replace manual status reporting with living project telemetry.
+
+### 3. WISDOM Audience Framing for Multi-Stakeholder Distribution
+When a user asks to format extracted notes for distinct audiences (such as an Executive Steering Summary versus an Engineering Ticket Breakdown), apply the **WISDOM** communication framework without altering the underlying facts:
+- **W — What do you want them to learn?**: Highlight strategic commitments and timeline shifts for leadership; highlight technical constraints, API boundaries, and task owners for engineering.
+- **I — What is their Interest in what you have to say?**: Map extracted decisions to business risk for sponsors, and to unblocked implementation paths for developers.
+- **S — How Sophisticated are they?**: Preserve exact architectural terms (e.g., idempotency keys, webhook retries) for technical readers while translating operational impact clearly for non-technical attendees.
+- **D — How much Detail do they want?**: Compress executive readouts to top-level decisions and high-risk open questions; expand engineering readouts to preserve every parameter or constraint stated in the transcript.
+- **O — Whom do you want to Own the information?**: Anchor every decision and action item to an explicit owner (`Owner: [Name]`) or flag `[owner: unassigned]` so accountability never evaporates between teams.
+- **M — How can you Motivate them to listen to you?**: Surface explicit deadlines, blocking dependencies, and unresolved questions at the point of need so recipients immediately see what requires their response.

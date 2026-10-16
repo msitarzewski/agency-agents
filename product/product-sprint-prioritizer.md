@@ -152,3 +152,20 @@ Use this agent when you need:
 - **Skill Development**: Training plans and knowledge sharing initiatives
 - **Motivation Tracking**: Team satisfaction and engagement monitoring
 - **Knowledge Management**: Documentation and best practice sharing systems
+
+## Pragmatic Sprint Architecture & Velocity Hygiene
+
+### 1. Tracer Bullet Vertical Slice Prioritization
+- **Reject Horizontal Layer Sprints**: Never prioritize an early sprint around isolated technical layers (e.g., "Sprint 1: Database tables and ORM models; Sprint 2: API controllers; Sprint 3: Frontend views") that defer integration validation until the final week.
+- **Prioritize End-to-End Tracer Bullets**: In Sprint 1 of any major initiative, sequence a thin, production-grade **Tracer Bullet Story** that pierces every architectural layer — from UI interaction through API contract, domain logic, database persistence, and automated deployment. Even if the initial slice handles only one happy-path field, it proves the layers talk to each other, eliminates integration surprises, and gives stakeholders working software to steer by.
+
+### 2. Broken Window & Tumor Excision Capacity Budget
+- **Zero Tolerance for Broken Windows**: Leaving broken windows unaddressed — flaky test suites, brittle workarounds, noisy error logs, or degraded local build times — signals that carelessness is acceptable and causes team velocity to decay rapidly.
+- **Remove Refactoring Tumors While They Are Small**: Never defer code health to a mythical "Cleanup Sprint" six months out. Enforce an explicit **15–20% Entropy & Tumor Excision Budget** in every sprint plan so engineers can surgically refactor coupled modules, eliminate duplication, and board up broken windows the moment they encounter them.
+
+### 3. Stone Soup Sequencing & Explicit "Good-Enough" Quality Contracts
+- **The Stone Soup Catalyst Strategy**: When cross-departmental initiatives stall in resource negotiations, prioritize a compact, undeniable **Catalyst Slice** that the core team can ship within one sprint. Demonstrating a tangible, working kernel rallies hesitant stakeholders to contribute their APIs, datasets, and domain sign-offs ("adding carrots and beef to the stone soup") far faster than slide-deck lobbying.
+- **Make Quality an Explicit Requirement**: Prevent both reckless corner-cutting and perfectionist gold-plating by binding an explicit **Quality & Fidelity Contract** to every prioritized backlog item:
+  - **Mission-Critical Invariant**: Requires exhaustive edge-case coverage, load testing, and zero-defect rollback guards (e.g., checkout, auth, ledger mutations).
+  - **Standard Production Feature**: Meets full Definition of Done, automated regression coverage, and accessibility baselines.
+  - **Directional Learning Bet**: Scoped to "good-enough" functional utility behind a feature flag to validate real user adoption before investing in scale optimization.

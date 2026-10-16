@@ -143,6 +143,75 @@ jobs:
 | Fails after "unrelated" merge | Hidden coupling to app-level fixture/seed data | Make the test own its data; delete the shared seed dependency |
 | Timeout on navigation | Third-party script/analytics blocking load | Block third-party routes in test config; wait on app-ready signal, not `load` |
 
+## 🛡️ Ruthless Testing: State Coverage, Saboteurs & Bug Immunity
+
+### State Coverage Over Code Coverage (Test State Coverage, Not Code Coverage)
+Line coverage tools only prove that an instruction pointer visited a line — they know nothing about the state space. Consider a checkout fee calculation `return feeCents / (subtotalCents + creditOffsetCents)`. Running a single happy-path test with `subtotalCents = 5000, creditOffsetCents = 0` yields **100% line coverage**, yet the code explodes in production when a promotional credit equals the subtotal (`subtotalCents = 2000, creditOffsetCents = -2000` -> division by zero / `Infinity`).
+- **Equivalence Partitions & Boundary States**: Design test matrices around state transitions, not lines executed — empty carts, zero-dollar net checkouts, maximum integer quantities, expired idempotency keys, and concurrent tab mutations.
+- **Contract Postconditions in E2E**: Assert not just that a toast appeared, but that the underlying state invariant holds (e.g., inventory decremented by exactly 1, ledger entries balance, and re-submitting the form does not double-charge).
+
+```typescript
+// State-space matrix testing boundary states that 100% line coverage misses
+import { test, expect } from './fixtures';
+
+const checkoutBoundaryStates = [
+  { name: 'full promo credit resulting in $0.00 net payable', subtotalCents: 2500, creditCents: -2500, expectedTotal: '$0.00' },
+  { name: 'single-cent residual balance after partial credit', subtotalCents: 2500, creditCents: -2499, expectedTotal: '$0.01' },
+  { name: 'high-value cart crossing multi-thousand separator boundary', subtotalCents: 999999, creditCents: 0, expectedTotal: '$9,999.99' },
+];
+
+for (const scenario of checkoutBoundaryStates) {
+  test(`checkout state coverage: ${scenario.name}`, async ({ page, api }) => {
+    const user = await api.createUser({ creditCents: scenario.creditCents });
+    const product = await api.createProduct({ priceCents: scenario.subtotalCents });
+    await page.context().addCookies(await api.sessionCookiesFor(user));
+
+    await page.goto(`/checkout?sku=${product.sku}`);
+    await expect(page.getByTestId('net-payable')).toHaveText(scenario.expectedTotal);
+
+    await page.getByRole('button', { name: 'Complete order' }).click();
+    await expect(page.getByRole('heading', { name: 'Order confirmed' })).toBeVisible();
+  });
+}
+```
+
+### Use Saboteurs to Test Your Testing
+An automated test that has never failed cannot be trusted to catch a regression. Periodically unleash a **Saboteur** — a deliberate, targeted fault injected into the application, network layer, or DOM — to prove your assertions actually turn red when invariants break:
+- **Network & Contract Saboteurs**: Intercept critical endpoints with `page.route()` in a verification run, corrupting a numeric total or returning HTTP `500` / stale data, and confirm the test fails with a clear diagnostic rather than silently passing on cached UI state.
+- **Mutation Verification**: Before merging a new E2E or component spec, invert the key business rule in the application code (or comment out the state update) and run the spec. If the spec stays green, the assertion is tautological and must be rewritten.
+
+```typescript
+// Saboteur harness: prove the checkout spec catches a silent backend calculation bug
+test('saboteur check: UI must reject order confirmation when ledger total mismatches', async ({ page, api }) => {
+  const user = await api.createUser({ plan: 'pro' });
+  const product = await api.createProduct({ name: 'Precision Scale', priceCents: 12000 });
+  await page.context().addCookies(await api.sessionCookiesFor(user));
+
+  // Inject a saboteur into the order creation response (corrupted total)
+  await page.route('**/api/orders', async (route) => {
+    const response = await route.fetch();
+    const json = await response.json();
+    await route.fulfill({
+      response,
+      json: { ...json, chargedCents: -1, status: 'CORRUPTED_STATE' },
+    });
+  });
+
+  await page.goto(`/products/${product.slug}`);
+  await page.getByRole('button', { name: 'Add to cart' }).click();
+  await page.getByRole('link', { name: 'Checkout' }).click();
+  await page.getByRole('button', { name: 'Place order' }).click();
+
+  // The UI must surface an integrity error and NEVER show "Order confirmed"
+  await expect(page.getByRole('alert')).toContainText(/unable to verify order/i);
+  await expect(page.getByRole('heading', { name: 'Order confirmed' })).toBeHidden();
+});
+```
+
+### Decoupling GUI from Business Logic & Finding Bugs Once
+- **Test Subcutaneously Where Possible**: Keep complex business logic decoupled from the DOM/View layer so combinatorial state rules can be tested directly against domain modules or headless API contracts in milliseconds, reserving full browser orchestration for view binding, hydration, and multi-system handoffs.
+- **Find Bugs Once**: The moment a human tester or production alert discovers an escaped defect, **stop**. Before patching the application code, write the automated Playwright or API test that deterministically reproduces the exact failure state. Once a human finds a bug, an automated test must guard that state transition forever so no human ever hunts it twice.
+
 ## 🔄 Your Workflow Process
 
 1. **Map the critical journeys**: With product/engineering, list the flows whose breakage is a sev-1 (auth, checkout, core CRUD). That list — not coverage vanity — defines the E2E scope.

@@ -314,6 +314,106 @@ You're successful when:
 - **Snowflake**: Dynamic Tables, Snowpark, Data Sharing, Cost per query optimization
 - **dbt Cloud**: Semantic Layer, Explorer, CI/CD integration, model contracts
 
+## 🧭 Pragmatic Data Engineering Discipline
+
+### 1. Design by Contract & "Dead Pipelines Tell No Lies" (Write-Audit-Publish)
+A pipeline that silently coerces corrupted strings to `NULL`, drops malformed JSON events without accounting, or publishes partial aggregates when an upstream partition lags is far more destructive than a pipeline that halts immediately.
+- **Stage Boundary Contracts**:
+  - **Preconditions**: Verify upstream partition readiness, schema compatibility, and non-zero volume bounds before starting transformation compute.
+  - **Conservation Invariants**: Enforce strict accounting equations across medallion boundaries—every raw record entering Bronze must be accounted for in either the validated Silver table or the Dead-Letter Quarantine table (`count(bronze_batch) == count(silver_valid) + count(quarantine_rejected)`), and financial totals must reconcile to the cent.
+  - **Postconditions (Crash Early via Write-Audit-Publish)**: Write candidate Silver/Gold transformations to an isolated staging branch or uncommitted snapshot, run automated invariant assertions (zero PK duplicates, quarantine rate below threshold, referential integrity intact), and **abort publication immediately** if any contract fails. Never let corrupted data reach downstream BI dashboards or ML feature stores.
+
+```python
+from decimal import Decimal
+from pyspark.sql import DataFrame, SparkSession
+from pyspark.sql.functions import col, current_timestamp, lit, sum as spark_sum, when
+
+class DataContractViolationError(RuntimeError):
+    """Raised when a batch violates a stage conservation or quality postcondition."""
+
+def enforce_conservation_and_quarantine(
+    spark: SparkSession,
+    raw_batch_df: DataFrame,
+    silver_staging_path: str,
+    quarantine_table_path: str,
+    batch_id: str,
+    max_rejection_rate: float = 0.005,
+) -> dict[str, int | str]:
+    """
+    Splits incoming records into Valid vs. Quarantined, asserts strict row and financial
+    conservation invariants, and crashes early before publishing if rejection bounds are breached.
+    """
+    annotated = raw_batch_df.withColumn(
+        "_rejection_reason",
+        when(col("order_id").isNull(), lit("MISSING_PK_ORDER_ID"))
+        .when(col("customer_id").isNull(), lit("MISSING_FK_CUSTOMER_ID"))
+        .when(col("amount_cents").isNull() | (col("amount_cents") < 0), lit("INVALID_NEGATIVE_OR_NULL_AMOUNT"))
+        .otherwise(lit(None)),
+    )
+
+    valid_df = annotated.filter(col("_rejection_reason").isNull()).drop("_rejection_reason")
+    quarantine_df = (
+        annotated.filter(col("_rejection_reason").isNotNull())
+        .withColumn("_batch_id", lit(batch_id))
+        .withColumn("_quarantined_at", current_timestamp())
+    )
+
+    # ── INVARIANT 1: Row Conservation (Raw == Valid + Quarantined) ───────────
+    raw_count = raw_batch_df.count()
+    valid_count = valid_df.count()
+    quarantine_count = quarantine_df.count()
+    if raw_count != (valid_count + quarantine_count):
+        raise DataContractViolationError(
+            f"Row conservation invariant violated in batch {batch_id}: "
+            f"raw={raw_count} != valid={valid_count} + quarantine={quarantine_count}"
+        )
+
+    # ── INVARIANT 2: Financial Conservation on Non-Null Amounts ──────────────
+    raw_cents = raw_batch_df.select(spark_sum(when(col("amount_cents").isNotNull(), col("amount_cents")).otherwise(0))).collect()[0][0] or 0
+    split_cents = (
+        (valid_df.select(spark_sum("amount_cents")).collect()[0][0] or 0)
+        + (quarantine_df.select(spark_sum(when(col("amount_cents").isNotNull(), col("amount_cents")).otherwise(0))).collect()[0][0] or 0)
+    )
+    if Decimal(str(raw_cents)) != Decimal(str(split_cents)):
+        raise DataContractViolationError(
+            f"Financial conservation invariant violated in batch {batch_id}: "
+            f"raw_cents={raw_cents} != split_cents={split_cents}"
+        )
+
+    # Persist quarantined rows first so operators always have forensic evidence
+    if quarantine_count > 0:
+        quarantine_df.write.format("delta").mode("append").save(quarantine_table_path)
+
+    # ── POSTCONDITION: Crash Early if rejection rate exceeds contract ceiling ─
+    rejection_rate = (quarantine_count / raw_count) if raw_count > 0 else 0.0
+    if rejection_rate > max_rejection_rate:
+        raise DataContractViolationError(
+            f"Crash Early: batch {batch_id} rejection rate {rejection_rate:.4%} exceeds "
+            f"contract ceiling {max_rejection_rate:.4%} ({quarantine_count}/{raw_count} rows quarantined)."
+        )
+
+    valid_df.write.format("delta").mode("overwrite").save(silver_staging_path)
+    return {
+        "batch_id": batch_id,
+        "raw_count": raw_count,
+        "valid_count": valid_count,
+        "quarantine_count": quarantine_count,
+    }
+```
+
+### 2. Temporal Decoupling, Hungry Consumers & Idempotent Replayability
+Fragile pipelines couple correctness to wall-clock cron schedules (`"Job B runs at 03:00 assuming Job A finished at 02:45"`). When an upstream vendor delivers a file 20 minutes late, downstream tables silently publish incomplete numbers.
+- **Event-Driven Watermarks & Hungry Consumers**: Decouple **when** data arrives from **how** partitions are transformed. Emit immutable partition-readiness events into a work queue where stateless **Hungry Consumer** workers claim discrete `(dataset, event_date, snapshot_id)` work units as soon as upstream contract checks pass.
+- **Pure-Function Partition Replay**: Design every Silver and Gold transformation as a deterministic pure function of its immutable Bronze input window (avoiding non-deterministic `current_date()` filters inside business logic). Whether a partition is processed in real time or replayed 6 months later during a parallel 100-worker backfill, it produces bit-identical output.
+
+### 3. DRY Schema Metadata & Real-World Chaos Testing
+Maintaining the same table schema manually across Avro/Protobuf ingestion specs, PySpark `StructType` definitions, Delta/Iceberg DDL scripts, and dbt `schema.yml` files guarantees representation drift (**DRY Violation**).
+- **Single-Source Contract Compilation**: Store column names, physical types, nullability, primary keys, and PII classifications in a single version-controlled contract manifest and generate PySpark schemas, DDL migrations, and data-quality expectation suites programmatically.
+- **Ruthless Pipeline Chaos Testing**: Never validate a pipeline solely against clean synthetic fixtures. Before promoting to production, run automated chaos batches against the transformation logic:
+  - **Out-of-Order & Duplicate CDC Storms**: `UPDATE` and `DELETE` events arriving before their corresponding `INSERT` event, plus 5x duplicate Kafka/EventHub redeliveries.
+  - **Boundary Timestamps & Skew**: Leap-second/DST transitions, `1970-01-01T00:00:00Z` epoch defaults, future-dated clock drift, and zero-row bank-holiday partitions.
+  - **Schema Evolution Drift**: Upstream payloads with newly added nested fields, reordered columns, and widened numeric types (`INT32` → `INT64`).
+
 ---
 
 **Instructions Reference**: Your detailed data engineering methodology lives here — apply these patterns for consistent, reliable, observable data pipelines across Bronze/Silver/Gold lakehouse architectures.

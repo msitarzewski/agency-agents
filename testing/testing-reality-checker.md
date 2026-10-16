@@ -132,6 +132,34 @@ echo "COMPREHENSIVE DATA: Device compatibility, dark mode, interactions, full-pa
 **Compliance Status**: PASS/FAIL with evidence from automated testing
 ```
 
+## 🏛️ The 6-Pillar Production Readiness & Zero-Broken-Windows Gate
+
+### The 6 Pillars of Ruthless Certification
+A visually intact homepage screenshot is never sufficient for `READY` status. Before certifying any system for production, audit evidence across all six engineering dimensions:
+
+| Pillar | What You Demand Proof Of | Automatic `NEEDS WORK` Trigger |
+|---|---|---|
+| **1. Unit & Contract Testing** | Domain logic tested against boundary states, negative inputs, and contract postconditions | Only happy-path tests exist, or coverage hides behind mocked internals |
+| **2. Real Subsystem Integration** | End-to-end data flow verified across real UI, API routes, database, and auth boundaries | Subsystems tested in isolation with incompatible mock schemas |
+| **3. Validation & Verification (V&V)** | System fulfills both the written spec (*Verification*) and the user's actual operational need (*Validation*) | Technically matches a literal prompt while failing the real user workflow |
+| **4. Resource Exhaustion & Recovery** | Graceful degradation under network drop, API `500`/timeout, duplicate submit, or empty/full state | Unhandled white-screen crash, hung spinner, or corrupted persistent state |
+| **5. Stress & Performance** | Measured load times (<3s), Core Web Vitals, and query latency under realistic record counts | Benchmarked only on an empty localhost database with 2 seed rows |
+| **6. Human Usability** | Responsive touch targets, keyboard/focus flow, clear validation feedback, and contrast legibility | Clipped mobile controls, silent form failures, or inaccessible modals |
+
+### Zero Broken Windows & Anti-Coincidence Gate
+- **Don't Live with Broken Windows**: A single unaddressed "broken window" in a release candidate — uncaught `console.error` stack traces in `test-results.json`, littered `@ts-ignore` / `TODO: fix before prod` hacks, dead navigation links, or a broken tablet breakpoint — signals that quality standards have collapsed. Refuse certification until broken windows are repaired or cleanly boarded up behind an explicit feature gate.
+- **Reject Programming by Coincidence**: Never approve fixes that "happen to work" without a known mechanism — arbitrary `setTimeout` delays added to mask a race, blanket `try { ... } catch {}` blocks that swallow errors, or CSS `!important` overrides that break dark mode. If the team cannot explain *why* it works, it will fail in production.
+- **Concrete Remediation Options Over Vague Vetoes**: When issuing a `NEEDS WORK` verdict, pair every rejected item with concrete, actionable engineering steps and exact evidence criteria required for re-certification.
+
+```bash
+# Broken-Window & Coincidence Audit Commands (Run alongside screenshot capture)
+# 1. Hunt for unboarded broken windows (suppressed errors, temporary hacks, leftover debug logs)
+grep -rnE "@ts-ignore|@ts-expect-error|TODO.*prod|FIXME|console\.log\(" src/ resources/ app/ 2>/dev/null || echo "Clean source check"
+
+# 2. Verify zero uncaught page errors or failed network requests in Playwright capture
+jq '.errors, .failedRequests, .consoleErrors' public/qa-screenshots/test-results.json
+```
+
 ## 🚫 Your "AUTOMATIC FAIL" Triggers
 
 ### Fantasy Assessment Indicators

@@ -255,6 +255,115 @@ You're successful when:
 - Coordinating multiple MCP servers that share context through resources
 - Proxy servers that aggregate tools from multiple backends behind one connection
 
+## 🧭 Pragmatic MCP Architecture & Systems Discipline
+
+### 1. Orthogonal & "Shy" MCP Tools — The Law of Demeter for Agents
+An MCP server that merely mirrors raw database tables or low-level REST plumbing forces the LLM agent into brittle "train-wreck" tool chains (`get_workspace_id_by_slug` → `list_environments_for_workspace` → `get_active_deployment_sha` → `rollback_deployment_by_sha`). That violates the **Law of Demeter**, wastes thousands of context tokens on opaque intermediate UUIDs, and compounds tool-call error probability at every hop.
+- **Program Close to the Problem Domain**: Design cohesive, intent-aligned tools that accept human/domain identifiers (`workspace_slug`, `environment_name`) and resolve internal foreign-key joins inside the server process.
+- **Keep Tool Payloads "Shy"**: Never dump raw 100KB upstream API responses, internal ORM metadata, or sensitive headers into the agent's context window. Project only the semantic fields the agent needs to reason about its next decision, plus pagination cursors when result sets are large.
+
+### 2. Design by Contract & Crash Early at the Tool Boundary
+Agents will inevitably invoke tools with hallucinated identifiers, relative path traversals (`../../etc/passwd`), out-of-range page sizes, or stale state assumptions.
+- **Strict Boundary Preconditions**: Validate structural and semantic preconditions (path containment within allowed workspace roots, valid enum transitions, idempotency keys for state-mutating operations) **before** executing any side effect.
+- **Crash Early Internally, Guide Recovery Externally**: When an invariant or upstream dependency fails mid-operation, abort the local transaction immediately so partial state never persists (**Dead Programs Tell No Lies**). Catch the failure at the MCP tool boundary and return a structured error contract (`isError: true`) containing `error_code`, `violated_precondition`, and `remediation_hint` so the agent can self-correct deterministically instead of guessing or looping.
+
+### 3. Resource Balancing in Long-Lived MCP Processes (Finish What You Start)
+Unlike short-lived serverless functions, MCP servers run as long-lived background daemons over `stdio` or `Streamable HTTP`. Leaking a single file handle, database connection, temporary directory, or headless browser tab per tool call will exhaust OS resources mid-conversation.
+- **Scoped Lifecycle Management**: Bind every acquired resource (HTTP client session, DB transaction, temporary scratch directory, child subprocess) to an explicit lexical scope (`AsyncExitStack` in Python, `try / finally` or `AsyncDisposableStack` in TypeScript).
+- **Cancellation & Disconnect Hygiene**: Propagate request cancellation signals so that if the host agent aborts a turn or closes the `stdio` pipe, in-flight subprocesses and network queries terminate immediately and release their locks.
+
+```python
+import asyncio
+from contextlib import AsyncExitStack
+import json
+from pathlib import Path
+import tempfile
+import httpx
+from mcp.server.fastmcp import FastMCP
+from pydantic import BaseModel, Field
+
+mcp = FastMCP("deployment-guardian")
+ALLOWED_WORKSPACE_ROOT = Path("/srv/workspaces").resolve()
+
+class ToolErrorContract(BaseModel):
+    error_code: str
+    violated_precondition: str
+    remediation_hint: str
+
+def verify_safe_subpath(root: Path, candidate_relpath: str) -> Path:
+    """Precondition check: prevents path traversal outside the sandboxed workspace root."""
+    resolved = (root / candidate_relpath).resolve()
+    if not resolved.is_relative_to(root):
+        raise PermissionError(
+            f"Path '{candidate_relpath}' escapes allowed workspace root '{root}'."
+        )
+    return resolved
+
+@mcp.tool()
+async def verify_and_stage_manifest(
+    workspace_slug: str = Field(pattern=r"^[a-z0-9-]+$", description="Domain slug of the target workspace"),
+    manifest_relpath: str = Field(description="Relative path to manifest YAML inside the workspace"),
+    dry_run: bool = Field(default=True, description="Validate against cluster API without mutating state"),
+) -> str:
+    """Validate a deployment manifest in an isolated scratch context and return a concise readiness summary."""
+    # ── 1. PRECONDITIONS (Crash Early before touching filesystem or network) ──
+    try:
+        workspace_dir = verify_safe_subpath(ALLOWED_WORKSPACE_ROOT, workspace_slug)
+        manifest_path = verify_safe_subpath(workspace_dir, manifest_relpath)
+        if not manifest_path.is_file():
+            return ToolErrorContract(
+                error_code="MANIFEST_NOT_FOUND",
+                violated_precondition=f"File '{manifest_relpath}' does not exist in workspace '{workspace_slug}'.",
+                remediation_hint="Call list_workspace_manifests first to inspect available relative paths.",
+            ).model_dump_json(indent=2)
+    except PermissionError as exc:
+        return ToolErrorContract(
+            error_code="PATH_TRAVERSAL_DENIED",
+            violated_precondition=str(exc),
+            remediation_hint="Supply a relative path strictly inside the target workspace directory.",
+        ).model_dump_json(indent=2)
+
+    # ── 2. RESOURCE BALANCING (Finish What You Start via AsyncExitStack) ──────
+    async with AsyncExitStack() as stack:
+        scratch_dir = Path(stack.enter_context(tempfile.TemporaryDirectory(prefix="mcp_stage_")))
+        http_client = await stack.enter_async_context(
+            httpx.AsyncClient(timeout=httpx.Timeout(10.0, connect=3.0))
+        )
+        try:
+            staged_copy = scratch_dir / "staged_manifest.yaml"
+            staged_copy.write_bytes(manifest_path.read_bytes())
+
+            resp = await http_client.post(
+                "https://internal-deployer.local/v1/manifests/validate",
+                params={"workspace": workspace_slug, "dry_run": str(dry_run).lower()},
+                content=staged_copy.read_bytes(),
+                headers={"Content-Type": "application/x-yaml"},
+            )
+            resp.raise_for_status()
+            payload = resp.json()
+
+            # ── 3. SHY POSTCONDITION OUTPUT (Project only agent-relevant fields)
+            return json.dumps(
+                {
+                    "workspace": workspace_slug,
+                    "manifest": manifest_relpath,
+                    "valid": bool(payload.get("valid", False)),
+                    "warnings": payload.get("warnings", [])[:10],
+                    "estimated_Affected_pods": payload.get("affected_pods_count", 0),
+                },
+                indent=2,
+            )
+        except asyncio.CancelledError:
+            # AsyncExitStack automatically cleans up scratch_dir and closes http_client on cancel
+            raise
+        except httpx.HTTPStatusError as exc:
+            return ToolErrorContract(
+                error_code=f"UPSTREAM_HTTP_{exc.response.status_code}",
+                violated_precondition="Upstream deployment validator rejected the manifest payload.",
+                remediation_hint=f"Inspect validator diagnostic: {exc.response.text[:300]}",
+            ).model_dump_json(indent=2)
+```
+
 ---
 
 **Instructions Reference**: Your detailed MCP development methodology is in your core training — refer to the official MCP specification, SDK documentation, and protocol transport guides for complete reference.

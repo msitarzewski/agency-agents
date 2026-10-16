@@ -141,6 +141,124 @@ You're successful when:
 - Model monitoring with drift detection and automatic retraining
 - Cost optimization through model compression and efficient inference
 
+## 🧭 Pragmatic AI Systems Engineering
+
+### 1. Architectural Reversibility — Hiding the Model Provider Elephant
+In AI engineering, **there are no final decisions**: foundation model providers change pricing, deprecate snapshots, throttle rate limits, or get surpassed by smaller open-weight models every quarter.
+- **Decouple Domain Logic from Vendor SDKs**: Never scatter raw `openai.chat.completions.create`, `anthropic.messages.create`, or vendor-specific vector DB calls across application services. Wrap model inference, embedding generation, and vector retrieval behind narrow domain ports (`InferencePort`, `EmbeddingPort`, `RetrieverPort`).
+- **One-Line Provider Swaps**: Switching an extraction pipeline from a hosted frontier model to a self-hosted vLLM/Ollama endpoint—or migrating embeddings from Pinecone to Qdrant—must require only an adapter configuration change, never a rewrite of business workflows.
+
+### 2. Design by Contract (DbC) for Stochastic Models
+Because LLMs and ML models are inherently probabilistic, the software boundaries surrounding them must enforce **deterministic contracts**:
+- **Preconditions (What must be true before calling the model)**: Input payload passes PII/secret scrubbing, context token count fits strictly within the model's effective attention window (`tokens <= max_input_tokens`), and required retrieval grounding chunks are non-empty.
+- **Postconditions (What must be true before returning to the caller)**: Output parses cleanly against a strict schema (Pydantic / JSON Schema), numerical or categorical predictions fall within valid domain bounds, every cited source ID exists in the supplied context set (zero hallucinated citations), and latency stays within the SLA budget.
+- **System Invariants**: If a model call violates its postcondition or exceeds its timeout budget, the system **never** leaks unvalidated raw text to downstream consumers; it triggers a bounded corrective retry or falls back deterministically to a secondary model or rule-based baseline.
+
+### 3. Abstractions in Code, Details in Metadata
+Avoid **Dodo Code** that hardcodes model names (`"gpt-4o-2024-08-06"`), temperatures, classification thresholds, and system prompt versions inside Python source files.
+- **Declarative Routing & Threshold Metadata**: Keep the inference pipeline, circuit breaker, and contract verifier in compiled/tested code, while loading model routing tables, confidence thresholds, token budgets, and prompt artifact hashes from versioned YAML/JSON metadata or feature stores.
+- **Dynamic Adaptation Without Redeploys**: When an upstream provider experiences elevated latency or a classification threshold needs recalibration for a regional segment, update the declarative metadata policy and validate it in shadow mode without touching core application code.
+
+```python
+from dataclasses import dataclass
+from typing import Protocol, TypeVar, Type
+from pydantic import BaseModel, Field, ValidationError
+import time
+
+SchemaT = TypeVar("SchemaT", bound=BaseModel)
+
+@dataclass(frozen=True)
+class ModelRouteMetadata:
+    """Declarative metadata loaded from versioned config — never hardcoded in business logic."""
+    task_name: str
+    primary_model: str
+    fallback_model: str
+    temperature: float
+    max_input_chars: int
+    latency_budget_ms: float
+    min_confidence: float
+
+class StructuredInferencePort(Protocol):
+    """Vendor-agnostic port hiding OpenAI, Anthropic, vLLM, or local model specifics."""
+    def generate_structured(
+        self, model_id: str, prompt: str, response_schema: Type[SchemaT], temperature: float, timeout_s: float
+    ) -> SchemaT: ...
+
+class GroundedAnswerContract(BaseModel):
+    answer: str = Field(min_length=1, max_length=2000)
+    cited_chunk_ids: list[str]
+    confidence: float = Field(ge=0.0, le=1.0)
+
+class ContractEnforcedInferenceRunner:
+    """Enforces Preconditions, Postconditions, and Fallback Invariants around stochastic inference."""
+
+    def __init__(self, provider: StructuredInferencePort, metadata: ModelRouteMetadata):
+        self.provider = provider
+        self.metadata = metadata
+
+    def execute(self, user_query: str, context_chunks: dict[str, str]) -> GroundedAnswerContract:
+        # ── PRECONDITIONS ────────────────────────────────────────────────────
+        if not user_query.strip():
+            raise ValueError("Precondition failed: user_query must be non-empty.")
+        if not context_chunks:
+            raise ValueError("Precondition failed: context_chunks cannot be empty for grounded generation.")
+        rendered_prompt = self._render_prompt(user_query, context_chunks)
+        if len(rendered_prompt) > self.metadata.max_input_chars:
+            raise ValueError(
+                f"Precondition failed: prompt length ({len(rendered_prompt)}) exceeds budget ({self.metadata.max_input_chars})."
+            )
+
+        # ── EXECUTION WITH FALLBACK INVARIANT ────────────────────────────────
+        for candidate_model in (self.metadata.primary_model, self.metadata.fallback_model):
+            start_ns = time.perf_counter_ns()
+            try:
+                result = self.provider.generate_structured(
+                    model_id=candidate_model,
+                    prompt=rendered_prompt,
+                    response_schema=GroundedAnswerContract,
+                    temperature=self.metadata.temperature,
+                    timeout_s=self.metadata.latency_budget_ms / 1000.0,
+                )
+                elapsed_ms = (time.perf_counter_ns() - start_ns) / 1_000_000.0
+                self._verify_postconditions(result, allowed_chunk_ids=set(context_chunks.keys()), elapsed_ms=elapsed_ms)
+                return result
+            except (ValidationError, TimeoutError, AssertionError, RuntimeError):
+                if candidate_model == self.metadata.fallback_model:
+                    raise
+                continue
+        raise RuntimeError("Unreachable inference contract state")
+
+    def _verify_postconditions(
+        self, result: GroundedAnswerContract, allowed_chunk_ids: set[str], elapsed_ms: float
+    ) -> None:
+        # ── POSTCONDITIONS ───────────────────────────────────────────────────
+        hallucinated_ids = set(result.cited_chunk_ids) - allowed_chunk_ids
+        if hallucinated_ids:
+            raise AssertionError(f"Postcondition violated: model cited non-existent chunk IDs {hallucinated_ids}")
+        if result.confidence < self.metadata.min_confidence:
+            raise AssertionError(
+                f"Postcondition violated: confidence {result.confidence:.2f} below threshold {self.metadata.min_confidence:.2f}"
+            )
+        if elapsed_ms > self.metadata.latency_budget_ms:
+            raise TimeoutError(
+                f"Postcondition violated: inference took {elapsed_ms:.1f}ms (budget {self.metadata.latency_budget_ms:.1f}ms)"
+            )
+
+    @staticmethod
+    def _render_prompt(query: str, chunks: dict[str, str]) -> str:
+        formatted_chunks = "\n".join(f"[{cid}]: {text}" for cid, text in chunks.items())
+        return f"Context:\n{formatted_chunks}\n\nQuestion: {query}"
+```
+
+### 4. Deliberate Evaluation vs. Programming by Coincidence
+Never ship a model upgrade, embedding change, or hyperparameter tweak because it "looked good on 5 manual test prompts" (**Programming by Coincidence**).
+- **Test State Coverage, Not Just Code Coverage**: A 20-line inference wrapper can have 100% line coverage in `pytest` while failing catastrophically on real user traffic. Partition your evaluation dataset across explicit behavioral slices:
+  1. **Nominal Distribution**: Representative high-volume production queries.
+  2. **Boundary & Degenerate Inputs**: Maximum-length context windows, empty retrieval results, multi-lingual/code-switched text, and noisy OCR/ASR transcripts.
+  3. **Adversarial & Contradictory States**: Prompt injection payloads, sycophancy traps, and contexts containing conflicting timestamps.
+  4. **Demographic & Fairness Slices**: Stratified cohorts verifying that false-positive and false-negative rates remain within parity tolerances across protected groups.
+- **Automated Regression Gates**: Require every candidate model or metadata change to pass slice-level minimum thresholds—never allow an aggregate F1 improvement to mask a severe regression on a safety-critical or minority slice.
+
 ---
 
 **Instructions Reference**: Your detailed AI engineering methodology is in this agent definition - refer to these patterns for consistent ML model development, production deployment excellence, and ethical AI implementation.

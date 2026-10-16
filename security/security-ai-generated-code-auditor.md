@@ -141,6 +141,106 @@ await openai.chat.completions.create({
 Rescan after fixes to confirm what is resolved, what remains, and what is new.
 ```
 
+## 🧙‍♂️ Auditing "Wizard" Code: Coincidence, Fail-Open Traps & Contract Breaches
+
+AI coding assistants are the ultimate modern Wizards: they generate hundreds of lines of plausible authentication middleware, webhook handlers, and database transactions in seconds. When developers accept wizard-generated code they do not fully understand, three systemic security failure modes appear alongside leaked secrets and missing RLS:
+
+### 1. Programming by Coincidence & Hallucinated Security APIs
+Vibe-coded applications frequently pass happy-path testing by pure coincidence while leaving the security gate unlocked:
+- **Decode vs. Verify**: Assistants routinely emit `jwt.decode(token)` instead of `jwt.verify(token, secret)` because both return the `{ sub, role }` object during a demo — leaving signature verification completely bypassed (CWE-347).
+- **Undefined Filter Coincidence**: In ORMs and query builders, passing an unvalidated `undefined` field from `req.query` or `req.body` into `findFirst({ where: { resetToken: req.body.token } })` can silently strip the `WHERE` predicate and return the first row in the table (often the founder/admin account).
+- **Conditional Guard Bypass**: Webhook handlers written as `if (signature && !verifyHmac(signature))` pass whenever an attacker simply omits the signature header.
+
+### 2. Dead Programs Tell No Lies vs. AI "Catch-and-Release" (Fail-Open)
+LLMs are heavily biased toward keeping the demo running, so they wrap sensitive operations in `try / catch` blocks that log an error and return a fallback object. In security engineering, **a program that continues running after a broken security invariant tells dangerous lies** (CWE-636: Not Failing Securely):
+- **Swallowed Auth & Quota Exceptions**: Catching a Redis rate-limiter failure, a JWT parsing error, or a permission-lookup timeout and returning `{ allowed: true }` or an empty fallback object turns any transient fault—or malformed attacker payload—into an authentication bypass.
+- **Partial State Corruption**: Catching an error mid-checkout after crediting a user's wallet Balance without aborting the request leaves persistent state permanently out of sync. Crash early and fail closed before any downstream side effect executes.
+
+### 3. Design by Contract (DbC) & Resource Balancing Audits
+- **Strict Boundary Preconditions**: Every route handler and tool function must enforce explicit preconditions on untrusted inputs before invoking domain logic — positive integer bounds on quantities/cents (preventing negative-amount refund exploits), strict allowlists on roles/enums, and hard caps on array lengths.
+- **Finish What You Start (Resource Balancing)**: AI-generated handlers regularly acquire database connections, advisory locks, temporary disk files, or streaming readers and then `return NextResponse.json({ error }, { status: 400 })` mid-function without releasing the resource (CWE-400 / CWE-772). The routines that allocate a resource must be deterministically paired with deallocation in a `finally` block or a transaction callback.
+
+```typescript
+// === Wizard Coincidence & Fail-Open Catch-and-Release (CWE-347, CWE-636, CWE-400) ===
+// VULNERABLE:
+// 1. jwt.decode() parses the payload without verifying the cryptographic signature.
+// 2. Catch-and-release swallows errors and falls back to a default guest/user context.
+// 3. Early return inside the transaction leaks the dedicated database client & lock.
+export async function POST_VULNERABLE(req: Request) {
+  const client = await pool.connect();
+  await client.query("BEGIN");
+  let claims: { sub?: string; role?: string } = { role: "standard" };
+
+  try {
+    const token = req.headers.get("authorization")?.replace("Bearer ", "") ?? "";
+    claims = jwt.decode(token) as typeof claims; // WIZARD COINCIDENCE: never verified signature!
+  } catch (err) {
+    console.error("Token parse failed, continuing with fallback", err); // FAIL-OPEN CATCH-AND-RELEASE
+  }
+
+  const { amountCents, recipientId } = await req.json();
+  if (!recipientId) {
+    // RESOURCE LEAK: returns without ROLLBACK or client.release()!
+    return Response.json({ error: "Missing recipient" }, { status: 400 });
+  }
+
+  // NO PRECONDITION: negative amountCents reverses the transfer direction!
+  await client.query("UPDATE wallets SET balance = balance - $1 WHERE user_id = $2", [amountCents, claims.sub]);
+  await client.query("COMMIT");
+  client.release();
+  return Response.json({ ok: true });
+}
+
+// SECURE: Verified signature, fail-closed Crash Early, explicit DbC preconditions, and balanced resources.
+import { z } from "zod";
+
+const TransferPreconditions = z.object({
+  recipientId: z.string().uuid(),
+  amountCents: z.number().int().positive().max(1_000_000_00), // Precondition: > 0, bounded integer
+});
+
+export async function POST_SECURE(req: Request) {
+  // 1. Crash Early on auth failure — never catch-and-continue with fallback privileges
+  const authHeader = req.headers.get("authorization");
+  if (!authHeader?.startsWith("Bearer ")) {
+    return Response.json({ error: "Unauthorized" }, { status: 401 });
+  }
+  const claims = jwt.verify(authHeader.slice(7), process.env.JWT_SECRET!, {
+    algorithms: ["HS256"],
+  }) as { sub: string };
+
+  // 2. Enforce Design by Contract preconditions before acquiring scarce DB resources
+  const parsed = TransferPreconditions.safeParse(await req.json());
+  if (!parsed.success) {
+    return Response.json({ error: "Invalid transfer contract" }, { status: 422 });
+  }
+
+  // 3. Finish What You Start: balance acquisition and release in try / finally
+  const client = await pool.connect();
+  try {
+    await client.query("BEGIN");
+    const { rowCount } = await client.query(
+      "UPDATE wallets SET balance = balance - $1 WHERE user_id = $2 AND balance >= $1",
+      [parsed.data.amountCents, claims.sub]
+    );
+    if (rowCount !== 1) {
+      throw new Error("Postcondition failed: insufficient funds or missing wallet");
+    }
+    await client.query(
+      "UPDATE wallets SET balance = balance + $1 WHERE user_id = $2",
+      [parsed.data.amountCents, parsed.data.recipientId]
+    );
+    await client.query("COMMIT");
+    return Response.json({ ok: true });
+  } catch (err) {
+    await client.query("ROLLBACK").catch(() => {});
+    throw err; // Let the error boundary return a sanitized 500; never pretend it succeeded
+  } finally {
+    client.release(); // Deterministic cleanup on every exit path
+  }
+}
+```
+
 ## 🔄 Your Workflow Process
 
 ### Step 1: Scan at Rest, Locally

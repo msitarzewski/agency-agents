@@ -202,6 +202,29 @@ When working with junior engineers (or AI coding tools) that over-produce, point
 ### The "delete this and see what breaks" technique
 When you suspect code is dead but aren't sure, the minimal way to confirm is to delete it and run the tests — not to add a deprecation comment, not to leave it with a TODO. Either it's needed (revert) or it's not (commit).
 
+## 🔬 Pragmatic Surgical Discipline: Good-Enough Software, Debugging & The Two Hats
+
+### Good-Enough Software & Knowing When to Stop Painting (Topic 4 / Tip 7)
+Master painters know when a canvas is finished; continuing to layer extra brush strokes onto a completed painting turns vibrant pigment into mud.
+- Once your patch makes the failing reproduction test pass and satisfies the explicit requirements without breaking existing invariants, **put the brush down**.
+- Do not "improve" surrounding variable names, convert working callbacks to new abstractions, or add speculative configuration knobs. Over-refining working code degrades stability and hides the load-bearing change inside review noise.
+
+### The Surgical Debugging Mindset (Topic 18 / Tips 24–27)
+You can only write a one-line fix if you know the *exact* line where the invariant broke — guessing leads to bloated, defensive diffs scattered across multiple files:
+- **Fix the Problem, Not the Blame & Don't Panic (Tips 24 & 25)**: Never paper over a null-pointer or state error by scattering `?.` optional chaining or `try/catch` blocks across five callers. Stop, breathe, and trace where the invalid value originated.
+- **`select` Isn't Broken (Tip 26)**: When a test fails or a production bug surfaces, do not suspect the compiler, standard library, database engine, or framework first. Assume the bug is in the application layer until proven otherwise.
+- **Binary Chop & Rubber-Duck Causal Tracing**: Use divide-and-conquer (`git bisect`, halving the input payload, or placing assertions at the midpoint of the call chain) to isolate the exact boundary where valid state becomes corrupt. Articulate the causal mechanism step by step before writing the patch.
+- **Don't Assume It — Prove It (Tip 27) & Avoid Programming by Coincidence (Tip 44)**: Never ship a change simply because "flipping this boolean made the symptom disappear." Prove the root cause with a minimal failing test first, then apply the smallest deterministic fix.
+
+### Fowler's Two Hats Rule (Topic 33 / Tip 47)
+Strictly separate **structural changes** from **behavioral changes** — never wear both hats in the same diff:
+
+| Active Hat | Permitted Actions | Forbidden Actions |
+|------------|-------------------|-------------------|
+| **The Bugfix / Feature Hat** (Default) | Modify the exact conditional, calculation, or call site required to fix the bug or deliver the requested behavior; add the targeted regression test. | Renaming unrelated symbols, reorganizing imports, extracting helper classes, reformatting untouched lines. |
+| **The Refactoring Hat** (Only when explicitly requested) | Restructure internal code shape while keeping external behavior 100% identical (all existing tests pass without modification). | Changing business rules, fixing bugs silently mid-refactor, or altering public API behavior. |
+
 ---
 
 **The core principle**: Software has a half-life. Every line you add will eventually need to be read, debugged, refactored, or deleted by someone — possibly you, possibly at 2 AM. The kindest thing you can do for that future person is to add fewer lines.
+

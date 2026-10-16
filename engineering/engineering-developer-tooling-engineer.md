@@ -151,3 +151,41 @@ Budget it: add a startup-time assertion to CI so a dependency can't silently reg
 - Golden-path tooling: scaffolding, project templates, and paved-road commands that make the right thing the easy thing
 - Composability: designing tools to chain cleanly (stdin/stdout contracts, structured output) so they compose in pipelines and CI
 - Adoption engineering: onboarding flows, dogfooding loops, usage telemetry (privacy-respecting), and DX feedback channels that treat the internal tool as a product with users
+
+## 🪚 The Woodworker's Workbench: Pragmatic Tooling Principles
+
+### The Power of Plain Text (Topic 14 / Tip 20)
+Store tool configurations, state manifests, lockfiles, and diagnostic audit trails in **human-readable, self-describing plain text** rather than opaque binary blobs or proprietary database files:
+- **Insurance Against Obsolescence**: Plain text outlives the CLI version that wrote it. When a build breaks at 2 AM, an engineer can inspect and repair a plain-text manifest with any editor without needing a special decoder binary.
+- **Full UNIX & Git Leverage**: Plain-text artifacts automatically inherit `git diff`, `git blame`, `ripgrep`, `jq`, `awk`, and `sort`. Design lockfiles and state files with deterministic key ordering so diffs stay minimal and merge conflicts are rare.
+- **Self-Describing Records Over Positional Mystery**: Never emit cryptic positional output like `14,0,2500,true`. Emit self-describing key-value pairs, JSON Lines (`jsonl`), or header-annotated TSV so human operators and downstream scripts never misinterpret column semantics.
+
+### Shell Games & Defeating the WYSIWYG Trap (Topic 15 / Tip 21)
+GUI portals and interactive-only TUI wizards suffer from the **WYSIWYG trap — "What You See Is All You Get."** If a workflow requires clicking through a web dashboard or answering interactive arrow-key prompts, engineers cannot compose it into a shell pipeline, run it across 50 services in parallel, or execute it headless in CI:
+- **Parity Between Interactive and Headless Modes**: Every interactive TUI prompt (`mytool release create`) must accept explicit flags (`--version 1.8.0 --channel canary --yes`) and print the equivalent non-interactive command at the end of an interactive run so users learn how to automate it.
+- **Sacred Stream Separation (`stdout` vs. `stderr`)**: Keep `stdout` 100% pure for machine-parseable data (`--json`, `--jsonl`, `--tsv`) and route all spinners, progress bars, authentication notices, and deprecation warnings to `stderr`.
+
+```sh
+# Composable shell pipeline made possible by pure stdout JSONL and stdin support:
+mytool service list --json \
+  | jq -r '.[] | select(.deprecated == true and .traffic_7d == 0) | .name' \
+  | mytool service archive --from-stdin --dry-run
+```
+
+### Active vs. Passive Code Generators (Topic 20 / Tip 29)
+When building scaffolding and codegen tools for an internal developer platform, deliberately choose between **Passive** and **Active** generation:
+
+| Generator Class | Lifecycle & Ownership | Tooling Rules |
+|-----------------|-----------------------|---------------|
+| **Passive Code Generator** (`mytool new handler`) | Run once to eliminate boilerplate; output is committed and hand-edited by the team forever after. | Keep templates minimal and transparent; never hide complex logic in scaffolded code that will rot across 40 repos. |
+| **Active Code Generator** (`mytool gen-errors`, `mytool gen-completions`) | Run on every build from a single authoritative schema (e.g., `errors.toml`, `commands.yaml`); output is ephemeral or read-only. | **Never allow hand-edits** (which turn into "Dodo Code"). Emit a `DO NOT EDIT` banner and enforce `mytool codegen --verify` in CI. |
+
+```toml
+# Single Source of Truth: errors.toml (compiled by an Active Generator into Go/Rust/TS error catalogs + docs)
+[E_AUTH_TOKEN_EXPIRED]
+exit_code = 78
+http_status = 401
+summary = "Authentication token has expired"
+remediation = "Run `mytool auth login --refresh` to obtain a new session token."
+```
+

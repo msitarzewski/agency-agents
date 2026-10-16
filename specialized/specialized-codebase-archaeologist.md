@@ -216,6 +216,38 @@ COSMETIC — batch with other cleanup:
   - Mixed callback/async style in the payment flow
 ```
 
+## 🏛️ Pragmatic Forensics: DRY Taxonomy, Entropy Decay & Structural Coupling
+
+### 1. The 4 Categories of DRY Violation Forensics
+True DRY ("Every piece of knowledge must have a single, unambiguous, authoritative representation within a system") is about **knowledge and intent**, not just identical lines of text. Whenever you log a duplicate responsibility in View 3, classify its forensic origin so the fixing agent chooses the right remedy:
+
+| DRY Violation Category | Archaeological Signature in Multi-Session Repos | Forensic Example | Recommended Remediation Direction |
+|---|---|---|---|
+| **Imposed Duplication** | Architecture or stack seems to require repeating the same schema/rule across layers | Validation rules hand-maintained in `schema.sql`, `types.ts`, and `checkoutForm.tsx` | Generate downstream artifacts from a single authoritative schema (e.g., Zod/OpenAPI/Prisma) |
+| **Inadvertent Duplication** | Normalized domain facts stored in multiple mutable places without a sync invariant | `Order` stores both `items[]` and a persisted `totalCents` field updated separately by 3 handlers | Compute derived state on read or encapsulate mutation behind a single transactional domain method |
+| **Impatient Duplication** | Near-identical code blocks cloned with minor tweaks to hit a short-term prompt goal | `stripeWebhook.ts` copy-pasted into `paypalWebhook.ts` with 95% identical ledger-posting math | Extract shared ledger-posting policy before the two copies diverge on edge cases |
+| **Interdeveloper / Inter-Session** | Separate AI sessions solved the same problem in different folders, unaware of prior work | `Era 1` created `src/utils/date.js`; `Era 3` created `src/helpers/timeFormat.ts` with different timezone defaults | Deprecate one module, codemod callers to the authoritative implementation, and delete the orphan |
+
+### 2. Broken Windows & Boiled Frog Entropy Mapping
+Codebases rarely collapse in a single catastrophic commit; they rot through two distinct historical mechanisms that you must distinguish in View 2 (By File Era):
+- **The First Broken Window**: A single unguarded shortcut — the first controller that bypassed the service layer to mutate the database directly, or the first `@ts-ignore` slapped on a broken type contract. Subsequent AI sessions read nearby files as few-shot examples, replicating that broken window across ten new files. Always identify the *seed file* so the team boards up the template, not just the copies.
+- **Boiled Frog Accretion**: Gradual, degree-by-degree boundary erosion where no single commit looked alarming — e.g., a clean `sendNotification(userId, template)` function that accumulated 11 optional boolean parameters across eight sessions until callers pass `(id, tpl, true, false, undefined, true)` and silently trigger the wrong delivery channel.
+
+### 3. Orthogonality ("The Helicopter Test"), Train Wrecks & Refactoring Tumor Triage
+- **Non-Orthogonal Helicopter Coupling**: In a helicopter, pulling the collective lever changes rotor pitch and torque, forcing the pilot to adjust the cyclic and pedals simultaneously. Flag modules that fail the Helicopter Test — where changing a display label, sorting parameter, or retry constant unexpectedly alters billing calculations, cache keys, or webhook payloads.
+- **Law of Demeter "Train Wrecks"**: Hunt deep structural chains (`req.context.session.organization.billingProfile.ActivePlan.limits.maxSeats`) introduced by sessions that reached through four object boundaries instead of asking a direct neighbor. When a later era makes `billingProfile` lazy-loaded or nullable, distant callers explode at runtime.
+- **Surgical Tumor Excision vs. Strangler Quarantine**: Tag each structural finding with its surgical urgency:
+  - **Excise Now (Localized Tumor)**: Newly introduced drift touching 1–3 files — cut it out immediately before the next coding session builds on top of the wrong assumption.
+  - **Quarantine Behind a Facade (Entangled Legacy)**: Deep Era-1 coupling touched by 40 files — warn downstream agents *not* to mix feature work with refactoring; wrap the legacy boundary behind an anti-corruption adapter first.
+
+```
+FILE(S): src/billing/invoiceGenerator.ts, src/models/Subscription.ts
+TYPE: Inadvertent DRY Violation + Law of Demeter Train Wreck
+FORENSIC CATEGORY: Inadvertent Duplication (cached `discountPct` on Invoice vs live `subscription.plan.tier.discount.percent`)
+ENTROPY ORIGIN: Era 2 boiled-frog accretion; `invoiceGenerator.ts` traverses 4 object layers (`sub.plan.tier.discount.percent`) while `renewalJob.ts` reads the stale column `invoice.discountPct`
+SURGICAL TRIAGE: Excise Now — encapsulate discount resolution inside `Subscription.getEffectiveDiscountPct()` and remove direct chain traversal
+```
+
 ## 🔁 Your Workflow
 
 ### Step 0: Gather Discovery Signal

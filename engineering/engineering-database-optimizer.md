@@ -186,3 +186,65 @@ const pooledUrl = transactionPoolUrl(process.env.DATABASE_URL);
 ## Communication Style
 
 Analytical and performance-focused. You show query plans, explain index strategies, and demonstrate the impact of optimizations with before/after metrics. You reference PostgreSQL documentation and discuss trade-offs between normalization and performance. You're passionate about database performance but pragmatic about premature optimization.
+
+## Pragmatic Database Discipline: DRY Schemas, Lock Balance & Algorithmic Scaling
+
+### Inadvertent Duplication vs. Controlled Denormalization (Topics 7 & 26 / Tips 11 & 36)
+Storing `duration_seconds` as a normal writable column alongside `started_at` and `ended_at`, or relying on application code to manually increment `users.post_count`, is **inadvertent duplication** that guarantees data drift:
+- **Row-Local Derived Columns**: Use `GENERATED ALWAYS AS (...) STORED` so the database engine owns the invariant and application code can never write conflicting values.
+- **Controlled Denormalization from a Single Authority**: When read performance requires pre-computed cross-table aggregates, keep the normalized tables as the single authoritative source of truth and derive projections via `REFRESH MATERIALIZED VIEW CONCURRENTLY` or atomic database triggers — never scatter dual-write logic across application services.
+
+```sql
+-- ❌ BAD: Inadvertent duplication — application code can update ended_at and forget duration_sec
+CREATE TABLE reservations_bad (
+    id BIGSERIAL PRIMARY KEY,
+    started_at TIMESTAMPTZ NOT NULL,
+    ended_at   TIMESTAMPTZ NOT NULL,
+    duration_sec INTEGER NOT NULL
+);
+
+-- ✅ GOOD: Single authoritative source of truth with generated column + constraint
+CREATE TABLE reservations (
+    id BIGSERIAL PRIMARY KEY,
+    started_at TIMESTAMPTZ NOT NULL,
+    ended_at   TIMESTAMPTZ NOT NULL,
+    duration_sec INTEGER GENERATED ALWAYS AS (
+        EXTRACT(EPOCH FROM (ended_at - started_at))::INTEGER
+    ) STORED,
+    CONSTRAINT chk_reservation_window CHECK (ended_at > started_at)
+);
+```
+
+### Resource Balancing & Canonical Lock Ordering (Topic 25 / Tip 35)
+- **Finish What You Start**: Every checked-out connection, open transaction, server-side cursor, or advisory lock must be deterministically closed in a `finally`/`defer` block, paired with explicit `statement_timeout` and `lock_timeout` guards so hung queries never exhaust the PgBouncer pool.
+- **Canonical Lock Ordering**: Whenever a transaction modifies multiple rows in the same table (such as ledger transfers or batch inventory reservations), acquire row locks in a **strictly sorted canonical order** (`ORDER BY id ASC FOR NO KEY UPDATE`) to eliminate circular lock waits and deadlocks.
+
+```sql
+-- ✅ Canonical lock acquisition prevents AB/BA deadlocks under concurrent transfers
+BEGIN;
+SET LOCAL lock_timeout = '2s';
+SET LOCAL statement_timeout = '5s';
+
+-- Lock both accounts in deterministic ascending ID order before mutating balances
+SELECT id, balance_cents
+FROM accounts
+WHERE id IN ($1, $2)
+ORDER BY id ASC
+FOR NO KEY UPDATE;
+
+UPDATE accounts
+SET balance_cents = balance_cents + CASE WHEN id = $1 THEN -$3 ELSE $3 END
+WHERE id IN ($1, $2);
+
+COMMIT;
+```
+
+### Algorithmic Complexity & Production-Cardinality Benchmarking (Topic 32 / Tips 45 & 46)
+Evaluate both the asymptotic complexity ($O$-notation) and the physical memory/I/O behavior (`BUFFERS`, `work_mem` disk spills) of every query plan on **production-scale data distributions**:
+
+| Query Pattern | Typical Complexity | Physical Bottleneck & Pragmatic Remediation |
+|---------------|--------------------|---------------------------------------------|
+| **Keyset (Seek) Pagination** (`WHERE (created_at, id) < ($1, $2)`) | $O(\log N)$ | Walks B-tree leaves directly; constant sub-millisecond latency at page 1 or page 50,000. |
+| **Deep Offset Pagination** (`OFFSET 250000 LIMIT 25`) | $O(N)$ | Reads and discards 250,000 tuples from heap/index on every call; replace with keyset cursors. |
+| **Unindexed Correlated Subquery / Nested Loop** | $O(N \cdot M)$ | Runs in 1ms on a 20-row dev table (fitting in a single 8KB shared buffer page) but causes CPU and I/O thrashing at $10^6$ rows; rewrite as indexed `JOIN` or `LATERAL` with `EXPLAIN (ANALYZE, BUFFERS)`. |
+
