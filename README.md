@@ -66,7 +66,7 @@ Each agent file contains:
 
 Browse the agents below and copy/adapt the ones you need!
 
-### Option 4: Use with Other Tools (GitHub Copilot, Antigravity, Gemini CLI, OpenCode, OpenClaw, Cursor, Aider, Windsurf, Kimi Code, Codex, Osaurus, Hermes, Mistral Vibe, DeepSeek Harness)
+### Option 4: Use with Other Tools (GitHub Copilot, Antigravity, Gemini CLI, OpenCode, OpenClaw, Cursor, Aider, Windsurf, Kimi Code, Codex, Osaurus, Hermes, Mistral Vibe, DeepSeek Harness, Kilo Code)
 
 ```bash
 # Step 1 -- generate integration files for all supported tools
@@ -90,6 +90,7 @@ Browse the agents below and copy/adapt the ones you need!
 ./scripts/install.sh --tool hermes
 ./scripts/install.sh --tool vibe
 ./scripts/install.sh --tool dsh
+./scripts/install.sh --tool kilocode
 ```
 
 **Install only the teams you need** (not everyone wants every division):
@@ -755,6 +756,7 @@ The Agency works natively with Claude Code, and ships conversion + install scrip
 - **Osaurus** -- `SKILL.md` skills -> `~/.osaurus/skills/`
 - **[Hermes](integrations/hermes/README.md)** -- lazy-router plugin -> `~/.hermes/plugins/`
 - **[DeepSeek Harness](https://github.com/deepseek-ai/deepseek-harness)** — `SKILL.md` skills → `~/.dsh/skills/` (user) or `.dsh/skills/` (project)
+- **[Kilo Code](https://kilo.ai)** — `.md` agent files → `.kilo/agents/` (project) or `~/.config/kilo/agents/`
 
 ---
 
@@ -809,6 +811,7 @@ The installer scans your system for installed tools, shows a checkbox UI, and le
 ./scripts/install.sh --tool codex
 ./scripts/install.sh --tool osaurus
 ./scripts/install.sh --tool hermes
+./scripts/install.sh --tool kilocode
 ```
 
 **Non-interactive (CI/scripts):**
@@ -1093,6 +1096,30 @@ Activate in DeepSeek Harness — user- and model-invocable by default:
 See [integrations/dsh/README.md](integrations/dsh/README.md) for details.
 </details>
 
+<details>
+<summary><strong>Kilo Code</strong></summary>
+
+Agents are placed in `.kilo/agents/` in your project root (project-scoped).
+
+```bash
+cd /your/project
+/path/to/agency-agents/scripts/convert.sh --tool kilocode
+/path/to/agency-agents/scripts/install.sh --tool kilocode
+```
+
+Or install globally:
+```bash
+/path/to/agency-agents/scripts/install.sh --tool kilocode --path "$HOME/.config/kilo/agents"
+```
+
+Activate in Kilo Code with an `@` mention:
+```
+@backend-architect design this API.
+```
+
+See [integrations/kilocode/README.md](integrations/kilocode/README.md) for details.
+</details>
+
 ---
 
 ### Regenerating After Changes
@@ -1112,7 +1139,7 @@ When you add new agents or edit existing ones, regenerate all integration files:
 
 - [ ] Interactive agent selector web tool
 - [x] Multi-agent workflow examples -- see [examples/](examples/)
-- [x] Multi-tool integration scripts (Claude Code, GitHub Copilot, Antigravity, Gemini CLI, OpenCode, OpenClaw, Cursor, Aider, Windsurf, Qwen Code, Kimi Code, Codex, Osaurus, Hermes)
+- [x] Multi-tool integration scripts (Claude Code, GitHub Copilot, Antigravity, Gemini CLI, OpenCode, OpenClaw, Cursor, Aider, Windsurf, Qwen Code, Kimi Code, Codex, Osaurus, Hermes, Kilo Code)
 - [ ] Video tutorials on agent design
 - [ ] Community agent marketplace
 - [ ] Agent "personality quiz" for project matching
