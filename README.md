@@ -282,6 +282,7 @@ Growing your audience, one authentic interaction at a time.
 | 📧 [Email Marketing Strategist](marketing/marketing-email-strategist.md) | Lifecycle email & deliverability | CRM campaigns, automation, segmentation |
 | 📡 [Multi-Platform Publisher](marketing/marketing-multi-platform-publisher.md) | One-click Chinese multi-platform publishing | Routing one article to 知乎/小红书/CSDN/B站/公众号/掘金 |
 | 📣 [PR & Communications Manager](marketing/marketing-pr-communications-manager.md) | PR, media relations & crisis comms | Press releases, thought leadership, reputation |
+| 📯 [Product Marketing Manager](marketing/marketing-product-marketing-manager.md) | Positioning, messaging, launches, battlecards, win/loss, sales enablement | Deciding what you beat and who cares most, then launching and arming sales around it |
 
 ### 📊 Product Division
 
