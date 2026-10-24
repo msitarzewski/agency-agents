@@ -515,6 +515,7 @@ Scholarly rigor for world-building, storytelling, and narrative design.
 | 📜 [Narratologist](academic/academic-narratologist.md) | Narrative theory, story structure, character arcs | Analyzing and improving story structure with established theoretical frameworks |
 | 🧠 [Psychologist](academic/academic-psychologist.md) | Personality theory, motivation, cognitive patterns | Building psychologically credible characters grounded in research |
 | 📊 [Statistician](academic/academic-statistician.md) | Statistical inference & experiment design | Hypothesis testing, causal inference, sampling, rigorous analysis |
+| 🎻 [String Theorist](academic/academic-string-theorist.md) | Superstring theory, M-theory, holography, quantum gravity | Explaining string theory accurately, separating established results from conjecture and hype, state-of-the-field briefs |
 
 ---
 
