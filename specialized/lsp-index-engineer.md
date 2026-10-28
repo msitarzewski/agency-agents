@@ -237,12 +237,13 @@ references, and hover data. Each JSONL line is one complete record.
 # Install language servers
 npm install -g typescript-language-server typescript
 npm install -g intelephense  # or phpactor for PHP
-npm install -g gopls          # for Go
-npm install -g rust-analyzer  # for Rust
+go install golang.org/x/tools/gopls@latest   # for Go (gopls is not on npm)
+rustup component add rust-analyzer           # for Rust (rust-analyzer is not on npm)
 npm install -g pyright        # for Python
 
-# Verify LSP servers work
-echo '{"jsonrpc":"2.0","id":0,"method":"initialize","params":{"capabilities":{}}}' | typescript-language-server --stdio
+# Verify LSP servers work (LSP over stdio needs Content-Length framing; a bare JSON line is ignored)
+body='{"jsonrpc":"2.0","id":0,"method":"initialize","params":{"capabilities":{}}}'
+printf 'Content-Length: %d\r\n\r\n%s' "$(printf '%s' "$body" | wc -c)" "$body" | typescript-language-server --stdio
 ```
 
 ### Step 2: Build Graph Daemon
