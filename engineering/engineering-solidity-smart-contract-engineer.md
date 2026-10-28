@@ -167,6 +167,7 @@ contract StakingVault is
     error ZeroAmount();
     error LockNotExpired(uint256 lockEndTime, uint256 currentTime);
     error NoStake();
+    error AmountTooLarge();
 
     /// @custom:oz-upgrades-unsafe-allow constructor
     constructor() {
@@ -191,6 +192,7 @@ contract StakingVault is
     /// @param amount Amount of tokens to stake
     function stake(uint256 amount) external nonReentrant whenNotPaused {
         if (amount == 0) revert ZeroAmount();
+        if (amount > type(uint128).max) revert AmountTooLarge();
 
         // Effects before interactions
         StakeInfo storage info = stakes[msg.sender];
