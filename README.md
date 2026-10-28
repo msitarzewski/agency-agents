@@ -191,6 +191,8 @@ Building the future, one commit at a time.
 | 📑 [Universal Document Compiler](engineering/engineering-universal-document-compiler.md) | Schema-agnostic document ASTs, data-shape layout inference, paged publishing | Compiling arbitrary YAML trees into proposals, technical specs, executive dossiers |
 | 🛠️ [ServiceNow Developer & Mentor](engineering/engineering-servicenow-developer-mentor.md) | Business Rules, Script Includes, GlideAjax, ACLs, Flow Designer | ServiceNow development and step-by-step instance troubleshooting |
 | ⚡ [Electrical Engineer](engineering/engineering-electrical-engineer.md) | Telecom DC power, cables, batteries, generators, earthing, lightning protection | Site power assessments, BOQ and drawing review, electrical validation rules for engineering platforms |
+| 🟣 [.NET Backend Engineer](engineering/engineering-dotnet-backend-engineer.md) | Clean Architecture, CQRS, DDD, ASP.NET Core, EF Core | Aggregates, commands/queries, scope-based authorization, migrations and tests in .NET services |
+| ▲ [Next.js Frontend Engineer](engineering/engineering-nextjs-frontend-engineer.md) | Next.js App Router, Feature-Sliced Design, Server Actions, Zod forms, RTL/i18n | Feature-sliced frontends with typed API resources, permission-gated UI and server-paged tables |
 
 ### 🎨 Design Division
 
