@@ -161,15 +161,17 @@ POST products/_rank_eval
       "request": { "query": { "multi_match": {
         "query": "noise cancelling headphones", "fields": ["title^4", "description"] } } },
       "ratings": [
-        { "_index": "products", "_id": "B0863TXGM3", "rating": 3 },
-        { "_index": "products", "_id": "B08PZHYWJS", "rating": 2 },
-        { "_index": "products", "_id": "B002WK4BW6", "rating": 0 }
+        { "_index": "products_v7", "_id": "B0863TXGM3", "rating": 3 },
+        { "_index": "products_v7", "_id": "B08PZHYWJS", "rating": 2 },
+        { "_index": "products_v7", "_id": "B002WK4BW6", "rating": 0 }
       ]
     }
   ],
   "metric": { "dcg": { "k": 10, "normalize": true } }
 }
 ```
+
+`_index` in each rating is the concrete index (`products_v7`), not the `products` alias: rank_eval joins ratings to hits on the hit's backing index name, so ratings filed under the alias match nothing and every query scores 0. Update the judgment file whenever the alias flips.
 
 This runs in CI: the judgment file lives in the repo, every query-template change re-scores the full set, and a drop beyond the noise threshold fails the build with the per-query diff attached.
 
