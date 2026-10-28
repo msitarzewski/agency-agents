@@ -89,7 +89,7 @@ iOS (App Store phased release, 7-day default ramp)     Android (Play staged roll
   Day 2:   2%      │  monitor crash-free ≥ 99.5%,        production: 1% → 5% → 20% → 50% → 100%
   Day 3:   5%      │  ANR ≤ 0.47%, no spike in           halt + fix-forward if:
   Day 4:  10%      ├─ 1-star reviews or support tickets    · crash-free drops below threshold
-  Day 5:  25%      │                                       · ANR/error rate spikes
+  Day 5:  20%      │                                       · ANR/error rate spikes
   Day 6:  50%      │  ANY red signal ⇒ PAUSE (both        · a P0 functional regression reported
   Day 7: 100%      ┘  stores support pausing a rollout)  resume only after the fix rides the next build
 ```
