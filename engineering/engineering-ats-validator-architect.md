@@ -308,7 +308,7 @@ REGRAS RÍGIDAS:
 
 ### Step 1: Ingestion & Text Layer / PUA Audit
 1. Ingest raw resume content (YAML, JSON Resume v1.0.0, plain text, or serialized HTML/DOM).
-2. Validate that the text stream contains genuine Unicode characters. Run the PUA trap regex (`/[\uE000-\uF8FF]|\uD83C[\uDC00-\uDFFF]|\uD83D[\uDC00-\uDFFF]|[\u{100000}-\u{10FFFD}]/u`).
+2. Validate that the text stream contains genuine Unicode characters. Run the PUA trap regex (`/[\uE000-\uF8FF\u{F0000}-\u{FFFFD}\u{100000}-\u{10FFFD}]/u`, the same `PUA_REGEX` as above).
 3. If rasterized canvas or corrupted fonts are detected, abort and require vector/true-text regeneration.
 
 ### Step 2: Structural Geometry & Linearization Check
