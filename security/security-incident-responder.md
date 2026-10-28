@@ -77,7 +77,7 @@ $timestamp = Get-Date -Format "yyyyMMdd-HHmmss"
 $outDir = "C:\IR-Triage-$timestamp"
 New-Item -ItemType Directory -Path $outDir -Force | Out-Null
 
-Write-Host "[*] Starting IR triage collection at $timestamp (UTC: $(Get-Date -Format u))"
+Write-Host "[*] Starting IR triage collection at $timestamp (UTC: $([DateTime]::UtcNow.ToString('u')))"
 
 # === VOLATILE DATA (collect first — disappears on reboot) ===
 
@@ -194,7 +194,7 @@ $summary = @"
 IR Triage Collection Summary
 ============================
 System:     $env:COMPUTERNAME
-Collected:  $(Get-Date -Format u) UTC
+Collected:  $([DateTime]::UtcNow.ToString('u')) UTC
 Analyst:    $env:USERNAME
 Files:      $(Get-ChildItem $outDir | Measure-Object).Count artifacts
 "@
