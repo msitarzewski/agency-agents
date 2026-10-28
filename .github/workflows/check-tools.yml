@@ -25,6 +25,9 @@ jobs:
       - name: Validate converted YAML frontmatter
         run: bash scripts/test-convert-frontmatter.sh
 
+      - name: Validate Reasonix profile and destination contracts
+        run: bash scripts/test-reasonix.sh
+
       - name: Reject colliding agent slugs before conversion
         run: bash scripts/test-convert-slug-collisions.sh
 

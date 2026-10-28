@@ -27,6 +27,7 @@
 #   osaurus      -- Copy skills to ~/.osaurus/skills/
 #   hermes       -- Copy lazy-router plugin to ~/.hermes/plugins/ and enable it
 #   vibe         -- Copy agents and prompts to ~/.vibe/agents/ and ~/.vibe/prompts/
+#   reasonix     -- Copy manual subagent profiles to Reasonix home/skills
 #   dsh          -- Copy skills to ~/.dsh/skills/ (user-wide) or .dsh/skills/ (project)
 #   all          -- Install for all detected tools (default)
 #
@@ -54,7 +55,7 @@
 # Env: CLAUDE_CONFIG_DIR, COPILOT_AGENT_DIR, CURSOR_RULES_DIR, GEMINI_AGENTS_DIR,
 #      OPENCODE_AGENTS_DIR, OPENCLAW_DIR, QWEN_AGENTS_DIR, ZCODE_AGENTS_DIR,
 #      CODEX_AGENTS_DIR, OSAURUS_SKILLS_DIR, HERMES_HOME, HERMES_PLUGIN_DIR,
-#      VIBE_HOME, DSH_HOME, DSH_SKILLS_DIR
+#      VIBE_HOME, DSH_HOME, DSH_SKILLS_DIR, REASONIX_SKILLS_DIR, REASONIX_HOME
 #      override default install paths (checked before hardcoded defaults).
 #
 # --- USAGE-END ---  (sentinel for usage(); do not remove)
@@ -133,7 +134,7 @@ INTEGRATIONS="$REPO_ROOT/integrations"
 # shellcheck source=lib.sh
 . "$SCRIPT_DIR/lib.sh"
 
-ALL_TOOLS=(claude-code copilot antigravity gemini-cli opencode openclaw cursor aider windsurf qwen zcode kimi codex osaurus hermes vibe dsh)
+ALL_TOOLS=(claude-code copilot antigravity gemini-cli opencode openclaw cursor aider windsurf qwen zcode kimi codex osaurus hermes vibe dsh reasonix)
 
 # The division set is derived from divisions.json (the single source of truth)
 # so the installer can never drift from the catalog — a hardcoded copy silently
@@ -385,6 +386,7 @@ validate_path_collisions() {
 resolve_dest() {
   local tool="$1" def="$2" var=""
   [[ -n "$OVERRIDE_PATH" ]] && { printf '%s' "$OVERRIDE_PATH"; return; }
+  if [[ "$tool" == reasonix ]]; then reasonix_skills_dir; return; fi
   case "$tool" in
     claude-code) var="CLAUDE_CONFIG_DIR" ;;
     copilot)     var="COPILOT_AGENT_DIR" ;;
@@ -427,6 +429,7 @@ resolve_tool_path() {
     kimi) bin="kimi" ;; codex) bin="codex" ;; antigravity) bin="" ;;
     osaurus) bin="osaurus" ;; hermes) bin="hermes" ;; vibe) bin="vibe" ;;
     dsh) bin="dsh" ;;
+    reasonix) bin="reasonix" ;;
   esac
   [[ -n "$bin" ]] && command -v "$bin" 2>/dev/null
 }
@@ -545,6 +548,12 @@ detect_codex()        { command -v codex >/dev/null 2>&1 || [[ -d "${HOME}/.code
 detect_osaurus()      { command -v osaurus >/dev/null 2>&1 || [[ -d "${HOME}/.osaurus" ]]; }
 detect_hermes()       { command -v hermes >/dev/null 2>&1 || [[ -d "${HERMES_HOME:-${HOME}/.hermes}" ]]; }
 detect_vibe()         { command -v vibe >/dev/null 2>&1 || [[ -d "${VIBE_HOME:-${HOME}/.vibe}" ]]; }
+detect_reasonix() {
+  command -v reasonix >/dev/null 2>&1 && return 0
+  local dest
+  dest="$(reasonix_skills_dir 2>/dev/null)" || return 1
+  [[ -d "${dest%/skills}" ]]
+}
 detect_dsh()          { command -v dsh >/dev/null 2>&1 || [[ -d "${DSH_HOME:-${HOME}/.dsh}" ]]; }
 
 is_detected() {
@@ -566,6 +575,7 @@ is_detected() {
     hermes)      detect_hermes      ;;
     vibe)        detect_vibe        ;;
     dsh)         detect_dsh         ;;
+    reasonix)    detect_reasonix    ;;
     *)           return 1 ;;
   esac
 }
@@ -590,6 +600,7 @@ tool_label() {
     hermes)      printf "%-14s  %s" "Hermes"       "(~/.hermes/plugins)"     ;;
     vibe)        printf "%-14s  %s" "Mistral Vibe" "(~/.vibe/agents)"        ;;
     dsh)         printf "%-14s  %s" "DeepSeek Harness" "(~/.dsh/skills)"     ;;
+    reasonix)    printf "%-14s  %s" "Reasonix" "(Reasonix home/skills)" ;;
   esac
 }
 
@@ -713,7 +724,7 @@ tool_simple_name() {
     claude-code) echo "Claude Code";; copilot) echo "Copilot";; antigravity) echo "Antigravity";;
     gemini-cli) echo "Gemini CLI";; opencode) echo "OpenCode";; openclaw) echo "OpenClaw";;
     cursor) echo "Cursor";; aider) echo "Aider";; windsurf) echo "Windsurf";;
-    qwen) echo "Qwen Code";; zcode) echo "ZCode";; kimi) echo "Kimi Code";; codex) echo "Codex";; osaurus) echo "Osaurus";; dsh) echo "DeepSeek Harness";; *) echo "$1";;
+    reasonix) echo "Reasonix";; qwen) echo "Qwen Code";; zcode) echo "ZCode";; kimi) echo "Kimi Code";; codex) echo "Codex";; osaurus) echo "Osaurus";; dsh) echo "DeepSeek Harness";; *) echo "$1";;
   esac
 }
 
@@ -933,6 +944,83 @@ install_osaurus() {
     incr count
   done < <(find "$src" -mindepth 1 -maxdepth 1 -type d -print0)
   ok "Osaurus: $count skills -> $dest"
+}
+
+# Only expand a leading tilde. Relative environment paths are ambiguous
+# across shells/runtimes; --path remains the explicit project-relative option.
+reasonix_absolute_dir() {
+  local dir="$1" label="$2" platform
+  case "$dir" in
+    '~') dir="$HOME" ;;
+    '~/'*) dir="$HOME/${dir#\~/}" ;;
+  esac
+  platform="$(uname -s)"
+  case "$platform" in
+    MINGW*|MSYS*|CYGWIN*)
+      if ! command -v cygpath >/dev/null 2>&1; then
+        err "Reasonix: cygpath is required for $label on Windows; use --path instead."
+        return 1
+      fi
+      dir="$(cygpath -u -- "$dir")" || return 1
+      ;;
+  esac
+  if [[ "$dir" != /* ]]; then
+    err "Reasonix: $label must be absolute (or start with ~/); use --path for a project-relative destination."
+    return 1
+  fi
+  printf '%s' "$dir"
+}
+
+reasonix_skills_dir() {
+  local home platform
+  if [[ -n "${REASONIX_SKILLS_DIR:-}" ]]; then
+    reasonix_absolute_dir "$REASONIX_SKILLS_DIR" REASONIX_SKILLS_DIR
+    return
+  fi
+  if [[ -n "${REASONIX_HOME:-}" ]]; then
+    home="$(reasonix_absolute_dir "$REASONIX_HOME" REASONIX_HOME)" || return 1
+  else
+    platform="$(uname -s)"
+    case "$platform" in
+      MINGW*|MSYS*|CYGWIN*)
+        if [[ -n "${APPDATA:-}" ]]; then
+          home="$APPDATA/reasonix"
+        elif [[ -n "${USERPROFILE:-}" ]]; then
+          home="$USERPROFILE/AppData/Roaming/reasonix"
+        else
+          err "Reasonix: no Windows user configuration directory; use --path."
+          return 1
+        fi
+        ;;
+      *)
+        if [[ -n "${HOME:-}" ]]; then home="$HOME/.reasonix"
+        elif [[ -n "${XDG_CONFIG_HOME:-}" ]]; then home="$XDG_CONFIG_HOME/reasonix"
+        else err "Reasonix: no user configuration directory; use --path."; return 1
+        fi
+        ;;
+    esac
+    home="$(reasonix_absolute_dir "$home" 'default home')" || return 1
+  fi
+  printf '%s/skills' "${home%/}"
+}
+
+install_reasonix() {
+  local src="$INTEGRATIONS/reasonix" dest count=0 d name
+  dest="$(resolve_dest reasonix '')" || return 1
+  [[ -d "$src" ]] || { err "integrations/reasonix missing. Run convert.sh --tool reasonix first."; return 1; }
+  mkdir -p "$dest"
+  while IFS= read -r -d '' d; do
+    name="$(basename "$d")"
+    slug_allowed "${name#reasonix-}" || continue
+    if [[ -L "$dest/$name" ]]; then
+      warn "Reasonix: leaving existing symlink $dest/$name untouched."
+      continue
+    fi
+    mkdir -p "$dest/$name"
+    install_file "$d/SKILL.md" "$dest/$name/SKILL.md"
+    incr count
+  done < <(find "$src" -mindepth 1 -maxdepth 1 -type d -name 'reasonix-agency-*' -print0)
+  ok "Reasonix: $count subagent profiles -> $dest"
 }
 
 install_dsh() {
@@ -1562,6 +1650,7 @@ install_tool() {
     hermes)      install_hermes      ;;
     vibe)        install_vibe        ;;
     dsh)         install_dsh         ;;
+    reasonix)    install_reasonix    ;;
   esac
 }
 

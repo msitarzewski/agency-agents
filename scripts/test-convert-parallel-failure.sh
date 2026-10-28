@@ -30,6 +30,19 @@ printf 'import sys\n' > "$FIXTURE/repo/scripts/build-hermes-plugin.py"
 TMPDIR="$FIXTURE" "$FIXTURE/repo/scripts/convert.sh" \
   --tool all --parallel --jobs 2 --out "$FIXTURE/output" \
   > "$FIXTURE/success.log" 2>&1
-grep -Fq 'Done. 15 tools' "$FIXTURE/success.log"
+# Identity targets copy source files; every other registered target is rendered.
+# Read the independent catalog instead of pinning the current converter count.
+expected_tools="$(python3 - "$SCRIPT_DIR/../tools.json" <<'PYCOUNT'
+import json, sys
+with open(sys.argv[1], encoding="utf-8") as source:
+    tools = json.load(source)["tools"]
+print(sum(tool["format"] != "identity" for tool in tools.values()))
+PYCOUNT
+)"
+grep -Fq "Done. $expected_tools tools" "$FIXTURE/success.log" || {
+  echo "parallel converter did not finish all $expected_tools registered targets" >&2
+  cat "$FIXTURE/success.log" >&2
+  exit 1
+}
 
 echo "PASS: parallel converter reports failure and cleans buffered logs"

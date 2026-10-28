@@ -458,6 +458,23 @@ assert_eq 0 "$RUN_STATUS" "a copy install over our own --link install succeeds"
 assert_eq true "$([[ -f "$dest/$(basename "$FIRST_ENG_FILE")" && ! -L "$dest/$(basename "$FIRST_ENG_FILE")" ]] && echo true || echo false)" "our own link is replaced by a real copy"
 assert_eq "$src_sum" "$(cksum < "$FIRST_ENG_FILE")" "the clone's source file is unchanged"
 
+# Reasonix uses the normal selection machinery with a distinct profile prefix.
+home="$(sandbox reasonix-selection)"
+dest="$home/selected profiles"
+run_install "$home" --tool reasonix --division engineering --path "$dest"
+assert_eq 0 "$RUN_STATUS" "Reasonix division selection succeeds"
+assert_eq "$ENG_AGENTS" "$(find "$dest" -name SKILL.md -type f | wc -l | tr -d ' ')" "Reasonix preserves division filtering"
+home="$(sandbox reasonix-stem-selection)"
+dest="$home/profiles"
+run_install "$home" --tool reasonix --agent "$(basename "$FIRST_ENG_FILE" .md)" --path "$dest"
+assert_eq 0 "$RUN_STATUS" "Reasonix accepts source-stem agent aliases"
+assert_eq true "$([[ -f "$dest/reasonix-agency-$FIRST_ENG_SLUG/SKILL.md" ]] && echo true || echo false)" "Reasonix maps the source alias to its namespaced profile"
+home="$(sandbox reasonix-agents-file)"
+printf '%s\n' "$FIRST_ENG_SLUG" > "$home/selection.txt"
+run_install "$home" --tool reasonix --agents-file "$home/selection.txt" --path "$home/profiles"
+assert_eq 0 "$RUN_STATUS" "Reasonix accepts --agents-file"
+assert_eq 1 "$(find "$home/profiles" -name SKILL.md -type f | wc -l | tr -d ' ')" "Reasonix installs exactly the requested file selection"
+
 # ---------------------------------------------------------------------------
 echo ""
 if [[ $xfailed -gt 0 ]]; then

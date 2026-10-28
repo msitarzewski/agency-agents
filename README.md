@@ -66,7 +66,7 @@ Each agent file contains:
 
 Browse the agents below and copy/adapt the ones you need!
 
-### Option 4: Use with Other Tools (GitHub Copilot, Antigravity, Gemini CLI, OpenCode, OpenClaw, Cursor, Aider, Windsurf, Kimi Code, Codex, Osaurus, Hermes, Mistral Vibe, DeepSeek Harness)
+### Option 4: Use with Other Tools (GitHub Copilot, Antigravity, Gemini CLI, OpenCode, OpenClaw, Cursor, Aider, Windsurf, Kimi Code, Codex, Osaurus, Hermes, Mistral Vibe, DeepSeek Harness, Reasonix)
 
 ```bash
 # Step 1 -- generate integration files for all supported tools
@@ -90,6 +90,7 @@ Browse the agents below and copy/adapt the ones you need!
 ./scripts/install.sh --tool hermes
 ./scripts/install.sh --tool vibe
 ./scripts/install.sh --tool dsh
+./scripts/install.sh --tool reasonix
 ```
 
 **Install only the teams you need** (not everyone wants every division):
@@ -756,6 +757,7 @@ The Agency works natively with Claude Code, and ships conversion + install scrip
 - **Osaurus** -- `SKILL.md` skills -> `~/.osaurus/skills/`
 - **[Hermes](integrations/hermes/README.md)** -- lazy-router plugin -> `~/.hermes/plugins/`
 - **[DeepSeek Harness](https://github.com/deepseek-ai/deepseek-harness)** — `SKILL.md` skills → `~/.dsh/skills/` (user) or `.dsh/skills/` (project)
+- **[Reasonix](integrations/reasonix/README.md)** — isolated manual subagent profiles → Reasonix home/skills or `.reasonix/skills/` in a project
 
 ---
 
