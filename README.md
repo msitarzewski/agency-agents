@@ -191,6 +191,7 @@ Building the future, one commit at a time.
 | 📑 [Universal Document Compiler](engineering/engineering-universal-document-compiler.md) | Schema-agnostic document ASTs, data-shape layout inference, paged publishing | Compiling arbitrary YAML trees into proposals, technical specs, executive dossiers |
 | 🛠️ [ServiceNow Developer & Mentor](engineering/engineering-servicenow-developer-mentor.md) | Business Rules, Script Includes, GlideAjax, ACLs, Flow Designer | ServiceNow development and step-by-step instance troubleshooting |
 | ⚡ [Electrical Engineer](engineering/engineering-electrical-engineer.md) | Telecom DC power, cables, batteries, generators, earthing, lightning protection | Site power assessments, BOQ and drawing review, electrical validation rules for engineering platforms |
+| 🗼 [Tower Structural Engineer](engineering/engineering-tower-structural-engineer.md) | TIA-222 towers, monopoles, guyed masts, mounts, foundations | Tower loading and analysis review, edition comparisons, structural validation rules for engineering platforms |
 
 ### 🎨 Design Division
 
