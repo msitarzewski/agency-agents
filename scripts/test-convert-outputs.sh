@@ -22,7 +22,7 @@
 #   scripts/convert-outputs.sha256 (v2) holds
 #     agent  <slug>  <hash>   one line per roster agent: that agent's generated output
 #                             across every tool (its files, its section of the
-#                             accumulated aider/windsurf files, its hermes JSON entry)
+#                             section of the accumulated aider file, its hermes JSON entry)
 #     tool   <tool>  <hash>   the tool's NON-agent files (README, plugin code, manifests):
 #                             moves only when a generator/template changes
 #     contract <file> <hash>  divisions.json, tools.json, runbooks.json
@@ -136,7 +136,7 @@ def check(cond, msg): (ok if cond else bad)(msg)
 #   yaml-id   YAML carrying only an identifier      id == slug + companion file
 #             (kimi: agent.name -> <slug>/system.md)
 #   accum     one file for all agents: "## Name" then the description line
-#             (windsurf: bare line; aider: "> " blockquote)  round-trip both
+#             (aider: "> " blockquote)  round-trip both
 #   plain     no structured metadata                count only
 #   json      hermes agents.json                    count
 SPEC = {
@@ -153,7 +153,7 @@ SPEC = {
     "kimi":        ("*/agent.yaml",      "yaml-id"),
     "openclaw":    ("*/SOUL.md",         "plain"),
     "aider":       ("CONVENTIONS.md",    "accum"),
-    "windsurf":    (".windsurfrules",    "accum"),
+    "windsurf":    ("rules/*.md",        "yaml-fm"),
     "hermes":      ("agency-agents-router/data/agents.json", "json"),
 }
 
@@ -424,6 +424,70 @@ if os.path.isfile(aider_index):
             bad(f"aider: ...and {len(dangling)-3} more dangling paths")
     elif len(text) <= AIDER_INDEX_CEILING:
         ok(f"aider: index is {len(text):,} characters and all {N} agent paths resolve")
+# --- Layer A (rule limit): a Windsurf rule Windsurf will not read is not a rule
+# Windsurf caps a workspace rule file at 12,000 characters and drops the rest.
+# That is why this integration stopped writing one .windsurfrules holding the
+# whole roster: at 279 agents it was 3.9 million characters and Cascade read
+# the first few thousand. Each rule now has to fit on its own, end on a clean
+# break, and say so when the agent was too long to carry whole.
+WINDSURF_LIMIT = 12000
+
+def fence_left_open(lines):
+    """True if the text stops while a fenced block is still open.
+
+    CommonMark rules, walked to the end of the text: 3+ backticks or tildes
+    behind at most three spaces open a block, and only a bare run of the same
+    character, at least as long, closes it. Counting fence lines for parity is
+    not enough, and neither is treating any fence-looking line as a closer: an
+    agent that shows a ```python example inside a ````markdown template has
+    fence lines that are content.
+    """
+    marker, mlen = "", 0
+    for line in lines:
+        m = re.match(r"^ {0,3}(`{3,}|~{3,})(.*)$", line)
+        if not m:
+            continue
+        tok, rest = m.group(1), m.group(2)
+        if not marker:
+            if tok[0] == "`" and "`" in rest:
+                continue          # not a fence: a backtick info string can't hold `
+            marker, mlen = tok[0], len(tok)
+        elif tok[0] == marker and len(tok) >= mlen and not rest.strip():
+            marker, mlen = "", 0
+    return bool(marker)
+
+ws_over = ws_fence = ws_trigger = 0
+ws_trimmed = 0
+ws_files = sorted(glob.glob(os.path.join(OUT, "windsurf", "rules", "*.md")))
+for f in ws_files:
+    text = open(f, encoding="utf-8").read()
+    slug = os.path.splitext(os.path.basename(f))[0]
+    if len(text) > WINDSURF_LIMIT:
+        ws_over += 1
+        if ws_over <= 3:
+            bad(f"windsurf: {slug} is {len(text)} characters — Windsurf reads the "
+                f"first {WINDSURF_LIMIT} and drops the rest")
+    try:
+        if frontmatter(text).get("trigger") != "model_decision":
+            ws_trigger += 1
+            bad(f"windsurf: {slug} is missing trigger: model_decision — "
+                f"Cascade would never load it on its own")
+    except Exception:
+        pass   # the strict-parse pass above already reported this
+    # Only a trimmed rule is checked: an untrimmed one is the source body
+    # verbatim, and a fence the source itself leaves open is a source bug.
+    trimmed = "Trimmed to fit Windsurf" in text
+    if trimmed and fence_left_open(text.split("\n")):
+        ws_fence += 1
+        if ws_fence <= 3:
+            bad(f"windsurf: {slug} ends inside an unclosed code fence — the trim "
+                f"cut through a fenced block")
+    if trimmed:
+        ws_trimmed += 1
+if ws_files and not (ws_over or ws_fence or ws_trigger):
+    ok(f"windsurf: all {len(ws_files)} rules fit the {WINDSURF_LIMIT}-character limit, "
+       f"carry trigger: model_decision, and every trimmed rule closes its fences "
+       f"({ws_trimmed} trimmed with a pointer to the full agent)")
 
 # --- Layer A (tool names): Qwen only grants tools it can name ---------------
 # A Qwen subagent's `tools:` is an allow-list resolved against Qwen's registry
