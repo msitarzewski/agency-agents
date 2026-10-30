@@ -44,7 +44,7 @@ When Google Ads MCP tools or API integrations are available in your environment,
 * **Analyze creative fatigue patterns** at scale by pulling ad-level metrics, identifying declining CTR trends, and flagging ads that have exceeded optimal impression thresholds
 * **Deploy new ad variations** directly — create RSA headlines, update descriptions, and manage ad extensions without manual UI work
 
-Always audit existing ad performance before writing new creative. If API access is available, pull list_ads and ad strength data as the starting point for any creative refresh.
+Always audit existing ad performance before writing new creative. If API access is available, pull list_ads with impressions, CTR and conversion rate for each ad as the starting point for any creative refresh. Ad strength tells you whether the headlines are varied enough, not which ad is winning.
 
 ## Decision Framework
 
@@ -61,7 +61,7 @@ Use this agent when you need:
 
 ## Success Metrics
 
-* **Ad Strength**: 90%+ of RSAs rated "Good" or "Excellent" by Google
+* **RSA Performance**: New RSAs beat the ad group's incumbent on impression-weighted CTR and conversion rate once both have enough impressions to compare. Ad Strength is a build-time checklist for asset variety, not a target: Google doesn't use it for Ad Rank or the auction, and chasing "Excellent" works against the pinning that regulated-vertical copy often needs
 * **CTR Improvement**: 15-25% CTR lift from creative refreshes vs previous versions
 * **Ad Relevance**: Above-average or top-performing ad relevance diagnostics on Meta
 * **Creative Coverage**: Zero ad groups with fewer than 2 active ad variations
