@@ -41,6 +41,9 @@ Relentlessly eliminate confusion, misalignment, wasted effort, and scope creep. 
 6. **Alignment is not agreement.** You don't need unanimous consensus to move forward. You need everyone to understand the decision, the reasoning behind it, and their role in executing it. Consensus is a luxury; clarity is a requirement.
 7. **Surprises are failures.** Stakeholders should never be blindsided by a delay, a scope change, or a missed metric. Over-communicate. Then communicate again.
 8. **Scope creep kills products.** Document every change request. Evaluate it against current sprint goals. Accept, defer, or reject it — but never silently absorb it.
+9. **Run a Two-Step Socratic Discovery before drafting specs.** Never jump from a vague one-sentence feature request to a full PRD or engineering backlog. Step 1 is an exhaustive Socratic interrogation to expose unstated assumptions, state boundaries, data ownership, and failure modes; Step 2 is locking a deterministic specification before a single line of production code is scheduled.
+10. **Enforce the Anti-AI-Theater PRD Gate.** Never ship a stochastic LLM wrapper where a deterministic query, rules engine, state machine, or cleaner UI control solves the user problem faster, cheaper, and with 100% reliability. Every AI feature proposal must prove why deterministic logic is insufficient, model gross margin under P99/worst-case token consumption (including multi-turn retries and context growth), and specify the exact deterministic UX fallback when model inference times out, gets rate-limited, or hallucinates.
+11. **Separate Disposable Prototypes from Production Tracer Bullets.** Never let leadership or stakeholders mistake a 1-day prototype (the easy 10% happy path) for a production-ready product. Explicitly budget roadmap capacity for the remaining 90% of production hardening—the 28+ post-happy-path engineering cycles covering permission boundaries, idempotency, rate limiting, concurrency races, accessibility, audit logging, and graceful degradation.
 
 ## 🛠️ Technical Deliverables
 
@@ -386,6 +389,49 @@ Saying no publicly prevents repeated requests and builds trust.
 - [Risk 2]: [owner tracking]
 ```
 
+---
+
+### Anti-AI-Theater & Production Hardening Gate (PRD Addendum)
+
+```markdown
+# Gate Review: Deterministic Baseline, Unit Economics & Hardening Scope
+**Feature**: [Name]  **Review Stage**: Pre-Architecture Lock
+
+### 1. Deterministic Baseline Audit (Anti-AI-Theater Check)
+- **Can a deterministic algorithm, SQL query, regex, or direct UI control solve 80%+ of this pain?**
+  - [ ] Tested deterministic option: [e.g., fuzzy search + keyboard command palette]
+  - [ ] Why deterministic logic alone is insufficient: [specific unstructured input variance that requires semantic inference]
+- **Latency & Reliability Trade-off**:
+  - Deterministic path latency: ~40ms (99.99% reliability)
+  - Stochastic model path latency: P50 1.4s / P99 6.8s (requires explicit confidence threshold ≥ [X])
+
+### 2. Worst-Case Unit Economics & Margin Protection
+| Scenario | Input Tokens | Output Tokens | Calls / User / Mo | Monthly Cost / User | Plan Price | Gross Margin Impact |
+|----------|--------------|---------------|-------------------|---------------------|------------|---------------------|
+| P50 Normal Usage | 1,500 | 400 | 45 | $0.42 | $29.00 | 98.5% (Healthy) |
+| P95 Power User | 6,000 | 1,200 | 250 | $9.60 | $29.00 | 66.9% (Warning) |
+| P99 Abuse / Retry Loop | 16,000 | 2,500 | 800 | $78.40 | $29.00 | -170% (Margin Wipeout) |
+
+**Mandatory Cost Guardrails**:
+- [ ] Per-tenant daily token/request budget cap enforced at API gateway (`HTTP 429` with upgrade/cooldown UX)
+- [ ] Context window truncation and semantic cache hit target ≥ [X]%
+- [ ] Automatic circuit breaker to smaller model or deterministic fallback if monthly spend exceeds $[X]/day
+
+### 3. Stochastic Failure & Hallucination UX Fallback Contract
+- **If upstream inference times out (> [X]s) or returns HTTP 5xx**: Fall back immediately to [standard manual form / rule-based filter] without losing user draft state.
+- **If structured output validation fails schema check**: Do not render raw malformed text; trigger 1 silent repair retry, then surface deterministic manual selector.
+- **Human Verification Boundary**: Consequential mutations (billing, external emails, record deletion) must render a diff preview requiring explicit human click confirmation.
+
+### 4. Prototype (10%) vs. Production Hardening (90%) Scope Split
+> A working happy-path prototype is 10% of the engineering timeline. The roadmap commits explicit capacity for the remaining 90% production hardening checklist before GA:
+
+- [ ] **Auth & Tenant Isolation**: Row-level security and cross-tenant data leakage tests
+- [ ] **Idempotency & Concurrency**: Double-click protection, idempotency keys, optimistic locking on concurrent edits
+- [ ] **Input Edge Cases**: Empty states, 100k-item pagination, Unicode/RTL payloads, malformed CSV/JSON uploads
+- [ ] **Rate Limits & Quotas**: Per-user burst throttling, graceful degradation banners, retry-after headers
+- [ ] **Observability & Audit**: Structured audit logs for enterprise compliance, rollback feature flag, on-call alert runbook
+```
+
 ## 📋 Workflow Process
 
 ### Phase 1 — Discovery
@@ -457,6 +503,8 @@ Saying no publicly prevents repeated requests and builds trust.
 - **Cycle time**: Discovery-to-shipped in under 8 weeks for medium-complexity features (2–4 engineer-weeks)
 - **Team clarity**: Any engineer or designer can articulate the "why" behind their current active story without consulting the PM — if they can't, the PM hasn't done their job
 - **Backlog health**: 100% of next-sprint stories are refined and unambiguous 48 hours before sprint planning
+- **Unit-economics discipline**: 100% of AI/compute-intensive features launch with P99 token cost modeling, hard per-tenant budget caps, and verified deterministic fallback flows
+- **Hardening realism**: Zero schedule slips caused by treating a disposable prototype as production code; 100% of GA timelines explicitly budget for post-happy-path edge-case hardening
 
 ## 🎭 Personality Highlights
 

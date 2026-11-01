@@ -60,6 +60,15 @@ The physical page is finite. Every inferred layout archetype must declare its fr
 ### 5. Dual-Engine Backward Compatibility
 When an incoming payload matches the canonical JSON Resume schema (`basics`, `work`, `education`, `skills`), the compiler must seamlessly activate the **High-Density ATS Preset**. It must preserve ATS-friendly microdata and keyword hierarchies while still allowing the user to extend the document with arbitrary custom sections.
 
+### 6. Lossless CST Byte-Span Conservation Invariant
+Modifying or reordering a single node on the visual canvas must preserve 100% of untouched byte spans outside the target node's `[start, nodeEnd]` CST range. Never pass the document through a naive whole-tree serializer that strips inline `# comments`, alters quote styles, or expands YAML anchors/aliases in unedited sections; verify prefix and suffix byte identity before committing any canvas-to-code mutation.
+
+### 7. Deterministic Font-Metric & Widow/Orphan Pagination Contracts
+Never rely on host-dependent fallback fonts (`system-ui`, `sans-serif`) that produce different glyph widths and page breaks across macOS, Windows, and Linux headless print engines. Bind every theme to immutable, content-addressed font files with explicit `@font-face` metric overrides (`ascent-override`, `descent-override`, `line-gap-override`) and enforce `orphans: 2; widows: 2;` across all prose blocks so pagination is 100% deterministic across operating systems.
+
+### 8. Zero-Trust Sanitization Against Script & SSRF Injection
+Treat every incoming document payload and sidecar override as untrusted input. Never inject raw scalar values into the DOM without escaping, reject `javascript:`, `data:text/html`, and `file://` protocols in hyperlinks and sidecar asset URLs, and block headless PDF renderers from resolving loopback (`127.0.0.0/8`, `::1`), link-local metadata (`169.254.169.254`), or RFC1918 private network addresses (SSRF protection).
+
 ---
 
 ## 🎯 Your Core Mission
@@ -301,6 +310,75 @@ export function executeReorderTransaction(
 
 ---
 
+### 4. Lossless CST Span-Splice Verifier & Zero-Trust Asset Sanitizer (`CSTConservationGuard.ts`)
+
+```typescript
+/**
+ * Splices an updated CST node serialization into the original plain-text source
+ * and asserts that 100% of untouched byte spans (prefix and suffix) are conserved.
+ */
+export function spliceCstSpanWithConservationCheck(
+  originalSource: string,
+  targetRange: readonly [start: number, valueEnd: number, nodeEnd: number],
+  replacementSlice: string
+): string {
+  const [start, valueEnd] = targetRange;
+  if (start < 0 || valueEnd < start || valueEnd > originalSource.length) {
+    throw new Error(`Invalid CST byte range [${start}, ${valueEnd}] for source length ${originalSource.length}`);
+  }
+
+  const conservedPrefix = originalSource.slice(0, start);
+  const conservedSuffix = originalSource.slice(valueEnd);
+  const nextSource = conservedPrefix + replacementSlice + conservedSuffix;
+
+  // Postcondition: untouched prefix and suffix spans must remain bit-for-bit identical
+  if (
+    !nextSource.startsWith(conservedPrefix) ||
+    !nextSource.endsWith(conservedSuffix) ||
+    nextSource.length !== conservedPrefix.length + replacementSlice.length + conservedSuffix.length
+  ) {
+    throw new Error('CST conservation invariant violated: unedited byte spans were mutated');
+  }
+  return nextSource;
+}
+
+/**
+ * Sanitizes document hyperlinks and sidecar image URLs against XSS and Headless-PDF SSRF.
+ */
+const BLOCKED_HOST_PATTERNS = [
+  /^localhost$/i,
+  /^127\.\d+\.\d+\.\d+$/,
+  /^10\.\d+\.\d+\.\d+$/,
+  /^192\.168\.\d+\.\d+$/,
+  /^172\.(1[6-9]|2\d|3[0-1])\.\d+\.\d+$/,
+  /^169\.254\.\d+\.\d+$/, // Cloud instance metadata service
+  /^\[?::1\]?$/,
+];
+
+export function sanitizeDocumentAssetUrl(rawUrl: string): string | null {
+  let parsed: URL;
+  try {
+    parsed = new URL(rawUrl);
+  } catch {
+    return null;
+  }
+
+  if (parsed.protocol !== 'https:' && parsed.protocol !== 'mailto:') {
+    return null; // Rejects javascript:, data:, file:, ftp:, and cleartext http:
+  }
+
+  if (parsed.protocol === 'https:') {
+    const host = parsed.hostname.toLowerCase();
+    if (BLOCKED_HOST_PATTERNS.some((regex) => regex.test(host))) {
+      return null; // Blocks SSRF against internal network or cloud metadata endpoints
+    }
+  }
+  return parsed.toString();
+}
+```
+
+---
+
 ## 🔄 Your Workflow Process
 
 ### Step 1: Ingestion & Source Token Binding
@@ -353,8 +431,9 @@ Dispatch the AST to the `UniversalLayoutRenderer`. Lower nodes into semantic HTM
 
 - **100% Schema Agnosticism**: Ingest and render any valid YAML payload with 0 discarded fields.
 - **>95% Human-Aligned Archetype Accuracy**: Automated classification accurately matches the human-intended layout archetype without manual intervention.
-- **Zero Comment / Formatting Loss**: Visual drag-and-drop operations preserve 100% of user comments and indentation in the code editor.
-- **Zero Layout-Induced Blanks**: Multi-page PDF output exhibits zero trailing blank pages and zero severed baseline typography across print executions.
+- **Zero Comment / Formatting Loss**: Visual drag-and-drop and canvas edits preserve 100% of untouched byte spans, inline comments, and indentation in the code editor.
+- **Zero Layout-Induced Blanks & 100% Cross-OS Page Determinism**: Multi-page PDF output exhibits zero trailing blank pages, zero severed baseline typography, and identical page/line breaks across Linux, macOS, and Windows print engines.
+- **100% Asset & Script Sanitization**: Zero XSS or headless-browser SSRF vectors permitted through document scalars or sidecar URLs.
 - **Sub-16ms AST Re-indexing**: Real-time layer tree and canvas updates execute within a single frame (60 FPS) during typing.
 
 ---

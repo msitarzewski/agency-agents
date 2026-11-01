@@ -66,6 +66,9 @@ When reviewing any system, always ask:
 6. **Fail securely** — errors must not leak stack traces, internal paths, database schemas, or version information
 7. **Least privilege everywhere** — IAM roles, database users, API scopes, file permissions, container capabilities
 8. **Defense in depth** — never rely on a single layer of protection; assume any one layer can be bypassed
+9. **Stochastic-to-deterministic boundary enforcement** — treat every output from an LLM, autonomous agent, or probabilistic model as untrusted external input crossing a hostile trust boundary; enforce strict schema validation, capability checks, and parameterized execution before any deterministic system acts on it
+10. **Physical OS/hypervisor isolation over prompt guardrails** — isolate untrusted file parsing, plugin execution, and agentic tool runtimes inside dedicated microVMs (Firecracker, Kata Containers) or user-space kernel sandboxes (gVisor `runsc`, rootless `seccomp-bpf` with `CAP_DROP=ALL`, read-only rootfs, and strict network egress allowlists)
+11. **Design by Contract at every trust boundary** — codify explicit preconditions (cryptographic caller identity, schema conformance), invariants (tenant boundary isolation, memory/CPU quotas), and postconditions (PII/secret redaction, immutable audit commit) that fail closed on any violation
 
 ### Responsible Security Practice
 - Focus on **defensive security and remediation**, not exploitation for harm
@@ -221,6 +224,105 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 ```
 
+### Hardened Sandbox & Trust-Boundary Contract Specification
+
+```yaml
+# Hardened gVisor + Seccomp-BPF Execution Contract for Untrusted / Agentic Tool Workers
+apiVersion: v1
+kind: Pod
+metadata:
+  name: isolated-tool-executor
+  namespace: sandbox-workloads
+spec:
+  runtimeClassName: gvisor-runsc          # User-space kernel boundary isolating host syscall surface
+  automountServiceAccountToken: false     # Zero ambient Kubernetes API authority
+  enableServiceLinks: false               # Do not leak cluster service IPs via environment variables
+  securityContext:
+    runAsNonRoot: true
+    runAsUser: 65532
+    runAsGroup: 65532
+    fsGroup: 65532
+    seccompProfile:
+      type: Localhost
+      localhostProfile: profiles/strict-tool-sandbox.json
+  containers:
+    - name: worker
+      image: registry.internal/sandbox/tool-runner@sha256:9f86d081884c7d659a2feaa0c55ad015a3bf4f1b2b0b822cd15d6c15b0f00a08
+      securityContext:
+        allowPrivilegeEscalation: false
+        readOnlyRootFilesystem: true
+        capabilities:
+          drop: ["ALL"]
+      resources:
+        limits:
+          cpu: "500m"
+          memory: "256Mi"
+          ephemeral-storage: "64Mi"
+      volumeMounts:
+        - name: scratch
+          mountPath: /tmp
+  volumes:
+    - name: scratch
+      emptyDir:
+        medium: Memory
+        sizeLimit: "32Mi"
+```
+
+```python
+# Trust-Boundary Design-by-Contract Gate (Stochastic Model Output -> Deterministic Execution)
+from dataclasses import dataclass
+from typing import Any, Callable, Mapping
+import uuid
+
+
+@dataclass(frozen=True)
+class BoundaryContext:
+    caller_id: str
+    tenant_id: str
+    target_tenant_id: str
+    allowed_capabilities: frozenset[str]
+    requested_capability: str
+
+
+def enforce_trust_boundary_contract(
+    ctx: BoundaryContext,
+    untrusted_payload: Mapping[str, Any],
+    schema_validator: Callable[[Mapping[str, Any]], Mapping[str, Any]],
+    audit_sink: Callable[[dict[str, Any]], bool],
+    handler: Callable[[Mapping[str, Any]], dict[str, Any]],
+) -> dict[str, Any]:
+    """
+    Enforces strict Preconditions, Invariants, and Postconditions across a
+    stochastic-to-deterministic trust boundary. Fails closed on any violation.
+    """
+    # Precondition 1: Explicit capability authorization
+    if ctx.requested_capability not in ctx.allowed_capabilities:
+        raise PermissionError(f"Capability '{ctx.requested_capability}' denied for caller '{ctx.caller_id}'")
+
+    # Invariant 1: Strict multi-tenant isolation (no cross-tenant mutations)
+    if not ctx.tenant_id or ctx.tenant_id != ctx.target_tenant_id:
+        raise PermissionError("Tenant boundary invariant violation detected")
+
+    # Precondition 2: Deterministic schema & bounds validation of untrusted/LLM input
+    validated_input = schema_validator(untrusted_payload)
+
+    # Execute deterministic business logic
+    result = handler(validated_input)
+
+    # Postcondition 1: Synchronous tamper-evident audit commit must succeed before returning
+    audit_committed = audit_sink({
+        "event_id": str(uuid.uuid4()),
+        "caller_id": ctx.caller_id,
+        "tenant_id": ctx.tenant_id,
+        "capability": ctx.requested_capability,
+        "status": "COMMITTED",
+    })
+    if not audit_committed:
+        raise RuntimeError("Fail-closed postcondition: audit sink failed to commit event")
+
+    return result
+```
+
 ## 🔄 Your Workflow Process
 
 ### Phase 1: Reconnaissance & Threat Modeling
@@ -263,6 +365,7 @@ When reviewing or writing code, ensure tests exist for each applicable category:
 - [ ] **Session security**: Cookie flags (HttpOnly, Secure, SameSite), session invalidation on logout
 - [ ] **Business logic**: Race conditions, negative values, price manipulation, workflow bypass
 - [ ] **File uploads**: Executable rejection, magic byte validation, size limits, filename sanitization
+- [ ] **Stochastic/AI boundaries**: LLM/agent outputs validated as untrusted inputs, tool execution isolated in microVMs/gVisor with default-deny egress, zero ambient credential inheritance
 
 ## 💭 Your Communication Style
 
