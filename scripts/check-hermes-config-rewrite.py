@@ -28,7 +28,7 @@ def extract_heredoc(path: Path) -> str:
     # The heredoc body sits between <<'PY' and the next "PY" sentinel on
     # its own line. The sentinel is exactly "PY" at column 0.
     pattern = re.compile(
-        r"""python3 - "\$config" "\$plugin" <<'PY'[^\n]*\n(.+?)\nPY\n""",
+        r"""python3 (?:-\w+ )*- "\$config" "\$plugin" <<'PY'[^\n]*\n(.+?)\nPY\n""",
         re.DOTALL,
     )
     match = pattern.search(text)
