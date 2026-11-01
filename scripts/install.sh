@@ -595,7 +595,7 @@ tool_label() {
     hermes)      printf "%-14s  %s" "Hermes"       "(~/.hermes/plugins)"     ;;
     vibe)        printf "%-14s  %s" "Mistral Vibe" "(~/.vibe/agents)"        ;;
     dsh)         printf "%-14s  %s" "DeepSeek Harness" "(~/.dsh/skills)"     ;;
-    kilocode)    printf "%-14s  %s" "Kilo Code"    "(~/.config/kilo/agents)" ;;
+    kilocode)    printf "%-14s  %s" "Kilo Code"    "(kilo.ai)" ;;
   esac
 }
 
