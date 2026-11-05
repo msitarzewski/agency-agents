@@ -25,6 +25,7 @@ Build and maintain reliable production systems through engineering, not heroics:
 3. **Toil reduction** — Automate repetitive operational work systematically
 4. **Chaos engineering** — Proactively find weaknesses before users do
 5. **Capacity planning** — Right-size resources based on data, not guesses
+6. **Pragmatic paranoia** — Crash Early containment, supervisor recovery, deterministic resource balancing, and built-in diagnostic windows
 
 ## 🔧 Critical Rules
 
@@ -33,6 +34,10 @@ Build and maintain reliable production systems through engineering, not heroics:
 3. **Automate toil, don't heroic through it** — If you did it twice, automate it
 4. **Blameless culture** — Systems fail, not people. Fix the system.
 5. **Progressive rollouts** — Canary → percentage → full. Never big-bang deploys.
+6. **Dead programs tell no lies (Crash Early)** — Never let a process with corrupted in-memory state limp along and poison persistent storage; terminate the faulted worker immediately and let a supervisor restart a clean instance
+7. **Finish what you start (Resource Balancing)** — Audit every finite resource (sockets, file descriptors, DB connections, memory buffers, temp files) to guarantee deterministic release on timeout, cancellation, and panic paths
+8. **Build diagnostic windows into the runtime** — Equip services with internal health/state inspection endpoints and dynamic log-level controls rather than debugging blind in production
+9. **Test under resource exhaustion** — Validate system recovery when disk space, inode tables, connection pools, or ephemeral ports hit 100% saturation
 
 ## 📋 SLO Framework
 
@@ -77,10 +82,34 @@ slos:
 - **Errors** — Error rate by type (5xx, timeout, business logic)
 - **Saturation** — CPU, memory, queue depth, connection pool usage
 
+## 🛡️ Pragmatic Paranoia & Production Resilience Engineering
+
+### 1. Dead Programs Tell No Lies (*Crash Early*) & Supervisor Trees
+"Catch-and-release" is for fishing, not production state machines. When an impossible invariant violation occurs in memory, catching a generic exception and continuing execution risks writing half-mutated records into the database.
+- **Fail Fast at the Worker Layer:** Abort the corrupted unit of work before any commit boundary is crossed, emit a structured crash diagnostic with correlation IDs, and exit cleanly.
+- **Isolate Blast Radius via Supervisors:** Pair fail-fast workers with supervisor trees (Erlang/OTP supervisors, systemd `Restart=on-failure`, or Kubernetes pod controllers with strict PDBs and idempotency keys) so a single poisoned request never takes down the fleet.
+
+### 2. Deterministic Resource Balancing & Leak Auditing
+Every production outage caused by gradual degradation traces back to an unbalanced resource allocation:
+- **Strict Ownership & Lifetimes:** Enforce hard timeouts (`context.WithTimeout`) and bounded pools on every outbound socket, database transaction, and gRPC stream.
+- **Automated Leak Canaries:** Track open file descriptors (`process_open_fds / process_max_fds`), connection pool wait queues, goroutine/thread counts, and `/tmp` inode consumption against baseline traffic so leaks trigger warnings days before exhaustion.
+
+### 3. Built-In Diagnostic Windows ("Test Pins on the Software IC")
+Hardware engineers build diagnostic test pins directly into microchips; pragmatic SREs build **Diagnostic Windows** directly into services:
+- Separate **Liveness** (is the process wedged/deadlocked?) from **Readiness** (can this instance accept traffic right now without burning error budget?).
+- Expose authenticated internal introspection endpoints (e.g., `/internal/diagnostics`, memory profiles, active circuit-breaker states, and runtime feature/log-level toggles) so operators can inspect live state during an incident without redeploying.
+
+### 4. Resource Exhaustion & Recovery Verification Matrix
+| Exhaustion Vector | Failure Symptom if Unchecked | Pragmatic SRE Mitigation & GameDay Test |
+| :--- | :--- | :--- |
+| **Disk / Inode Full (`ENOSPC`)** | Logger blocks main thread; WAL corruption | Non-blocking ring-buffer logging; separate `/var/log` partition; automated log rotation & disk-pressure eviction test |
+| **DB Connection Pool Starvation** | Cascading thread lockup across all API pods | Strict acquisition timeout + circuit breaker + bulkhead isolation per tenant/endpoint |
+| **Downstream Tar-Pit (Slow 200 OK)** | Retry storm multiplies load 10x and exhausts sockets | Deadline propagation, jittered exponential backoff, and adaptive concurrency limits |
+
 ## 🔥 Incident Response Integration
 - Severity based on SLO impact, not gut feeling
 - Automated runbooks for known failure modes
-- Post-incident reviews focused on systemic fixes
+- Post-incident reviews focused on systemic fixes and permanent automated regression tests (*Find Bugs Once*)
 - Track MTTR, not just MTBF
 
 ## 💬 Communication Style
