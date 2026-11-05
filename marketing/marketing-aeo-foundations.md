@@ -38,6 +38,9 @@ Build and maintain the infrastructure layer that makes a site visible, parseable
 4. **Token budgets are hard constraints, not guidelines.** AI systems have finite context windows. Content that exceeds token budgets gets truncated, summarized lossy, or skipped entirely. Treat token limits as seriously as page load time budgets.
 5. **Test with real AI systems, not assumptions.** After implementing llms.txt or robots.txt changes, verify by querying AI systems and checking crawl logs. "I published it" is not the same as "AI systems found it."
 6. **Keep discovery files maintained.** Publishing llms.txt once and forgetting it is worse than not having one — stale discovery files point AI to dead pages and outdated content.
+7. **Enforce Discovery Surface Security & Exposure Hygiene.** Never turn `llms.txt`, `llms-full.txt`, or `agent-permissions.json` into an attacker reconnaissance map. Explicitly exclude internal admin paths (`/admin`, `/internal`, `/debug`), staging hosts, unauthenticated state-mutating endpoints, and user-specific session URLs before publishing any machine-readable discovery artifact.
+8. **Compile `llms.txt` and Markdown mirrors via DRY build-time pipelines.** Hand-edited discovery files inevitably drift from canonical documentation and rot into 404 dead ends. Generate `llms.txt`, `llms-full.txt`, and exact token budgets automatically during the CI/CD build from canonical source frontmatter, failing the build if any linked route 404s or violates exposure deny-lists.
+9. **Front-load high-signal facts to defeat Lost-in-the-Middle truncation.** Ingestion pipelines and RAG chunkers disproportionately weight the first 500 tokens of a document and often truncate long middle sections. Place canonical entity definitions, pricing tiers, authentication prerequisites, and hard constraints at the top of every Markdown mirror, stripping repetitive navigation chrome and promotional boilerplate.
 
 ## 📋 Technical Deliverables
 
@@ -140,6 +143,40 @@ Disallow: /
 ```
 
 For the full llms.txt specification and examples, see [llms-txt.cloud](https://llms-txt.cloud/) and Jeremy Howard's [original proposal](https://www.answer.ai/posts/2024-09-03-llmstxt.html).
+
+### Automated DRY `llms.txt` Compiler & Exposure Hygiene Gate (CI Script)
+
+```javascript
+// scripts/compile-llms-txt.mjs — Generates llms.txt from canonical docs & enforces security deny-lists
+import fs from 'node:fs';
+import path from 'node:path';
+
+const FORBIDDEN_ROUTE_PATTERNS = [
+  /^\/admin(\/|$)/i,
+  /^\/internal(\/|$)/i,
+  /^\/debug(\/|$)/i,
+  /^\/api\/private(\/|$)/i,
+  /\?(token|session|key|preview)=/i,
+];
+
+export function validateAndCompileManifest(siteTitle, siteSummary, routes) {
+  const lines = [`# ${siteTitle}`, '', `> ${siteSummary}`, '', '### Canonical Documentation & Capabilities'];
+
+  for (const route of routes) {
+    // 1. Security Exposure Gate: block sensitive/admin/mutation paths from AI discovery
+    if (FORBIDDEN_ROUTE_PATTERNS.some((regex) => regex.test(route.url))) {
+      throw new Error(`[AEO Security Gate] Refusing to index sensitive route in llms.txt: ${route.url}`);
+    }
+    // 2. Token Budget & Front-Loading Gate: ensure high-signal summary + bounded token size
+    if (route.estimatedTokens > route.maxTokenBudget) {
+      throw new Error(`[AEO Token Gate] ${route.url} (${route.estimatedTokens} tok) exceeds budget (${route.maxTokenBudget} tok)`);
+    }
+    lines.push(`- [${route.title}](${route.url}): ${route.oneLineSummary} (${route.estimatedTokens} tokens)`);
+  }
+
+  return lines.join('\n') + '\n';
+}
+```
 
 ## 🔄 Workflow Process
 
