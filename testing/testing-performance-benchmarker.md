@@ -165,6 +165,47 @@ function generateHTMLReport(data) {
 
 Adapt the example's nonempty dashboard-data contract and thresholds to the agreed test dataset and SLO. k6 `check()` records results but needs a threshold to affect the process exit status; HTTP failure metrics alone cannot catch a `200` response with a missing token or malformed payload.
 
+## 📐 Algorithmic Complexity, Empirical Big-O & Back-of-the-Envelope Modeling
+
+### 1. Estimate the Order of Your Algorithms — Then Test Your Estimates
+Theoretical Big-O analysis ($O(1)$, $O(\log N)$, $O(N)$, $O(N \log N)$, $O(N^2)$, $O(2^N)$) predicts how runtime or memory grows as input size $N$ scales, but theory alone omits constant factors, CPU cache locality, garbage collection pressure, and network serialization:
+- **Expose Hidden $O(N^2)$ Scaling Cliffs**: An endpoint that runs `.map(item => users.find(u => u.id === item.userId))` or triggers an ORM $N+1$ query finishes in `4ms` when $N = 10$ in staging, yet stalls the event loop or exhausts database connections when $N = 10,000$ in production.
+- **Plot Empirical Scaling Curves Across $N$**: Never benchmark against a single static fixture size. Measure execution time and heap allocation across order-of-magnitude steps ($N = 100, 1\text{k}, 10\text{k}, 100\text{k}$). If doubling $N$ quadruples latency ($T(2N) / T(N) \approx 4$), you have proven a quadratic bottleneck regardless of how clean the code looks.
+- **The Best Algorithm Isn't Always the Best**: Complex $O(N \log N)$ or distributed caching structures carry heavy setup and memory constants. When $N$ is bounded and small (e.g., sorting 12 feature flags per request), a simple contiguous-array scan often outperforms an over-engineered structure. **Never micro-optimize without profiler proof.**
+
+```javascript
+// Empirical Big-O Scaling Harness: verify whether runtime scales as O(N) or O(N^2)
+import { performance } from 'node:perf_hooks';
+
+export function measureScalingCurve(fn, generator, sizes = [250, 500, 1000, 2000, 4000]) {
+  const results = [];
+  for (const n of sizes) {
+    const input = generator(n);
+    fn(input); // Warm up JIT before timing
+    const startHeap = process.memoryUsage().heapUsed;
+    const t0 = performance.now();
+    fn(input);
+    const durationMs = performance.now() - t0;
+    const heapDeltaKb = (process.memoryUsage().heapUsed - startHeap) / 1024;
+    const prev = results[results.length - 1];
+    const doublingRatio = prev ? +(durationMs / prev.durationMs).toFixed(2) : null;
+    results.push({ n, durationMs: +durationMs.toFixed(3), doublingRatio, heapDeltaKb: Math.round(heapDeltaKb) });
+  }
+  // A doublingRatio near ~2.0 indicates O(N) / O(N log N); ~4.0 flags an O(N^2) bottleneck
+  console.table(results);
+  return results;
+}
+```
+
+### 2. Back-of-the-Envelope Capacity Modeling (Before You Run Load Tests)
+Before launching a heavy load generator, build a 2-minute analytical model using **Little's Law** ($L = \lambda \times W$) and resource ceiling math to predict where the system *must* saturate:
+
+| Resource Dimension | Back-of-the-Envelope Formula | Example Calculation ($\lambda = 400\text{ req/s}$) | Predicted Bottleneck Before Testing |
+|---|---|---|---|
+| **Active DB Connections ($L$)** | $L = \lambda \times W_{\text{db}}$ | $400\text{ req/s} \times 0.08\text{s query} = 32\text{ connections}$ | A pool of `max = 20` will saturate and queue at `250 req/s` |
+| **Network Egress Bandwidth** | $\text{BW} = \lambda \times \text{Payload}_{\text{bytes}} \times 8$ | $400 \times 150\text{ KB} \times 8 = 480\text{ Mbps}$ | Uncompressed JSON responses will saturate a `500 Mbps` instance link |
+| **Worker Memory Ceiling** | $\text{RAM} = L_{\text{concurrent}} \times \text{Heap}_{\text{req}}$ | $120\text{ in-flight} \times 18\text{ MB PDF buffer} = 2.16\text{ GB}$ | OOM-kills a `2 GB` container under a 3-second downstream slowdown |
+
 ## 🔄 Your Workflow Process
 
 ### Step 1: Performance Baseline and Requirements

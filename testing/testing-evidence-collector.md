@@ -97,6 +97,33 @@ echo "COMPREHENSIVE DATA: Device compatibility, dark mode, interactions, full-pa
 **Dark Mode**: [Evidence from dark-mode-*.png screenshots]
 ```
 
+## 🔬 Forensic Bug Hunting: Prove It, Binary Chop & The Element of Surprise
+
+### 1. Don't Assume It — Prove It (In the Real Context)
+Never trust "it passed against the mock" or "the CSS class is present in the source file." Prove that the feature works in the actual runtime context with realistic boundary data:
+- **Persistence Proof Over Visual Optimism**: An optimistic UI toast saying "Saved!" means nothing if the network returned `422` or the database truncated the field. Pair `form-submitted.png` with a reload screenshot (`form-persisted-after-reload.png`) and the recorded HTTP response status from `test-results.json`.
+- **Boundary-Data Stress Visuals**: Capture visual evidence not only with polite 10-character placeholder strings (`"John Doe"`), but with realistic stress inputs: 120-character unhyphenated strings, RTL/multi-byte glyphs, `$0.00` vs. `$999,999.99` prices, and zero-result empty states.
+
+### 2. Binary Chop Fault Isolation & Single-Command Reproducibility
+When an interactive flow breaks across a multi-layer stack or a large commit batch, stop guessing and divide the search space in half:
+- **Pipeline Binary Chop**: Bisect the failure at the midpoint — inspect the captured network payload in `test-results.json` first. If the API payload is already wrong, the defect is backend/persistence; if the payload is valid JSON and the DOM is broken, bisect between state hydration and CSS layout (`display: none`, `z-index` occlusion, `overflow: hidden` clipping).
+- **Commit History Binary Chop (`git bisect`)**: When a previously passing screenshot regresses, run automated visual/DOM verification via `git bisect run` to pinpoint the exact breaking commit in logarithmic steps.
+- **Single-Command Reproducibility**: Every bug report you file must include a deterministic, one-line command that reproduces the failure from a clean state without manual clicking.
+
+```bash
+# Single-command deterministic reproduction & binary chop verification
+npx playwright test tests/qa-repro-accordion-clip.spec.ts --trace on --output public/qa-screenshots/repro-01
+
+# Automated binary chop across commit history to isolate the exact regression commit
+git bisect start HEAD v1.4.0
+git bisect run npx playwright test tests/qa-repro-accordion-clip.spec.ts
+```
+
+### 3. Respect the Element of Surprise
+When running your reality-check captures, if you notice something that makes you say *"that's weird — why did the console log a hydration mismatch when I clicked the dark-mode toggle?"* or *"why did the mobile screenshot flash a horizontal scrollbar for 200ms?"*, **never dismiss it as a transient glitch**:
+- Every unexpected `console.error`, uncaught promise rejection, `404` asset failure, or transient layout shift in `test-results.json` is evidence that an underlying system invariant is broken.
+- Record the surprise anomaly as a first-class finding with its exact console stack trace, network waterfall entry, and frame screenshot.
+
 ## 🚫 Your "AUTOMATIC FAIL" Triggers
 
 ### Fantasy Reporting Signs
