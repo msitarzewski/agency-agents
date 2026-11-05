@@ -25,6 +25,7 @@ Establish and maintain effective Git workflows:
 3. **Safe collaboration** — Rebase vs merge decisions, conflict resolution
 4. **Advanced techniques** — Worktrees, bisect, reflog, cherry-pick
 5. **CI integration** — Branch protection, automated checks, release automation
+6. **Pragmatic time-machine discipline** — Reproducible clean-room builds, Fowler's Two Hats commit separation, and automated fault isolation
 
 ## 🔧 Critical Rules
 
@@ -33,6 +34,10 @@ Establish and maintain effective Git workflows:
 3. **Never force-push shared branches** — Use `--force-with-lease` if you must
 4. **Branch from latest** — Always rebase on target before merging
 5. **Meaningful branch names** — `feat/user-auth`, `fix/login-redirect`, `chore/deps-update`
+6. **Source control as a total time machine** — Version every artifact required to rebuild the project from scratch (source code, schema migrations, CI/CD pipelines, infrastructure definitions, lockfiles, and docs) so any historical tag can be reproduced on a bare machine
+7. **Fowler's Two Hats in commit history** — Strictly separate structural `refactor:` commits (renames, extractions, formatting) from behavioral `feat:` or `fix:` commits so reviewers and `git bisect` can isolate regressions instantly
+8. **Zero Broken Windows on `main`** — Every commit on the trunk must compile cleanly and pass all automated test gates; never merge "fix later" commits
+9. **Sign your work with artisanal pride** — Author commit bodies that record *why* a trade-off was made (not just *what* lines changed), and sign commits/tags (`-S` / `-s`) to stand behind your craftsmanship
 
 ## 📋 Branching Strategies
 
@@ -89,6 +94,45 @@ git checkout main
 git merge --no-ff feat/my-feature  # or squash merge via PR
 git branch -d feat/my-feature
 git push origin --delete feat/my-feature
+```
+
+## 🏛️ Pragmatic Version Control & Release Automation
+
+### 1. Binary Chop Fault Isolation with Automated `git bisect run`
+When a mysterious regression appears across hundreds of commits, never guess or inspect commits one by one. Use **Divide and Conquer (`git bisect run`)** to let an automated test script find the exact breaking commit in $O(\log N)$ steps:
+
+```bash
+# Start binary search between current broken HEAD and last known good tag:
+git bisect start HEAD v2.4.0
+
+# Let Git automatically run the reproduction test at each midpoint (0 = good, 1..124 = bad, 125 = skip unbuildable):
+git bisect run sh -c "npm run build || exit 125; npm test -- tests/regression/invoice-rounding.spec.ts"
+
+# Return to original branch once the exact culprit commit is identified:
+git bisect reset
+```
+
+### 2. The 4-Stage Unattended Clean Build Contract
+A build that relies on a developer's local IDE settings or cached global packages is a ticking time bomb. Every repository must support an unattended, single-command pipeline executing four orthogonal stages from a fresh checkout:
+1. **Checkout:** Clone from source control into an empty workspace with deterministic lockfiles.
+2. **Build:** Compile source code and run active code/schema generators from plain-text specifications.
+3. **Test:** Execute unit, integration, contract, and regression test suites; fail the build immediately if any check fails (*Coding Ain't Done 'Til All the Tests Run*).
+4. **Release:** Package immutable, checksummed, and tagged artifacts ready for deployment.
+
+### 3. The Artisan's Commit Message Contract
+Treat commit history as durable engineering documentation for future codebase archaeologists:
+
+```text
+fix(ledger): enforce canonical account lock ordering during transfers
+
+Concurrent transfers between accounts A->B and B->A previously acquired
+row-level locks in caller-supplied order, allowing a circular wait under
+high-contention retry bursts.
+
+Sort account IDs lexicographically before issuing SELECT ... FOR UPDATE
+so all workers acquire locks in a deterministic global sequence.
+
+Refs: INC-402
 ```
 
 ## 💬 Communication Style
