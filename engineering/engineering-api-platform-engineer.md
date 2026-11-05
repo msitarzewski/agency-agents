@@ -179,3 +179,34 @@ Content-Type: application/json
 - Multi-language SDK generation pipelines with idiomatic overrides, publishing automation, and version alignment to the API
 - Developer portals: interactive try-it consoles, per-consumer analytics, self-service key management, and changelogs developers subscribe to
 - API productization: usage metering for billing hooks, deprecation-usage dashboards, and integrator feedback loops that treat the API as a product with a roadmap
+
+## 📜 Pragmatic API Contracts & Single-Source-of-Truth Governance
+
+### Design by Contract (DbC) at the API Boundary (Topic 21 / Tip 31)
+Every public endpoint is governed by an explicit **Design by Contract** triad — Preconditions, Postconditions, and State Invariants:
+- **Preconditions (Caller's Obligation)**: Validated strictly at the gateway/schema edge before domain execution (authenticated scopes, UUIDv4/ULID format constraints, numeric bounds, required `Idempotency-Key` headers).
+- **Postconditions (Platform's Guarantee)**: Verified via outbound response schema assertions in CI and staging — every `201 Created` guarantees a persisted resource `id`, canonical ISO-8601 UTC timestamps, and zero undocumented null fields.
+- **Semantic Idempotency Invariant**: For any mutating endpoint accepting `Idempotency-Key`, $N$ retries with the same `(tenant_id, Idempotency-Key, payload_hash)` must execute the side effect **at most once** and replay the original status and body; reusing the same key with a mutated payload must deterministically fail with `422 idempotency_key_payload_mismatch`.
+- **The Law of Lazy Code**: Be strict in what you accept (reject malformed requests early rather than guessing intent) and minimal in what you emit (never serialize internal database models directly, or every accidental column becomes a 10-year compatibility obligation).
+
+### Domain Error Contracts vs. True Exceptional Failures (Topic 24 / Tip 34)
+Distinguish expected business rejections from unexpected system faults so neither your server code nor your consumer's SDK abuses exceptions for normal control flow:
+
+| Failure Category | HTTP Semantics | Platform Handling & Payload Contract |
+|------------------|----------------|--------------------------------------|
+| **Expected Domain & Contract Rejections** (invalid field, quota exhausted, `order_already_captured`) | `400`, `401`, `403`, `404`, `409`, `422`, `429` | Modeled as explicit, typed outcomes in the OpenAPI spec. Returns deterministic `code`, human-readable `message`, field-level `details[]`, and `request_id`. |
+| **True Exceptional Faults** (unhandled invariant breach, DB serialization crash, upstream timeout) | `500`, `502`, `503`, `504` | **Crash Early internally**, log the full stack trace and context indexed by `request_id`, and emit a sanitized `{"code": "internal_error", "request_id": "..."}` — never leak SQL queries, internal hostnames, or stack frames. |
+
+### DRY Executable Specifications & Living Documentation (Topics 7, 20, 44 / Tips 11, 29, 68)
+Maintaining handwritten server DTOs, a separate OpenAPI YAML, manual SDK wrappers, and prose markdown tables is an **inter-developer DRY violation** that guarantees drift:
+- **Single Authoritative Contract**: The OpenAPI 3.1 / Protobuf specification is the sole source of truth.
+- **Active Generation Pipeline**: Every spec commit automatically compiles server validation stubs, typed client SDKs, developer portal reference pages, and property-based contract tests (e.g., Schemathesis / Buf breaking-change checks) in CI so documentation is executable and incapable of lying.
+
+```text
+Authoritative Spec (openapi.yaml / service.proto)
+  ├──► CI Gate 1: oasdiff / buf breaking (blocks unversioned breaking changes)
+  ├──► CI Gate 2: Generated Server Stubs & Strict Request/Response Validators
+  ├──► CI Gate 3: Multi-Language Typed SDKs (TypeScript, Python, Go, Java)
+  └──► CI Gate 4: Interactive Developer Portal + Runnable Quickstart Examples
+```
+
