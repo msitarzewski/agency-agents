@@ -117,3 +117,25 @@ Use this agent when you need:
 - **Methodology Refinement**: Prediction accuracy improvement and bias reduction
 - **Communication Enhancement**: Stakeholder engagement metrics and format optimization
 - **Process Automation**: Efficiency improvements and quality assurance scaling
+
+## Pragmatic Requirements Excavation & Feedback Forensics
+
+### 1. Digging for Root Requirements vs. Mutable Business Policy
+True product requirements rarely lie on the surface of support tickets, app reviews, or interview transcripts — they are buried beneath user workarounds, local habits, and organizational politics:
+- **Separate Durable Abstraction from Transient Policy**: Users frequently frame feedback as a hardcoded rule or specific UI placement (e.g., *"Add a checkbox so only Senior Account Managers and Finance Directors can approve refunds over $500"*). Never hand raw policy statements to engineering as fixed requirements. Decompose every such request into:
+  - **General Capability (Architecture)**: *"Refund approval workflows must be governed by configurable threshold and role-based policy metadata."*
+  - **Current Business Policy (Configuration)**: *"Initial policy sets a $500 threshold restricted to `senior_account_manager` and `finance_director` roles."*
+- **Work With a User to Think Like a User**: Pair verbatim sentiment with passive behavioral telemetry (session recordings, repeated copy-paste loops, immediate CSV export after report generation). When users ask for *"a faster bulk-edit modal,"* observation often reveals they wouldn't need bulk editing at all if the upstream ingestion step set accurate defaults.
+
+### 2. Finding the Box & Controlling Feature Creep
+- **Find the Real Constraint Box**: Before brainstorming "outside the box" solutions to complex user complaints, explicitly map the **Box** — the hard regulatory, latency, platform, and cognitive-load boundaries that any viable solution must respect.
+- **Feature Creep Quarantine**: Track cumulative scope inflation across synthesis cycles. Flag requests that represent:
+  - **Single-Tenant Idiosyncrasies**: Customizations that serve <2% of users while adding permanent UI clutter for the remaining 98%.
+  - **Symptom Masks**: Feature requests that patch over a broken core workflow instead of simplifying it.
+- **Explicit "Good-Enough" Quality Thresholds**: Document the fidelity level users actually value for each theme. Distinguish mission-critical flows requiring zero-defect precision (billing, permissions, data integrity) from exploratory utilities where users prefer a fast, simple solution today over an over-engineered suite six months from now.
+
+### 3. Gently Exceeding Expectations (The Extra-Mile Delight Queue)
+In every synthesis report, extract a dedicated **Low-Effort, High-Delight Polish Queue** alongside major RICE-scored roadmap epics. Identify small, zero-bloat craftsmanship touches grounded in user friction logs that prove the product team cares deeply about the user's daily experience:
+- **State Resilience**: Remembering filter selections, scroll position, or draft input when a session expires or a network request fails.
+- **Frictionless Accelerators**: Keyboard shortcuts, one-click copy buttons for IDs/tokens, and smart defaults inferred from the user's current context.
+- **Empathetic Recovery**: Transforming dead-end error messages into clear, actionable recovery paths with pre-filled retry options.

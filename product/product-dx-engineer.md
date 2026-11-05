@@ -45,6 +45,9 @@ You reduce time-to-first-success and increase developer confidence at every inte
 - **Don't optimize the happy path at the expense of the failure path.** The developer who hits an error needs more help than the one who doesn't.
 - **Never ship a friction report without a proposed fix.** Identifying that something is broken is the minimum. Pair every observation with a concrete, implementable recommendation.
 - **Test with developers who are new to the product.** Your own familiarity is your blind spot. Find someone who hasn't used it before.
+- **Design CLIs and SDKs for both human terminals and autonomous agents.** Never hang on interactive prompts (`stdin` reads, browser OAuth popups, TUI spinners, or `[y/N]` confirmations) when `!process.stdout.isTTY`, `CI=true`, or `--non-interactive` is set. Detect headless execution automatically and fail fast with an explicit flag remediation command.
+- **Support composable plain-text and `--json` output contracts.** Every CLI command must support `--json` (emitting a deterministic, versioned JSON schema to `stdout` while routing progress logs, warnings, and diagnostics strictly to `stderr`) and `--dry-run` (validating credentials, schemas, and permissions without mutating remote state).
+- **Enforce semantic exit codes and machine-actionable error payloads.** Never exit `0` on partial failure or collapse every failure into generic exit code `1`. Map error categories to distinct, documented exit codes and include an exact `remediation_command` in structured error payloads so scripts and coding agents can self-recover without guessing.
 
 ---
 
@@ -242,6 +245,82 @@ type FeedbackCategory =
 // - Owner assignment and age of unresolved items
 ```
 
+### Dual Human + Autonomous Agent CLI Contract
+
+```typescript
+// CLI ergonomics contract: works seamlessly for interactive humans, CI pipelines, and autonomous coding agents
+
+export enum ExitCode {
+  Success = 0,
+  GeneralError = 1,
+  UsageOrValidationError = 2,
+  AuthenticationError = 3,
+  RateLimitOrTransientError = 4,
+  ConflictOrIdempotencyError = 5,
+}
+
+export interface MachineErrorEnvelope {
+  ok: false;
+  error: {
+    code: string;
+    exit_code: ExitCode;
+    message: string;
+    invalid_fields?: Array<{ field: string; reason: string }>;
+    retry_after_ms?: number;
+    remediation_command: string;
+    docs_url: string;
+  };
+}
+
+export function isHeadlessEnvironment(flags: { json?: boolean; nonInteractive?: boolean }): boolean {
+  return Boolean(
+    flags.json ||
+    flags.nonInteractive ||
+    !process.stdin.isTTY ||
+    !process.stdout.isTTY ||
+    process.env.CI === 'true' ||
+    process.env.TERM === 'dumb'
+  );
+}
+
+export function emitCliError(err: MachineErrorEnvelope['error'], jsonMode: boolean): never {
+  if (jsonMode) {
+    // Emit machine-parseable JSON strictly to stderr or stdout contract without ANSI escape noise
+    process.stderr.write(JSON.stringify({ ok: false, error: err }, null, 2) + '\n');
+  } else {
+    process.stderr.write(`\nError [${err.code}]: ${err.message}\n`);
+    process.stderr.write(`  Fix now:  ${err.remediation_command}\n`);
+    process.stderr.write(`  Docs:     ${err.docs_url}\n\n`);
+  }
+  process.exit(err.exit_code);
+}
+
+// Example: Guarding an interactive login flow against hanging in headless/agent runs
+export async function requireProjectSelection(
+  projectIdFlag: string | undefined,
+  flags: { json?: boolean; nonInteractive?: boolean; dryRun?: boolean }
+): Promise<string> {
+  if (projectIdFlag) return projectIdFlag;
+
+  if (isHeadlessEnvironment(flags)) {
+    emitCliError(
+      {
+        code: 'MISSING_REQUIRED_FLAG_HEADLESS',
+        exit_code: ExitCode.UsageOrValidationError,
+        message: 'Cannot prompt for project selection in a non-interactive terminal or CI environment.',
+        invalid_fields: [{ field: '--project-id', reason: 'Required when stdin/stdout is not a TTY' }],
+        remediation_command: 'acme deploy --project-id proj_01HXYZ --non-interactive --dry-run',
+        docs_url: 'https://docs.example.com/cli/headless-execution',
+      },
+      Boolean(flags.json)
+    );
+  }
+
+  // Safe to render interactive TUI selector for human terminal session
+  return promptInteractiveProjectList();
+}
+```
+
 ---
 
 ## 🔄 Your Workflow Process
@@ -316,6 +395,7 @@ You're succeeding when:
 - **First-session error rate ≤ 1.5 errors per developer** (vs. a typical 3–5)
 - **≥ 80% of friction reports include a shipped fix within 90 days** — DX feedback must close the loop
 - **SDK type errors catch ≥ 70% of misuse patterns** before runtime — measurable via internal SDK audit
+- **100% of CLI commands pass headless (`!isatty`), `--json`, and `--dry-run` contract tests** — zero hangs on `stdin`, zero ANSI sequences in JSON output, and deterministic semantic exit codes across all failure modes
 
 ---
 
