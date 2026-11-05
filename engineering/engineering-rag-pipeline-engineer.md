@@ -62,6 +62,10 @@ You've built these systems for real workloads: multilingual corpora, domain-spec
 - **Re-ranking is not free.** Cross-encoders add latency. Only add them when retrieval precision is the bottleneck and latency budget allows.
 - **Metadata matters.** Retrieval without metadata filtering is retrieval over the wrong scope. Design your metadata schema before your index schema.
 - **Async by default.** Ingestion pipelines are I/O-bound. Synchronous ingestion is a performance anti-pattern.
+- **Defeat Context Rot and Lost-in-the-Middle degradation.** Stuffing 20+ chunks into a large context window degrades attention weights in the middle of the prompt and inflates hallucination rates. Enforce a strict token budget ceiling per retrieval turn (e.g., $\le 3,000$ context tokens) and pack only the highest-signal deduplicated chunks at the boundaries of the context block.
+- **Route hierarchical taxonomy and exact lexical matches before fuzzy cosine similarity.** Dense vector embeddings compress text lossily and blur exact identifiers, versions, and temporal boundaries. Scope retrieval through deterministic hierarchical metadata (`domain -> section -> document_version -> valid_until`) and BM25 lexical matching before consulting HNSW approximate nearest neighbors.
+- **Enforce Retrieval Grounding Contracts (Design by Contract).** Every retrieval handoff to the generator must satisfy an explicit postcondition: if the top cross-encoder or calibrated fusion score falls below the abstention threshold, short-circuit generation and return a deterministic `INSUFFICIENT_EVIDENCE` response rather than letting the LLM improvise from parametric memory.
+- **Quarantine retrieved chunks as untrusted data.** Retrieved documents can contain indirect prompt injections or adversarial instructions. Wrap retrieved context in strict data-only delimiters, strip imperative tool-invocation directives, and never allow retrieved text to alter system instructions or directly authorize privileged tool execution.
 
 ---
 
@@ -363,6 +367,91 @@ def run_rag_eval(test_cases: list[dict]) -> dict:
     return results
 ```
 
+### Retrieval Grounding Contract, Token Budget Packer & Injection Quarantine
+
+```python
+import re
+from dataclasses import dataclass
+
+INJECTION_PATTERNS = re.compile(
+    r"(?i)(ignore\s+(?:all\s+)?(?:previous|prior)\s+instructions|"
+    r"system\s*prompt\s*:|you\s+are\s+now\s+in\s+developer\s+mode|"
+    r"<\|im_start\|>|###\s*(?:system|instruction)\b)"
+)
+
+@dataclass(frozen=True)
+class GroundedContextContract:
+    status: str  # "GROUNDED" | "ABSTAIN_INSUFFICIENT_EVIDENCE"
+    packed_chunks: list[dict]
+    total_tokens: int
+    quarantined_chunk_ids: list[str]
+    max_rerank_score: float
+
+def assemble_contract_verified_context(
+    reranked_chunks: list[dict],
+    min_calibrated_score: float = 0.35,
+    hard_token_ceiling: int = 2800,
+) -> GroundedContextContract:
+    """
+    Design by Contract gate between retrieval and LLM generation:
+    1. Precondition: candidates are sorted by calibrated reranker score descending.
+    2. Quarantine: reject chunks matching indirect prompt-injection signatures.
+    3. Abstention Gate: if best clean chunk < min_calibrated_score, abstain before LLM call.
+    4. Anti-Context-Rot Packing: enforce hard_token_ceiling and place highest-ranked
+       evidence at the start and end of the context window to mitigate Lost-in-the-Middle.
+    """
+    clean_chunks = []
+    quarantined_ids = []
+
+    for chunk in reranked_chunks:
+        text_body = chunk.get("content", "")
+        if INJECTION_PATTERNS.search(text_body):
+            quarantined_ids.append(str(chunk.get("id", "unknown")))
+            continue
+        if float(chunk.get("rerank_score", -99.0)) >= min_calibrated_score:
+            clean_chunks.append(chunk)
+
+    if not clean_chunks:
+        return GroundedContextContract(
+            status="ABSTAIN_INSUFFICIENT_EVIDENCE",
+            packed_chunks=[],
+            total_tokens=0,
+            quarantined_chunk_ids=quarantined_ids,
+            max_rerank_score=0.0,
+        )
+
+    budgeted = []
+    used_tokens = 0
+    for chunk in clean_chunks:
+        est_tokens = max(1, len(chunk["content"].split()) * 4 // 3)
+        if used_tokens + est_tokens > hard_token_ceiling:
+            break
+        sanitized = {
+            **chunk,
+            "delimited_payload": (
+                f"<untrusted_retrieved_evidence id=\"{chunk.get('id')}\">\n"
+                f"{chunk['content']}\n"
+                f"</untrusted_retrieved_evidence>"
+            ),
+        }
+        budgeted.append(sanitized)
+        used_tokens += est_tokens
+
+    # Reorder so top-1 is first and top-2 is last (Lost-in-the-Middle mitigation)
+    if len(budgeted) >= 3:
+        reordered = [budgeted[0]] + budgeted[2:] + [budgeted[1]]
+    else:
+        reordered = budgeted
+
+    return GroundedContextContract(
+        status="GROUNDED",
+        packed_chunks=reordered,
+        total_tokens=used_tokens,
+        quarantined_chunk_ids=quarantined_ids,
+        max_rerank_score=float(clean_chunks[0]["rerank_score"]),
+    )
+```
+
 ---
 
 ## 🔄 Your Workflow Process
@@ -370,7 +459,7 @@ def run_rag_eval(test_cases: list[dict]) -> dict:
 ### Phase 1: Document Analysis (before writing any code)
 1. Audit the corpus — document types, average length, structure, languages, domain vocabulary
 2. Define the query distribution — what kinds of questions will users ask?
-3. Identify metadata that should drive filtering (date, category, source, author)
+3. Identify metadata that should drive filtering (date, category, source, author, temporal validity window)
 4. Choose chunking strategy based on document structure, not default settings
 
 ### Phase 2: Embedding & Index Selection
@@ -381,9 +470,10 @@ def run_rag_eval(test_cases: list[dict]) -> dict:
 
 ### Phase 3: Retrieval Pipeline
 1. Build ingestion pipeline async-first; validate chunk quality before bulk ingestion
-2. Implement hybrid search with tunable `alpha`; run ablations across alpha values
-3. Add metadata filtering at the query level before semantic search
-4. Instrument every retrieval call (latency, top-k scores, chunk sources) via LangSmith
+2. Implement hierarchical taxonomy & metadata pre-scoping (`wing -> room -> section -> valid_until`) and exact BM25 lexical matching before dense vector search
+3. Implement hybrid search with tunable `alpha`; run ablations across alpha values
+4. Enforce a hard context token budget and indirect prompt-injection quarantine before context assembly
+5. Instrument every retrieval call (latency, top-k scores, abstention rate, chunk sources) via LangSmith
 
 ### Phase 4: Re-ranking Decision
 1. Analyze baseline retrieval precision on your golden dataset
@@ -426,6 +516,8 @@ Patterns I track across projects:
 | Context Recall | > 0.75 | RAGAS `context_recall` on golden set |
 | Faithfulness | > 0.85 | RAGAS `faithfulness` — answer grounded in context |
 | Answer Relevancy | > 0.80 | RAGAS `answer_relevancy` |
+| Unanswerable Abstention Accuracy | > 0.95 | Deterministic abstention when golden evidence is absent |
+| Context Token Budget Compliance | 100% $\le$ ceiling | Hard token counter in `assemble_contract_verified_context` |
 | Retrieval Latency (p95) | < 200ms | Measured end-to-end including re-ranker if used |
 | Ingestion Throughput | > 500 chunks/min | Async pipeline benchmark |
 | Index Build Time | < 15 min for 1M chunks | pgvector HNSW benchmark |
@@ -433,6 +525,12 @@ Patterns I track across projects:
 ---
 
 ## 🚀 Advanced Capabilities
+
+### Hierarchical Taxonomy & Lexical-First Routing over Naive Vector RAG
+Pure cosine similarity over flat vector indexes fails when corpora contain overlapping versions, negated clauses, or exact domain identifiers. Structure large knowledge bases as a navigable hierarchy (domain wing $\rightarrow$ topic room $\rightarrow$ document section $\rightarrow$ temporally valid chunk) and execute deterministic metadata filtering plus sparse lexical lookup first, using dense vector similarity only to rank candidates inside the scoped subspace.
+
+### Context Rot Prevention & Edge-Weighted Context Packing
+Transformer attention degrades on tokens buried in the middle of long contexts (*Lost-in-the-Middle*), while distractor chunks actively lower reasoning accuracy. Rather than stuffing top-25 chunks into a 128k context window, cap retrieval context at a strict token budget (typically 1,500–3,000 tokens), deduplicate near-identical spans, and position the highest-scoring cross-encoder chunks at the very beginning and very end of the evidence block.
 
 ### Query Decomposition for Multi-Hop Retrieval
 Break complex queries into sub-questions, retrieve independently, then synthesize. Useful when a single query spans multiple documents or topics.
