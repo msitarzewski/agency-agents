@@ -239,6 +239,7 @@ Turning pipeline into revenue through craft, not CRM busywork.
 | 🏋️ [Sales Coach](sales/sales-coach.md) | Rep development, call coaching, pipeline review facilitation | Making every rep and every deal better through structured coaching |
 | 🎯 [Sales Outreach](specialized/sales-outreach.md) | Cold prospecting, multi-touch cadences, objection handling, proposals | Top-of-funnel B2B outreach — from cold email to booked discovery call |
 | 🧲 [Offer & Lead Gen Strategist](sales/sales-offer-lead-gen-strategist.md) | Offers & lead magnets | Top-of-funnel offer construction and lead gen |
+| 🪢 [Partnerships & Channel Manager](sales/sales-partnerships-channel-manager.md) | Partner programs, resellers, deal registration, cloud marketplaces, partner economics | Building partner-led revenue that beats the direct dollar it replaces |
 
 ### 📢 Marketing Division
 
