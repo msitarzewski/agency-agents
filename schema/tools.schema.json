@@ -1,0 +1,69 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://agency-agents.dev/schema/tools.schema.json",
+  "title": "Agency Agents Tool Catalog",
+  "description": "Schema for tools.json — the single source of truth for the supported tool set. Each entry carries the install contract plus app presentation.",
+  "type": "object",
+  "required": ["tools"],
+  "properties": {
+    "_note": { "type": "string" },
+    "tools": {
+      "type": "object",
+      "description": "Keyed by CLI tool name (kebab).",
+      "minProperties": 1,
+      "additionalProperties": { "$ref": "#/definitions/toolEntry" }
+    }
+  },
+  "definitions": {
+    "toolEntry": {
+      "type": "object",
+      "required": ["id", "label", "kebab", "format", "installKind", "dest"],
+      "properties": {
+        "id": { "type": "string", "minLength": 1 },
+        "label": { "type": "string", "minLength": 1 },
+        "short": { "type": "string" },
+        "kebab": { "type": "string", "pattern": "^[a-z0-9-]+$" },
+        "accent": { "type": "string", "pattern": "^#[0-9A-Fa-f]{6}$" },
+        "icon": { "type": ["string", "null"] },
+        "order": { "type": "integer" },
+        "scope": {
+          "type": "object",
+          "required": ["user", "project"],
+          "properties": {
+            "user": { "type": "boolean" },
+            "project": { "type": "boolean" }
+          }
+        },
+        "detect": {
+          "type": "object",
+          "properties": {
+            "dirs": { "type": "array", "items": { "type": "string" } },
+            "agentsDir": { "type": ["string", "null"] }
+          }
+        },
+        "version": {
+          "type": "object",
+          "properties": {
+            "bin": { "type": "string" },
+            "args": { "type": "array", "items": { "type": "string" } }
+          }
+        },
+        "format": { "type": "string", "minLength": 1 },
+        "installKind": {
+          "type": "string",
+          "enum": ["per-agent", "roster", "plugin"]
+        },
+        "slugFrom": { "type": ["string", "null"] },
+        "slugPrefix": { "type": "string" },
+        "dest": {
+          "type": "object",
+          "required": ["user", "project"],
+          "properties": {
+            "user": { "type": "array", "items": { "type": "string" } },
+            "project": { "type": "array", "items": { "type": "string" } }
+          }
+        }
+      }
+    }
+  }
+}
