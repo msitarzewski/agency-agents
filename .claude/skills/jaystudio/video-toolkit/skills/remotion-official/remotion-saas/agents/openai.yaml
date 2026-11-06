@@ -1,0 +1,7 @@
+interface:
+  display_name: '/remotion-saas'
+  short_description: 'Build apps that preview and render videos'
+  icon_small: './assets/remotion-icon.svg'
+  icon_large: './assets/remotion-icon.svg'
+  brand_color: '#0B84F3'
+  default_prompt: '$remotion-saas: Turn my video into an app.'

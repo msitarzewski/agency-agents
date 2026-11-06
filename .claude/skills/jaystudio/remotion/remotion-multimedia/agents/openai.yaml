@@ -1,0 +1,7 @@
+interface:
+  display_name: '/remotion-multimedia'
+  short_description: 'Inspect browser-based audio and video media'
+  icon_small: './assets/remotion-icon.svg'
+  icon_large: './assets/remotion-icon.svg'
+  brand_color: '#0B84F3'
+  default_prompt: '$remotion-multimedia: Make my video the same duration as the footage'

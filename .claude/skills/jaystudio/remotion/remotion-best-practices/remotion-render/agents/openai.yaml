@@ -1,0 +1,7 @@
+interface:
+  display_name: '/remotion-render'
+  short_description: 'Export Remotion videos and stills'
+  icon_small: './assets/remotion-icon.svg'
+  icon_large: './assets/remotion-icon.svg'
+  brand_color: '#0B84F3'
+  default_prompt: '$remotion-render: Render this as transparent ProRes'

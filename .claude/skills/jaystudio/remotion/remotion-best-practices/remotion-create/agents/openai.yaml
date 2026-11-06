@@ -1,0 +1,7 @@
+interface:
+  display_name: '/remotion-create'
+  short_description: 'Create a new Remotion video project'
+  icon_small: './assets/remotion-icon.svg'
+  icon_large: './assets/remotion-icon.svg'
+  brand_color: '#0B84F3'
+  default_prompt: '$remotion-create: Create a Remotion video and make a promo for my product'

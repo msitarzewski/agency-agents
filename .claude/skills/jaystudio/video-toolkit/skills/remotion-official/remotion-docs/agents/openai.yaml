@@ -1,0 +1,7 @@
+interface:
+  display_name: '/remotion-docs'
+  short_description: 'Search current Remotion documentation'
+  icon_small: './assets/remotion-icon.svg'
+  icon_large: './assets/remotion-icon.svg'
+  brand_color: '#0B84F3'
+  default_prompt: '$remotion-docs: What server-side rendering options does Remotion have?'

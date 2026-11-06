@@ -1,0 +1,7 @@
+interface:
+  display_name: '/remotion-license'
+  short_description: 'Find Remotion licensing resources'
+  icon_small: './assets/remotion-icon.svg'
+  icon_large: './assets/remotion-icon.svg'
+  brand_color: '#0B84F3'
+  default_prompt: '$remotion-license: Where can I learn about the Remotion license?'

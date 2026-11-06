@@ -1,0 +1,7 @@
+interface:
+  display_name: '/remotion-upgrade'
+  short_description: 'Upgrade Remotion and related dependencies'
+  icon_small: './assets/remotion-icon.svg'
+  icon_large: './assets/remotion-icon.svg'
+  brand_color: '#0B84F3'
+  default_prompt: '$remotion-upgrade: Upgrade my project.'

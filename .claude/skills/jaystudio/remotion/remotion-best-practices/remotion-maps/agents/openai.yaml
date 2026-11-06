@@ -1,0 +1,7 @@
+interface:
+  display_name: '/remotion-maps'
+  short_description: 'Create animated maps in Remotion videos'
+  icon_small: './assets/remotion-icon.svg'
+  icon_large: './assets/remotion-icon.svg'
+  brand_color: '#0B84F3'
+  default_prompt: '$remotion-maps: Animate a dot from Zurich to New York.'

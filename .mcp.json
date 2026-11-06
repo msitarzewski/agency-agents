@@ -1,0 +1,34 @@
+{
+  "mcpServers": {
+    "mcp-video": {
+      "type": "stdio",
+      "command": "uvx",
+      "args": [
+        "mcp-video"
+      ],
+      "env": {}
+    },
+    "vibeframe": {
+      "type": "stdio",
+      "command": "npx",
+      "args": [
+        "-y",
+        "@vibeframe/mcp-server"
+      ],
+      "env": {}
+    },
+    "pixelle": {
+      "type": "http",
+      "url": "http://localhost:9004/pixelle/mcp"
+    },
+    "video-toolkit": {
+      "type": "stdio",
+      "command": "bash",
+      "args": [
+        "-c",
+        "uv run --directory \"${VIDEO_TOOLKIT_ROOT:-$HOME/claude-code-video-toolkit}\" --extra mcp tools/video_mcp.py"
+      ],
+      "env": {}
+    }
+  }
+}
