@@ -329,20 +329,45 @@ class WorkflowOptimizer:
                 {
                     "step": step.name,
                     "potential": step.automation_potential,
-                    "estimated_savings_hours_month": (step.duration_minutes / 60) * 22 * step.automation_potential,
+                    "estimated_savings_hours_month": (step.duration_minutes / 60) * 22 * step.automation_potential * 0.8,
                     "recommended_tool": "RPA platform",  # Simplified for example
                     "implementation_effort": "Medium"
                 }
                 for step in automation_candidates
             ],
             "total_monthly_savings": sum(
-                (step.duration_minutes / 60) * 22 * step.automation_potential
+                (step.duration_minutes / 60) * 22 * step.automation_potential * 0.8
                 for step in automation_candidates
             ),
             "roi_timeline_months": 6
         }
         
         return implementation_strategy
+```
+
+Regression check (run after the classes above): estimates use the designer's 80% realization factor and assume 22 executions per month, not measured business savings.
+
+```python
+optimizer = WorkflowOptimizer()
+steps = [
+    ProcessStep("Data entry", 60, 60, 0, 1.0, 1, 8),
+    ProcessStep("Reporting", 30, 60, 0, 0.8, 1, 8),
+    ProcessStep("Manual review", 20, 60, 0, 0.5, 1, 8),
+]
+optimized = optimizer.design_optimized_workflow(
+    steps, optimizer.identify_optimization_opportunities(steps)
+)
+strategy = optimizer.generate_automation_strategy(steps)
+expected_savings = [
+    (before.duration_minutes - after.duration_minutes) / 60 * 22
+    for before, after in zip(steps[:2], optimized[:2])
+]
+assert np.allclose(
+    [item["estimated_savings_hours_month"] for item in strategy["automation_candidates"]],
+    expected_savings,
+)
+assert np.isclose(strategy["total_monthly_savings"], sum(expected_savings))
+assert optimizer.generate_automation_strategy(steps[2:])["total_monthly_savings"] == 0
 ```
 
 ## 🔄 Your Workflow Process
