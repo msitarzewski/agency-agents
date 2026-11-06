@@ -35,6 +35,8 @@ export const DEFAULT_SETTINGS = {
   responseCache: true, // identical request => reuse saved answer, $0
   approvePaidTools: true, // assistant must ask before calling MCP tools that spend money
   assistantServers: ["mcp-video", "video-toolkit"],
+  // Push every new document for an AIOS-linked brand to AIOS Brand OS as a draft.
+  aiosAutoPush: false,
 };
 
 export function getSettings() {
@@ -65,4 +67,5 @@ export const KNOWN_KEYS = [
   { env: "REPLICATE_API_TOKEN", use: "MusicGen" },
   { env: "MODAL_TOKEN_ID", use: "Video toolkit: LTX, FLUX trên GPU Modal" },
   { env: "RUNPOD_API_KEY", use: "Video toolkit: GPU RunPod" },
+  { env: "AIOS_BRANDOS_EMAIL", use: "Tài khoản dịch vụ AIOS Brand OS (kèm AIOS_BRANDOS_PASSWORD)" },
 ];

@@ -1,7 +1,66 @@
 # Tích hợp Jaystudio Brand OS vào AIOS
 
 Tài liệu này dành cho người kỹ thuật nối Jaystudio với các thành phần khác của AIOS (CRM, tự động hóa, agent AI).
-Jaystudio dùng **ba chuẩn mở, phổ biến**, nên không phụ thuộc vào cách AIOS được xây.
+
+## AIOS hiện tại (khảo sát repo `vitusngochai68-code/AIOS-CRM`, commit `3ff28c1`)
+
+| Thành phần | Công nghệ | Cách tích hợp hiện có |
+|---|---|---|
+| **AIOS CRM V2.1** (gốc repo) | Next.js + Prisma + PostgreSQL | REST nội bộ `/api/...` cho giao diện web; phiên cookie + kiểm tra Origin; chưa có API cho hệ thống ngoài |
+| **AIOS Brand OS V1.0** (`brand-os/`) | NestJS + Prisma + PostgreSQL + BullMQ + S3 | REST `/api/v1`, có Swagger/OpenAPI ở `/api/docs`; đăng nhập `POST auth/login` → cookie `brandos_session`; workspace qua header `x-organization-id`; mọi request ghi phải có `Origin` = `WEB_ORIGIN` |
+
+Master Prompt của Brand OS (mục IX) yêu cầu: "connector có thể cấu hình", "đồng bộ có idempotency", "ghi log các lần đồng bộ",
+"không giả định dùng chung database", "webhook có chữ ký". AIOS chưa dùng MCP và chưa có API token cho máy.
+
+**Kết luận thiết kế:**
+1. Jaystudio nói đúng "ngôn ngữ" của AIOS: REST JSON, OpenAPI, webhook có chữ ký.
+2. Có thêm **connector AIOS Brand OS** (`server/connectors/aios-brandos.js`), gọi đúng API thật của AIOS.
+3. AIOS vẫn là **hệ thống gốc** về duyệt và đăng bài. Jaystudio chỉ là "xưởng AI": mọi thứ gửi sang đều là **bản nháp**, có ghi rõ nguồn AI, nên giữ đúng nguyên tắc maker–checker (người lập khác người duyệt) của AIOS.
+
+## Connector AIOS Brand OS
+
+| Jaystudio → AIOS | API AIOS dùng | Chống trùng |
+|---|---|---|
+| Đồng bộ thương hiệu | `POST /brands`, `PATCH /brands/:id` | Liên kết lưu ở `brand.aios.brandId`; lần sau là cập nhật (AIOS tăng version) |
+| Gửi tài liệu (bài viết, lịch, chiến lược, spec video...) | `POST /content-projects`, `POST /content-projects/:id/versions` | Nội dung giống hệt thì bỏ qua; nội dung đổi thì thành version mới của cùng project |
+| Gửi lead | `POST /leads` | Không gửi lại cùng email (hoặc tên) + nguồn |
+| Gửi video MP4 (≤ 50 MB) | `POST /media/upload` | Ghi log mỗi lần |
+| AIOS → Jaystudio: nhập thương hiệu | `GET /brands`, `GET /brands/:id` | Nhập lại là cập nhật, không tạo bản sao |
+
+Mỗi lần đồng bộ được ghi vào `data/aios-sync.json` (xem ở trang Kết nối → Nhật ký đồng bộ) và phát sự kiện
+`aios.sync.succeeded` / `aios.sync.failed`. Tùy chọn **tự gửi**: mọi tài liệu mới của thương hiệu đã liên kết tự sang AIOS.
+
+Cấu hình trong `apps/jaystudio/.env`:
+
+```
+AIOS_BRANDOS_URL=http://localhost:4000/api/v1
+AIOS_BRANDOS_ORIGIN=http://localhost:3001     # đúng giá trị WEB_ORIGIN của Brand OS
+AIOS_BRANDOS_EMAIL=jaystudio@cong-ty.vn       # tài khoản dịch vụ riêng
+AIOS_BRANDOS_PASSWORD=...
+AIOS_BRANDOS_ORG_ID=                          # chỉ cần khi tài khoản thuộc nhiều workspace
+```
+
+**Tạo tài khoản dịch vụ:**
+1. Đăng ký một tài khoản riêng trên AIOS Brand OS.
+2. OWNER thêm email đó vào workspace ở mục Thành viên, với vai trò **CONTENT_MANAGER** (hoặc BRAND_MANAGER).
+3. Không dùng tài khoản OWNER hay APPROVER. Nhờ vậy Jaystudio không thể tự duyệt hay tự đăng.
+
+**Kiểm thử:** `npm run test:aios` (đặt `AIOS_BRANDOS_URL` trỏ tới một AIOS Brand OS **dùng để thử**; script tự tạo 2 tài khoản test).
+Bản hiện tại đã chạy trên API thật của AIOS Brand OS (PostgreSQL nhúng PGlite): 17/17 kiểm tra đạt.
+
+## Đề xuất cho phía AIOS (để tích hợp bền hơn)
+
+Không bắt buộc, nhưng nên làm khi AIOS mở rộng:
+
+1. **Token cho máy** (service token / API key theo workspace), thay cho việc đăng nhập bằng mật khẩu và giả Origin của trình duyệt.
+2. **Webhook đi từ AIOS**, ví dụ khi bản nháp được duyệt hay bài đã đăng. Khi đó Jaystudio có thể học từ nội dung được duyệt và theo dõi hiệu quả.
+3. **Idempotency-Key** cho `POST /leads` và `POST /content-projects` (đã có trong bảng `idempotency_keys` của Master Prompt). Phía AIOS tự chống trùng, không chỉ dựa vào log của Jaystudio.
+4. **Gắn nhãn nguồn AI** cho content version (cột `provider`/`model` đã có trong schema nhưng API thủ công chưa nhận). Hiện Jaystudio ghi nguồn ở cuối nội dung.
+5. **CRM V2.1** cần một API cho hệ thống ngoài nếu muốn lead từ Brand OS/Jaystudio chảy vào CRM (Master Prompt mục 10 có ghi "CRM sync adapter").
+
+---
+
+Ngoài connector trên, Jaystudio còn mở **ba chuẩn mở, phổ biến** để mọi thành phần AIOS khác nối vào.
 
 | Bạn cần | Dùng chuẩn | Ở đâu |
 |---|---|---|

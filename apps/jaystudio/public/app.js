@@ -142,7 +142,8 @@ views.brands = async () => {
           const v = Array.isArray(b[k]) ? b[k].join(", ") : b[k] ?? "";
           return `<label>${l}</label>${area ? `<textarea name="${k}">${esc(v)}</textarea>` : `<input name="${k}" value="${esc(v)}">`}`;
         }).join("")}
-        <p class="row"><button class="primary" type="submit">Lưu</button>${editing ? '<button type="button" class="danger" id="delBrand">Xóa</button>' : ""}</p>
+        ${editing ? `<p class="muted">AIOS: ${editing.aios?.brandId ? `đã liên kết (<code>${esc(editing.aios.brandId.slice(0, 8))}</code>)` : "chưa liên kết"}</p>` : ""}
+        <p class="row"><button class="primary" type="submit">Lưu</button>${editing ? '<button type="button" id="pushBrand">Đồng bộ sang AIOS</button><button type="button" class="danger" id="delBrand">Xóa</button>' : ""}</p>
       </form>
     </div>`;
   $$("[data-edit]").forEach((el) => (el.onclick = () => ((state.editBrand = el.dataset.edit), views.brands())));
@@ -161,6 +162,8 @@ views.brands = async () => {
       toast(err.message, true);
     }
   };
+  if (editing)
+    $("#pushBrand").onclick = (e) => busy(e.target, async () => (await api(`/aios/brands/${editing.id}/push`, { method: "POST" }), toast("Đã đồng bộ sang AIOS"), views.brands()));
   if (editing)
     $("#delBrand").onclick = async () => {
       if (!confirm(`Xóa thương hiệu "${editing.name}"?`)) return;
@@ -241,7 +244,12 @@ views.library = async () => {
         e.preventDefault();
         const doc = await api(`/documents/${a.dataset.doc}`);
         showDoc(doc, $("#out"), $("#outMeta"));
-        $("#outMeta").insertAdjacentHTML("beforeend", '<button class="danger" id="rmDoc">Xóa</button>');
+        $("#outMeta").insertAdjacentHTML("beforeend", `<button id="aiosPush">${doc.aios?.projectId ? `Cập nhật AIOS (v${doc.aios.version})` : "Gửi sang AIOS"}</button><button class="danger" id="rmDoc">Xóa</button>`);
+        $("#aiosPush").onclick = (e) =>
+          busy(e.target, async () => {
+            const r = await api(`/aios/documents/${doc.id}/push`, { method: "POST" });
+            toast(r.unchanged ? "AIOS đã có bản này" : `Đã gửi sang AIOS (bản nháp v${r.version})`);
+          });
         $("#rmDoc").onclick = async () => (await api(`/documents/${doc.id}`, { method: "DELETE" }), views.library());
       })
   );
@@ -384,10 +392,12 @@ views.integrations = async () => {
   const man = await api("/manifest");
   main.innerHTML = `<h1>Kết nối MCP / API</h1>
     <p class="sub">Server MCP lấy từ <code>apps/jaystudio/mcp.config.json</code> (hoặc <code>.mcp.json</code> của repo). Khóa API đặt trong <code>apps/jaystudio/.env</code>.</p>
+    <h2>AIOS Brand OS</h2>
+    <div class="card" id="aiosBox">Đang kiểm tra...</div>
     <h2>MCP server</h2>
     <table class="list card">${s.mcp
       .map((m) => `<tr><td><b>${esc(m.label)}</b> ${pill(m.status)}<br><span class="muted">${esc(m.role)}</span>${m.error ? `<br><span class="pill err">${esc(m.error)}</span>` : ""}</td>
-        <td><code>${esc(m.target)}</code></td><td>${m.toolCount || ""} tool</td>
+        <td><code>${esc(m.target)}</code></td><td>${m.toolCount ? `${m.toolCount} tool` : ""}</td>
         <td class="row"><button data-conn="${m.name}">Kết nối</button><button data-tools="${m.name}">Xem tool</button></td></tr>`)
       .join("")}</table>
     <div id="toolBox"></div>
@@ -409,6 +419,7 @@ views.integrations = async () => {
     </div>
     <h2>Sự kiện gần đây</h2><div class="card" id="evList"></div>`;
   loadHooks();
+  loadAios();
   $$("[data-conn]").forEach((b) => (b.onclick = () => busy(b, async () => (await api(`/mcp/servers/${b.dataset.conn}/connect`, { method: "POST" }), views.integrations()))));
   $$("[data-tools]").forEach(
     (b) =>
@@ -427,6 +438,35 @@ views.integrations = async () => {
         }))
   );
 };
+
+async function loadAios() {
+  const box = $("#aiosBox");
+  const st = await api("/aios/status").catch((e) => ({ error: e.message }));
+  const state = st.connected
+    ? `<span class="pill ok">đã kết nối</span> ${esc(st.user)} · workspace <b>${esc(st.organization || st.organizationId)}</b> · vai trò ${esc(st.role)}`
+    : st.reachable
+    ? `<span class="pill warn">chưa đăng nhập</span> ${esc(st.error || "Chưa đặt AIOS_BRANDOS_EMAIL / AIOS_BRANDOS_PASSWORD trong .env")}`
+    : `<span class="pill err">không thấy AIOS</span> ${esc(st.error || "")}`;
+  box.innerHTML = `<p>${state}</p>
+    <p class="muted">API: <code>${esc(st.baseUrl || "")}</code>. Jaystudio gửi sang AIOS dưới dạng <b>bản nháp</b>; duyệt và đăng vẫn làm trong AIOS.</p>
+    <div class="checks"><label><input type="checkbox" id="aiosAuto" ${st.autoPush ? "checked" : ""}> Tự gửi mọi tài liệu mới của thương hiệu đã liên kết sang AIOS</label></div>
+    ${st.connected ? '<p class="row"><button id="aiosBrandsBtn">Xem thương hiệu bên AIOS</button></p><div id="aiosBrands"></div>' : ""}
+    <details><summary>Nhật ký đồng bộ</summary><div id="aiosLog"></div></details>`;
+  $("#aiosAuto").onchange = async (e) => (await api("/settings", { method: "PUT", body: { aiosAutoPush: e.target.checked } }), toast("Đã lưu"));
+  const log = await api("/aios/sync-log").catch(() => []);
+  $("#aiosLog").innerHTML = log.length
+    ? `<table class="list">${log.map((x) => `<tr><td>${new Date(x.at).toLocaleString("vi-VN")}</td><td><code>${esc(x.op)}</code></td><td>${x.status === "ok" ? '<span class="pill ok">ok</span>' : `<span class="pill err">${esc(x.error)}</span>`}</td></tr>`).join("")}</table>`
+    : '<span class="muted">Chưa đồng bộ lần nào.</span>';
+  if (st.connected)
+    $("#aiosBrandsBtn").onclick = (e) =>
+      busy(e.target, async () => {
+        const list = await api("/aios/brands");
+        $("#aiosBrands").innerHTML = `<table class="list">${list
+          .map((b) => `<tr><td><b>${esc(b.name)}</b><br><span class="muted">${esc(b.industry)} · v${b.version}</span></td><td><button data-imp="${b.id}">Nhập vào Jaystudio</button></td></tr>`)
+          .join("") || '<tr><td class="muted">Workspace chưa có thương hiệu.</td></tr>'}</table>`;
+        $$("[data-imp]").forEach((x) => (x.onclick = () => busy(x, async () => { const b = await api("/aios/brands/import", { body: { remoteId: x.dataset.imp } }); await loadBrands(); toast(`Đã nhập "${b.name}"`); })));
+      });
+}
 
 async function loadHooks() {
   const [hooks, events] = await Promise.all([api("/webhooks"), api("/events?limit=20")]);

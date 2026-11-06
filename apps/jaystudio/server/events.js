@@ -14,8 +14,16 @@ export const EVENT_TYPES = [
   "video.job.failed",
   "budget.warning", // monthly AI spend crossed 80%
   "budget.exceeded", // a request was blocked by the budget guard
+  "aios.sync.succeeded", // pushed to / imported from AIOS Brand OS
+  "aios.sync.failed",
   "webhook.test",
 ];
+
+const listeners = new Map(); // in-process subscribers (connectors, automations)
+export function on(type, fn) {
+  if (!listeners.has(type)) listeners.set(type, []);
+  listeners.get(type).push(fn);
+}
 
 const MAX_EVENTS = 2000;
 const RETRY_DELAYS_MS = [0, 2_000, 15_000, 60_000];
@@ -68,6 +76,7 @@ export function emit(type, data) {
   for (const hook of readCollection("webhooks")) {
     if (hook.active !== false && matches(hook.events, type)) deliver(hook, event).catch(() => {});
   }
+  for (const fn of listeners.get(type) || []) Promise.resolve().then(() => fn(event)).catch(() => {});
   return event;
 }
 

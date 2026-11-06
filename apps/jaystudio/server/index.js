@@ -16,6 +16,8 @@ import * as video from "./video.js";
 import { buildMcpServer } from "./aios-mcp.js";
 import { emit, listEvents, listWebhooks, createWebhook, deleteWebhook, testWebhook, EVENT_TYPES } from "./events.js";
 import { openapi } from "./openapi.js";
+import { on } from "./events.js";
+import * as aios from "./connectors/aios-brandos.js";
 
 const VERSION = "1.0.0";
 
@@ -73,6 +75,9 @@ function manifest() {
       events: "Standard Webhooks (HMAC-SHA256, headers webhook-id/timestamp/signature) + polling feed",
       auth: "HTTP Bearer token (JAYSTUDIO_API_TOKEN)",
     },
+    connectors: {
+      "aios-brand-os": "AIOS Brand OS V1 REST /api/v1 (cookie session + x-organization-id). Pushes brands, content drafts, leads and videos; imports brands.",
+    },
     eventTypes: EVENT_TYPES,
     workflows: WORKFLOWS,
     tiers: Object.fromEntries(Object.entries(TIERS).map(([k, t]) => [k, { label: t.label, model: t.model || null, usdPer1MIn: t.in, usdPer1MOut: t.out }])),
@@ -85,6 +90,7 @@ function manifest() {
       "POST /api/video/estimate {spec} | POST /api/video/submit {spec, maxUsd} | GET /api/video/:jobId/status | GET /api/video/:jobId/result",
       "POST /api/assistant {sessionId?, message, brandId, servers, tier} | POST /api/assistant/approve {sessionId, decisions}",
       "GET  /api/events?since=&type= | GET/POST /api/webhooks | DELETE /api/webhooks/:id | POST /api/webhooks/:id/test",
+      "GET  /api/aios/status | GET /api/aios/brands | POST /api/aios/brands/import {remoteId} | POST /api/aios/brands/:id/push | POST /api/aios/documents/:id/push | POST /api/aios/leads | POST /api/aios/media {filePath, brandId} | GET /api/aios/sync-log",
       "GET  /api/openapi.json | GET /api/costs | GET/PUT /api/settings | GET /api/status",
     ],
   };
@@ -111,6 +117,18 @@ async function api(req, res, url) {
 
   if (p === "/api/manifest") return send(res, 200, manifest());
   if (p === "/api/openapi.json") return send(res, 200, openapi(VERSION, `http://${req.headers.host}`));
+
+  // AIOS Brand OS connector
+  if (parts[1] === "aios") {
+    if (p === "/api/aios/status") return send(res, 200, await aios.status());
+    if (p === "/api/aios/brands" && m === "GET") return send(res, 200, await aios.remoteBrands());
+    if (p === "/api/aios/brands/import" && m === "POST") return send(res, 200, await aios.importBrand((await body(req)).remoteId));
+    if (parts[2] === "brands" && parts[4] === "push" && m === "POST") return send(res, 200, { aiosBrandId: await aios.pushBrand(seg(3)) });
+    if (parts[2] === "documents" && parts[4] === "push" && m === "POST") return send(res, 200, await aios.pushDocument(seg(3)));
+    if (p === "/api/aios/leads" && m === "POST") return send(res, 200, await aios.pushLead(await body(req)));
+    if (p === "/api/aios/media" && m === "POST") return send(res, 200, { mediaId: await aios.pushVideo(await body(req)) });
+    if (p === "/api/aios/sync-log") return send(res, 200, aios.syncLog());
+  }
 
   // Events & webhooks
   if (p === "/api/events") return send(res, 200, listEvents(Object.fromEntries(url.searchParams)));
@@ -252,9 +270,16 @@ const server = http.createServer(async (req, res) => {
     }
     serveStatic(req, res, url.pathname);
   } catch (err) {
-    const code = err instanceof BudgetError ? 402 : err.status || 500;
+    const code = err instanceof BudgetError ? 402 : err instanceof SyntaxError ? 400 : err.status || 500;
     if (!res.headersSent) send(res, code, { error: err.message || String(err) });
   }
+});
+
+// Optional: auto-push new documents of AIOS-linked brands to AIOS Brand OS (drafts only).
+on("document.created", async (event) => {
+  if (!getSettings().aiosAutoPush || !aios.configured() || !event.data.brandId) return;
+  const brand = findById("brands", event.data.brandId);
+  if (brand?.aios?.brandId) await aios.pushDocument(event.data.id);
 });
 
 server.listen(PORT, HOST, () => {

@@ -17,6 +17,7 @@ const TAG_INFO = {
   video: "Video studio qua video-toolkit",
   events: "Nhật ký sự kiện và webhook",
   system: "Trạng thái, chi phí, khám phá",
+  aios: "Connector tới AIOS Brand OS (đẩy bản nháp, lead, video; nhập thương hiệu)",
 };
 
 // Fill summary/operationId where missing so generated clients get readable names.
@@ -127,6 +128,14 @@ export function openapi(version, serverUrl) {
       },
       "/api/webhooks/{id}": { parameters: [idParam("id")], delete: { tags: ["events"], operationId: "deleteWebhook", responses: { 200: json({ type: "object" }) } } },
       "/api/webhooks/{id}/test": { parameters: [idParam("id")], post: { tags: ["events"], operationId: "testWebhook", responses: { 200: json({ type: "object" }) } } },
+      "/api/aios/status": { get: { tags: ["aios"], operationId: "aiosStatus", responses: { 200: json({ type: "object" }) } } },
+      "/api/aios/brands": { get: { tags: ["aios"], operationId: "aiosListBrands", description: "Thương hiệu bên AIOS Brand OS", responses: { 200: json({ type: "array", items: { type: "object" } }) } } },
+      "/api/aios/brands/import": { post: { tags: ["aios"], operationId: "aiosImportBrand", requestBody: body({ type: "object", properties: { remoteId: { type: "string" } }, required: ["remoteId"] }), responses: { 200: json(ref("Brand")) } } },
+      "/api/aios/brands/{id}/push": { parameters: [idParam("id")], post: { tags: ["aios"], operationId: "aiosPushBrand", responses: { 200: json({ type: "object", properties: { aiosBrandId: { type: "string" } } }) } } },
+      "/api/aios/documents/{id}/push": { parameters: [idParam("id")], post: { tags: ["aios"], operationId: "aiosPushDocument", responses: { 200: json({ type: "object", properties: { projectId: { type: "string" }, version: { type: "integer" }, unchanged: { type: "boolean" } } }) } } },
+      "/api/aios/leads": { post: { tags: ["aios"], operationId: "aiosPushLead", requestBody: body({ type: "object", properties: { name: { type: "string" }, email: { type: "string" }, source: { type: "string" } }, required: ["name"] }), responses: { 200: json({ type: "object", properties: { leadId: { type: "string" }, duplicate: { type: "boolean" } } }) } } },
+      "/api/aios/media": { post: { tags: ["aios"], operationId: "aiosPushVideo", requestBody: body({ type: "object", properties: { filePath: { type: "string" }, brandId: { type: "string" } }, required: ["filePath", "brandId"] }), responses: { 200: json({ type: "object", properties: { mediaId: { type: "string" } } }) } } },
+      "/api/aios/sync-log": { get: { tags: ["aios"], operationId: "aiosSyncLog", responses: { 200: json({ type: "array", items: { type: "object" } }) } } },
       "/api/costs": { get: { tags: ["system"], operationId: "costReport", responses: { 200: json({ type: "object" }) } } },
       "/api/status": { get: { tags: ["system"], operationId: "status", responses: { 200: json({ type: "object" }) } } },
       "/api/manifest": { get: { tags: ["system"], operationId: "manifest", security: [{}], responses: { 200: json({ type: "object" }) } } },

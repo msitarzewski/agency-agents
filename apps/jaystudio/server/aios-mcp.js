@@ -9,6 +9,7 @@ import { report } from "./costs.js";
 import * as video from "./video.js";
 import { sanitizeBrand } from "./brands.js";
 import { emit, listEvents } from "./events.js";
+import * as aios from "./connectors/aios-brandos.js";
 
 const json = (data) => ({ content: [{ type: "text", text: JSON.stringify(data, null, 2) }] });
 
@@ -106,6 +107,32 @@ export function buildMcpServer() {
       if ((s?.phase || s?.status) === "done") return json({ status: s, result: await video.result(jobId) });
       return json(s);
     }
+  );
+
+  server.registerTool("aios_status", { description: "Kiểm tra kết nối tới AIOS Brand OS (tài khoản, workspace, vai trò)." }, async () => json(await aios.status()));
+
+  server.registerTool(
+    "aios_push_document",
+    { description: "Gửi một tài liệu Jaystudio sang AIOS Brand OS Content Studio dưới dạng bản nháp (lần sau tạo version mới). Tự tạo thương hiệu bên AIOS nếu chưa liên kết.", inputSchema: { documentId: z.string() } },
+    async ({ documentId }) => json(await aios.pushDocument(documentId))
+  );
+
+  server.registerTool(
+    "aios_push_brand",
+    { description: "Tạo hoặc cập nhật thương hiệu tương ứng bên AIOS Brand OS.", inputSchema: { brandId: z.string() } },
+    async ({ brandId }) => json({ aiosBrandId: await aios.pushBrand(brandId) })
+  );
+
+  server.registerTool(
+    "aios_import_brand",
+    { description: "Nhập một thương hiệu từ AIOS Brand OS vào Jaystudio (liên kết hai bên). Không có remoteId thì trả danh sách thương hiệu bên AIOS.", inputSchema: { remoteId: z.string().optional() } },
+    async ({ remoteId }) => json(remoteId ? await aios.importBrand(remoteId) : await aios.remoteBrands())
+  );
+
+  server.registerTool(
+    "aios_push_lead",
+    { description: "Gửi lead (khách tiềm năng) sang AIOS Brand OS. Không gửi trùng cùng email/tên + nguồn.", inputSchema: { name: z.string(), email: z.string().optional(), source: z.string().optional() } },
+    async (args) => json(await aios.pushLead(args))
   );
 
   server.registerTool(

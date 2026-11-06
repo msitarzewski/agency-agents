@@ -68,7 +68,11 @@ kỹ thuật xem ở [docs/AIOS-INTEGRATION.md](docs/AIOS-INTEGRATION.md).
 | Thông báo đẩy | Standard Webhooks | đăng ký ở trang Kết nối hoặc `POST /api/webhooks` |
 | Đồng bộ kéo | Event feed | `GET /api/events?since=<id>` |
 
-Sự kiện: `brand.*`, `document.created`, `video.job.submitted|completed|failed`, `budget.warning`, `budget.exceeded`.
+Sự kiện: `brand.*`, `document.created`, `video.job.submitted|completed|failed`, `budget.warning`, `budget.exceeded`, `aios.sync.*`.
+
+**Connector AIOS Brand OS** (repo AIOS-CRM, thư mục `brand-os/`): nhập/đồng bộ thương hiệu, gửi tài liệu thành bản nháp
+có version, gửi lead (không trùng) và video MP4 sang AIOS; tùy chọn tự gửi. Cấu hình `AIOS_BRANDOS_*` trong `.env`,
+kiểm thử bằng `npm run test:aios`.
 
 Tool MCP mà app cung cấp: `brand_list`, `brand_get`, `brand_upsert`, `brand_generate`, `brand_personas`,
 `brand_documents`, `brand_document_get`, `brand_cost_report`, `brand_video_submit`, `brand_video_status`, `brand_events`.
