@@ -58,16 +58,20 @@ Opus và Sonnet bật sẵn `fallbacks: "default"`: khi một yêu cầu bị ch
 
 ## Tích hợp AIOS
 
-Jaystudio vừa là **client** (gọi tool video/AI), vừa là **server** cho các agent khác:
+Jaystudio vừa là **client** (gọi tool video/AI), vừa là **server** cho các thành phần khác. Hướng dẫn đầy đủ cho đội
+kỹ thuật xem ở [docs/AIOS-INTEGRATION.md](docs/AIOS-INTEGRATION.md).
 
-| Kênh | Địa chỉ |
-|---|---|
-| MCP qua HTTP | `http://127.0.0.1:4321/mcp` (Streamable HTTP, stateless) |
-| MCP qua stdio | `claude mcp add jaystudio -- node apps/jaystudio/server/mcp-stdio.js` (đã có sẵn trong `.mcp.json` của repo) |
-| REST | `/api/...`; danh sách route và khả năng xem ở `GET /api/manifest` |
+| Kênh | Chuẩn | Địa chỉ |
+|---|---|---|
+| Agent AI | MCP | `http://127.0.0.1:4321/mcp` (Streamable HTTP) hoặc `node apps/jaystudio/server/mcp-stdio.js` (có sẵn trong `.mcp.json` của repo) |
+| Phần mềm / CRM / n8n | REST + OpenAPI 3.1 | `/api/...`, đặc tả ở `GET /api/openapi.json` |
+| Thông báo đẩy | Standard Webhooks | đăng ký ở trang Kết nối hoặc `POST /api/webhooks` |
+| Đồng bộ kéo | Event feed | `GET /api/events?since=<id>` |
+
+Sự kiện: `brand.*`, `document.created`, `video.job.submitted|completed|failed`, `budget.warning`, `budget.exceeded`.
 
 Tool MCP mà app cung cấp: `brand_list`, `brand_get`, `brand_upsert`, `brand_generate`, `brand_personas`,
-`brand_documents`, `brand_document_get`, `brand_cost_report`, `brand_video_submit`, `brand_video_status`.
+`brand_documents`, `brand_document_get`, `brand_cost_report`, `brand_video_submit`, `brand_video_status`, `brand_events`.
 
 Ví dụ gọi REST:
 
@@ -105,6 +109,8 @@ server/
   assistant.js    trợ lý có tool MCP, duyệt tool tốn phí
   video.js        Video studio qua video-toolkit
   aios-mcp.js     Jaystudio như một MCP server
+  events.js       nhật ký sự kiện + webhook ký theo Standard Webhooks
+  openapi.js      đặc tả OpenAPI 3.1 (GET /api/openapi.json)
   personas.js     nạp persona từ các thư mục agent của repo
 public/           giao diện (HTML/CSS/JS thuần, không cần build)
 data/             dữ liệu local (gitignored): thương hiệu, tài liệu, sổ chi phí, cache

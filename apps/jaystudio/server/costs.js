@@ -1,6 +1,7 @@
 // Model price table, spend ledger and monthly budget guard.
 import { readCollection, insert } from "./store.js";
 import { getSettings } from "./config.js";
+import { emit } from "./events.js";
 
 // USD per 1M tokens (Anthropic first-party prices, 2026-10).
 // cacheRead for Haiku 5.5 is estimated at 0.1x input; cache writes bill at 1.25x input.
@@ -39,7 +40,14 @@ function monthKey(d = new Date()) {
 }
 
 export function record(entry) {
-  return insert("ledger", { ...entry, at: new Date().toISOString() });
+  const before = monthSpend();
+  const row = insert("ledger", { ...entry, at: new Date().toISOString() });
+  const { monthlyBudgetUsd } = getSettings();
+  const after = before + (entry.costUsd || 0);
+  if (monthlyBudgetUsd && before < 0.8 * monthlyBudgetUsd && after >= 0.8 * monthlyBudgetUsd) {
+    emit("budget.warning", { spentUsd: after, budgetUsd: monthlyBudgetUsd, percent: Math.round((after / monthlyBudgetUsd) * 100) });
+  }
+  return row;
 }
 
 export function monthSpend(month = monthKey()) {
@@ -55,6 +63,7 @@ export function assertBudget(estimateUsd) {
   if (!monthlyBudgetUsd) return;
   const spent = monthSpend();
   if (spent + estimateUsd > monthlyBudgetUsd) {
+    emit("budget.exceeded", { spentUsd: spent, budgetUsd: monthlyBudgetUsd, requestEstimateUsd: estimateUsd });
     throw new BudgetError(
       `Vượt ngân sách tháng: đã dùng $${spent.toFixed(3)} / $${monthlyBudgetUsd}. ` +
         `Tác vụ này ước tính $${estimateUsd.toFixed(3)}. Tăng ngân sách trong Cài đặt hoặc chọn mức rẻ hơn.`

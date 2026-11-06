@@ -4,6 +4,7 @@ import { complete } from "./llm.js";
 import { personaPrompt } from "./personas.js";
 import { findById, insert, newId } from "./store.js";
 import { getSettings } from "./config.js";
+import { emit } from "./events.js";
 
 const BASE = `Bạn là bộ não chiến lược của Jaystudio Brand OS: một studio xây dựng thương hiệu cá nhân và doanh nghiệp
 với mục tiêu ra kết quả tốt nhất trên mỗi đồng chi phí marketing.
@@ -170,5 +171,6 @@ export async function runWorkflow(name, { brandId, personaId, tier, params = {} 
     truncated: Boolean(res.truncated),
     createdAt: new Date().toISOString(),
   });
+  emit("document.created", { id: doc.id, type: doc.type, title: doc.title, brandId: doc.brandId, model: doc.model, costUsd: doc.costUsd, url: `/api/documents/${doc.id}` });
   return doc;
 }

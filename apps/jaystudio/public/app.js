@@ -395,10 +395,20 @@ views.integrations = async () => {
     <table class="list card">${s.keys.map((k) => `<tr><td><code>${k.env}</code></td><td>${k.set ? '<span class="pill ok">có</span>' : '<span class="pill">chưa</span>'}</td><td class="muted">${esc(k.use)}</td></tr>`).join("")}</table>
     <h2>Tích hợp AIOS</h2>
     <div class="card"><p>Jaystudio vừa là <b>client</b> (gọi các tool video/AI) vừa là <b>server</b> để các agent khác trong AIOS dùng:</p>
-      <ul><li>MCP HTTP: <code>${location.origin}/mcp</code></li>
-      <li>MCP stdio: <code>claude mcp add jaystudio -- node apps/jaystudio/server/mcp-stdio.js</code></li>
-      <li>REST + manifest: <code>${location.origin}/api/manifest</code></li></ul>
-      <pre>${esc(JSON.stringify(man.routes, null, 2))}</pre></div>`;
+      <ul><li><b>Agent AI</b> (Claude, trợ lý khác) → MCP HTTP: <code>${location.origin}/mcp</code> hoặc stdio: <code>node apps/jaystudio/server/mcp-stdio.js</code></li>
+      <li><b>Phần mềm / CRM / n8n / Zapier</b> → REST, mô tả chuẩn OpenAPI: <code>${location.origin}/api/openapi.json</code></li>
+      <li><b>Nhận thông báo tự động</b> → Webhook (bên dưới) hoặc đọc <code>${location.origin}/api/events?since=&lt;id&gt;</code></li></ul>
+      <details><summary>Danh sách route</summary><pre>${esc(JSON.stringify(man.routes, null, 2))}</pre></details></div>
+    <h2>Webhook (gửi sự kiện sang hệ thống khác)</h2>
+    <div class="card">
+      <p class="muted">Mỗi khi có sự kiện, Jaystudio gửi POST JSON có chữ ký theo chuẩn Standard Webhooks tới URL bạn đăng ký. Bên nhận dùng <code>secret</code> để kiểm chữ ký.</p>
+      <form id="whForm" class="row"><input name="url" style="flex:2" placeholder="https://crm.cua-ban/webhooks/jaystudio">
+        <input name="events" style="flex:1" value="*" title="Ví dụ: document.created, video.*"><button class="primary">Đăng ký</button></form>
+      <p class="muted">Loại sự kiện: ${man.eventTypes.map((t) => `<code>${t}</code>`).join(" ")}</p>
+      <div id="whSecret"></div><div id="whList"></div>
+    </div>
+    <h2>Sự kiện gần đây</h2><div class="card" id="evList"></div>`;
+  loadHooks();
   $$("[data-conn]").forEach((b) => (b.onclick = () => busy(b, async () => (await api(`/mcp/servers/${b.dataset.conn}/connect`, { method: "POST" }), views.integrations()))));
   $$("[data-tools]").forEach(
     (b) =>
@@ -417,6 +427,42 @@ views.integrations = async () => {
         }))
   );
 };
+
+async function loadHooks() {
+  const [hooks, events] = await Promise.all([api("/webhooks"), api("/events?limit=20")]);
+  $("#whList").innerHTML = hooks.length
+    ? `<table class="list">${hooks
+        .map((h) => `<tr><td><code>${esc(h.url)}</code><br><span class="muted">${esc(h.events.join(", "))}</span></td>
+          <td>${h.lastStatus ? (h.lastStatus < 300 ? `<span class="pill ok">${h.lastStatus}</span>` : `<span class="pill err">${h.lastStatus}</span>`) : h.lastError ? `<span class="pill err">${esc(h.lastError)}</span>` : '<span class="pill">chưa gửi</span>'}</td>
+          <td class="row"><button data-wtest="${h.id}">Gửi thử</button><button class="danger" data-wdel="${h.id}">Xóa</button></td></tr>`)
+        .join("")}</table>`
+    : '<span class="muted">Chưa có webhook.</span>';
+  $("#evList").innerHTML = events.length
+    ? `<table class="list">${events
+        .reverse()
+        .map((e) => `<tr><td>${new Date(e.timestamp).toLocaleString("vi-VN")}</td><td><code>${esc(e.type)}</code></td><td class="muted">${esc(e.data?.title || e.data?.name || e.data?.jobId || e.data?.id || "")}</td></tr>`)
+        .join("")}</table>`
+    : '<span class="muted">Chưa có sự kiện.</span>';
+  $$("[data-wtest]").forEach(
+    (b) =>
+      (b.onclick = () =>
+        busy(b, async () => {
+          const r = await api(`/webhooks/${b.dataset.wtest}/test`, { method: "POST" });
+          toast(r.status ? `Phản hồi HTTP ${r.status}` : `Lỗi: ${r.error}`, !r.status || r.status >= 300);
+          loadHooks();
+        }))
+  );
+  $$("[data-wdel]").forEach((b) => (b.onclick = async () => (await api(`/webhooks/${b.dataset.wdel}`, { method: "DELETE" }), loadHooks())));
+  $("#whForm").onsubmit = (e) => {
+    e.preventDefault();
+    busy(e.submitter, async () => {
+      const h = await api("/webhooks", { body: { url: e.target.url.value, events: e.target.events.value } });
+      $("#whSecret").innerHTML = `<p class="pill warn">Lưu secret này ngay, nó chỉ hiện một lần:</p><pre>${esc(h.secret)}</pre>`;
+      e.target.url.value = "";
+      loadHooks();
+    });
+  };
+}
 
 views.costs = async () => {
   const [c, st] = await Promise.all([api("/costs"), api("/settings")]);

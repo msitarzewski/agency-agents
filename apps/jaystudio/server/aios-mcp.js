@@ -8,6 +8,7 @@ import { listPersonas } from "./personas.js";
 import { report } from "./costs.js";
 import * as video from "./video.js";
 import { sanitizeBrand } from "./brands.js";
+import { emit, listEvents } from "./events.js";
 
 const json = (data) => ({ content: [{ type: "text", text: JSON.stringify(data, null, 2) }] });
 
@@ -32,8 +33,14 @@ export function buildMcpServer() {
     },
     async ({ brandId, fields }) => {
       const clean = sanitizeBrand(fields);
-      if (brandId) return json(update("brands", brandId, clean) || { error: "not found" });
-      return json(insert("brands", { id: newId("brand"), ...clean, createdAt: new Date().toISOString() }));
+      if (brandId) {
+        const updated = update("brands", brandId, clean);
+        if (updated) emit("brand.updated", updated);
+        return json(updated || { error: "not found" });
+      }
+      const created = insert("brands", { id: newId("brand"), kind: "business", ...clean, createdAt: new Date().toISOString() });
+      emit("brand.created", created);
+      return json(created);
     }
   );
 
@@ -99,6 +106,15 @@ export function buildMcpServer() {
       if ((s?.phase || s?.status) === "done") return json({ status: s, result: await video.result(jobId) });
       return json(s);
     }
+  );
+
+  server.registerTool(
+    "brand_events",
+    {
+      description: "Đọc nhật ký sự kiện (brand.*, document.created, video.job.*, budget.*). Truyền since = id sự kiện cuối đã xử lý để chỉ lấy cái mới.",
+      inputSchema: { since: z.string().optional(), type: z.string().optional(), limit: z.number().optional() },
+    },
+    async (args) => json(listEvents(args))
   );
 
   return server;

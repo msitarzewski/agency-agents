@@ -14,6 +14,8 @@ import * as hub from "./mcp-hub.js";
 import * as assistant from "./assistant.js";
 import * as video from "./video.js";
 import { buildMcpServer } from "./aios-mcp.js";
+import { emit, listEvents, listWebhooks, createWebhook, deleteWebhook, testWebhook, EVENT_TYPES } from "./events.js";
+import { openapi } from "./openapi.js";
 
 const VERSION = "1.0.0";
 
@@ -59,9 +61,19 @@ function manifest() {
     auth: API_TOKEN ? "bearer" : "none (chỉ localhost)",
     endpoints: {
       rest: `/api`,
+      openapi: `/api/openapi.json`,
       mcp_http: `/mcp`,
       mcp_stdio: "node apps/jaystudio/server/mcp-stdio.js",
+      events: `/api/events`,
+      webhooks: `/api/webhooks`,
     },
+    standards: {
+      tools: "Model Context Protocol (Streamable HTTP + stdio)",
+      rest: "OpenAPI 3.1",
+      events: "Standard Webhooks (HMAC-SHA256, headers webhook-id/timestamp/signature) + polling feed",
+      auth: "HTTP Bearer token (JAYSTUDIO_API_TOKEN)",
+    },
+    eventTypes: EVENT_TYPES,
     workflows: WORKFLOWS,
     tiers: Object.fromEntries(Object.entries(TIERS).map(([k, t]) => [k, { label: t.label, model: t.model || null, usdPer1MIn: t.in, usdPer1MOut: t.out }])),
     mcpServers: hub.status().map(({ name, label, role }) => ({ name, label, role })),
@@ -72,7 +84,8 @@ function manifest() {
       "GET  /api/mcp/servers | POST /api/mcp/servers/:name/connect | GET /api/mcp/servers/:name/tools | POST /api/mcp/call {server, tool, args}",
       "POST /api/video/estimate {spec} | POST /api/video/submit {spec, maxUsd} | GET /api/video/:jobId/status | GET /api/video/:jobId/result",
       "POST /api/assistant {sessionId?, message, brandId, servers, tier} | POST /api/assistant/approve {sessionId, decisions}",
-      "GET  /api/costs | GET/PUT /api/settings | GET /api/status",
+      "GET  /api/events?since=&type= | GET/POST /api/webhooks | DELETE /api/webhooks/:id | POST /api/webhooks/:id/test",
+      "GET  /api/openapi.json | GET /api/costs | GET/PUT /api/settings | GET /api/status",
     ],
   };
 }
@@ -97,6 +110,16 @@ async function api(req, res, url) {
   const seg = (i) => decodeURIComponent(parts[i] || "");
 
   if (p === "/api/manifest") return send(res, 200, manifest());
+  if (p === "/api/openapi.json") return send(res, 200, openapi(VERSION, `http://${req.headers.host}`));
+
+  // Events & webhooks
+  if (p === "/api/events") return send(res, 200, listEvents(Object.fromEntries(url.searchParams)));
+  if (parts[1] === "webhooks") {
+    if (parts.length === 2 && m === "GET") return send(res, 200, listWebhooks());
+    if (parts.length === 2 && m === "POST") return send(res, 201, createWebhook(await body(req)));
+    if (parts.length === 3 && m === "DELETE") return send(res, 200, { ok: deleteWebhook(seg(2)) });
+    if (parts[3] === "test" && m === "POST") return send(res, 200, await testWebhook(seg(2)));
+  }
 
   if (p === "/api/status") {
     const o = await ollamaStatus();
@@ -125,12 +148,23 @@ async function api(req, res, url) {
     if (parts.length === 2 && m === "POST") {
       const b = sanitizeBrand(await body(req));
       if (!b.name) return send(res, 400, { error: "Cần tên thương hiệu" });
-      return send(res, 201, insert("brands", { id: newId("brand"), kind: "business", ...b, createdAt: new Date().toISOString() }));
+      const created = insert("brands", { id: newId("brand"), kind: "business", ...b, createdAt: new Date().toISOString() });
+      emit("brand.created", created);
+      return send(res, 201, created);
     }
     const id = seg(2);
     if (m === "GET") return findById("brands", id) ? send(res, 200, findById("brands", id)) : send(res, 404, { error: "not found" });
-    if (m === "PUT") return send(res, 200, update("brands", id, sanitizeBrand(await body(req))) || { error: "not found" });
-    if (m === "DELETE") return send(res, 200, { ok: remove("brands", id) });
+    if (m === "PUT") {
+      const updated = update("brands", id, sanitizeBrand(await body(req)));
+      if (!updated) return send(res, 404, { error: "not found" });
+      emit("brand.updated", updated);
+      return send(res, 200, updated);
+    }
+    if (m === "DELETE") {
+      const ok = remove("brands", id);
+      if (ok) emit("brand.deleted", { id });
+      return send(res, 200, { ok });
+    }
   }
 
   // Workflows
@@ -212,7 +246,7 @@ const server = http.createServer(async (req, res) => {
       // Block cross-site requests from other web pages (the app is same-origin).
       const origin = req.headers.origin;
       if (origin && new URL(origin).host !== req.headers.host) return send(res, 403, { error: "cross-origin bị chặn" });
-      if (!authorized(req) && url.pathname !== "/api/manifest") return send(res, 401, { error: "Cần JAYSTUDIO_API_TOKEN" });
+      if (!authorized(req) && !["/api/manifest", "/api/openapi.json"].includes(url.pathname)) return send(res, 401, { error: "Cần JAYSTUDIO_API_TOKEN" });
       if (url.pathname === "/mcp") return await handleMcp(req, res);
       return await api(req, res, url);
     }

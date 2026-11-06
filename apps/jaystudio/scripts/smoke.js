@@ -1,6 +1,7 @@
 // Smoke test: boots the server on a spare port with a temp data dir and exercises the API.
 // Run: npm run check   (set SMOKE_MCP=1 to also connect the real MCP servers)
 import { spawn } from "node:child_process";
+import http from "node:http";
 import fs from "node:fs";
 import os from "node:os";
 import path from "node:path";
@@ -54,10 +55,44 @@ try {
   const personas = await j("/api/personas");
   ok(personas.data.length > 20, `loads ${personas.data.length} personas from the repo`);
 
+  // Webhook receiver that verifies Standard Webhooks signatures.
+  const { sign } = await import("../server/events.js");
+  const received = [];
+  let hookSecret = "";
+  const receiver = http.createServer(async (req, res) => {
+    let raw = "";
+    for await (const c of req) raw += c;
+    const valid = sign(hookSecret, req.headers["webhook-id"], req.headers["webhook-timestamp"], raw) === req.headers["webhook-signature"];
+    received.push({ valid, event: JSON.parse(raw) });
+    res.writeHead(204).end();
+  });
+  await new Promise((r) => receiver.listen(0, "127.0.0.1", r));
+  const hook = await j("/api/webhooks", { body: { url: `http://127.0.0.1:${receiver.address().port}/hook`, events: ["brand.*", "webhook.test"] } });
+  hookSecret = hook.data.secret;
+  ok(hook.status === 201 && hookSecret.startsWith("whsec_"), "registers a webhook");
+  ok(!("secret" in (await j("/api/webhooks")).data[0]), "webhook list hides the secret");
+  const bad = await j("/api/webhooks", { body: { url: "ftp://x" } });
+  ok(bad.status === 400, "rejects non-http webhook URLs");
+
+  const spec = await j("/api/openapi.json");
+  ok(spec.data?.openapi === "3.1.0" && spec.data.paths["/api/generate/{workflow}"] && spec.data.webhooks["video.job.completed"], "serves OpenAPI 3.1 with webhooks");
+
   const created = await j("/api/brands", { body: { name: "Smoke Coffee", kind: "business", channels: "TikTok, Facebook", budget: "5000000" } });
   ok(created.status === 201 && created.data.channels.length === 2 && created.data.budget === 5000000, "creates a brand");
   const upd = await j(`/api/brands/${created.data.id}`, { method: "PUT", body: { tagline: "Cà phê sạch" } });
   ok(upd.data.tagline === "Cà phê sạch", "updates a brand");
+
+  await j(`/api/webhooks/${hook.data.id}/test`, { method: "POST" });
+  await new Promise((r) => setTimeout(r, 500));
+  const types = received.map((x) => x.event.type);
+  ok(types.includes("brand.created") && types.includes("brand.updated") && types.includes("webhook.test"), `webhook delivered ${types.join(", ")}`);
+  ok(received.length > 0 && received.every((x) => x.valid), "webhook signatures verify");
+  receiver.close();
+
+  const feed = await j("/api/events?type=brand.*");
+  ok(feed.data.length === 2 && feed.data[0].type === "brand.created", "event feed filters by type");
+  const after = await j(`/api/events?since=${feed.data[0].id}&type=brand.*`);
+  ok(after.data.length === 1 && after.data[0].type === "brand.updated", "event feed resumes from `since`");
 
   const gen = await j("/api/generate/strategy", { body: { brandId: created.data.id, tier: "premium" } });
   ok(gen.status === 500 && /ANTHROPIC_API_KEY/.test(gen.data.error), "generate without key gives a clear error");
@@ -81,7 +116,7 @@ try {
     body: JSON.stringify({ jsonrpc: "2.0", id: 2, method: "tools/list", params: {} }),
   });
   const listText = await list.text();
-  ok(listText.includes("brand_generate") && listText.includes("brand_video_submit"), "MCP HTTP tools/list");
+  ok(listText.includes("brand_generate") && listText.includes("brand_events"), "MCP HTTP tools/list");
 
   if (process.env.SMOKE_MCP) {
     const c = await j("/api/mcp/servers/mcp-video/connect", { method: "POST" });
