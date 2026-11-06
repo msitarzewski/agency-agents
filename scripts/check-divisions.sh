@@ -27,9 +27,10 @@ JSON="divisions.json"
 # caught even if nobody remembered to register it).
 # integrations/ is convert.sh's OUTPUT tree (per-tool conversions written back
 # into the repo), not a source-agent category. strategy/ holds playbooks and
-# runbooks (no agent frontmatter), not agents. Neither is a division — they must
+# runbooks (no agent frontmatter), not agents. apps/ holds runnable tools
+# (e.g. apps/jaystudio), not agents. Neither is a division — they must
 # never be scanned as source-agent categories.
-NON_DIVISION_DIRS=(examples scripts integrations strategy)
+NON_DIVISION_DIRS=(apps examples scripts integrations strategy)
 
 errors=0
 fail() { echo "ERROR $*"; errors=$((errors + 1)); }

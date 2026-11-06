@@ -22,4 +22,9 @@ echo "== 5. Pixelle-MCP (Python 3.11 via uv)"
 uv tool install --python 3.11 pixelle || uv tool upgrade pixelle
 echo "Run 'pixelle init' once (ComfyUI URL or RunningHub key + LLM), then 'pixelle start'."
 
-echo "Done. MCP servers are registered in .mcp.json (mcp-video, vibeframe, video-toolkit, pixelle)."
+echo "== 6. Jaystudio Brand OS web app"
+REPO="$(cd "$(dirname "$0")/../../.." && pwd)"
+(cd "$REPO/apps/jaystudio" && npm install --no-fund --no-audit && { [ -f .env ] || cp .env.example .env; })
+echo "Start it: cd apps/jaystudio && npm start  ->  http://127.0.0.1:4321"
+
+echo "Done. MCP servers are registered in .mcp.json (mcp-video, vibeframe, video-toolkit, pixelle, jaystudio)."

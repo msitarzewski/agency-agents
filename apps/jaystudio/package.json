@@ -1,0 +1,24 @@
+{
+  "name": "jaystudio-brand-os",
+  "version": "1.0.0",
+  "description": "Jaystudio Brand OS: local web app for cost-optimized personal and business brand building, wired to AI tools via MCP",
+  "main": "server/index.js",
+  "scripts": {
+    "start": "node server/index.js",
+    "dev": "node --watch server/index.js",
+    "mcp": "node server/mcp-stdio.js",
+    "check": "node scripts/smoke.js"
+  },
+  "license": "MIT",
+  "dependencies": {
+    "@anthropic-ai/sdk": "^1.6.0",
+    "@modelcontextprotocol/sdk": "^1.32.2",
+    "marked": "^18.1.3",
+    "zod": "^4.6.7"
+  },
+  "private": true,
+  "type": "module",
+  "engines": {
+    "node": ">=20.12"
+  }
+}

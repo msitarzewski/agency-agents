@@ -1,0 +1,32 @@
+<!doctype html>
+<html lang="vi">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Jaystudio Brand OS</title>
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' rx='8' fill='%235b5bf0'/><text x='16' y='22' font-size='16' text-anchor='middle' fill='white' font-family='sans-serif' font-weight='700'>J</text></svg>" />
+  <link rel="stylesheet" href="/styles.css" />
+</head>
+<body>
+  <aside class="sidebar">
+    <div class="logo"><span class="logo-mark">J</span><div><b>Jaystudio</b><small>Brand OS</small></div></div>
+    <nav id="nav">
+      <a data-view="dashboard">Tổng quan</a>
+      <a data-view="brands">Thương hiệu</a>
+      <a data-view="studio">Studio nội dung</a>
+      <a data-view="library">Thư viện</a>
+      <a data-view="video">Video studio</a>
+      <a data-view="assistant">Trợ lý AI</a>
+      <a data-view="integrations">Kết nối MCP / API</a>
+      <a data-view="costs">Chi phí &amp; cài đặt</a>
+    </nav>
+    <div class="brand-picker">
+      <label>Thương hiệu đang làm</label>
+      <select id="activeBrand"></select>
+    </div>
+  </aside>
+  <main id="main"></main>
+  <div id="toast" class="toast" hidden></div>
+  <script type="module" src="/app.js"></script>
+</body>
+</html>

@@ -29,6 +29,14 @@
         "uv run --directory \"${VIDEO_TOOLKIT_ROOT:-$HOME/claude-code-video-toolkit}\" --extra mcp tools/video_mcp.py"
       ],
       "env": {}
+    },
+    "jaystudio": {
+      "type": "stdio",
+      "command": "node",
+      "args": [
+        "apps/jaystudio/server/mcp-stdio.js"
+      ],
+      "env": {}
     }
   }
 }
