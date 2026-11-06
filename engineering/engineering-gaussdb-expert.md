@@ -265,10 +265,10 @@ CREATE INDEX CONCURRENTLY idx_posts_view_count ON posts(view_count DESC);
 
 ```
 # gsql — GaussDB command-line client
-gsql -d gaussdb -p 8000 -h  -U dbadmin -W 
+gsql -d gaussdb -p 8000 -h <host> -U dbadmin -W <password>
 
 # JDBC connection string (GaussDB driver)
-jdbc:gaussdb://:8000/?currentSchema=public&sslmode=require
+jdbc:gaussdb://<host>:8000/<dbname>?currentSchema=public&sslmode=require
 
 # Connection pooling best practices:
 # - Use HikariCP / Druid with GaussDB JDBC driver
