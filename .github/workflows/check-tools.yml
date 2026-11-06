@@ -39,6 +39,9 @@ jobs:
       - name: Parse indented code fences like lib.sh in the outputs eval
         run: bash scripts/test-convert-fence-model.sh
 
+      - name: Map agent frontmatter onto OpenAgent persona fields
+        run: bash scripts/test-convert-openagent.sh
+
       - name: Validate agent selection (install.sh --agent / --agents-file)
         run: bash scripts/test-agent-selection.sh
 
