@@ -97,7 +97,7 @@ N="$(wc -l < "$SOURCES" | tr -d ' ')"
 [[ "$N" -gt 0 ]] || { echo "ERROR: no source agents found." >&2; exit 2; }
 
 # --- generate: every converted tool, sequentially, into a scratch dir ---------
-TOOLS="antigravity gemini-cli opencode cursor aider windsurf openclaw qwen zcode kimi codex osaurus hermes vibe dsh"
+TOOLS="antigravity gemini-cli opencode cursor aider windsurf openclaw qwen zcode kimi codex osaurus hermes vibe dsh kilocode"
 if [[ -z "$OUT" ]]; then
   OUT="$TMP/out"; mkdir -p "$OUT"
   for t in $TOOLS; do
@@ -155,6 +155,7 @@ SPEC = {
     "aider":       ("CONVENTIONS.md",    "accum"),
     "windsurf":    (".windsurfrules",    "accum"),
     "hermes":      ("agency-agents-router/data/agents.json", "json"),
+    "kilocode":    ("agents/*.md",       "yaml-fm"),
 }
 
 def slug_of(path):
@@ -270,6 +271,9 @@ for tool in TOOLS:
         except Exception as e:
             bad_parse += 1; bad(f"{tool}: {os.path.relpath(f, OUT)} does not parse ({type(e).__name__}: {e})"); continue
 
+        if tool == "kilocode":
+            check("name" not in data, f"kilocode: {slug} must use its filename, not name frontmatter")
+
         if fmt in ("yaml-fm", "toml"):
             got, want = find_desc(data), src[slug][0]
             if want is None: continue   # source failed strict parse; reported below
@@ -322,6 +326,55 @@ if colour_bad > 3:
     bad(f"opencode: ...and {colour_bad-3} more colors silently replaced with grey")
 elif not colour_bad:
     ok(f"opencode: every agent color resolves; none fell through to {GREY} by accident")
+
+# --- Layer A (format contract): Kilo omits only OpenCode's name frontmatter ---
+# Compare raw bytes after removing exactly the first name field from OpenCode's
+# frontmatter. Do not normalize whitespace, line endings or Markdown body text.
+try:
+    catalog = json.load(open(os.path.join(R, "tools.json"), encoding="utf-8"))["tools"]
+    formats = {t: catalog[t]["format"] for t in ("opencode", "kilocode")}
+    check(formats == {"opencode": "opencode-md", "kilocode": "kilocode-md"},
+          f"tools.json: expected opencode-md and kilocode-md formats, got {formats}")
+except Exception as e:
+    bad(f"tools.json: could not read the opencode/kilocode formats ({e})")
+
+oc_dir = os.path.join(OUT, "opencode", "agents")
+kc_dir = os.path.join(OUT, "kilocode", "agents")
+oc_files = sorted(os.listdir(oc_dir)) if os.path.isdir(oc_dir) else []
+kc_files = sorted(os.listdir(kc_dir)) if os.path.isdir(kc_dir) else []
+missing_k = sorted(set(oc_files) - set(kc_files))
+missing_o = sorted(set(kc_files) - set(oc_files))
+if missing_k or missing_o:
+    bad(f"kilocode: filename set differs from opencode "
+        f"(only in opencode: {missing_k[:3]}{'…' if len(missing_k) > 3 else ''}; "
+        f"only in kilocode: {missing_o[:3]}{'…' if len(missing_o) > 3 else ''})")
+else:
+    kc_slugs = {os.path.splitext(name)[0] for name in kc_files}
+    absent = sorted(set(src) - kc_slugs)
+    stray = sorted(kc_slugs - set(src))
+    check(not absent and not stray and len(kc_files) == N,
+          f"kilocode: outputs cover the roster one-to-one "
+          f"({len(kc_files)} files, {N} agents"
+          f"{', missing ' + ', '.join(absent[:3]) if absent else ''}"
+          f"{', stray ' + ', '.join(stray[:3]) if stray else ''})")
+    byte_bad = []
+    for name in oc_files:
+        with open(os.path.join(oc_dir, name), "rb") as fh: a = fh.read()
+        with open(os.path.join(kc_dir, name), "rb") as fh: b = fh.read()
+        lines = a.splitlines(keepends=True)
+        if len(lines) < 3 or lines[0].rstrip(b"\r\n") != b"---" or not lines[1].startswith(b"name: "):
+            bad(f"kilocode: cannot compare agents/{name}: expected OpenCode name as first frontmatter field")
+            byte_bad.append(name)
+            continue
+        expected = lines[0] + b"".join(lines[2:])
+        if expected != b:
+            byte_bad.append(name)
+    for name in byte_bad[:3]:
+        bad(f"kilocode: agents/{name} differs from OpenCode beyond the omitted name frontmatter")
+    if len(byte_bad) > 3:
+        bad(f"kilocode: ...and {len(byte_bad)-3} more files differ beyond the omitted name frontmatter")
+    if not byte_bad:
+        ok(f"kilocode: all {N} files match OpenCode bytes except the omitted name frontmatter")
 
 # --- Layer A (split integrity): a source fenced block must survive whole -------
 # openclaw is the one tool that splits a single agent body across two files, at
