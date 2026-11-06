@@ -1,0 +1,573 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta http-equiv="Content-Security-Policy" content="{{CSP}}">
+<meta name="referrer" content="strict-origin-when-cross-origin">
+<meta name="color-scheme" content="light dark">
+<meta name="description" content="Search and filter every agent in The Agency by name, description, vibe and division.">
+<title>Agency Agents Catalog</title>
+<style>
+:root {
+  --bg: #f7f7f8;
+  --surface: #ffffff;
+  --fg: #16171a;
+  --muted: #53565e;
+  --border: #d9dbe0;
+  --chip-bg: #ffffff;
+  --chip-on-bg: #16171a;
+  --chip-on-fg: #ffffff;
+  --link: #0b57d0;
+  --focus: #0b57d0;
+  --code-bg: #eef0f3;
+  --radius: 10px;
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #111214;
+    --surface: #1b1d21;
+    --fg: #ecedf0;
+    --muted: #a9adb6;
+    --border: #33363d;
+    --chip-bg: #1b1d21;
+    --chip-on-bg: #ecedf0;
+    --chip-on-fg: #111214;
+    --link: #8ab4f8;
+    --focus: #8ab4f8;
+    --code-bg: #25282e;
+  }
+}
+*, *::before, *::after { box-sizing: border-box; }
+/* Filtering toggles the hidden attribute; keep it winning over display: flex/grid. */
+[hidden] { display: none !important; }
+html { -webkit-text-size-adjust: 100%; }
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--fg);
+  font: 16px/1.5 system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  overflow-wrap: anywhere;
+}
+a { color: var(--link); }
+:focus-visible { outline: 3px solid var(--focus); outline-offset: 2px; }
+.vh {
+  position: absolute !important; width: 1px; height: 1px; margin: -1px; padding: 0;
+  overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; border: 0;
+}
+.skip { position: absolute; left: 1rem; top: -4rem; background: var(--surface); padding: .5rem .75rem; border-radius: var(--radius); z-index: 10; }
+.skip:focus { top: 1rem; }
+.wrap { max-width: 76rem; margin: 0 auto; padding: 0 1rem; }
+header.site { padding: 2rem 0 1rem; }
+h1 { font-size: clamp(1.5rem, 1.1rem + 2vw, 2.25rem); line-height: 1.2; margin: 0 0 .5rem; }
+.lede { margin: 0; color: var(--muted); max-width: 48rem; }
+.controls {
+  padding: .75rem 0;
+  border-bottom: 1px solid var(--border);
+}
+.search-label { display: block; font-weight: 600; margin-bottom: .25rem; }
+.search-row { display: flex; gap: .5rem; }
+input[type="search"] {
+  flex: 1; min-width: 0;
+  font: inherit; color: var(--fg);
+  background: var(--surface);
+  border: 1px solid var(--muted);
+  border-radius: var(--radius);
+  padding: .6rem .8rem;
+}
+.hint { margin: .25rem 0 0; font-size: .875rem; color: var(--muted); }
+kbd { font: inherit; font-size: .8em; border: 1px solid var(--border); border-radius: 4px; padding: 0 .3em; background: var(--surface); }
+.chips-heading { font-size: .875rem; font-weight: 600; margin: .75rem 0 .35rem; }
+.chips { display: flex; flex-wrap: wrap; gap: .4rem; }
+.chip {
+  font: inherit; font-size: .875rem; color: var(--fg);
+  background: var(--chip-bg);
+  border: 1px solid var(--border);
+  border-left: 4px solid var(--c, var(--border));
+  border-radius: 999px;
+  padding: .25rem .7rem .25rem .55rem;
+  cursor: pointer;
+  display: inline-flex; align-items: center; gap: .4rem;
+  min-height: 2.25rem;
+}
+.chip:hover { border-color: var(--muted); border-left-color: var(--c, var(--muted)); }
+.chip[aria-pressed="true"] { background: var(--chip-on-bg); color: var(--chip-on-fg); border-color: var(--chip-on-bg); border-left-color: var(--c, var(--chip-on-bg)); }
+/* A check mark, so the pressed state never rests on fill color alone. The
+   empty alt text keeps screen readers from reading it; aria-pressed says it. */
+.chip[aria-pressed="true"]::before { content: "\2713"; content: "\2713" / ""; font-weight: 700; }
+.chip .n { font-variant-numeric: tabular-nums; }
+/* Chips with no matches still work, so they keep full contrast (no opacity). */
+.chip[data-empty="true"]:not([aria-pressed="true"]) { color: var(--muted); }
+@media (forced-colors: active) {
+  .chip[aria-pressed="true"] { forced-color-adjust: none; background: Highlight; color: HighlightText; border-color: Highlight; }
+}
+.status-row { display: flex; flex-wrap: wrap; align-items: baseline; justify-content: space-between; gap: .5rem; margin-top: .6rem; }
+#count { margin: 0; font-weight: 600; }
+.linkish { font: inherit; font-size: .875rem; background: none; border: 0; padding: 0; color: var(--link); text-decoration: underline; cursor: pointer; }
+.results {
+  list-style: none; margin: 1rem 0 2rem; padding: 0;
+  display: grid; gap: .9rem;
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, 20rem), 1fr));
+}
+.card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-top: 4px solid var(--c, var(--border));
+  border-radius: var(--radius);
+  padding: .9rem 1rem 1rem;
+  display: flex; flex-direction: column; gap: .5rem;
+  min-width: 0;
+}
+.card-head { display: flex; gap: .65rem; align-items: flex-start; }
+.emoji { font-size: 1.75rem; line-height: 1; flex: none; width: 2.1rem; text-align: center; }
+.card h3 { font-size: 1.05rem; line-height: 1.3; margin: 0; }
+.division { margin: .1rem 0 0; font-size: .8125rem; color: var(--muted); display: flex; align-items: center; gap: .35rem; }
+.dot { width: .6rem; height: .6rem; border-radius: 50%; background: var(--c, var(--muted)); flex: none; }
+.vibe { margin: 0; font-style: italic; }
+.desc { margin: 0; color: var(--muted); font-size: .9375rem; }
+.cmd {
+  display: block; margin-top: auto;
+  font: .8125rem/1.4 ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  background: var(--code-bg); border-radius: 6px; padding: .4rem .55rem;
+  overflow-wrap: anywhere;
+}
+.actions { display: flex; flex-wrap: wrap; gap: .5rem; align-items: center; }
+.btn {
+  font: inherit; font-size: .875rem; color: var(--fg);
+  background: var(--surface);
+  border: 1px solid var(--muted);
+  border-radius: 6px;
+  padding: .35rem .7rem;
+  min-height: 2.25rem;
+  cursor: pointer;
+  text-decoration: none;
+  display: inline-flex; align-items: center;
+}
+.btn:hover { background: var(--code-bg); }
+.back { margin: -1rem 0 2rem; }
+.empty { text-align: center; padding: 2rem 1rem; color: var(--muted); }
+footer.site { border-top: 1px solid var(--border); padding: 1.25rem 0 2rem; font-size: .875rem; color: var(--muted); }
+footer.site p { margin: .25rem 0; }
+.offscreen { position: fixed; top: 0; left: -9999px; opacity: 0; }
+@media (prefers-reduced-motion: no-preference) {
+  .chip, .btn { transition: background-color .15s ease, border-color .15s ease; }
+}
+@media (max-width: 30rem) {
+  header.site { padding-top: 1.25rem; }
+}
+</style>
+</head>
+<body>
+<a class="skip" href="#results">Skip to results</a>
+<header class="site">
+  <div class="wrap">
+    <h1>The Agency: agent catalog</h1>
+    <p class="lede">Every agent in the repository, searchable by name, description and vibe. Pick one, read its source, or copy the command that installs just that agent.</p>
+  </div>
+</header>
+<main>
+  <div class="controls">
+    <div class="wrap">
+      <div role="search">
+        <label class="search-label" for="q">Search agents</label>
+        <div class="search-row">
+          <input type="search" id="q" name="q" autocomplete="off" spellcheck="false" aria-describedby="q-hint">
+        </div>
+        <p class="hint" id="q-hint">Every word must match the name, description or vibe. Press <kbd>Ctrl</kbd>+<kbd>K</kbd> (<kbd>⌘</kbd>+<kbd>K</kbd> on a Mac) to jump here, <kbd>Esc</kbd> to clear.</p>
+      </div>
+      <h2 class="chips-heading" id="chips-heading">Divisions</h2>
+      <div class="chips" id="chips" role="group" aria-labelledby="chips-heading"></div>
+      <div class="status-row">
+        <p id="count"></p>
+        <button type="button" class="linkish" id="reset" hidden>Clear search and filters</button>
+      </div>
+    </div>
+  </div>
+  <div class="wrap">
+    <h2 class="vh">Results</h2>
+    <ul class="results" id="results" role="list" tabindex="-1"></ul>
+    <p class="empty" id="empty" hidden>No agents match. Try fewer words or another division.</p>
+    <p class="back"><button type="button" class="linkish" id="back-to-search">Back to search</button></p>
+    <noscript><p class="empty">This catalog needs JavaScript to search and display agents. The same data is in <a href="agents.json">agents.json</a>.</p></noscript>
+  </div>
+</main>
+<footer class="site">
+  <div class="wrap">
+    <p>Install commands run from a clone of the repository; add <code>--tool &lt;name&gt;</code> to target one tool. Data: <a href="agents.json">agents.json</a>.</p>
+    <p id="build-info"></p>
+  </div>
+</footer>
+<p class="vh" id="count-live" role="status" aria-live="polite" aria-atomic="true"></p>
+<p class="vh" id="announce" role="status" aria-live="polite"></p>
+<script type="application/json" id="catalog-data">{{CATALOG_JSON}}</script>
+<script>
+(function () {
+  "use strict";
+
+  // ---- Pure logic (no DOM). Exposed as CatalogLogic for headless tests. ----
+  var Logic = {
+    fold: function (s) {
+      return String(s || "").normalize("NFKD").replace(/[̀-ͯ]/g, "").toLowerCase();
+    },
+    tokenize: function (q) {
+      return Logic.fold(q).split(/\s+/).filter(Boolean);
+    },
+    haystack: function (agent) {
+      return Logic.fold([agent.name, agent.description, agent.vibe].join("\n"));
+    },
+    // Multi-word AND: every token must appear somewhere in the haystack.
+    matchesQuery: function (hay, tokens) {
+      for (var i = 0; i < tokens.length; i++) {
+        if (hay.indexOf(tokens[i]) === -1) return false;
+      }
+      return true;
+    },
+    // Divisions OR together; an empty set means every division.
+    matchesDivision: function (agent, divs) {
+      return divs.length === 0 || divs.indexOf(agent.division) !== -1;
+    },
+    parseHash: function (hash, validDivisions) {
+      var params = new URLSearchParams(String(hash || "").replace(/^#/, ""));
+      var q = params.get("q") || "";
+      var divs = (params.get("div") || "").split(",").filter(function (d, i, all) {
+        return validDivisions.indexOf(d) !== -1 && all.indexOf(d) === i;
+      }).sort();
+      return { q: q, divs: divs };
+    },
+    serializeState: function (state) {
+      var params = new URLSearchParams();
+      if (state.q.trim()) params.set("q", state.q);
+      if (state.divs.length) params.set("div", state.divs.slice().sort().join(","));
+      var s = params.toString();
+      return s ? "#" + s : "";
+    },
+    installCommand: function (agent) {
+      return "./scripts/install.sh --agent " + agent.install_slug;
+    },
+    // Only http(s) links, built from the configured base and the repo path.
+    sourceUrl: function (repoUrl, path) {
+      try {
+        var encoded = String(path).split("/").map(encodeURIComponent).join("/");
+        var url = new URL(encoded, repoUrl);
+        return (url.protocol === "https:" || url.protocol === "http:") ? url.href : null;
+      } catch (e) {
+        return null;
+      }
+    },
+    commitUrl: function (repoUrl, sha) {
+      if (!/^[0-9a-f]{40}$/.test(sha || "")) return null;
+      var m = /^(https?:\/\/[^\/]+\/[^\/]+\/[^\/]+)\/blob\//.exec(repoUrl || "");
+      return m ? m[1] + "/commit/" + sha : null;
+    }
+  };
+  if (typeof globalThis !== "undefined") globalThis.CatalogLogic = Logic;
+  if (typeof document === "undefined") return;
+
+  // ---- DOM ----
+  var data = JSON.parse(document.getElementById("catalog-data").textContent);
+  var meta = data.meta || {};
+  var agents = data.agents || [];
+  var divisions = data.divisions || [];
+  var divisionIds = divisions.map(function (d) { return d.id; });
+  var divisionById = {};
+  divisions.forEach(function (d) { divisionById[d.id] = d; });
+
+  var input = document.getElementById("q");
+  var chipList = document.getElementById("chips");
+  var results = document.getElementById("results");
+  var countEl = document.getElementById("count");
+  var emptyEl = document.getElementById("empty");
+  var resetBtn = document.getElementById("reset");
+  var announceEl = document.getElementById("announce");
+  var countLive = document.getElementById("count-live");
+  var backBtn = document.getElementById("back-to-search");
+  var skipLink = document.querySelector(".skip");
+
+  var state = { q: "", divs: [] };
+  var pushNextSearch = true;
+
+  function el(tag, className, text) {
+    var node = document.createElement(tag);
+    if (className) node.className = className;
+    if (text != null) node.textContent = text;
+    return node;
+  }
+  // Division colors are validated #RRGGBB at build time; set through CSSOM.
+  function accent(node, color) {
+    if (/^#[0-9a-fA-F]{6}$/.test(color || "")) node.style.setProperty("--c", color);
+  }
+
+  // Chips: "All" plus one per division.
+  var chips = [];
+  function makeChip(id, label, color) {
+    var btn = el("button", "chip");
+    btn.type = "button";
+    btn.dataset.division = id;
+    accent(btn, color);
+    if (id) btn.appendChild(el("span", "dot"));
+    btn.appendChild(el("span", "", label));
+    var n = el("span", "n");
+    btn.appendChild(n);
+    btn.appendChild(el("span", "vh", " agents"));
+    chipList.appendChild(btn);
+    chips.push({ id: id, btn: btn, n: n });
+    btn.addEventListener("click", function () {
+      if (!id) {
+        state.divs = [];
+      } else if (state.divs.indexOf(id) === -1) {
+        state.divs = state.divs.concat(id).sort();
+      } else {
+        state.divs = state.divs.filter(function (d) { return d !== id; });
+      }
+      update(true);
+    });
+  }
+  makeChip("", "All", null);
+  divisions.forEach(function (d) { makeChip(d.id, d.label, d.color); });
+
+  // Cards: built once, then shown/hidden.
+  var cards = [];
+  var frag = document.createDocumentFragment();
+  agents.forEach(function (agent) {
+    var division = divisionById[agent.division] || { label: agent.division, color: null };
+    var li = el("li", "card");
+    accent(li, division.color);
+    var article = el("article");
+    var headingId = "agent-" + agent.slug;
+    article.setAttribute("aria-labelledby", headingId);
+
+    var head = el("div", "card-head");
+    var emoji = el("span", "emoji", agent.emoji);
+    emoji.setAttribute("aria-hidden", "true");
+    head.appendChild(emoji);
+    var titles = el("div");
+    var h3 = el("h3", "", agent.name);
+    h3.id = headingId;
+    titles.appendChild(h3);
+    var divLine = el("p", "division");
+    divLine.appendChild(el("span", "dot"));
+    divLine.appendChild(el("span", "", division.label));
+    titles.appendChild(divLine);
+    head.appendChild(titles);
+    article.appendChild(head);
+
+    if (agent.vibe) article.appendChild(el("p", "vibe", agent.vibe));
+    article.appendChild(el("p", "desc", agent.description));
+
+    var command = Logic.installCommand(agent);
+    article.appendChild(el("code", "cmd", command));
+
+    var actions = el("div", "actions");
+    var href = Logic.sourceUrl(meta.repo_url, agent.path);
+    if (href) {
+      var a = el("a", "btn", "View source");
+      a.href = href;
+      a.rel = "noopener noreferrer";
+      a.appendChild(el("span", "vh", " for " + agent.name));
+      actions.appendChild(a);
+    }
+    var copyBtn = el("button", "btn", "Copy install command");
+    copyBtn.type = "button";
+    copyBtn.setAttribute("aria-label", "Copy install command for " + agent.name);
+    copyBtn.addEventListener("click", function () { copy(command, copyBtn, agent.name); });
+    actions.appendChild(copyBtn);
+    article.appendChild(actions);
+
+    li.appendChild(article);
+    frag.appendChild(li);
+    cards.push({ agent: agent, li: li, hay: Logic.haystack(agent) });
+  });
+  results.appendChild(frag);
+
+  function announce(text) {
+    announceEl.textContent = "";
+    setTimeout(function () { announceEl.textContent = text; }, 50);
+  }
+
+  // The result count is announced separately from the visible one: once typing
+  // settles (not per keystroke), and only when the wording actually changed.
+  var countTimer = null;
+  var lastCountAnnounced = "";
+  function announceCount(text, delay) {
+    clearTimeout(countTimer);
+    countTimer = setTimeout(function () {
+      if (text === lastCountAnnounced) return;
+      lastCountAnnounced = text;
+      countLive.textContent = text;
+    }, delay);
+  }
+
+  function copy(text, btn, name) {
+    var done = function (ok) {
+      announce(ok ? "Install command for " + name + " copied." : "Could not copy. Select the command on the card and copy it manually.");
+      if (ok) {
+        btn.textContent = "Copied";
+        setTimeout(function () { btn.textContent = "Copy install command"; }, 1500);
+      }
+    };
+    var fallback = function () {
+      var ta = el("textarea", "offscreen");
+      ta.value = text;
+      ta.setAttribute("readonly", "");
+      document.body.appendChild(ta);
+      ta.select();
+      var ok = false;
+      try { ok = document.execCommand("copy"); } catch (e) { ok = false; }
+      document.body.removeChild(ta);
+      btn.focus();
+      done(ok);
+    };
+    if (navigator.clipboard && window.isSecureContext) {
+      navigator.clipboard.writeText(text).then(function () { done(true); }, fallback);
+    } else {
+      fallback();
+    }
+  }
+
+  // announceDelay: how long to wait before the screen-reader count update;
+  // omitted means don't announce (initial load).
+  function render(announceDelay) {
+    var tokens = Logic.tokenize(state.q);
+    var perDivision = {};
+    var searchMatches = 0;
+    var shown = 0;
+    cards.forEach(function (card) {
+      var q = Logic.matchesQuery(card.hay, tokens);
+      if (q) {
+        searchMatches++;
+        perDivision[card.agent.division] = (perDivision[card.agent.division] || 0) + 1;
+      }
+      var visible = q && Logic.matchesDivision(card.agent, state.divs);
+      card.li.hidden = !visible;
+      if (visible) shown++;
+    });
+    chips.forEach(function (chip) {
+      var n = chip.id ? (perDivision[chip.id] || 0) : searchMatches;
+      chip.n.textContent = String(n);
+      var pressed = chip.id ? state.divs.indexOf(chip.id) !== -1 : state.divs.length === 0;
+      chip.btn.setAttribute("aria-pressed", pressed ? "true" : "false");
+      chip.btn.dataset.empty = n === 0 ? "true" : "false";
+    });
+    var total = agents.length;
+    countEl.textContent = shown === total
+      ? "Showing all " + total + " agents"
+      : "Showing " + shown + " of " + total + " agents";
+    if (announceDelay != null) {
+      announceCount(shown === 0 ? "No agents match. Try fewer words or another division." : countEl.textContent, announceDelay);
+    }
+    emptyEl.hidden = shown !== 0;
+    resetBtn.hidden = !(state.q.trim() || state.divs.length);
+  }
+
+  function writeHash(push) {
+    var next = Logic.serializeState(state);
+    if (next === (location.hash === "#" ? "" : location.hash)) return;
+    var url = next || (location.pathname + location.search);
+    try {
+      history[push ? "pushState" : "replaceState"](null, "", url);
+    } catch (e) {
+      // Some file:// contexts refuse the History API; fall back to location.
+      if (push) location.hash = next; else location.replace(next || "#");
+    }
+  }
+
+  function update(push) {
+    render(100);
+    writeHash(push);
+    if (push) pushNextSearch = true;
+  }
+
+  // A hash with no q= or div= (e.g. #results from the skip link) is in-page
+  // navigation, not a search state; it must not clear the current filters.
+  function isStateHash(hash) {
+    return !hash || hash === "#" || /(?:^#|&)(?:q|div)=/.test(hash);
+  }
+
+  function readHash(announceDelay) {
+    if (!isStateHash(location.hash)) return;
+    var parsed = Logic.parseHash(location.hash, divisionIds);
+    state.q = parsed.q;
+    state.divs = parsed.divs;
+    if (input.value !== state.q) input.value = state.q;
+    render(announceDelay);
+    pushNextSearch = true;
+  }
+  function onHistory() { readHash(100); }
+
+  // Debounced search. The first change of a typing burst adds a history entry
+  // (so Back returns to the previous search); later keystrokes replace it.
+  var timer = null;
+  input.addEventListener("input", function () {
+    clearTimeout(timer);
+    timer = setTimeout(function () {
+      if (input.value === state.q) return;
+      state.q = input.value;
+      var push = pushNextSearch;
+      pushNextSearch = false;
+      render(800);
+      writeHash(push);
+    }, 150);
+  });
+  input.addEventListener("keydown", function (e) {
+    if (e.key === "Escape" && input.value) {
+      e.preventDefault();
+      clearTimeout(timer);
+      input.value = "";
+      state.q = "";
+      update(true);
+    } else if (e.key === "Enter") {
+      e.preventDefault();
+      clearTimeout(timer);
+      if (input.value !== state.q) { state.q = input.value; update(pushNextSearch); }
+      pushNextSearch = true;
+    }
+  });
+  // Ctrl+K / Cmd+K jumps to search. A modifier is required so the shortcut
+  // can't fire from a single stray key or a speech-input command (WCAG 2.1.4).
+  document.addEventListener("keydown", function (e) {
+    if (!(e.ctrlKey || e.metaKey) || e.altKey || e.shiftKey || (e.key !== "k" && e.key !== "K")) return;
+    e.preventDefault();
+    input.focus();
+    input.select();
+  });
+  // The skip link moves focus without touching the URL hash (see isStateHash).
+  skipLink.addEventListener("click", function (e) {
+    e.preventDefault();
+    results.focus();
+  });
+  backBtn.addEventListener("click", function () {
+    input.focus();
+    input.select();
+  });
+  resetBtn.addEventListener("click", function () {
+    clearTimeout(timer);
+    input.value = "";
+    state.q = "";
+    state.divs = [];
+    update(true);
+    input.focus();
+  });
+  window.addEventListener("popstate", onHistory);
+  window.addEventListener("hashchange", onHistory);
+
+  // Build stamp.
+  var info = document.getElementById("build-info");
+  var built = meta.built ? String(meta.built).slice(0, 10) : "";
+  info.appendChild(document.createTextNode(
+    agents.length + " agents" + (built ? ", built " + built : "") + (meta.commit ? " from commit " : ".")
+  ));
+  if (meta.commit) {
+    var short = String(meta.commit).slice(0, 7);
+    var commitHref = Logic.commitUrl(meta.repo_url, meta.commit);
+    var c = commitHref ? el("a", "", short) : el("code", "", short);
+    if (commitHref) { c.href = commitHref; c.rel = "noopener noreferrer"; }
+    info.appendChild(c);
+    info.appendChild(document.createTextNode("."));
+  }
+
+  render();
+  readHash();
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,84 @@
+name: Deploy Agent Catalog
+
+# Builds the searchable agent catalog (scripts/build-catalog.py + site/index.html)
+# and publishes it to GitHub Pages. One-time setup: Settings -> Pages -> Source:
+# "GitHub Actions".
+#
+# The division list below mirrors divisions.json. check-divisions.sh does not
+# check this file, so add new divisions here too (or the catalog only refreshes
+# on the next push that touches another listed path).
+on:
+  push:
+    branches: [main]
+    paths:
+      - "academic/**"
+      - "design/**"
+      - "engineering/**"
+      - "finance/**"
+      - "game-development/**"
+      - "gis/**"
+      - "healthcare/**"
+      - "marketing/**"
+      - "paid-media/**"
+      - "product/**"
+      - "project-management/**"
+      - "research/**"
+      - "sales/**"
+      - "security/**"
+      - "spatial-computing/**"
+      - "specialized/**"
+      - "support/**"
+      - "testing/**"
+      - "divisions.json"
+      - "site/**"
+      - "scripts/build-catalog.py"
+      - ".github/workflows/pages.yml"
+  workflow_dispatch:
+
+# Nothing by default; each job asks for only what it needs.
+permissions: {}
+
+# One Pages deployment at a time. Don't cancel a run that is mid-deploy; a
+# queued run supersedes an older queued one.
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+# Actions are pinned to major tags, like the other workflows in this repo.
+# Pinning each to a full commit SHA is recommended for supply-chain hardening.
+jobs:
+  build:
+    name: Build catalog
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+
+      - name: Build site
+        env:
+          # "View source" links point at this repository (a fork links to itself).
+          REPO_URL: ${{ github.server_url }}/${{ github.repository }}/blob/${{ github.ref_name }}/
+        run: python3 scripts/build-catalog.py --out _site --repo-url "$REPO_URL"
+
+      - name: Upload Pages artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: _site
+
+  deploy:
+    name: Deploy to GitHub Pages
+    needs: build
+    runs-on: ubuntu-latest
+    permissions:
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Deploy
+        id: deployment
+        uses: actions/deploy-pages@v4
