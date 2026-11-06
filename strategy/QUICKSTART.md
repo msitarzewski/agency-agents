@@ -124,7 +124,11 @@ Evidence Collector verifies improvements.
 
 | Document | Purpose | Location |
 |----------|---------|----------|
-| **Master Strategy** | Complete NEXUS doctrine | `strategy/nexus-strategy.md` |
+| **Master Strategy** | NEXUS doctrine: foundation, operating model, coordination, gates, risk, metrics | `strategy/nexus-strategy.md` |
+| **Phase Details** | Agent rosters and gates for Phases 0–6 | `strategy/nexus-phases.md` |
+| **Handoff Protocols** | Handoff, QA feedback, and escalation templates | `strategy/nexus-protocols.md` |
+| **Activation Guide** | NEXUS-Full, Sprint, and Micro activation | `strategy/nexus-activation.md` |
+| **Appendices** | Division reference, status report, glossary | `strategy/nexus-appendices.md` |
 | **Phase 0 Playbook** | Discovery & intelligence | `strategy/playbooks/phase-0-discovery.md` |
 | **Phase 1 Playbook** | Strategy & architecture | `strategy/playbooks/phase-1-strategy.md` |
 | **Phase 2 Playbook** | Foundation & scaffolding | `strategy/playbooks/phase-2-foundation.md` |
