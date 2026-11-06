@@ -21,6 +21,18 @@ import * as aios from "./connectors/aios-brandos.js";
 
 const VERSION = "1.0.0";
 
+// Host names the app answers to. GitHub Codespaces forwards ports through
+// <codespace>-<port>.<domain>, so that name is allowed automatically inside a Codespace.
+const ALLOWED_HOSTS = [
+  "127.0.0.1",
+  "localhost",
+  "::1",
+  ...(process.env.CODESPACE_NAME && process.env.GITHUB_CODESPACES_PORT_FORWARDING_DOMAIN
+    ? [`${process.env.CODESPACE_NAME}-${PORT}.${process.env.GITHUB_CODESPACES_PORT_FORWARDING_DOMAIN}`]
+    : []),
+  ...(process.env.JAYSTUDIO_ALLOWED_HOSTS || "").split(",").map((h) => h.trim()).filter(Boolean),
+];
+
 const MIME = { ".html": "text/html; charset=utf-8", ".js": "text/javascript; charset=utf-8", ".css": "text/css; charset=utf-8", ".svg": "image/svg+xml", ".json": "application/json", ".png": "image/png" };
 
 // Static files the browser may load: the app itself and the markdown renderer from node_modules.
@@ -259,7 +271,7 @@ const server = http.createServer(async (req, res) => {
     // DNS-rebinding guard: when bound to loopback, only answer to loopback host names.
     const loopback = ["127.0.0.1", "localhost", "::1"].includes(HOST);
     const hostName = (req.headers.host || "").replace(/:\d+$/, "").replace(/^\[|\]$/g, "");
-    if (loopback && !["127.0.0.1", "localhost", "::1"].includes(hostName)) return send(res, 403, { error: "host không hợp lệ" });
+    if (loopback && !ALLOWED_HOSTS.includes(hostName)) return send(res, 403, { error: `host không hợp lệ: ${hostName}. Thêm vào JAYSTUDIO_ALLOWED_HOSTS nếu đây là địa chỉ của bạn.` });
     if (url.pathname.startsWith("/api/") || url.pathname === "/mcp") {
       // Block cross-site requests from other web pages (the app is same-origin).
       const origin = req.headers.origin;

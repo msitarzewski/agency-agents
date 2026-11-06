@@ -1,0 +1,26 @@
+{
+  "name": "Jaystudio Brand OS",
+  "image": "mcr.microsoft.com/devcontainers/javascript-node:1-22-bookworm",
+  "features": {
+    "ghcr.io/devcontainers/features/python:1": { "version": "3.12" }
+  },
+  "postCreateCommand": "bash .devcontainer/post-create.sh",
+  "postAttachCommand": {
+    "jaystudio": "cd apps/jaystudio && npm start"
+  },
+  "forwardPorts": [4321],
+  "portsAttributes": {
+    "4321": { "label": "Jaystudio Brand OS", "onAutoForward": "openBrowser" }
+  },
+  "secrets": {
+    "ANTHROPIC_API_KEY": {
+      "description": "Khóa Claude API để Jaystudio viết chiến lược và nội dung.",
+      "documentationUrl": "https://platform.claude.com/settings/keys"
+    },
+    "AIOS_BRANDOS_EMAIL": { "description": "Tài khoản dịch vụ AIOS Brand OS (vai trò CONTENT_MANAGER). Tùy chọn." },
+    "AIOS_BRANDOS_PASSWORD": { "description": "Mật khẩu tài khoản dịch vụ AIOS Brand OS. Tùy chọn." }
+  },
+  "customizations": {
+    "codespaces": { "openFiles": ["apps/jaystudio/README.md"] }
+  }
+}
