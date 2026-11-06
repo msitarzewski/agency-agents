@@ -283,7 +283,7 @@ READ_SCHEMA = {
         "type": "object",
         "properties": {
             "agent": {"type": "string", "description": "Agent slug, exact display name, or runbook file stem."},
-            "slug": {"type": "string", "description": "Alias for agent. Pass the slug from agency_agents_search results."},
+            "slug": {"type": "string", "description": "Alias for agent. A slug from search results, an exact display name, or a runbook file stem."},
             "include_body": {"type": "boolean", "description": "Include full specialist instructions."},
         },
         "required": [],
@@ -301,7 +301,7 @@ PROMPT_SCHEMA = {
         "type": "object",
         "properties": {
             "agent": {"type": "string", "description": "Agent slug, exact display name, or runbook file stem."},
-            "slug": {"type": "string", "description": "Alias for agent. Pass the slug from agency_agents_search results."},
+            "slug": {"type": "string", "description": "Alias for agent. A slug from search results, an exact display name, or a runbook file stem."},
             "task": {"type": "string", "description": "The user's task to pair with the specialist context."},
         },
         "required": [],
@@ -320,7 +320,7 @@ DELEGATE_SCHEMA = {
         "type": "object",
         "properties": {
             "agent": {"type": "string", "description": "Agent slug, exact display name, or runbook file stem."},
-            "slug": {"type": "string", "description": "Alias for agent. Pass the slug from agency_agents_search results."},
+            "slug": {"type": "string", "description": "Alias for agent. A slug from search results, an exact display name, or a runbook file stem."},
             "task": {"type": "string", "description": "Concrete task for the specialist."},
         },
         "required": ["task"],
