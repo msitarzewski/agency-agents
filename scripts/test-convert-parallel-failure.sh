@@ -30,6 +30,6 @@ printf 'import sys\n' > "$FIXTURE/repo/scripts/build-hermes-plugin.py"
 TMPDIR="$FIXTURE" "$FIXTURE/repo/scripts/convert.sh" \
   --tool all --parallel --jobs 2 --out "$FIXTURE/output" \
   > "$FIXTURE/success.log" 2>&1
-grep -Fq 'Done. 15 tools' "$FIXTURE/success.log"
+grep -Fq 'Done. 16 tools' "$FIXTURE/success.log"
 
 echo "PASS: parallel converter reports failure and cleans buffered logs"

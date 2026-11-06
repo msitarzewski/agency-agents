@@ -28,7 +28,7 @@ separator_count="$(get_body "$OUTPUT_DIR/body-with-separator.md" | grep -cx -- '
   exit 1
 }
 
-for tool in gemini-cli opencode qwen; do
+for tool in gemini-cli opencode qwen pi; do
   "$SCRIPT_DIR/convert.sh" --tool "$tool" --out "$OUTPUT_DIR" >/dev/null
 done
 
@@ -55,6 +55,25 @@ assert_quoted \
 assert_quoted \
   "$OUTPUT_DIR/qwen/agents/programmatic-display-buyer.md" \
   tools
+pi_description="$(awk -v key=description '$0 ~ "^" key ":" { print; exit }' \
+  "$OUTPUT_DIR/pi/agents/engineering-developer-tooling-engineer.md")"
+case "$pi_description" in
+  "description: '"*"'"|"description: \""*"\"") ;;
+  *) printf 'Expected Pi description to keep a quoted scalar, got: %s\n' "$pi_description" >&2; exit 1 ;;
+esac
+PI_AGENT="$OUTPUT_DIR/pi/agents/engineering-code-reviewer.md"
+for line in "color: 'purple'" "emoji: '👁️'" "vibe: 'Reviews code like a mentor, not a gatekeeper. Every comment teaches something.'"; do
+  grep -Fqx "$line" "$PI_AGENT" || { echo "Pi output dropped metadata: $line" >&2; exit 1; }
+done
+PI_TOOLS_AGENT="$OUTPUT_DIR/pi/agents/product-manager.md"
+grep -Fqx "x-agency-claude-tools: 'WebFetch, WebSearch, Read, Write, Edit'" "$PI_TOOLS_AGENT"
+grep -Fqx 'tools: read, write, edit' "$PI_TOOLS_AGENT"
+grep -Fqx "extensions: ''" "$PI_TOOLS_AGENT"
+grep -Fqx "x-agency-unmapped-tools: 'WebFetch, WebSearch'" "$PI_TOOLS_AGENT"
+if [[ "$(grep -c '^---$' "$OUTPUT_DIR/pi/agents/design-ux-architect.md")" -ne 4 ]]; then
+  echo "Pi output dropped persona body separators" >&2
+  exit 1
+fi
 
 # Qwen resolves tools by its own names and silently keeps one it does not know,
 # so Claude Code's Read/Write/Bash have to arrive as read_file/write_file/
