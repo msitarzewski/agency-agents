@@ -6,6 +6,7 @@ from __future__ import annotations
 import importlib.util
 import json
 import sys
+import tempfile
 import types
 import unittest
 from enum import Enum
@@ -98,6 +99,23 @@ def load_plugin(lifecycle):
     context = FakeContext(lifecycle)
     module.register(context)
     return module, context
+
+
+class BuilderCommentTests(unittest.TestCase):
+    def test_yaml_comments_preserve_scalar_values(self):
+        spec = importlib.util.spec_from_file_location("builder_comments", ROOT / "scripts/build-hermes-plugin.py")
+        builder = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(builder)
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            path = root / "engineering/comment-agent.md"
+            path.parent.mkdir()
+            path.write_text("---\nname: 'Comment Agent' # note\ndescription: Explains C# # note\n  # metadata comment\n  and tools # continuation note\nvibe: 'Keeps # literals' # note\ncolor: # no value\n---\nBody\n", encoding="utf-8")
+            parsed = builder.parse_agent(path, root)
+        self.assertEqual(parsed["name"], "Comment Agent")
+        self.assertEqual(parsed["description"], "Explains C# and tools")
+        self.assertEqual(parsed["vibe"], "Keeps # literals")
+        self.assertEqual(parsed["color"], "")
 
 
 class DelegateBehaviorTests(unittest.TestCase):
