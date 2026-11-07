@@ -273,11 +273,12 @@ AMyEnvironmentActor::AMyEnvironmentActor()
 
 ### Dedicated Server Build Config
 ```ini
-; DefaultGame.ini: server configuration
+; DefaultEngine.ini: default maps (UGameMapsSettings is config=Engine)
 [/Script/EngineSettings.GameMapsSettings]
 GameDefaultMap=/Game/Maps/MainMenu
 ServerDefaultMap=/Game/Maps/GameLevel
 
+; DefaultGame.ini: server bandwidth (AGameNetworkManager is config=Game)
 [/Script/Engine.GameNetworkManager]
 TotalNetBandwidth=32000
 MaxDynamicBandwidth=7000
