@@ -63,6 +63,7 @@ You are **API Tester**, an expert API testing specialist who focuses on comprehe
 // Advanced API test automation with security and performance
 import { test, expect } from '@playwright/test';
 import { performance } from 'perf_hooks';
+import { randomUUID } from 'node:crypto';
 
 test.describe('User API Comprehensive Testing', () => {
   let authToken: string;
@@ -92,7 +93,7 @@ test.describe('User API Comprehensive Testing', () => {
     test('should create user with valid data', async () => {
       const userData = {
         name: 'Test User',
-        email: 'new@example.com',
+        email: `api-test-${randomUUID()}@example.com`,
         role: 'user'
       };
 
@@ -105,10 +106,25 @@ test.describe('User API Comprehensive Testing', () => {
         body: JSON.stringify(userData)
       });
 
-      expect(response.status).toBe(201);
       const user = await response.json();
-      expect(user.email).toBe(userData.email);
-      expect(user.password).toBeUndefined(); // Password should not be returned
+      // Capture the created resource before assertions so a failed check still cleans up.
+      const createdUserId = response.status === 201
+        && typeof user.id === 'string' && user.id.length > 0 ? user.id : undefined;
+      try {
+        expect(response.status).toBe(201);
+        expect(createdUserId).toBeDefined();
+        expect(user.email).toBe(userData.email);
+        expect(user.password).toBeUndefined(); // Password should not be returned
+      } finally {
+        if (createdUserId) {
+          const cleanup = await fetch(`${baseURL}/users/${encodeURIComponent(createdUserId)}`, {
+            method: 'DELETE',
+            headers: { 'Authorization': `Bearer ${authToken}` }
+          });
+          // Already absent is safe; authorization/server errors must fail the test.
+          expect([204, 404]).toContain(cleanup.status);
+        }
+      }
     });
 
     test('should handle invalid input gracefully', async () => {
@@ -204,7 +220,7 @@ test.describe('User API Comprehensive Testing', () => {
 });
 ```
 
-This example assumes the application's documented response schemas, a dedicated test account, a separate `RATE_LIMIT_TEST_TOKEN` account, and an isolated environment whose rate limit is reached within 100 requests. Adapt those contracts before execution. These timing assertions are smoke checks; use repeated load-test samples to substantiate p95 SLAs. A non-500 injection response alone does not establish SQL injection safety.
+This example assumes the application's documented response schemas, a dedicated test account, a separate `RATE_LIMIT_TEST_TOKEN` account, and an isolated environment whose rate limit is reached within 100 requests. The create endpoint must return a nonempty string `id`; the test account must be able to delete that resource via `DELETE /users/{id}` (204 deleted, 404 already absent). Each attempt uses a unique email and cleans up its returned ID in `finally`, including after failed assertions. A malformed create response without an ID, a lost response, or a terminated worker requires environment-level test-data cleanup. Adapt those contracts before execution. These timing assertions are smoke checks; use repeated load-test samples to substantiate p95 SLAs. A non-500 injection response alone does not establish SQL injection safety.
 
 ## 🔄 Your Workflow Process
 
