@@ -103,6 +103,10 @@ for (const bill of recurringBills) {
     continue;
   }
 
+  // Idempotency: a retried or repeated run must not pay the same invoice again
+  const existing = await payments.checkByReference({ reference: bill.invoiceId });
+  if (existing.paid) continue;
+
   const result = await payments.send({
     to: bill.recipient,
     amount: bill.amount,
