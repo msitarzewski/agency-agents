@@ -81,19 +81,45 @@ def ingest_bronze(source_path: str, bronze_table: str, source_system: str) -> in
     return df.count()
 
 # ── Silver: cleanse, deduplicate, conform ────────────────────────────────────
-def upsert_silver(bronze_table: str, silver_table: str, pk_cols: list[str]) -> None:
-    source = spark.read.format("delta").load(bronze_table)
-    # Dedup: keep latest record per primary key based on ingestion time
+def upsert_silver(
+    bronze_table: str, silver_table: str, pk_cols: list[str], version_col: str
+) -> None:
     from pyspark.sql.window import Window
-    from pyspark.sql.functions import row_number, desc
-    w = Window.partitionBy(*pk_cols).orderBy(desc("_ingested_at"))
+    from pyspark.sql.functions import row_number, desc, countDistinct, struct
+    from pyspark.sql.types import ByteType, ShortType, IntegerType, LongType
+
+    source = spark.read.format("delta").load(bronze_table)
+    required = set(pk_cols + [version_col, "_ingested_at", "_source_file"])
+    if not pk_cols or not required.issubset(source.columns):
+        raise ValueError("Provide primary keys, a source version, and ingestion metadata")
+    if not isinstance(source.schema[version_col].dataType,
+                      (ByteType, ShortType, IntegerType, LongType)):
+        raise ValueError("Source versions must be integers, not arrival timestamps")
+    invalid = col(version_col).isNull()
+    for key in pk_cols:
+        invalid = invalid | col(key).isNull()
+    if source.filter(invalid).limit(1).count():
+        raise ValueError("Primary keys and source versions must not be null")
+
+    # Replays may have different ingestion metadata but must agree on payload.
+    payload_cols = [c for c in source.columns if c not in ("_ingested_at", "_source_file")]
+    conflicts = source.groupBy(*pk_cols, version_col).agg(
+        countDistinct(struct(*[col(c) for c in payload_cols])).alias("_variants")
+    ).filter(col("_variants") > 1)
+    if conflicts.limit(1).count():
+        raise ValueError("Conflicting payloads share a primary key and source version")
+
+    # Source versions establish business order; ingestion metadata only breaks replay ties.
+    w = Window.partitionBy(*pk_cols).orderBy(
+        desc(version_col), desc("_ingested_at"), desc("_source_file")
+    )
     source = source.withColumn("_rank", row_number().over(w)).filter(col("_rank") == 1).drop("_rank")
 
     if DeltaTable.isDeltaTable(spark, silver_table):
         target = DeltaTable.forPath(spark, silver_table)
         merge_condition = " AND ".join([f"target.{c} = source.{c}" for c in pk_cols])
         target.alias("target").merge(source.alias("source"), merge_condition) \
-            .whenMatchedUpdateAll() \
+            .whenMatchedUpdateAll(condition=f"source.{version_col} > target.{version_col}") \
             .whenNotMatchedInsertAll() \
             .execute()
     else:
@@ -124,6 +150,8 @@ def build_gold_daily_revenue(
 ```
 
 `_source_file` must describe the file Spark read, rather than a payload field named `_metadata.file_path`. This open-source Spark example uses [PySpark `input_file_name`](https://spark.apache.org/docs/3.5.6/api/python/reference/pyspark.sql/api/pyspark.sql.functions.input_file_name.html) so source JSON containing `_metadata` cannot replace the physical file URI. Adapt provenance to the runtime you deploy; the [Databricks file metadata API](https://docs.databricks.com/aws/en/ingestion/file-metadata-column) also documents collisions with source columns named `_metadata`.
+
+Call Silver with a source-owned integer version, for example `upsert_silver(bronze_path, silver_path, ["order_id"], "order_version")`. Versions must increase for each primary key and never reset; an ingestion timestamp or random event ID cannot establish business order. This example reads the complete retained Bronze history, uses flat scalar payload columns and simple column names, and assumes one Silver writer. Include source/tenant identifiers in `pk_cols` when IDs are only unique within that scope. Identical replays are accepted, but different payloads at the same key/version fail before writing; resolve or quarantine those conflicts rather than inventing an ordering. The merge only updates newer versions, so late delivery of an older event cannot roll Silver back. See [Delta Lake merge semantics and deduplication](https://docs.delta.io/delta-update/).
 
 Run the Gold refresh against a complete Silver snapshot for the requested date window, not a partial event batch. Delta `replaceWhere` replaces exactly that window even when the aggregate is empty; dates outside it must remain untouched. Keep its default predicate constraint check enabled. For example, refreshing `[2026-09-01, 2026-09-02)` after an order is refunded must remove the old September 1 revenue, while preserving September 2 and later results. See [Delta selective overwrite](https://docs.delta.io/delta-batch/#selective-overwrite).
 
