@@ -178,6 +178,8 @@ models:
 
 ### Pipeline Observability (Great Expectations)
 ```python
+from datetime import datetime
+
 import great_expectations as gx
 
 context = gx.get_context()
@@ -185,7 +187,7 @@ context = gx.get_context()
 def validate_silver_orders(df) -> dict:
     batch = context.sources.pandas_default.read_dataframe(df)
     result = batch.validate(
-        expectation_suite_name="silver_orders.critical",
+        expectation_suite=context.get_expectation_suite("silver_orders.critical"),
         run_id={"run_name": "silver_orders_daily", "run_time": datetime.now()}
     )
     stats = {
