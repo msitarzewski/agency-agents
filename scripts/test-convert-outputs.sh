@@ -97,7 +97,7 @@ N="$(wc -l < "$SOURCES" | tr -d ' ')"
 [[ "$N" -gt 0 ]] || { echo "ERROR: no source agents found." >&2; exit 2; }
 
 # --- generate: every converted tool, sequentially, into a scratch dir ---------
-TOOLS="antigravity gemini-cli opencode cursor aider windsurf openclaw qwen zcode kimi codex osaurus hermes vibe dsh"
+TOOLS="antigravity gemini-cli opencode cursor aider windsurf openclaw qwen zcode kimi codex osaurus hermes vibe dsh reasonix"
 if [[ -z "$OUT" ]]; then
   OUT="$TMP/out"; mkdir -p "$OUT"
   for t in $TOOLS; do
@@ -143,6 +143,7 @@ SPEC = {
     "antigravity": ("agency-*/SKILL.md", "yaml-fm"),
     "osaurus":     ("agency-*/SKILL.md", "yaml-fm"),
     "dsh":         ("agency-*/SKILL.md", "yaml-fm"),
+    "reasonix":    ("reasonix-agency-*/SKILL.md", "yaml-fm"),
     "gemini-cli":  ("agents/*.md",       "yaml-fm"),
     "opencode":    ("agents/*.md",       "yaml-fm"),
     "qwen":        ("agents/*.md",       "yaml-fm"),
@@ -157,10 +158,11 @@ SPEC = {
     "hermes":      ("agency-agents-router/data/agents.json", "json"),
 }
 
-def slug_of(path):
+def slug_of(path, tool):
     base = os.path.basename(path)
     if base in ("SKILL.md", "agent.yaml", "SOUL.md", "system.md", "AGENTS.md", "IDENTITY.md"):
         d = os.path.basename(os.path.dirname(path))
+        if tool == "reasonix" and d.startswith("reasonix-agency-"): return d[len("reasonix-agency-"):]
         return d[len("agency-"):] if d.startswith("agency-") else d
     return os.path.splitext(base)[0]
 
@@ -258,7 +260,7 @@ for tool in TOOLS:
 
     bad_parse = bad_trip = 0
     for f in files:
-        slug = slug_of(f)
+        slug = slug_of(f, tool)
         if slug not in src:
             bad(f"{tool}: {os.path.relpath(f, OUT)} has no roster source for slug '{slug}'"); continue
         try:
@@ -267,6 +269,17 @@ for tool in TOOLS:
             elif fmt in ("toml", "toml-id"):   data = tomllib.loads(text)
             else:                              data = yaml.safe_load(text)   # yaml-id
             if not isinstance(data, dict): raise ValueError("top level is not a mapping")
+            if tool == "reasonix":
+                expected_name = "reasonix-agency-" + slug
+                check(set(data) == {"name", "description", "invocation", "runAs"},
+                      f"reasonix: {slug} unexpected profile fields")
+                check(data.get("name") == expected_name and len(expected_name) <= 64
+                      and expected_name == expected_name.lower(), f"reasonix: {slug} invalid name")
+                check(data.get("invocation") == "manual" and data.get("runAs") == "subagent",
+                      f"reasonix: {slug} is not an isolated manual profile")
+                original = open(os.path.join(R, src[slug][2]), encoding="utf-8").read()
+                check(text.split("\n---\n", 1)[1].rstrip("\n") == original.split("\n---\n", 1)[1].rstrip("\n"),
+                      f"reasonix: {slug} persona body changed")
         except Exception as e:
             bad_parse += 1; bad(f"{tool}: {os.path.relpath(f, OUT)} does not parse ({type(e).__name__}: {e})"); continue
 
@@ -480,9 +493,10 @@ per_tool  = {t: [] for t in TOOLS}           # tool -> [(label, bytes)] for non-
 
 def owner_of(path):
     """Which roster agent a generated file belongs to, by exact path component or stem."""
-    parts = rel(path).split("/")[1:]         # drop the tool dir
+    tool, *parts = rel(path).split("/")
     for comp in parts[:-1]:
-        d = comp[len("agency-"):] if comp.startswith("agency-") else comp
+        if tool == "reasonix" and comp.startswith("reasonix-agency-"): d = comp[len("reasonix-agency-"):]
+        else: d = comp[len("agency-"):] if comp.startswith("agency-") else comp
         if d in slugs: return d
     stem = os.path.splitext(parts[-1])[0]
     return stem if stem in slugs else None
