@@ -121,6 +121,7 @@ uniform float wave_scale : hint_range(0.1, 10.0) = 2.0;
 uniform vec4 shallow_color : source_color = vec4(0.1, 0.5, 0.6, 0.8);
 uniform vec4 deep_color : source_color = vec4(0.02, 0.1, 0.3, 1.0);
 uniform float depth_fade_distance : hint_range(0.1, 10.0) = 3.0;
+uniform sampler2D depth_texture : hint_depth_texture;
 
 void fragment() {
     vec2 time_offset_a = vec2(TIME * wave_speed * 0.7, TIME * wave_speed * 0.4);
@@ -133,7 +134,11 @@ void fragment() {
 
     // Depth-based color blend (Forward+ / Mobile renderer required for DEPTH_TEXTURE)
     // In Compatibility renderer: remove depth blend, use flat shallow_color
-    float depth_blend = clamp(FRAGCOORD.z / depth_fade_distance, 0.0, 1.0);
+    // Water depth = distance to the scene behind the surface minus the surface's own distance
+    float scene_depth = texture(depth_texture, SCREEN_UV).r;
+    vec4 scene_view = INV_PROJECTION_MATRIX * vec4(SCREEN_UV * 2.0 - 1.0, scene_depth, 1.0);
+    float water_depth = -scene_view.z / scene_view.w + VERTEX.z;  // VERTEX is view space
+    float depth_blend = clamp(water_depth / depth_fade_distance, 0.0, 1.0);
     vec4 water_color = mix(shallow_color, deep_color, depth_blend);
 
     ALBEDO = water_color.rgb;
