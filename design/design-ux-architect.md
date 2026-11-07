@@ -269,7 +269,9 @@ class ThemeManager {
   updateToggleUI() {
     const options = document.querySelectorAll('.theme-toggle-option');
     options.forEach(option => {
-      option.classList.toggle('active', option.dataset.theme === this.currentTheme);
+      const selected = option.dataset.theme === this.currentTheme;
+      option.classList.toggle('active', selected);
+      option.setAttribute('aria-checked', String(selected));
     });
   }
 }
