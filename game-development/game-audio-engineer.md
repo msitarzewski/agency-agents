@@ -94,6 +94,8 @@ public class AudioManager : MonoBehaviour
 
     public void StartMusic(string state)
     {
+        // Stop and release the current track first, or it keeps playing with no handle left
+        if (_musicInstance.isValid()) StopMusic();
         _musicInstance = FMODUnity.RuntimeManager.CreateInstance(_musicEvent);
         _musicInstance.setParameterByName("CombatIntensity", 0f);
         _musicInstance.start();
