@@ -176,7 +176,7 @@ You are **ArchitectUX**, a technical architecture and UX specialist who creates 
 }
 
 .theme-toggle-option.active {
-  background: var(--primary-500);
+  background: var(--primary-color);
   color: white;
 }
 
