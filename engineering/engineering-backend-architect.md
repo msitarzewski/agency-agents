@@ -134,6 +134,12 @@ CREATE TABLE users (
 CREATE INDEX idx_users_email ON users(email) WHERE deleted_at IS NULL;
 CREATE INDEX idx_users_created_at ON users(created_at);
 
+-- Categories must exist before products can reference them
+CREATE TABLE categories (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    name VARCHAR(255) NOT NULL
+);
+
 -- Products table with proper normalization
 CREATE TABLE products (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),

@@ -65,29 +65,32 @@ You are **Frontend Developer**, an expert frontend developer who specializes in 
 
 ### Modern React Component Example
 ```tsx
-// Modern React component with performance optimization
-import React, { memo, useCallback, useMemo } from 'react';
+// Renderable cell values and stable IDs keep the example self-contained.
+import React, { memo } from 'react';
 import { useVirtualizer } from '@tanstack/react-virtual';
 
+type Row = { id: string } & Record<string, React.ReactNode>;
+
+interface Column {
+  key: string;
+  header: string;
+}
+
 interface DataTableProps {
-  data: Array<Record<string, any>>;
+  data: Row[];
   columns: Column[];
-  onRowClick?: (row: any) => void;
+  onRowClick?: (row: Row) => void;
 }
 
 export const DataTable = memo<DataTableProps>(({ data, columns, onRowClick }) => {
   const parentRef = React.useRef<HTMLDivElement>(null);
-  
   const rowVirtualizer = useVirtualizer({
     count: data.length,
     getScrollElement: () => parentRef.current,
+    getItemKey: (index) => data[index].id,
     estimateSize: () => 50,
     overscan: 5,
   });
-
-  const handleRowClick = useCallback((row: any) => {
-    onRowClick?.(row);
-  }, [onRowClick]);
 
   return (
     <div
@@ -95,27 +98,48 @@ export const DataTable = memo<DataTableProps>(({ data, columns, onRowClick }) =>
       className="h-96 overflow-auto"
       role="table"
       aria-label="Data table"
+      aria-rowcount={data.length + 1}
+      tabIndex={0}
     >
+      <div role="row" aria-rowindex={1} className="flex font-bold">
+        {columns.map((column) => (
+          <div key={column.key} role="columnheader" className="px-4 py-2 flex-1">
+            {column.header}
+          </div>
+        ))}
+        {onRowClick && <div role="columnheader" className="px-4 py-2">Actions</div>}
+      </div>
       <div role="rowgroup" style={{ height: rowVirtualizer.getTotalSize(), position: 'relative' }}>
         {rowVirtualizer.getVirtualItems().map((virtualItem) => {
           const row = data[virtualItem.index];
           return (
             <div
               key={virtualItem.key}
-              className="flex items-center border-b hover:bg-gray-50 cursor-pointer"
+              className="flex items-center border-b hover:bg-gray-50"
               style={{
                 position: 'absolute', top: 0, left: 0, width: '100%',
                 height: virtualItem.size, transform: `translateY(${virtualItem.start}px)`,
               }}
-              onClick={() => handleRowClick(row)}
               role="row"
-              tabIndex={0}
+              aria-rowindex={virtualItem.index + 2}
             >
               {columns.map((column) => (
                 <div key={column.key} className="px-4 py-2 flex-1" role="cell">
                   {row[column.key]}
                 </div>
               ))}
+              {onRowClick && (
+                <div role="cell" className="px-4 py-2">
+                  <button
+                    type="button"
+                    onClick={() => onRowClick(row)}
+                    aria-label={`Open row ${virtualItem.index + 1}`}
+                    className="underline focus-visible:outline focus-visible:outline-2"
+                  >
+                    Open
+                  </button>
+                </div>
+              )}
             </div>
           );
         })}
@@ -124,6 +148,8 @@ export const DataTable = memo<DataTableProps>(({ data, columns, onRowClick }) =>
   );
 });
 ```
+
+Use unique, stable row IDs and renderable cell values. A native button inside each action cell supplies mouse, Enter, and Space activation without making a table row masquerade as a button; see the [WAI-ARIA table pattern](https://www.w3.org/WAI/ARIA/apg/patterns/table/). The scroll container is keyboard focusable, and row counts/indexes describe the partially rendered data. Virtualization still requires testing with the target assistive technologies; offer a paginated or non-virtualized view when users need to navigate all rows reliably.
 
 ## 🔄 Your Workflow Process
 
