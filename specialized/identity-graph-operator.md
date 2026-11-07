@@ -164,7 +164,8 @@ class IdentityMatcher:
         if normalizer == "email":
             return value.lower().strip()
         elif normalizer == "phone":
-            return re.sub(r"[^\d+]", "", value)  # Strip to digits
+            phone = re.sub(r"[^\d+]", "", value)
+            return phone if re.search(r"\d", phone) else ""
         elif normalizer == "name":
             return self.expand_nicknames(value.lower().strip())
         return value.lower().strip()
@@ -176,6 +177,25 @@ class IdentityMatcher:
             "tom": "thomas", "dick": "richard", "jack": "john",
         }
         return nicknames.get(name, name)
+```
+
+Regression check (run after the class above): a dialing prefix without digits is missing phone evidence, not an identity match.
+
+```python
+matcher = IdentityMatcher()
+phone_rules = [{"field": "phone", "normalizer": "phone", "weight": 1}]
+assert matcher.score_pair({"phone": "(+)"}, {"phone": "+"}, phone_rules) == 0.0
+assert matcher.score_pair(
+    {"phone": "+1 (202) 555-0100"}, {"phone": "+12025550100"}, phone_rules
+) == 1.0
+assert matcher.score_pair(
+    {"phone": "+12025550100"}, {"phone": "+12025550101"}, phone_rules
+) == 0.0
+assert matcher.score_pair(
+    {"phone": "+", "email": "a@example.test"},
+    {"phone": "+", "email": "a@example.test"},
+    phone_rules + [{"field": "email", "normalizer": "email", "weight": 1}],
+) == 0.5
 ```
 
 ## 🔄 Your Workflow Process

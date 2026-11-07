@@ -245,13 +245,17 @@ class InvestmentAnalyzer:
     
     def payback_period(self, cash_flows, initial_investment):
         """
-        Calculate payback period in years
+        Calculate payback years using exact decimal or rational monetary amounts.
         """
-        cumulative_cf = 0
+        from fractions import Fraction
+
+        initial_investment = Fraction(str(initial_investment))
+        cumulative_cf = Fraction(0)
         for i, cf in enumerate(cash_flows):
+            cf = Fraction(str(cf))
             cumulative_cf += cf
             if cumulative_cf >= initial_investment:
-                return i + 1 - ((cumulative_cf - initial_investment) / cf)
+                return float(i + 1 - ((cumulative_cf - initial_investment) / cf))
         return None
     
     def investment_analysis_report(self, project_name, initial_investment, annual_cash_flows, project_life):
@@ -290,6 +294,22 @@ class InvestmentAnalyzer:
             return "CONDITIONAL BUY - Positive returns, evaluate against alternatives"
         else:
             return "DO NOT INVEST - Returns do not justify investment"
+```
+
+Regression check (run after `InvestmentAnalyzer` above): decimal monetary amounts must recover exactly at the boundary without treating underpayment as recovery.
+
+```python
+from fractions import Fraction
+
+analyzer = InvestmentAnalyzer()
+assert analyzer.payback_period([0.1] * 10, 1.0) == 10.0
+assert analyzer.payback_period([0.1] * 9, 1.0) is None
+assert analyzer.payback_period([0.1] * 9 + [0.0999999999999999], 1.0) is None
+assert analyzer.payback_period([0.3, 0.3], 0.45) == 1.5
+assert analyzer.payback_period([0.5, -0.2, 0.7], 1.0) == 3.0
+assert analyzer.payback_period([], 1.0) is None
+assert analyzer.payback_period([Fraction(1, 10)] * 10, 1) == 10.0
+assert analyzer.payback_period([Fraction(1, 3)] * 3, Fraction(1)) == 3.0
 ```
 
 ## 🔄 Your Workflow Process
