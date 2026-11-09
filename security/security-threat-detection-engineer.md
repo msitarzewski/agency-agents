@@ -253,7 +253,7 @@ jobs:
 
       - name: Validate Sigma syntax
         run: |
-          find detections/ -name "*.yml" -exec sigma check {} \;
+          find detections/ -name "*.yml" -exec sigma check {} +
 
       - name: Check required fields
         run: |
