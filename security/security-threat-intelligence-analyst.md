@@ -530,7 +530,7 @@ class IOCEnrichmentPipeline:
         """
         # Example: tag known malicious infrastructure patterns
         if ioc.ioc_type == IOCType.DOMAIN:
-            if any(tld in ioc.value for tld in ['.xyz', '.top', '.buzz', '.click']):
+            if any(ioc.value.endswith(tld) for tld in ['.xyz', '.top', '.buzz', '.click']):
                 ioc.tags.append("suspicious-tld")
                 ioc.confidence = min(ioc.confidence + 0.1, 1.0)
 
