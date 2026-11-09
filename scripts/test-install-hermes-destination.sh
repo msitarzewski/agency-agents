@@ -84,3 +84,22 @@ HOME="$relink_home" HERMES_PLUGIN_DIR="$relink_home/.hermes/plugins/agency-agent
   exit 1
 }
 echo 'PASS: re-installing over a --link install keeps the clone intact'
+
+# The installer's inline python3 reads its script from stdin, which puts the
+# current directory first on sys.path. Without -I, a module planted in whatever
+# directory the user happened to run the installer from is imported in place of
+# the stdlib one and runs as the user.
+hijack_home="$tmp/hijack-home"
+hijack_cwd="$tmp/hijack-cwd"
+sentinel="$tmp/hijacked"
+mkdir -p "$hijack_cwd"
+cat > "$hijack_cwd/pathlib.py" <<EOF
+open("$sentinel", "w").write("imported from the current directory\n")
+EOF
+(cd "$hijack_cwd" && HOME="$hijack_home" bash "$repo/scripts/install.sh" \
+  --no-interactive --tool hermes --no-convert > "$tmp/hijack-output" 2>&1) || true
+[[ ! -e "$sentinel" ]] || {
+  echo 'FAIL: inline python3 imported a module from the current directory' >&2
+  exit 1
+}
+echo 'PASS: inline python3 ignores modules in the current directory'

@@ -1238,7 +1238,10 @@ ensure_hermes_plugin_enabled() {
   mkdir -p "$hermes_home"
   backup="${config}.bak.agency-agents-plugin.$$"
   [[ -f "$config" ]] && cp "$config" "$backup"
-  python3 - "$config" "$plugin" <<'PY' || return 1
+  # -I: a script read from stdin puts "" (the cwd) first on sys.path, so a
+  # planted pathlib.py in whatever directory the user ran us from would be
+  # imported instead of the stdlib. Isolated mode drops it.
+  python3 -I - "$config" "$plugin" <<'PY' || return 1
 from pathlib import Path
 import sys
 import re
@@ -1529,7 +1532,8 @@ install_hermes() {
   fi
   ensure_hermes_plugin_enabled || warn "Hermes: plugin installed but config.yaml was not updated."
   local count
-  count="$(python3 - "$src/data/agents.json" <<'PY'
+  # -I: see ensure_hermes_plugin_enabled — keep the cwd off sys.path.
+  count="$(python3 -I - "$src/data/agents.json" <<'PY'
 from pathlib import Path
 import json, sys
 print(len(json.loads(Path(sys.argv[1]).read_text())))
