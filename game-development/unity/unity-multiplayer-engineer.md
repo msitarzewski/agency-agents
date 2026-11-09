@@ -139,6 +139,7 @@ public class PlayerController : NetworkBehaviour
     [ServerRpc]
     private void SendInputServerRpc(Vector2 input, int tick)
     {
+        input = Vector2.ClampMagnitude(input, 1f); // never trust the client's input magnitude
         // Server simulates movement from this input
         Vector3 newPosition = _serverPosition.Value + new Vector3(input.x, 0, input.y) * _moveSpeed * Time.fixedDeltaTime;
 
