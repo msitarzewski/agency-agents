@@ -167,16 +167,19 @@ func _ready() -> void:
 
 ### MultiplayerSpawner Setup
 ```gdscript
-# GameWorld.gd — on the server
+# GameWorld.gd — spawner config runs on every peer; spawning runs on the server
 extends Node2D
 
 @onready var spawner: MultiplayerSpawner = $MultiplayerSpawner
 
 func _ready() -> void:
+    # Clients need the same config to receive spawns. spawn_path is relative
+    # to the spawner, so ".." is this GameWorld node.
+    spawner.spawn_path = NodePath("..")
+    # Register which scenes can be spawned
+    spawner.add_spawnable_scene("res://scenes/Player.tscn")
     if not multiplayer.is_server():
         return
-    # Register which scenes can be spawned
-    spawner.spawn_path = NodePath(".")  # Spawns as children of this node
 
     # Connect player joins to spawn
     NetworkManager.player_connected.connect(_on_player_connected)
