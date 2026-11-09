@@ -196,6 +196,7 @@ async def ingest_document(document_id: str, chunks: list[dict], pool: asyncpg.Po
 ### Hybrid Search (Dense + Sparse Fusion)
 
 ```python
+import json
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import text
 
@@ -213,13 +214,13 @@ async def hybrid_search(
     """
     filter_clause = ""
     params = {
-        "embedding": query_embedding, "query": query,
+        "embedding": str(query_embedding), "query": query,  # pgvector text form
         "candidate_k": top_k * 2, "top_k": top_k,
     }
 
     if metadata_filter:
-        filter_clause = "AND metadata @> :filter"
-        params["filter"] = metadata_filter
+        filter_clause = "AND metadata @> CAST(:filter AS jsonb)"
+        params["filter"] = json.dumps(metadata_filter)
 
     result = await db.execute(text(f"""
         WITH semantic AS (
