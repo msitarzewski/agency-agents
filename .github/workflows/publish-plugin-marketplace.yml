@@ -1,0 +1,43 @@
+name: Publish Plugin Marketplace
+
+# Source/dist split: main never commits the generated marketplace. On every push
+# to main this workflow regenerates plugins/ + .claude-plugin/marketplace.json
+# and publishes them to the `plugins` dist branch (via scripts/publish-
+# marketplace.sh). Consumers point @agentPlugins at <owner>/agency-agents#plugins.
+#
+# The PR-time gate is check-plugin-marketplace.yml (structural + drift against a
+# fresh build). This workflow only fires on merged main, so the dist can never
+# carry unvalidated content.
+
+on:
+  push:
+    branches: [main]
+
+permissions:
+  contents: write
+
+jobs:
+  publish:
+    name: publish generated marketplace to the plugins branch
+    runs-on: ubuntu-latest
+    # The publish script rebases the working tree onto an orphan `plugins`
+    # branch and force-pushes it — a deliberate, throwaway checkout is required.
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Configure git identity
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+
+      - name: Publish plugins branch
+        run: |
+          chmod +x scripts/publish-marketplace.sh
+          ./scripts/publish-marketplace.sh origin
+
+      # Assert the push actually landed (the script exits 1 on any validation
+      # error; this guard double-checks the branch now resolves to remote).
+      - name: Verify published branch present
+        run: |
+          git ls-remote --heads origin plugins | grep -q "refs/heads/plugins" \
+            || { echo "FAILED: plugins branch not found on origin"; exit 1; }
