@@ -235,11 +235,10 @@ slis:
   latency:
     description: "Proportion of requests served within threshold"
     metric: |
-      histogram_quantile(0.99,
-        sum(rate(http_request_duration_seconds_bucket{service="checkout-api"}[5m]))
-        by (le)
-      )
-    threshold: "400ms at p99"
+      sum(rate(http_request_duration_seconds_bucket{service="checkout-api", le="0.4"}[5m]))
+      /
+      sum(rate(http_request_duration_seconds_count{service="checkout-api"}[5m]))
+    threshold: "400ms (requires a 0.4s histogram bucket)"
 
   correctness:
     description: "Proportion of requests returning correct results"
