@@ -143,6 +143,14 @@ class DelegationVerifier:
                     reason="invalid_signature"
                 )
 
+            # Each link must be signed by the agent the previous link delegated to
+            if i > 0 and link.delegator_pub_key != chain[i-1].delegatee_pub_key:
+                return VerificationResult(
+                    valid=False,
+                    failure_point=i,
+                    reason="broken_chain"
+                )
+
             # Verify scope is equal or narrower than parent
             if i > 0 and not self.is_subscope(chain[i-1].scopes, link.scopes):
                 return VerificationResult(
