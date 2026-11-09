@@ -1,0 +1,22 @@
+[Page 1]
+Candidate Consider
+Software Engineer
+PROFESSIONAL SUMMARY
+Software engineer with three years of web-service experience and recent hands-on Python delivery in internal automation
+projects.
+EXPERIENCE
+Software Engineer - Meridian Commerce - 2024 to Present
+- Maintained Node.js REST APIs and integrated payment and inventory services.
+- Created Python scripts that reduced manual reconciliation time by 12 hours per month.
+- Used Docker for local development and continuous integration builds.
+- Participated in production incident reviews with the service owner.
+Junior Software Engineer - Cedar Works - 2023 to 2024
+- Implemented TypeScript endpoints and MongoDB data access for internal tools.
+- Added unit tests and API documentation for two customer-facing features.
+SKILLS
+TypeScript, Node.js, Python, REST APIs, MongoDB, Docker, GitHub Actions
+SELECTED PROJECT
+Built a small FastAPI service for an internal hackathon and deployed it to a test environment; production ownership and
+relational database experience are not stated.
+This document contains fictional information created solely to test the Loomloom recruitment-screening workflow.
+Synthetic resume for testing only Page 1

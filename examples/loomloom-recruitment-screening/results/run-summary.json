@@ -1,0 +1,54 @@
+{
+  "run_id": "b5ecd7bd-721b-478c-a8f8-fc8b3e44ad21",
+  "status": "completed",
+  "template_id": "76c4b6e6-de49-4bda-9755-9ea55eac9fa9",
+  "template_version_id": "a5bdf34a-335b-4f52-90ad-055417e1485e",
+  "model": "deepseek/deepseek-v4-flash",
+  "input_rows": 3,
+  "completed_rows": 3,
+  "failed_rows": 0,
+  "estimated_cost": {
+    "amount": "0.0198000",
+    "currency": "CNY"
+  },
+  "actual_cost": {
+    "amount": "0.0001342",
+    "currency": "CNY"
+  },
+  "started_at_unix": 1786091423,
+  "completed_at_unix": 1786091737,
+  "results": [
+    {
+      "source_row_index": 0,
+      "candidate_id": "candidate-consider",
+      "match_score": 55,
+      "tier": "reject",
+      "must_have_status": "partially_met",
+      "validation_status": "needs_human_review",
+      "human_review_required": true,
+      "corrected_fields_count": 6
+    },
+    {
+      "source_row_index": 1,
+      "candidate_id": "candidate-reject",
+      "match_score": 15,
+      "tier": "reject",
+      "must_have_status": "not_met",
+      "validation_status": "corrected",
+      "human_review_required": false,
+      "corrected_fields_count": 2
+    },
+    {
+      "source_row_index": 2,
+      "candidate_id": "candidate-strong",
+      "match_score": 88,
+      "tier": "shortlist",
+      "must_have_status": "met",
+      "validation_status": "corrected",
+      "human_review_required": false,
+      "corrected_fields_count": 1
+    }
+  ],
+  "disclaimer": "Decision support only; recruiter review is required before any employment decision.",
+  "full_results_file": "deepseek-v4-flash-test-results.xlsx"
+}
