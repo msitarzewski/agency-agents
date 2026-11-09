@@ -125,7 +125,8 @@ When reviewing any system, always ask:
 from fastapi import FastAPI, Depends, HTTPException, status, Request
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 from pydantic import BaseModel, ConfigDict, Field, field_validator
-from slowapi import Limiter
+from slowapi import Limiter, _rate_limit_exceeded_handler
+from slowapi.errors import RateLimitExceeded
 from slowapi.util import get_remote_address
 import re
 import jwt  # PyJWT; settings and audit_log come from the application's configuration
@@ -133,6 +134,8 @@ import jwt  # PyJWT; settings and audit_log come from the application's configur
 app = FastAPI(docs_url=None, redoc_url=None)  # Disable docs in production
 security = HTTPBearer()
 limiter = Limiter(key_func=get_remote_address)
+app.state.limiter = limiter
+app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)  # 429, not a 500
 
 class UserInput(BaseModel):
     """Strict input validation — reject anything unexpected."""
