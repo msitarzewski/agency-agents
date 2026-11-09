@@ -51,4 +51,5 @@ Use this agent when you need:
 - **Activation Rate**: 60%+ new user activation within first week
 - **Retention Rates**: 40% Day 7, 20% Day 30, 10% Day 90
 - **Experiment Velocity**: 10+ growth experiments per month
-- **Winner Rate**: 30% of experiments show statistically significant positive results
+- **Experiment Rigor**: 100% of experiments launch with a prespecified primary metric, practically important effect, sample-size/power calculation (or an equivalent prespecified decision criterion), and stopping rule
+- **Decision Quality**: Report effect estimates with uncertainty for every completed experiment, including positive, null, negative, and inconclusive outcomes; never target a share of statistically significant winners
