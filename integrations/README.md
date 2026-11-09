@@ -20,6 +20,7 @@ supported agentic coding tools.
 - **[Mistral Vibe](vibe/README.md)** — `.toml` agents + prompt files generated in `vibe/`
 - **Osaurus** -- `SKILL.md` skills generated in `osaurus/`
 - **[Hermes](hermes/README.md)** -- lazy-router plugin generated in `hermes/`
+- **[Kilo Code](#kilo-code)** — `.md` agent files in `kilocode/`
 
 ## Quick Install
 
@@ -43,6 +44,10 @@ supported agentic coding tools.
 # Qwen Code also needs generated SubAgent files on a fresh clone
 ./scripts/convert.sh --tool qwen
 ./scripts/install.sh --tool qwen
+
+# Kilo Code needs generated agent files on a fresh clone
+./scripts/convert.sh --tool kilocode
+./scripts/install.sh --tool kilocode
 ```
 
 If you install OpenClaw and the gateway is already running, restart it after installation:
@@ -51,8 +56,8 @@ If you install OpenClaw and the gateway is already running, restart it after ins
 openclaw gateway restart
 ```
 
-For project-scoped tools such as OpenCode, Cursor, Aider, Windsurf, and Qwen
-Code, run
+For project-scoped tools such as OpenCode, Cursor, Aider, Windsurf,
+Qwen Code, and Kilo Code, run
 the installer from your target project root as shown in the tool-specific
 sections below.
 
@@ -264,3 +269,30 @@ directly, run the converter before installing from a fresh clone:
 ```
 
 See [codex/README.md](codex/README.md) for details.
+
+---
+
+## Kilo Code
+
+Each agent becomes a project-scoped `.md` file in `.kilo/agents/`. Kilo Code
+loads global agents from `~/.config/kilo/agents/`.
+
+From a fresh clone, generate the Kilo Code agent files first:
+
+```bash
+./scripts/convert.sh --tool kilocode
+```
+
+Then install them from your project root:
+
+```bash
+cd /your/project && /path/to/agency-agents/scripts/install.sh --tool kilocode
+```
+
+Or install globally:
+
+```bash
+./scripts/install.sh --tool kilocode --path "$HOME/.config/kilo/agents"
+```
+
+See [kilocode/README.md](kilocode/README.md) for details.

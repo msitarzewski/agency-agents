@@ -209,6 +209,53 @@ assert_eq 0 "$(count_md "$home/from-env")" "env var destination is unused when -
 assert_eq 0 "$(count_md "$home/.github/agents")" "Copilot --path leaves the GitHub default empty"
 assert_eq 0 "$(count_md "$home/.copilot/agents")" "Copilot --path leaves the Copilot default empty"
 
+# Kilo Code installs project-scoped by default and takes KILO_AGENTS_DIR or
+# --path for anything else. Each case starts in its own project directory with a
+# fresh HOME, clears an inherited KILO_AGENTS_DIR (an empty value is treated as
+# unset by resolve_dest), and asserts the file landed only where intended.
+home="$(sandbox kilocode-default)"
+project="$home/project"
+mkdir -p "$project"
+RUN_OUT="$(cd "$project" && HOME="$home" KILO_AGENTS_DIR="" "$INSTALL" --no-interactive \
+  --tool kilocode --agent "$FIRST_ENG_SLUG" 2>&1)"; RUN_STATUS=$?
+assert_eq 0 "$RUN_STATUS" "Kilo Code default install exits 0"
+assert_eq 1 "$(count_md "$project/.kilo/agents")" "Kilo Code defaults to .kilo/agents in the project"
+assert_eq 0 "$(count_md "$home/.config/kilo/agents")" "Kilo Code default leaves the global config empty"
+assert_eq 0 "$(count_md "$project/.opencode/agents")" "Kilo Code default leaves the OpenCode directory empty"
+assert_eq 0 "$(count_md "$project/.kilocode/agents")" "Kilo Code default leaves the legacy kilocode directory empty"
+
+home="$(sandbox kilocode-path)"
+project="$home/project"
+dest="$home/custom-kilo"
+mkdir -p "$project"
+RUN_OUT="$(cd "$project" && HOME="$home" KILO_AGENTS_DIR="" "$INSTALL" --no-interactive \
+  --tool kilocode --agent "$FIRST_ENG_SLUG" --path "$dest" 2>&1)"; RUN_STATUS=$?
+assert_eq 0 "$RUN_STATUS" "Kilo Code --path install exits 0"
+assert_eq 1 "$(count_md "$dest")" "Kilo Code --path installs into the selected directory"
+assert_eq 0 "$(count_md "$project/.kilo/agents")" "Kilo Code --path leaves the project default empty"
+assert_eq 0 "$(count_md "$home/.config/kilo/agents")" "Kilo Code --path leaves the global config empty"
+
+home="$(sandbox kilocode-env)"
+project="$home/project"
+dest="$home/from-env"
+mkdir -p "$project"
+RUN_OUT="$(cd "$project" && HOME="$home" KILO_AGENTS_DIR="$dest" "$INSTALL" --no-interactive \
+  --tool kilocode --agent "$FIRST_ENG_SLUG" 2>&1)"; RUN_STATUS=$?
+assert_eq 0 "$RUN_STATUS" "KILO_AGENTS_DIR install exits 0"
+assert_eq 1 "$(count_md "$dest")" "KILO_AGENTS_DIR overrides the project default"
+assert_eq 0 "$(count_md "$project/.kilo/agents")" "KILO_AGENTS_DIR leaves the project default empty"
+assert_eq 0 "$(count_md "$home/.config/kilo/agents")" "KILO_AGENTS_DIR leaves the global config empty"
+
+home="$(sandbox kilocode-env-vs-path)"
+project="$home/project"
+mkdir -p "$project"
+RUN_OUT="$(cd "$project" && HOME="$home" KILO_AGENTS_DIR="$home/from-env" "$INSTALL" --no-interactive \
+  --tool kilocode --agent "$FIRST_ENG_SLUG" --path "$home/from-flag" 2>&1)"; RUN_STATUS=$?
+assert_eq 0 "$RUN_STATUS" "Kilo Code --path over KILO_AGENTS_DIR exits 0"
+assert_eq 1 "$(count_md "$home/from-flag")" "--path wins over KILO_AGENTS_DIR for Kilo Code"
+assert_eq 0 "$(count_md "$home/from-env")" "KILO_AGENTS_DIR destination is unused when --path is given"
+assert_eq 0 "$(count_md "$project/.kilo/agents")" "Kilo Code --path leaves the project default empty"
+
 # ---------------------------------------------------------------------------
 # 3b. CLAUDE_CONFIG_DIR is the config root, not the agents dir (issue #578)
 #
