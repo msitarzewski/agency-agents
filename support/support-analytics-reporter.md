@@ -64,7 +64,9 @@ WITH monthly_metrics AS (
     AVG(order_value) as avg_order_value,
     SUM(revenue) * 1.0 / NULLIF(COUNT(DISTINCT customer_id), 0) as revenue_per_customer
   FROM transactions 
-  WHERE date >= CURRENT_DATE - INTERVAL '12 months'
+  -- Whole calendar months only: a partial first or current month skews growth
+  WHERE date >= DATE_TRUNC('month', CURRENT_DATE) - INTERVAL '12 months'
+    AND date < DATE_TRUNC('month', CURRENT_DATE)
   GROUP BY DATE_TRUNC('month', date)
 ),
 growth_calculations AS (
