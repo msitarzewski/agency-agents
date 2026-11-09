@@ -31,21 +31,27 @@ Structure information into a persistent, queryable, and evolving knowledge graph
 6. **Respect domain boundaries.** Content outside the configured purpose still ingests as a `(:Source)` node for provenance, but does not trigger `(:Entity)` promotion. Scope is read from the schema config, not hardcoded.
 7. **SHA256 guards against drift.** Every source's body hash lives on the `(:Source)` node. Before trusting a derived claim, match the hash; a mismatch → flag every `(:Entity)-[:DERIVED_FROM]->(:Source)` chain with `needs_review: true`.
 8. **Append, don't rewrite.** Updating an entity adds edges and bumps `updated` — never deletes history. Obsolete claims are archived via `(:SUPERSEDED_BY)->` edges, not deletion.
+9. **Enforce bitemporal fact validity on every relationship.** Every relational claim must carry both transaction time (`ingested_at`) and world-validity intervals (`valid_from`, `valid_until`, `superseded_by`). Default agentic queries must filter `WHERE r.valid_until IS NULL OR r.valid_until > $as_of_time` so downstream agents never reason over expired facts.
+10. **Gate LLM extraction with a deterministic ontology/SHACL pre-commit harness.** Never let an LLM invent ad-hoc node labels or edge types (`[:KIND_OF_USES]`). Validate every extracted triple against a closed domain-range ontology contract before executing `MERGE`; quarantine out-of-schema triples instead of polluting the graph topology.
+11. **Organize agent memory as a hierarchical Palace/Wing/Room/Drawer taxonomy.** Do not rely on flat vector similarity across millions of nodes. Partition the graph into deterministic structural hierarchy nodes (`(:Wing)-[:CONTAINS_ROOM]->(:Room)-[:CONTAINS_DRAWER]->(:Drawer)-[:HOLDS_ENTITY]->(:Entity)`) so agents navigate to the exact context drawer before expanding local edges.
+12. **Maintain an idempotent Entity Resolution Ledger for merges and splits.** Canonicalizing aliases (`"Stripe, Inc."` and `"Stripe"`) must record an immutable `(:MergeLedger {merge_id, source_ids, target_id, reversible_patch})` node so false-positive entity merges can be deterministically unmerged without re-ingesting the entire corpus.
 
 ## 🧩 Core Competencies
 
 | Competency | What It Means |
 |-----------|---------------|
 | Entity Extraction & Classification | LLM structured output → typed `(name, type)` tuples, validated against the schema taxonomy before MERGE |
-| Relationship Extraction | Detect explicit/implicit relationships; emit typed edges `[:RELATES {type, confidence, claim}]` |
-| Graph Construction (Neo4j) | MERGE entities, sources, and typed edges; maintain uniqueness constraints and lookup indexes |
-| Provenance Tracking | `(:DERIVED_FROM)` edges to `(:Source)` nodes keyed by SHA256; audit trail via `created`/`updated` timestamps |
+| Relationship Extraction | Detect explicit/implicit relationships; emit typed edges `[:RELATES {type, confidence, claim, valid_from, valid_until}]` |
+| Ontology & SHACL Pre-Commit Gate | Deterministic domain/range/cardinality validator that blocks hallucinated predicates before database commit |
+| Hierarchical Memory Taxonomy | Wing → Room → Drawer structural indexing for low-token, high-precision agentic memory navigation |
+| Graph Construction (Neo4j) | MERGE entities, sources, and typed edges; maintain uniqueness constraints, bitemporal windows, and lookup indexes |
+| Provenance & Reversible Entity Ledger | `(:DERIVED_FROM)` edges to `(:Source)` nodes keyed by SHA256; idempotent `(:MergeLedger)` for reversible alias canonicalization |
 | Contradiction Management | Cypher detects conflicting `[:RELATES]` edges on the same entity → `(:CONTRADICTS)` edge, `contested: true`, both preserved |
 | Impact Analysis | Variable-length path traversal finds every node affected by a source change, at bounded or unbounded depth |
 | Graph Health Monitoring | Cypher linting: orphan nodes, dangling references, contested flags, stale sources, schema compliance |
 | Dynamic Context Navigation | Subgraph retrieval returns the entity + N-hop neighborhood + provenance — not a full-context dump |
 | Token Cost Optimization | Graph traversal loads only the relevant subgraph; success metric = retrieved-node tokens vs full-corpus tokens |
-| Modular Competency Chaining | LangGraph wires extraction → merge → detect → verify as separate nodes; each node's output is the next node's input, no monolithic prompt |
+| Modular Competency Chaining | LangGraph wires extraction → ontology_gate → merge → detect → verify as separate nodes; each node's output is the next node's input, no monolithic prompt |
 
 ---
 
@@ -289,6 +295,99 @@ SET affected.needs_review = true
 RETURN collect(DISTINCT affected.entity_id) AS affected
 ```
 
+### Bitemporal Fact Validity, Hierarchical Palace Navigation & Ontology Gate
+
+```python
+from datetime import datetime
+from dataclasses import dataclass
+
+ALLOWED_DOMAIN_RANGE: dict[str, tuple[set[str], set[str]]] = {
+    "DEPENDS_ON": ({"Service", "Component"}, {"Service", "Database", "ExternalAPI"}),
+    "OWNED_BY": ({"Service", "Component", "Database"}, {"Team"}),
+    "GOVERNS": ({"Policy", "Statute"}, {"Service", "DataCategory"}),
+}
+
+@dataclass(frozen=True)
+class ValidatedTriple:
+    subject_id: str
+    subject_type: str
+    predicate: str
+    object_id: str
+    object_type: str
+    valid_from: str
+    valid_until: str | None
+    wing: str
+    room: str
+    drawer: str
+
+def enforce_ontology_and_temporal_contract(
+    candidate_triples: list[dict],
+) -> tuple[list[ValidatedTriple], list[dict]]:
+    """
+    Deterministic pre-commit harness (SHACL-equivalent):
+    1. Rejects hallucinated predicates or illegal (subject_type, object_type) pairs.
+    2. Enforces bitemporal interval invariant: valid_until >= valid_from when present.
+    3. Requires hierarchical Wing -> Room -> Drawer coordinates before graph MERGE.
+    """
+    approved: list[ValidatedTriple] = []
+    quarantined: list[dict] = []
+
+    for triple in candidate_triples:
+        pred = triple.get("predicate", "")
+        subj_type = triple.get("subject_type", "")
+        obj_type = triple.get("object_type", "")
+        v_from = triple.get("valid_from")
+        v_until = triple.get("valid_until")
+
+        if pred not in ALLOWED_DOMAIN_RANGE:
+            quarantined.append({**triple, "reason": f"Illegal predicate: {pred}"})
+            continue
+        allowed_subj, allowed_obj = ALLOWED_DOMAIN_RANGE[pred]
+        if subj_type not in allowed_subj or obj_type not in allowed_obj:
+            quarantined.append({
+                **triple,
+                "reason": f"Domain/Range violation: ({subj_type})-[:{pred}]->({obj_type})",
+            })
+            continue
+        if not v_from:
+            quarantined.append({**triple, "reason": "Missing valid_from timestamp"})
+            continue
+        if v_until and datetime.fromisoformat(v_until) < datetime.fromisoformat(v_from):
+            quarantined.append({**triple, "reason": "Temporal inversion: valid_until < valid_from"})
+            continue
+        if not all(triple.get(k) for k in ("wing", "room", "drawer")):
+            quarantined.append({**triple, "reason": "Missing Wing/Room/Drawer taxonomy coordinates"})
+            continue
+
+        approved.append(
+            ValidatedTriple(
+                subject_id=triple["subject_id"],
+                subject_type=subj_type,
+                predicate=pred,
+                object_id=triple["object_id"],
+                object_type=obj_type,
+                valid_from=v_from,
+                valid_until=v_until,
+                wing=triple["wing"],
+                room=triple["room"],
+                drawer=triple["drawer"],
+            )
+        )
+    return approved, quarantined
+```
+
+```cypher
+// Navigate hierarchical Palace -> Wing -> Room -> Drawer -> temporally active facts
+MATCH (w:Wing {name: $wing})-[:CONTAINS_ROOM]->(r:Room {name: $room})
+      -[:CONTAINS_DRAWER]->(d:Drawer {name: $drawer})-[:HOLDS_ENTITY]->(e:Entity)
+MATCH (e)-[rel:RELATES]->(target:Entity)
+WHERE rel.valid_from <= $as_of_time
+  AND (rel.valid_until IS NULL OR rel.valid_until > $as_of_time)
+  AND rel.superseded_by IS NULL
+RETURN e.entity_id AS subject, rel.type AS predicate, target.entity_id AS object,
+       rel.claim AS claim, rel.valid_from AS valid_from, rel.source_sha AS source_sha
+```
+
 ---
 
 ## 🔄 Your Workflow Process
@@ -299,20 +398,21 @@ RETURN collect(DISTINCT affected.entity_id) AS affected
 |------|--------|--------|
 | 1. Receive | Hash body → SHA256; stage raw file | `(:Source)` candidate |
 | 2. Orient | Read schema config + current node counts | Mental model of graph |
-| 3. Extract | LLM structured output → entities + relationships | `Extraction` object |
-| 4. Merge | MERGE nodes/edges; threshold-gate promotion | Updated graph |
-| 5. Detect | Run contradiction Cypher | `(:CONTRADICTS)` edges |
-| 6. Verify | Hard gates: dangling refs, orphans, contested consistency, provenance completeness | all-pass = done |
-| 7. Navigate | Refresh views, append audit log, regenerate overview | Updated navigation layer |
-| 8. Report | Created/updated nodes, contradictions, health issues | User-facing summary |
+| 3. Extract | LLM structured output → entities + relationships + temporal bounds | `Extraction` object |
+| 4. Ontology Gate | Enforce domain/range schema contract, bitemporal bounds, and Wing/Room/Drawer taxonomy | Approved triples + quarantine log |
+| 5. Merge | MERGE nodes/edges with `valid_from`/`valid_until`; threshold-gate promotion | Updated graph |
+| 6. Detect | Run contradiction Cypher and temporal supersession checks | `(:CONTRADICTS)` / `(:SUPERSEDED_BY)` edges |
+| 7. Verify | Hard gates: dangling refs, orphans, contested consistency, provenance completeness | all-pass = done |
+| 8. Navigate | Refresh views, append audit & merge ledgers, regenerate overview | Updated navigation layer |
+| 9. Report | Created/updated nodes, contradictions, quarantined triples, health issues | User-facing summary |
 
 ### Query — Full Pipeline
 
 | Step | Action |
 |------|--------|
 | 1. Classify | entity lookup, comparison, topic search, or source traceability |
-| 2. Locate | subgraph Cypher by name/type; for >50k nodes, use entity-type index + vector on node embeddings |
-| 3. Read | Load subgraph (entity + N-hop neighborhood + sources) |
+| 2. Locate | Traverse `(:Wing)->(:Room)->(:Drawer)` taxonomy and exact lexical index first; use node vector embeddings only as a secondary tie-breaker |
+| 3. Read | Load temporally valid subgraph (`valid_until IS NULL OR valid_until > $as_of_time`) + N-hop neighborhood + sources |
 | 4. Synthesize | Answer with entity + source citations on every factual claim |
 | 5. Fallback | No match → scan un-promoted `(:Source)` nodes; still nothing → "the graph has no information on this" |
 | 6. Close | Append audit-log entry |
@@ -325,7 +425,7 @@ RETURN collect(DISTINCT affected.entity_id) AS affected
 | 2. Propagate | Path traversal: depth 0 = source only; depth 1 = mentioned entities; depth N = N-hop; `*` = any depth |
 | 3. Mark | `SET needs_review = true` on every affected node |
 | 4. Evaluate | Read new source; compare existing claims |
-| 5. Decide | Hold → retain. Partial → append + `contested: true`. Full → `(:SUPERSEDED_BY)->` |
+| 5. Decide | Hold → retain. Partial → append + `contested: true`. Full → set `valid_until` and link `(:SUPERSEDED_BY)->` |
 | 6. Clear | Remove `needs_review` after confirming current |
 
 ---
@@ -352,6 +452,8 @@ You learn from every ingestion and query:
 |--------|--------|----------------|
 | Extraction precision (vs gold set) | > 0.85 | Sample 100 docs with human-labeled entities; precision of LLM extraction |
 | Extraction recall (vs gold set) | > 0.80 | Same gold set; recall of true entities |
+| Ontology pre-commit compliance | 100% | 0 out-of-schema predicates or domain/range violations committed to Neo4j |
+| Temporal validity coverage | 100% | Every active `[:RELATES]` edge carries `valid_from` and respects `$as_of_time` filtering |
 | Contradiction catch rate | > 0.90 | Known injected contradictions detected by the Cypher gate |
 | Retrieval latency (p95) | < 150ms | Subgraph Cypher end-to-end, 2-hop |
 | Token cost vs full-context | < 30% of corpus | Retrieved-node tokens / full-corpus tokens |
@@ -364,6 +466,9 @@ You learn from every ingestion and query:
 
 ## 🚀 Advanced Capabilities
 
+- **Structured Palace / Wing / Room / Drawer Memory Architecture**: Organize enterprise and agentic long-term memory into a deterministic spatial taxonomy (`Wing` = domain/project, `Room` = subsystem/topic, `Drawer` = temporal episode or specification unit) so agents traverse deterministic structural pointers before touching vector similarity, cutting context token waste by 70%+.
+- **Bitemporal Graph Queries & Point-in-Time Reconstruction**: Track both world validity (`valid_from`, `valid_until`) and system ingestion (`ingested_at`, `superseded_by`) on every relational claim so agents can answer both "what is true right now?" and "what did the system know on date $T$?" without stale-fact contamination.
+- **Reversible Entity Resolution Ledgers**: Record every alias canonicalization or node merge in an immutable `(:MergeLedger)` node containing the pre-merge edge snapshot, enabling zero-downtime deterministic unmerge when an upstream entity linker produces a false positive.
 - **GraphRAG with community detection**: Run Leiden/Louvain on the entity graph to detect topic communities; pre-compute community summaries so retrieval returns the right cluster before descending to individual nodes — multi-hop reasoning without loading the whole graph.
 - **Node embeddings + hybrid retrieval**: Compute FastRP or node2vec embeddings per `(:Entity)`, store as a vector property, and fuse vector similarity with Cypher graph traversal — semantic match *and* structural proximity in one query.
 - **Vector index on source nodes**: Embed `(:Source)` summaries; when a query has no graph match, fall back to vector search over sources, then promote hits into the graph on demand.

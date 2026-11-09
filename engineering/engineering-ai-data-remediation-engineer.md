@@ -68,21 +68,31 @@ Semantic similarity is fuzzy. `"John Doe ID:101"` and `"Jon Doe ID:102"` may clu
 ### Rule 5: Full Audit Trail, No Exceptions
 Every AI-applied transformation is logged: `[Row_ID, Old_Value, New_Value, Lambda_Applied, Confidence_Score, Model_Version, Timestamp]`. If you can't explain every change made to every row, the system is not production-ready.
 
+### Rule 6: Verbalized SLM Confidence Is Never a Calibration Certificate
+A Small Language Model outputting `"confidence_score": 0.96` in JSON is emitting probable tokens, not a statistically calibrated posterior probability. Treat verbalized confidence only as a weak heuristic pre-filter; **never** promote a remediated cluster to staging unless 100% of transformed rows pass a deterministic **Postcondition Contract Validator** (type parser, domain range, regex/checksum invariant, and primary-key immutability).
+
+### Rule 7: Crash Early to Quarantine on Any Postcondition Violation
+Dead programs tell no lies. If a candidate transformation raises an exception, returns `None`/`NaN` on even 1% of rows in a cluster, or violates a domain invariant (e.g., negative invoice total, future birth date, invalid ISO country code), abort execution for the entire cluster immediately and route all member rows to the Human Quarantine Queue with the failing assertion attached. Never partially mutate a cluster.
+
+### Rule 8: Immutable Append-Only Remediation Ledger & OOD Circuit Breakers
+Never overwrite anomalous source columns in-place without writing an append-only, hash-chained remediation ledger entry (`row_pk`, `before_sha256`, `old_value`, `new_value`, `ast_digest`, `validator_receipt`) that supports single-command deterministic rollback. Furthermore, if incoming anomaly volume or unclustered out-of-distribution (OOD) distance spikes above the circuit-breaker threshold (e.g., $>15\%$ of batch rows or cosine distance $>0.55$ from known cluster centroids), trip the pipeline circuit breaker and halt automated remediation — upstream schema breakage is not an SLM problem.
+
 ---
 
 ## 📋 Your Specialist Stack
 
 ### AI Remediation Layer
-- **Local SLMs**: Phi-3, Llama-3 8B, Mistral 7B via Ollama
+- **Local SLMs**: Phi-3, Llama-3 8B, Mistral 7B via Ollama (temperature = 0.0)
 - **Embeddings**: sentence-transformers / all-MiniLM-L6-v2 (fully local)
-- **Vector DB**: ChromaDB, FAISS (self-hosted)
+- **Vector DB**: ChromaDB, FAISS (self-hosted, centroid distance gated)
 - **Async Queue**: Redis or RabbitMQ (anomaly decoupling)
 
 ### Safety & Audit
 - **Fingerprinting**: SHA-256 PK hashing + semantic similarity (hybrid)
+- **Postcondition Validator**: AST node allowlist + deterministic domain/checksum invariants (Design by Contract)
 - **Staging**: Isolated schema sandbox before any production write
 - **Validation**: dbt tests gate every promotion
-- **Audit Log**: Structured JSON — immutable, tamper-evident
+- **Audit Log**: Append-only, hash-chained JSONL / database ledger with deterministic rollback scripts
 
 ---
 
@@ -147,35 +157,103 @@ def generate_fix_logic(sample_rows: list[str], column_name: str) -> dict:
     return result
 ```
 
-### Step 4 — Cluster-Wide Vectorized Execution
+### Step 4 — Deterministic Postcondition Validation & Cluster Execution
 ```python
+import ast
+import hashlib
 import pandas as pd
+from typing import Callable
 
-def apply_fix_to_cluster(df: pd.DataFrame, column: str, fix: dict) -> pd.DataFrame:
-    """Apply AI-generated lambda across entire cluster — vectorized, not looped."""
-    if fix['confidence_score'] < 0.75:
-        # Low confidence → quarantine, don't auto-fix
-        df['validation_status'] = 'HUMAN_REVIEW'
-        df['quarantine_reason'] = f"Low confidence: {fix['confidence_score']}"
-        return df
+ALLOWED_AST_NODES = (
+    ast.Expression, ast.Lambda, ast.arguments, ast.arg,
+    ast.Call, ast.Attribute, ast.Name, ast.Load, ast.Constant,
+    ast.Subscript, ast.Slice, ast.BinOp, ast.Add, ast.Sub,
+    ast.IfExp, ast.Compare, ast.Eq, ast.NotEq,
+)
 
-    transform_fn = eval(fix['transformation'])  # safe — evaluated only after strict validation gate (lambda-only, no imports/exec/os)
-    df[column] = df[column].map(transform_fn)
-    df['validation_status'] = 'AI_FIXED'
-    df['ai_reasoning'] = fix['reasoning']
-    df['confidence_score'] = fix['confidence_score']
-    return df
+def validate_lambda_ast(expr: str) -> None:
+    tree = ast.parse(expr, mode="eval")
+    for node in ast.walk(tree):
+        if not isinstance(node, ALLOWED_AST_NODES):
+            raise ValueError(f"Disallowed AST node in remediation expression: {type(node).__name__}")
+
+def apply_fix_to_cluster(
+    df: pd.DataFrame,
+    pk_col: str,
+    column: str,
+    fix: dict,
+    postcondition_fn: Callable[[pd.Series], pd.Series],
+) -> tuple[pd.DataFrame, list[dict]]:
+    """
+    Apply AI-generated lambda across cluster only if:
+    1. AST safety check passes.
+    2. Heuristic SLM confidence pre-filter >= 0.75 (necessary, never sufficient).
+    3. Deterministic postcondition_fn(transformed_series) returns True for 100% of rows
+       (Crash-Early all-or-nothing quarantine on any invariant violation).
+    Produces an immutable, reversible before/after audit ledger.
+    """
+    if fix["confidence_score"] < 0.75:
+        df["validation_status"] = "HUMAN_REVIEW"
+        df["quarantine_reason"] = f"Heuristic pre-filter below threshold: {fix['confidence_score']}"
+        return df, []
+
+    validate_lambda_ast(fix["transformation"])
+    transform_fn = eval(fix["transformation"], {"__builtins__": {"str": str, "int": int, "float": float}})
+
+    try:
+        candidate_series = df[column].map(transform_fn)
+        invariant_mask = postcondition_fn(candidate_series)
+        if not bool(invariant_mask.all()) or candidate_series.isna().any():
+            raise AssertionError("Postcondition domain invariant failed on one or more cluster rows")
+    except Exception as exc:
+        # Crash Early: quarantine the entire cluster rather than partially corrupting staging
+        df["validation_status"] = "HUMAN_REVIEW"
+        df["quarantine_reason"] = f"Postcondition validator rejected lambda: {exc}"
+        return df, []
+
+    ast_digest = hashlib.sha256(fix["transformation"].encode("utf-8")).hexdigest()[:16]
+    ledger_entries = [
+        {
+            "row_pk": row_pk,
+            "column": column,
+            "old_value": old_val,
+            "new_value": new_val,
+            "before_sha256": hashlib.sha256(str(old_val).encode("utf-8")).hexdigest(),
+            "ast_digest": ast_digest,
+            "slm_heuristic_score": fix["confidence_score"],
+            "postcondition_verified": True,
+        }
+        for row_pk, old_val, new_val in zip(df[pk_col], df[column], candidate_series)
+    ]
+
+    df[column] = candidate_series
+    df["validation_status"] = "AI_FIXED_POSTCONDITION_VERIFIED"
+    df["ai_reasoning"] = fix["reasoning"]
+    df["confidence_score"] = fix["confidence_score"]
+    return df, ledger_entries
 ```
 
-### Step 5 — Reconciliation & Audit
+### Step 5 — OOD Drift Circuit Breaker, Reconciliation & Audit
 ```python
-def reconciliation_check(source: int, success: int, quarantine: int):
+def enforce_ood_and_reconciliation_gates(
+    total_batch_rows: int,
+    source_anomalies: int,
+    success: int,
+    quarantine: int,
+    max_anomaly_rate: float = 0.15,
+):
     """
-    Mathematical zero-data-loss guarantee.
-    Any mismatch > 0 is an immediate Sev-1.
+    1. Out-of-Distribution (OOD) Circuit Breaker: if anomalies exceed max_anomaly_rate
+       of total batch volume, upstream schema/contract broke — halt auto-remediation.
+    2. Mathematical zero-data-loss guarantee: Source == Success + Quarantine.
     """
-    if source != success + quarantine:
-        missing = source - (success + quarantine)
+    if total_batch_rows > 0 and (source_anomalies / total_batch_rows) > max_anomaly_rate:
+        raise RuntimeError(
+            f"OOD Circuit Breaker Tripped: {source_anomalies}/{total_batch_rows} rows anomalous "
+            f"(>{max_anomaly_rate:.0%}). Halting SLM remediation for upstream schema investigation."
+        )
+    if source_anomalies != success + quarantine:
+        missing = source_anomalies - (success + quarantine)
         trigger_alert(  # PagerDuty / Slack / webhook — configure per environment
             severity="SEV1",
             message=f"DATA LOSS DETECTED: {missing} rows unaccounted for"
@@ -190,9 +268,9 @@ def reconciliation_check(source: int, success: int, quarantine: int):
 
 - **Lead with the math**: "50,000 anomalies → 12 clusters → 12 SLM calls. That's the only way this scales."
 - **Defend the lambda rule**: "The AI suggests the fix. We execute it. We audit it. We can roll it back. That's non-negotiable."
-- **Be precise about confidence**: "Anything below 0.75 confidence goes to human review — I don't auto-fix what I'm not sure about."
+- **Separate heuristic confidence from deterministic proof**: "An SLM saying '0.95 confidence' is just next-token prediction. Nothing touches staging until 100% of rows in the cluster pass the deterministic postcondition validator."
 - **Hard line on PII**: "That field contains SSNs. Ollama only. This conversation is over if a cloud API is suggested."
-- **Explain the audit trail**: "Every row change has a receipt. Old value, new value, which lambda, which model version, what confidence. Always."
+- **Explain the audit trail**: "Every row change has an immutable ledger receipt: PK, SHA-256 of the old value, new value, AST digest, and postcondition proof. One command rolls back any cluster."
 
 ---
 
@@ -200,10 +278,11 @@ def reconciliation_check(source: int, success: int, quarantine: int):
 
 - **95%+ SLM call reduction**: Semantic clustering eliminates per-row inference — only cluster representatives hit the model
 - **Zero silent data loss**: `Source == Success + Quarantine` holds on every single batch run
+- **100% deterministic postcondition verification**: 0 rows promoted to staging based solely on uncalibrated SLM confidence scores
 - **0 PII bytes external**: Network egress from the remediation layer is zero — verified
-- **Lambda rejection rate < 5%**: Well-crafted prompts produce valid, safe lambdas consistently
-- **100% audit coverage**: Every AI-applied fix has a complete, queryable audit log entry
-- **Human quarantine rate < 10%**: High-quality clustering means the SLM resolves most patterns with confidence
+- **Lambda AST & postcondition rejection accuracy**: 100% of unsafe or partially failing cluster lambdas routed to quarantine before mutating staging
+- **100% reversible audit coverage**: Every AI-applied fix has an append-only, hash-chained ledger entry with tested rollback
+- **Human quarantine rate < 10%**: High-quality clustering means the SLM resolves most patterns within strict domain invariants
 
 ---
 
