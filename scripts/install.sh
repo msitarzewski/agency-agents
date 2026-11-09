@@ -311,6 +311,20 @@ validate_division() {
 USE_LINK=false        # --link
 OVERRIDE_PATH=""      # --path (single-destination override)
 
+# ensure_agent_dir <dir> — create a per-agent directory, refusing to write
+# through one that is already a symlink. install_file guards the leaf it writes,
+# but mkdir -p on a symlinked intermediate is a silent no-op and the copy lands
+# wherever that link points.
+ensure_agent_dir() {
+  if [[ -L "$1" ]]; then
+    local link_to; link_to="$(readlink "$1")"
+    warn "Skipped $1 — it is a symlink to $link_to; not writing through it."
+    [[ -n "${SKIPPED_LOG:-}" ]] && printf '%s -> %s\n' "$1" "$link_to" >> "$SKIPPED_LOG"
+    return 1
+  fi
+  mkdir -p "$1"
+}
+
 # install_file <src> <dest> — copy, or symlink when --link is set.
 install_file() {
   local target="$2"
@@ -911,7 +925,7 @@ install_antigravity() {
   while IFS= read -r -d '' d; do
     local name; name="$(basename "$d")"
     slug_allowed "$name" || continue
-    mkdir -p "$dest/$name"
+    ensure_agent_dir "$dest/$name" || continue
     install_file "$d/SKILL.md" "$dest/$name/SKILL.md"
     incr count
   done < <(find "$src" -mindepth 1 -maxdepth 1 -type d -print0)
@@ -928,7 +942,7 @@ install_osaurus() {
   while IFS= read -r -d '' d; do
     local name; name="$(basename "$d")"
     slug_allowed "$name" || continue
-    mkdir -p "$dest/$name"
+    ensure_agent_dir "$dest/$name" || continue
     install_file "$d/SKILL.md" "$dest/$name/SKILL.md"
     incr count
   done < <(find "$src" -mindepth 1 -maxdepth 1 -type d -print0)
@@ -945,7 +959,7 @@ install_dsh() {
   while IFS= read -r -d '' d; do
     local name; name="$(basename "$d")"
     slug_allowed "$name" || continue
-    mkdir -p "$dest/$name"
+    ensure_agent_dir "$dest/$name" || continue
     install_file "$d/SKILL.md" "$dest/$name/SKILL.md"
     incr count
   done < <(find "$src" -mindepth 1 -maxdepth 1 -type d -print0)
@@ -1020,7 +1034,7 @@ install_openclaw() {
     local name; name="$(basename "$d")"
     slug_allowed "$name" || continue
     [[ -f "$d/SOUL.md" && -f "$d/AGENTS.md" && -f "$d/IDENTITY.md" ]] || continue
-    mkdir -p "$dest/$name"
+    ensure_agent_dir "$dest/$name" || continue
     install_file "$d/SOUL.md" "$dest/$name/SOUL.md"
     install_file "$d/AGENTS.md" "$dest/$name/AGENTS.md"
     install_file "$d/IDENTITY.md" "$dest/$name/IDENTITY.md"
@@ -1168,7 +1182,7 @@ install_kimi() {
   while IFS= read -r -d '' d; do
     local name; name="$(basename "$d")"
     slug_allowed "$name" || continue
-    mkdir -p "$dest/$name"
+    ensure_agent_dir "$dest/$name" || continue
     install_file "$d/agent.yaml" "$dest/$name/agent.yaml"
     install_file "$d/system.md" "$dest/$name/system.md"
     incr count

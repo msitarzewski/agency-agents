@@ -446,6 +446,21 @@ assert_eq true "$([[ -L "$dest/$(basename "$FIRST_ENG_FILE")" ]] && echo true ||
 assert_eq true "$([[ -f "$dest/$(basename "$SECOND_ENG_FILE")" && ! -L "$dest/$(basename "$SECOND_ENG_FILE")" ]] && echo true || echo false)" "the rest of the selection still installs"
 assert_eq true "$(grep -q 'Not installed: 1 file' <<<"$RUN_OUT" && echo true || echo false)" "the summary reports the skipped file"
 
+# A per-agent skill directory that is already a symlink must not redirect the
+# skill files outside the destination. install_file guards the leaf file it
+# writes, but mkdir -p on a symlinked directory is a silent success and the
+# copy lands wherever that link points.
+home="$(sandbox symlink-skill-dir)"
+dest="$home/dest"
+mkdir -p "$dest" "$home/victim"
+printf 'KEEP THIS FILE\n' > "$home/victim/SKILL.md"
+ln -s "$home/victim" "$dest/agency-$FIRST_ENG_SLUG"
+run_install "$home" --tool dsh --no-convert --agent "$FIRST_ENG_SLUG,$SECOND_ENG_SLUG" --path "$dest"
+assert_eq 'KEEP THIS FILE' "$(cat "$home/victim/SKILL.md")" "a symlinked skill directory is not written through"
+assert_eq 0 "$RUN_STATUS" "a symlinked skill directory is skipped, not fatal"
+assert_eq true "$([[ -L "$dest/agency-$FIRST_ENG_SLUG" ]] && echo true || echo false)" "the symlinked skill directory is left in place"
+assert_eq true "$([[ -f "$dest/agency-$SECOND_ENG_SLUG/SKILL.md" ]] && echo true || echo false)" "the rest of the selection still installs"
+
 # Switching from --link to a copy replaces our own links, and never writes
 # through them into the clone's source files.
 home="$(sandbox link-then-copy)"
