@@ -121,7 +121,8 @@ public class PlayerController : NetworkBehaviour
         _clientPredictedPosition = transform.position;
     }
 
-    private void Update()
+    // Predict and send on the fixed tick so client and server advance by the same step
+    private void FixedUpdate()
     {
         if (!IsOwner) return;
 
@@ -129,7 +130,7 @@ public class PlayerController : NetworkBehaviour
         var input = new Vector2(Input.GetAxisRaw("Horizontal"), Input.GetAxisRaw("Vertical")).normalized;
 
         // Client prediction: move immediately
-        _clientPredictedPosition += new Vector3(input.x, 0, input.y) * _moveSpeed * Time.deltaTime;
+        _clientPredictedPosition += new Vector3(input.x, 0, input.y) * _moveSpeed * Time.fixedDeltaTime;
         transform.position = _clientPredictedPosition;
 
         // Send input to server
