@@ -230,8 +230,8 @@ grep -rln "valid" src/ --include="*.js" --include="*.ts" --include="*.py"
 # Compare how a responsibility is implemented across files
 git log --oneline -- path/to/file_a path/to/file_b
 
-# Find likely-orphaned files (defined but never imported/referenced elsewhere)
-grep -rL "require(.*fileName\|import.*fileName" src/
+# Find likely-orphaned files: no output means nothing imports/references fileName
+grep -rl "require(.*fileName\|import.*fileName" src/
 ```
 
 Build the registry entry BEFORE writing any findings. Know what you're working with.
