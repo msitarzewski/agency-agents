@@ -26,6 +26,7 @@
 #   hermes       — Hermes lazy-router plugin (one plugin + on-disk agent index)
 #   vibe         — Mistral Vibe agent TOML + prompt files (~/.vibe/agents/*.toml + ~/.vibe/prompts/*.md)
 #   dsh          — DeepSeek Harness skill files (~/.dsh/skills/<name>/SKILL.md · .dsh/skills/<name>/SKILL.md)
+#   openagent    — OpenAgent persona files (integrations/openagent/<slug>.persona.yaml)
 #   all          — All tools (default)
 #
 # Output is written to integrations/<tool>/ relative to the repo root.
@@ -651,6 +652,76 @@ ${body}
 HEREDOC
 }
 
+# The first few "- **Label**: "example"" bullets of an agent's Communication
+# Style section, one "label<TAB>example" pair per line. Drives the OpenAgent
+# voice block; prints nothing when the agent has no such section.
+communication_style_pairs() {
+  get_body "$1" | awk '
+    /^##[ \t]/ { in_style = (tolower($0) ~ /communication/); next }
+    in_style && n < 4 && /^- \*\*[^*]+\*\*:?/ {
+      line = $0
+      sub(/^- \*\*/, "", line)
+      label = line; sub(/\*\*.*/, "", label); sub(/:$/, "", label)
+      ex = line; sub(/^[^*]*\*\*:?[ \t]*/, "", ex); gsub(/^[*"]+|[*"]+$/, "", ex)
+      print label "\t" ex; n++
+    }
+  '
+}
+
+convert_openagent() {
+  local file="$1"
+  local name description vibe emoji color slug outfile source behavior
+  local label example rules="" sample=""
+
+  name="$(get_field "name" "$file")"
+  description="$(get_field "description" "$file")"
+  vibe="$(get_field "vibe" "$file")"
+  emoji="$(get_field "emoji" "$file")"
+  color="$(get_field "color" "$file")"
+  slug="$(slugify "$name")"
+  source="${file#"$REPO_ROOT"/}"
+  behavior="${vibe:-$description}"
+  emoji="${emoji:-🤖}"
+
+  while IFS=$'\t' read -r label example; do
+    [[ -n "$label" ]] || continue
+    rules+="      - $(yaml_quote "$label")"$'\n'
+    [[ -n "$sample" || -z "$example" ]] || sample="$example"
+  done < <(communication_style_pairs "$file")
+  [[ -n "$rules" ]] || rules="      - $(yaml_quote "$behavior")"$'\n'
+  sample="${sample:-$behavior}"
+
+  outfile="$OUT_DIR/openagent/${slug}.persona.yaml"
+  mkdir -p "$(dirname "$outfile")"
+
+  # OpenAgent persona (5dive-ai/openagent, spec v0.2): one YAML identity file
+  # per agent — name, role, behavior, face and written voice — that any tool
+  # reading the spec can show or load. The schema has no emoji field, so the
+  # agent's emoji stands in for the face image; a tool that cannot resolve
+  # face.ref as an image falls back to a monogram. Agency-specific fields go
+  # under ext.agency-agents, the spec's namespace for tool data.
+  cat > "$outfile" <<HEREDOC
+openagent: '0.2'
+id: $(yaml_quote "$slug")
+name: $(yaml_quote "$name")
+role: $(yaml_quote "$description")
+behavior: $(yaml_quote "$behavior")
+face:
+  ref: $(yaml_quote "$emoji")
+  anchor: $(yaml_quote "the ${emoji} emoji${color:+ on a ${color} background}")
+voice:
+  written:
+    rules:
+${rules%$'\n'}
+    sample: $(yaml_quote "$sample")
+links:
+  repo: 'https://github.com/msitarzewski/agency-agents'
+ext:
+  agency-agents:
+    source: $(yaml_quote "$source")
+HEREDOC
+}
+
 # Aider and Windsurf are single-file formats — accumulate into temp files
 # then write at the end.
 AIDER_TMP="$(mktemp)"
@@ -822,6 +893,7 @@ run_conversions() {
         kimi)        convert_kimi        "$file" ;;
         osaurus)     convert_osaurus     "$file" ;;
         dsh)         convert_dsh         "$file" ;;
+        openagent)   convert_openagent   "$file" ;;
         vibe)        convert_vibe        "$file" ;;
         aider)       accumulate_aider    "$file" ;;
         windsurf)    accumulate_windsurf "$file" ;;
@@ -853,7 +925,7 @@ main() {
     esac
   done
 
-  local valid_tools=("antigravity" "gemini-cli" "opencode" "cursor" "aider" "windsurf" "openclaw" "qwen" "zcode" "kimi" "codex" "osaurus" "hermes" "vibe" "dsh" "all")
+  local valid_tools=("antigravity" "gemini-cli" "opencode" "cursor" "aider" "windsurf" "openclaw" "qwen" "zcode" "kimi" "codex" "osaurus" "hermes" "vibe" "dsh" "openagent" "all")
   local valid=false
   for t in "${valid_tools[@]}"; do [[ "$t" == "$tool" ]] && valid=true && break; done
   if ! $valid; then
@@ -874,7 +946,7 @@ main() {
 
   local tools_to_run=()
   if [[ "$tool" == "all" ]]; then
-    tools_to_run=("antigravity" "gemini-cli" "opencode" "cursor" "aider" "windsurf" "openclaw" "qwen" "zcode" "kimi" "codex" "osaurus" "hermes" "vibe" "dsh")
+    tools_to_run=("antigravity" "gemini-cli" "opencode" "cursor" "aider" "windsurf" "openclaw" "qwen" "zcode" "kimi" "codex" "osaurus" "hermes" "vibe" "dsh" "openagent")
   else
     tools_to_run=("$tool")
   fi
@@ -885,7 +957,7 @@ main() {
 
   if $use_parallel && [[ "$tool" == "all" ]]; then
     # Tools that write to separate dirs can run in parallel; buffer output so each tool's output stays together
-    local parallel_tools=(antigravity gemini-cli opencode cursor openclaw qwen zcode kimi codex osaurus hermes vibe dsh)
+    local parallel_tools=(antigravity gemini-cli opencode cursor openclaw qwen zcode kimi codex osaurus hermes vibe dsh openagent)
     local parallel_out_dir
     parallel_out_dir="$(mktemp -d "${TMPDIR:-/tmp}/agency-convert-parallel.XXXXXX")"
     PARALLEL_OUT_DIR="$parallel_out_dir"
