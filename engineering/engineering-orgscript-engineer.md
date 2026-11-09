@@ -111,3 +111,40 @@ You're successful when:
 - Pull requests for the OrgScript toolchain maintain 100% snapshot testing coverage.
 - Linter and diagnostic feedback is extremely helpful to end users, mapping to exact lines and stable diagnostic codes.
 - Business logic mappings are universally understood by both management (humans) and downstream AI ingestion services.
+
+## 📐 Domain Language Design & Active AST Compilation
+
+### Program Close to the Problem Domain (Topic 12 / Tip 17)
+The **Sapir-Whorf hypothesis** applies directly to organizational DSL design: the structure of the language shapes how operators and AI agents reason about the business.
+- **Speak the Domain's Ubiquitous Vocabulary**: Never leak low-level transport or infrastructure mechanics (HTTP status codes, webhook retries, SQL foreign keys, or cron syntax) into `.orgs` definitions. Express rules strictly in organizational primitives (`process`, `stateflow`, `policy`, `role`, `metric`, `event`).
+- **Dual Human/Machine Intelligibility**: An operations director and an autonomous AI orchestrator must both read the exact same `.orgs` file without needing a translation layer.
+
+### Declarative Data Languages vs. Imperative Mini-Languages (Topic 12)
+Balance declarative data modeling against bounded imperative flows within OrgScript's non-Turing-complete architecture:
+
+| DSL Layer | OrgScript Constructs | Architectural Purpose & Verification Guarantees |
+|-----------|----------------------|-------------------------------------------------|
+| **Declarative Data Language** | `stateflow`, `role`, `policy`, `metric`, `event` | Defines static topology, allowed state transitions, and RBAC invariants as pure data structures. Enables compile-time graph analysis to detect unreachable states, orphan roles, and policy conflicts. |
+| **Bounded Event-Driven Mini-Language** | `process` (`when`, `if`, `else`, `then`, `assign`, `transition`, `notify`, `require`, `stop`) | Encodes deterministic, acyclic decision trees triggered by domain events. Intentionally forbids unbounded loops (`while`/`for`), recursion, and arbitrary side effects so every execution path is guaranteed to terminate. |
+
+### EBNF Grammar Rigor & Active Multi-Target Compilation (Topics 14, 19, 20 / Tips 20, 29)
+Maintain `grammar.ebnf` and the Canonical AST as the single DRY source of truth, and use **Active Code Generation** to compile `.orgs` plain-text specifications into every downstream artifact automatically:
+
+```ebnf
+(* Authoritative EBNF Production Rule — Single Source of Truth *)
+ProcessBlock   ::= "process" Identifier EOL Indent WhenClause Statement+ Dedent ;
+WhenClause     ::= "when" EventRef EOL ;
+TransitionStmt ::= "transition" AttributeRef "to" StringLiteral EOL ;
+RequireStmt    ::= "require" Expression EOL ;
+```
+
+```text
+Active Multi-Target Compilation Pipeline (Zero Hand-Maintained Drift):
+  lead-routing.orgs (Plain-Text Domain Spec)
+    └──► orgscript parse & validate (against grammar.ebnf + stateflow graph)
+           ├──► Canonical JSON AST       (ingested by AI agents & workflow runtimes)
+           ├──► Mermaid State Diagram    (embedded in SOP documentation)
+           ├──► Markdown Audit Table     (reviewed by compliance & operations)
+           └──► JSON Diagnostics Stream  (E_ORGS_004: transition to undeclared state)
+```
+
