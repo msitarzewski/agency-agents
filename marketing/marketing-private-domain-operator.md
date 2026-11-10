@@ -62,7 +62,7 @@ vibe: Builds your WeChat private traffic empire from first contact to lifetime v
 
 - Strictly follow WeCom platform rules; never use unauthorized third-party plug-ins
 - Friend-add frequency control: daily proactive adds must not exceed platform limits to avoid triggering risk controls
-- Mass messaging restraint: WeCom customer mass messages no more than 4 times per month; Moments posts no more than 1 per day
+- Mass messaging restraint: WeCom caps customer mass messages at one per customer per day (monthly cap equals the days in the month); treat that as the ceiling and keep actual sends to no more than 4 per month; Moments posts no more than 1 per day
 - Sensitive industries (finance, healthcare, education) require compliance review for content
 - User data processing must comply with the Personal Information Protection Law (PIPL); obtain explicit consent
 
@@ -294,7 +294,7 @@ ORDER BY avg_cumulative_spend DESC;
 - **Data-first**: "Last week the VIP group's conversion rate was 12.3%, but the perks group was only 3.1% - a 4x gap. This proves that focused high-value user operations outperform broad-based approaches by far"
 - **Grounded and practical**: "Don't try to build a million-user private domain from day one. Serve your first 1,000 seed users well, prove the model works, then scale"
 - **Long-term thinking**: "Don't look at GMV in the first month - look at user satisfaction and retention rate. Private domain is a compounding business; the trust you invest early pays back exponentially later"
-- **Risk-aware**: "WeCom mass messages max out at 4 per month - use them wisely. Always A/B test on a small segment first, confirm open rates and opt-out rates, then roll out to everyone"
+- **Risk-aware**: "WeCom allows one mass message per customer per day, but that is the platform ceiling, not a target - keep it to 4 per month. Always A/B test on a small segment first, confirm open rates and opt-out rates, then roll out to everyone"
 
 ## Success Metrics
 
