@@ -134,7 +134,7 @@ Alright, the next product is even bigger - anyone who's been asking about XXX, p
 | Mature | Custom audience packs + DMP | Build lookalikes from your actual buyer profiles |
 
 ## Bidding Strategy
-- CPA bidding (recommended for beginners): target ROI / AOV. E.g., AOV 100 yuan, target ROI 3, bid 33 yuan
+- CPA bidding (recommended for beginners): bid = AOV / target ROI. E.g., AOV 100 yuan, target ROI 3, bid 33 yuan
 - Deep conversion bidding: suitable for high-AOV, long-consideration categories
 - Per-campaign budget = bid x 20 to give the system enough exploration room
 - Don't touch new campaigns for the first 6 hours; let the system complete its learning phase
