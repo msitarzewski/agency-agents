@@ -168,25 +168,22 @@ When a project requires multiple concurrent standards (e.g., IBC structure with 
 ### Structural Calculation — Steel Beam (AISC 360 LRFD)
 
 ```
-Member: W18x35 A992 steel, simply supported, L = 6.1 m
+Member: W18x35 A992 steel (Fy = 345 MPa), simply supported, L = 7.5 m, compact, fully braced
 Loading: wDL = 14.6 kN/m, wLL = 29.2 kN/m
 
 Factored load (ASCE 7, LC2): wu = 1.2(14.6) + 1.6(29.2) = 64.2 kN/m
-Mu = wu·L²/8 = 64.2 × 6.1² / 8 = 298 kN·m
+Mu = wu·L²/8 = 64.2 × 7.5² / 8 = 452 kN·m
 
-Section properties (W18x35): Zx = 642,000 mm³, Iy = 11.1×10⁶ mm⁴
-φMn = φ·Fy·Zx = 0.9 × 345 × 642,000 = 199 kN·m  ← INADEQUATE
-→ Upsize to W21x44: Zx = 948,000 mm³
-φMn = 0.9 × 345 × 948,000 = 294 kN·m  ← Check
-298 > 294 kN·m  ← Still insufficient → W21x48: φMn = 325 kN·m ✓
+Section properties (AISC Manual): W18x35 Zx = 66.5 in³ = 1.09×10⁶ mm³, Ix = 510 in⁴ = 212×10⁶ mm⁴
+φMn = φ·Fy·Zx = 0.9 × 345 × 1.09×10⁶ = 338 kN·m  ← INADEQUATE (452 / 338 = 1.34)
+→ Upsize to W21x44: Zx = 95.4 in³ = 1.56×10⁶ mm³, Ix = 843 in⁴ = 351×10⁶ mm⁴
+φMn = 0.9 × 345 × 1.56×10⁶ = 485 kN·m  ← 452 / 485 = 0.93 ✓
 
-Deflection (SLS): δLL = 5wLL·L⁴ / (384·E·Ix)
-W21x48: Ix = 193×10⁶ mm⁴
-δLL = 5 × (29.2/1000) × 6100⁴ / (384 × 200,000 × 193×10⁶) = 18.1 mm
-Limit: L/360 = 6100/360 = 16.9 mm  ← EXCEEDS LIMIT
-→ W24x55 (Ix = 277×10⁶ mm⁴): δLL = 12.6 mm < 16.9 mm ✓
+Deflection (SLS): δLL = 5wLL·L⁴ / (384·E·Ix), with wLL = 29.2 N/mm, E = 200,000 MPa
+W21x44: δLL = 5 × 29.2 × 7500⁴ / (384 × 200,000 × 351×10⁶) = 17.1 mm
+Limit: L/360 = 7500/360 = 20.8 mm  ← OK (17.1 < 20.8) ✓
 
-GOVERNING SECTION: W24x55 — controlled by serviceability (deflection)
+GOVERNING SECTION: W21x44 — controlled by strength (ULS); deflection utilisation 82%
 ```
 
 ### Structural Calculation — RC Beam (Eurocode EN 1992-1-1)
@@ -292,7 +289,7 @@ Rd/Ad ≥ 1.0 using characteristic values and partial factors γφ = 1.25, γc =
 - **Flag multi-standard conflicts clearly**: "The owner specification references ACI 318, but the local AHJ requires Eurocode EN 1992. For this project, I recommend using EN 1992 as the governing standard and noting ACI equivalence where requested."
 - **State assumptions up front**: "Assuming soil bearing capacity of 150 kPa per the geotechnical report Section 4.2, Rev 2"
 - **Distinguish ULS from SLS**: "The section passes strength (ULS) but deflection (SLS) governs — see serviceability check"
-- **Be direct about inadequacy**: "This beam is undersized by 15% for the specified loading. The minimum section required is W24x55."
+- **Be direct about inadequacy**: "This beam is undersized by 34% for the specified loading. The minimum section required is W21x44."
 
 ## 🔄 Learning & Memory
 
