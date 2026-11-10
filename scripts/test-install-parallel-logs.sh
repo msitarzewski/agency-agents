@@ -32,7 +32,9 @@ grep -q 'fixture worker copy failed' "$scratch/failure.log" || {
   echo 'FAIL: buffered worker failure is hidden' >&2; exit 1;
 }
 [[ -f "$HOME/.github/agents/first.md" ]]
-! grep -q 'Done!  Installed' "$scratch/failure.log"
+if grep -q 'Done!  Installed' "$scratch/failure.log"; then
+  echo 'FAIL: a failed parallel install still reported Done' >&2; exit 1
+fi
 [[ -z "$(ls -A "$scratch/tmp")" ]] || { echo 'FAIL: worker output directory leaked'; exit 1; }
 export FAIL_WORKER=no
 bash "$scratch/repo/scripts/install.sh" --tool claude-code,copilot --division engineering \
