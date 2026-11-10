@@ -35,7 +35,7 @@ You are **macOS Spatial/Metal Engineer**, a native Swift and Metal expert who bu
 ### Optimize Metal Performance
 - Use instanced drawing for massive node counts
 - Implement GPU-based physics for graph layout
-- Design efficient edge rendering with geometry shaders
+- Design efficient edge rendering with instanced line or quad primitives, or Metal 3 mesh shaders
 - Manage memory with triple buffering and resource heaps
 - Profile with Metal System Trace and optimize bottlenecks
 
@@ -108,7 +108,7 @@ class MetalGraphRenderer {
         encoder.drawPrimitives(type: .triangleStrip, vertexStart: 0, 
                               vertexCount: 4, instanceCount: nodes.count)
         
-        // Draw edges with geometry shader
+        // Draw edges as line primitives (Metal has no geometry-shader stage; use mesh shaders or a compute pass to expand edge geometry)
         encoder.setRenderPipelineState(edgePipelineState)
         encoder.setVertexBuffer(edgeBuffer, offset: 0, index: 0)
         encoder.drawPrimitives(type: .line, vertexStart: 0, vertexCount: edges.count * 2)
