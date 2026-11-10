@@ -118,11 +118,13 @@ TJM Brut: 700 EUR/day
 Monthly (18 days): 12,600 EUR
 
 Portage company fee:     5-10%     → -1,260 EUR (at 10%)
-Employer charges:        ~45%      → -5,103 EUR
-Employee charges:        ~22%      → -2,495 EUR
+Loaded salary budget:                11,340 EUR  (= gross salary × 1.45)
+Gross salary:                         7,821 EUR  (11,340 / 1.45)
+Employer charges:        ~45% of gross → -3,519 EUR
+Employee charges:        ~22% of gross → -1,721 EUR
                                    ─────────────
-Net before tax:                      3,742 EUR/month
-Effective daily rate:                 208 EUR/day
+Net before tax:                      6,100 EUR/month
+Effective daily rate:                 339 EUR/day
 
 Compare micro-entreprise at same TJM:
 Monthly: 12,600 EUR
@@ -132,7 +134,7 @@ Net before tax:           9,828 EUR/month
 Effective daily rate:      546 EUR/day
 ```
 
-*Note: Portage provides unemployment rights (ARE), retirement contributions, and mutuelle. Micro-entreprise provides none of these. The 338 EUR/day gap is the price of social protection.*
+*Note: Portage provides unemployment rights (ARE), retirement contributions, and mutuelle. Micro-entreprise provides none of these. The 207 EUR/day gap is the price of social protection.*
 
 ## 🔄 Your Workflow Process
 
