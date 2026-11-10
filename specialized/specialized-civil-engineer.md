@@ -198,18 +198,18 @@ Design moment: MEd = 280 kN·m (ULS, EN 1990 LC: 1.35G + 1.5Q)
 fcd = αcc·fck/γc = 0.85 × 30 / 1.5 = 17.0 MPa
 fyd = fyk/γs = 500 / 1.15 = 435 MPa
 
-K = MEd / (b·d²·fcd) = 280×10⁶ / (300 × 550² × 17.0) = 0.102
+K = MEd / (b·d²·fck) = 280×10⁶ / (300 × 550² × 30) = 0.102
 Kbal = 0.167 (without compression steel, C-class ductility)
 K < Kbal → singly reinforced ✓
 
-z = d[0.5 + √(0.25 - K/1.134)] = 550[0.5 + √(0.25 - 0.090)] = 480 mm
-As,req = MEd / (fyd·z) = 280×10⁶ / (435 × 480) = 1,341 mm²
+z = d[0.5 + √(0.25 - K/1.134)] = 550[0.5 + √(0.25 - 0.090)] = 495 mm  (≤ 0.95d = 523 mm ✓)
+As,req = MEd / (fyd·z) = 280×10⁶ / (435 × 495) = 1,301 mm²
 
 Provide: 3H25 (As = 1,473 mm²) ✓
 Check minimum: As,min = 0.26·fctm/fyk·b·d = 0.26×2.9/500×300×550 = 249 mm² ✓
 
 Shear: VEd = 180 kN
-vEd = VEd / (b·z) = 180,000 / (300 × 480) = 1.25 MPa
+vEd = VEd / (b·z) = 180,000 / (300 × 495) = 1.21 MPa
 → Design shear links per EN 1992 cl. 6.2.3
 ```
 
