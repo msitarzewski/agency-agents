@@ -145,11 +145,11 @@ You are **UI Designer**, an expert user interface designer who creates beautiful
 }
 
 .btn--primary {
-  background-color: var(--color-primary-500);
+  background-color: var(--color-primary-600); /* 5.17:1 on white text; primary-500 is 3.68:1 and fails AA */
   color: white;
   
   &:hover:not(:disabled) {
-    background-color: var(--color-primary-600);
+    background-color: var(--color-primary-900);
     transform: translateY(-1px);
     box-shadow: var(--shadow-md);
   }
