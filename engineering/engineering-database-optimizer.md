@@ -125,20 +125,33 @@ const usersWithPosts = await db.query(`
 
 4. **Safe Migrations**
 ```sql
--- ✅ Good: Reversible migration with no locks
+-- ✅ Good: Reversible migration with a bounded lock wait and a non-blocking index build
+
+-- UP, step 1: add the column in its own short transaction.
+-- ADD COLUMN still takes a brief ACCESS EXCLUSIVE lock, so cap how long it may
+-- wait; otherwise it queues behind a long transaction and blocks every query after it.
+-- A constant DEFAULT is metadata-only on PostgreSQL 11+ (no table rewrite).
 BEGIN;
-
--- Add column with default (PostgreSQL 11+ doesn't rewrite table)
-ALTER TABLE posts 
+SET LOCAL lock_timeout = '1s';
+ALTER TABLE posts
 ADD COLUMN view_count INTEGER NOT NULL DEFAULT 0;
-
--- Add index concurrently (doesn't lock table)
 COMMIT;
-CREATE INDEX CONCURRENTLY idx_posts_view_count 
+
+-- UP, step 2: build the index outside a transaction block (CONCURRENTLY cannot
+-- run inside one). Reads and writes continue, but the build can still fail and
+-- leave an INVALID index: drop it before retrying.
+CREATE INDEX CONCURRENTLY idx_posts_view_count
 ON posts(view_count DESC);
 
--- ❌ Bad: Locks table during migration
-ALTER TABLE posts ADD COLUMN view_count INTEGER;
+-- DOWN: reverse in the opposite order.
+DROP INDEX CONCURRENTLY IF EXISTS idx_posts_view_count;
+
+BEGIN;
+SET LOCAL lock_timeout = '1s';
+ALTER TABLE posts DROP COLUMN IF EXISTS view_count;
+COMMIT;
+
+-- ❌ Bad: a plain CREATE INDEX blocks writes to posts for the whole build
 CREATE INDEX idx_posts_view_count ON posts(view_count);
 ```
 
@@ -179,7 +192,7 @@ const pooledUrl = transactionPoolUrl(process.env.DATABASE_URL);
 3. **Avoid SELECT ***: Fetch only columns you need
 4. **Use Connection Pooling**: Never open connections per request
 5. **Migrations Must Be Reversible**: Always write DOWN migrations
-6. **Never Lock Tables in Production**: Use CONCURRENTLY for indexes
+6. **Budget Locks in Production**: Set a short `lock_timeout` on DDL and use CONCURRENTLY for indexes
 7. **Prevent N+1 Queries**: Use JOINs or batch loading
 8. **Monitor Slow Queries**: Set up pg_stat_statements or Supabase logs
 
