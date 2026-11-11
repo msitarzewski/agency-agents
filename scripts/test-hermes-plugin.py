@@ -6,6 +6,7 @@ from __future__ import annotations
 import importlib.util
 import json
 import sys
+import tempfile
 import types
 import unittest
 from enum import Enum
@@ -164,6 +165,30 @@ class DelegateBehaviorTests(unittest.TestCase):
         assert request is not None
         self.assertEqual(len(request.context), 32_000)
         self.assertTrue(request.context.endswith(module._TRUNCATION_MARKER))
+
+
+class BuilderScalarEscapeTests(unittest.TestCase):
+    def test_quoted_metadata_decodes_supported_escapes(self):
+        spec = importlib.util.spec_from_file_location("hermes_builder", ROOT / "scripts/build-hermes-plugin.py")
+        assert spec and spec.loader
+        builder = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(builder)
+        cases = [
+            ("'Don''t Panic'", "Don't Panic"),
+            (r'"Quotes \"remain\""', 'Quotes "remain"'),
+            (r'"C:\\work"', r'C:\work'),
+        ]
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            source = root / "engineering" / "example.md"
+            source.parent.mkdir()
+            for encoded, expected in cases:
+                with self.subTest(encoded=encoded):
+                    source.write_text("---\nname: " + encoded + "\ndescription: " + encoded + "\n---\nBody\n", encoding="utf-8")
+                    agent = builder.parse_agent(source, root)
+                    self.assertIsNotNone(agent)
+                    self.assertEqual(agent["name"], expected)
+                    self.assertEqual(agent["description"], expected)
 
 
 if __name__ == "__main__":
