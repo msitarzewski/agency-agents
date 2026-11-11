@@ -121,6 +121,7 @@ hostname Branch-GW
 interface GigabitEthernet 0/1
  description WAN-ISP-1
  ip address dhcp
+ ip nat outside
  no shutdown
 !
 interface GigabitEthernet 0/2
@@ -129,13 +130,14 @@ interface GigabitEthernet 0/2
 !
 interface vlan 1
  ip address 192.168.1.1 255.255.255.0
+ ip nat inside
 !
 ip route 0.0.0.0 0.0.0.0 100.64.0.1
 !
 ip access-list standard LAN
  permit 192.168.1.0 0.0.0.255
 !
-nat inside source list LAN interface GigabitEthernet 0/1 overload
+ip nat inside source list LAN interface GigabitEthernet 0/1 overload
 !
 write
 ```
