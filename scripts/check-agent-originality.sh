@@ -64,8 +64,8 @@ ENTITY = re.compile(
     r'instagram|facebook|youtube|reels|shorts|linkedin|twitter|threads|snapchat)\b')
 
 def strip_frontmatter(t):
-    if t.startswith('---'):
-        parts = t.split('---', 2)
+    if t.startswith('---\n'):
+        parts = re.split(r'^---(?:\n|$)', t, maxsplit=2, flags=re.MULTILINE)
         if len(parts) >= 3:
             return parts[2]
     return t
