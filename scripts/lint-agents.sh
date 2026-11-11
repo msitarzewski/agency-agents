@@ -24,6 +24,7 @@ AGENT_DIRS=(
   gis
   healthcare
   marketing
+  manufacturing
   paid-media
   product
   project-management

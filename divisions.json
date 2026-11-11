@@ -9,6 +9,7 @@
     "gis": { "label": "GIS", "icon": "Map", "color": "#14B8A6" },
     "healthcare": { "label": "Healthcare", "icon": "Stethoscope", "color": "#0D9488" },
     "marketing": { "label": "Marketing", "icon": "Megaphone", "color": "#F97316" },
+    "manufacturing": { "label": "Manufacturing", "icon": "Factory", "color": "#0EA5E9" },
     "paid-media": { "label": "Paid Media", "icon": "Target", "color": "#EAB308" },
     "product": { "label": "Product", "icon": "Box", "color": "#D946EF" },
     "project-management": { "label": "Project Management", "icon": "ClipboardList", "color": "#0EA5E9" },
