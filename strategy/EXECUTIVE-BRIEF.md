@@ -71,7 +71,11 @@ The Agency comprises specialized AI agents across every division — engineering
 strategy/
 ├── EXECUTIVE-BRIEF.md              ← You are here
 ├── QUICKSTART.md                   ← 5-minute activation guide
-├── nexus-strategy.md               ← Complete operational doctrine
+├── nexus-strategy.md               ← Operational doctrine (overview)
+├── nexus-phases.md                 ← Phase 0–6 agent rosters and gates
+├── nexus-protocols.md              ← Handoff and escalation templates
+├── nexus-activation.md             ← Activation modes and prompts
+├── nexus-appendices.md             ← Division reference, report template, glossary
 ├── playbooks/
 │   ├── phase-0-discovery.md        ← Intelligence & discovery
 │   ├── phase-1-strategy.md         ← Strategy & architecture
