@@ -25,6 +25,7 @@
 #   osaurus      — Osaurus skill files (~/.osaurus/skills/<name>/SKILL.md)
 #   hermes       — Hermes lazy-router plugin (one plugin + on-disk agent index)
 #   vibe         — Mistral Vibe agent TOML + prompt files (~/.vibe/agents/*.toml + ~/.vibe/prompts/*.md)
+#   reasonix     — Reasonix manual subagent profiles (SKILL.md)
 #   dsh          — DeepSeek Harness skill files (~/.dsh/skills/<name>/SKILL.md · .dsh/skills/<name>/SKILL.md)
 #   all          — All tools (default)
 #
@@ -154,6 +155,41 @@ description: $(yaml_quote "$description")
 ---
 ${body}
 HEREDOC
+}
+
+convert_reasonix() {
+  local file="$1" slug description body outdir
+  slug="reasonix-agency-$(agent_slug "$file")"
+  description="$(get_field description "$file")"
+  body="$(get_body "$file")"
+  outdir="$OUT_DIR/reasonix/$slug"
+  mkdir -p "$outdir"
+  cat > "$outdir/SKILL.md" <<HEREDOC
+---
+name: $(yaml_quote "$slug")
+description: $(yaml_quote "$description")
+invocation: manual
+runAs: subagent
+---
+${body}
+HEREDOC
+}
+
+# Check before cleaning output: an invalid future name must not destroy the
+# previous installation. Reasonix permits at most 64 characters per identifier.
+check_reasonix_names() {
+  local dir file slug
+  for dir in "${AGENT_DIRS[@]}"; do
+    [[ -d "$REPO_ROOT/$dir" ]] || continue
+    while IFS= read -r -d '' file; do
+      is_agent_file "$file" || continue
+      slug="$(agent_slug "$file")"
+      if [[ -z "$slug" || ${#slug} -gt 48 ]]; then
+        error "Reasonix: invalid agent name in ${file#"$REPO_ROOT"/}; prefixed names must be 1–64 ASCII characters."
+        return 1
+      fi
+    done < <(find "$REPO_ROOT/$dir" -name '*.md' -type f -print0)
+  done
 }
 
 convert_osaurus() {
@@ -822,6 +858,7 @@ run_conversions() {
         kimi)        convert_kimi        "$file" ;;
         osaurus)     convert_osaurus     "$file" ;;
         dsh)         convert_dsh         "$file" ;;
+        reasonix)    convert_reasonix    "$file" ;;
         vibe)        convert_vibe        "$file" ;;
         aider)       accumulate_aider    "$file" ;;
         windsurf)    accumulate_windsurf "$file" ;;
@@ -853,7 +890,7 @@ main() {
     esac
   done
 
-  local valid_tools=("antigravity" "gemini-cli" "opencode" "cursor" "aider" "windsurf" "openclaw" "qwen" "zcode" "kimi" "codex" "osaurus" "hermes" "vibe" "dsh" "all")
+  local valid_tools=("antigravity" "gemini-cli" "opencode" "cursor" "aider" "windsurf" "openclaw" "qwen" "zcode" "kimi" "codex" "osaurus" "hermes" "vibe" "dsh" "reasonix" "all")
   local valid=false
   for t in "${valid_tools[@]}"; do [[ "$t" == "$tool" ]] && valid=true && break; done
   if ! $valid; then
@@ -862,6 +899,7 @@ main() {
   fi
 
   check_agent_slug_collisions || exit 1
+  if [[ "$tool" == reasonix || "$tool" == all ]]; then check_reasonix_names || exit 1; fi
 
   header "The Agency -- Converting agents to tool-specific formats"
   echo "  Repo:   $REPO_ROOT"
@@ -874,7 +912,7 @@ main() {
 
   local tools_to_run=()
   if [[ "$tool" == "all" ]]; then
-    tools_to_run=("antigravity" "gemini-cli" "opencode" "cursor" "aider" "windsurf" "openclaw" "qwen" "zcode" "kimi" "codex" "osaurus" "hermes" "vibe" "dsh")
+    tools_to_run=("antigravity" "gemini-cli" "opencode" "cursor" "aider" "windsurf" "openclaw" "qwen" "zcode" "kimi" "codex" "osaurus" "hermes" "vibe" "dsh" "reasonix")
   else
     tools_to_run=("$tool")
   fi
@@ -885,7 +923,7 @@ main() {
 
   if $use_parallel && [[ "$tool" == "all" ]]; then
     # Tools that write to separate dirs can run in parallel; buffer output so each tool's output stays together
-    local parallel_tools=(antigravity gemini-cli opencode cursor openclaw qwen zcode kimi codex osaurus hermes vibe dsh)
+    local parallel_tools=(antigravity gemini-cli opencode cursor openclaw qwen zcode kimi codex osaurus hermes vibe dsh reasonix)
     local parallel_out_dir
     parallel_out_dir="$(mktemp -d "${TMPDIR:-/tmp}/agency-convert-parallel.XXXXXX")"
     PARALLEL_OUT_DIR="$parallel_out_dir"

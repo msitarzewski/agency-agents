@@ -264,3 +264,10 @@ directly, run the converter before installing from a fresh clone:
 ```
 
 See [codex/README.md](codex/README.md) for details.
+
+## Reasonix
+
+[Reasonix manual subagent profiles](reasonix/README.md) preserve each complete
+persona in an isolated named agent. Run `./scripts/convert.sh --tool reasonix`
+and `./scripts/install.sh --tool reasonix`. Use `--path .reasonix/skills` for
+a project install. Names use `reasonix-agency-` to coexist with inline skills.
