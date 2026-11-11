@@ -344,6 +344,8 @@ const config = {
   jwtSecret:    requireEnv("JWT_SECRET"),
   dbUrl:        requireEnv("DATABASE_URL"),
   idpJwksUri:   requireEnv("IDP_JWKS_URI"),
+  idpIssuer:    requireEnv("IDP_ISSUER"),
+  idpAudience:  requireEnv("IDP_AUDIENCE"),
   allowedOrigins: requireEnv("ALLOWED_ORIGINS").split(","),
 };
 ```
