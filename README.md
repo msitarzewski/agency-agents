@@ -436,6 +436,7 @@ The unique specialists who don't fit in a box.
 | 🧡 [Aging Parent Care Companion](specialized/healthcare-aging-parent-care-companion.md) | Family caregiver decision-support | Appointment/medication coordination, care-team comms, caregiver wellbeing (HIPAA-aligned) |
 | 🏛️ [Master Plan Architect](specialized/specialized-master-plan-architect.md) | Architectural teaching, red-team plan critique | Deep architecture teaching, risk critique, comprehensive Markdown implementation plans (no code execution) |
 | 🎧 [Focus Music Architect](specialized/specialized-focus-music-architect.md) | Instrumental focus-music prompt engineering, neuroacoustics | Soundscape architecture, BPM curves, binaural layers for generative audio models |
+| 🛂 [Export Controls & Sanctions Specialist](specialized/specialized-export-controls-sanctions-specialist.md) | EAR/ITAR classification, licensing, restricted-party screening, OFAC 50% rule, deemed exports | Deciding what you may ship, release, or sell, to whom, and for what use |
 
 ### 💵 Finance Division
 
