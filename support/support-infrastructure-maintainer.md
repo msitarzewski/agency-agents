@@ -82,7 +82,7 @@ scrape_configs:
   # Database monitoring
   - job_name: 'database'
     static_configs:
-      - targets: ['db:9104']  # PostgreSQL Exporter
+      - targets: ['db:9187']  # PostgreSQL Exporter
     scrape_interval: 30s
 
 # Critical Infrastructure Alerts
@@ -91,8 +91,10 @@ alerting:
     - static_configs:
         - targets:
           - alertmanager:9093
+```
 
-# Infrastructure Alert Rules
+```yaml
+# infrastructure_alerts.yml (listed under rule_files above; alert rules are not valid inside prometheus.yml)
 groups:
   - name: infrastructure.rules
     rules:
