@@ -158,13 +158,22 @@ def _agent_lookup(identifier: str) -> dict[str, Any] | None:
     for agent in _load_agents():
         if agent["slug"] == slug or agent["name"].lower() == needle:
             return agent
+    # Runbook rosters and the desktop app address agents by their .md filename
+    # stem, which is not the rendered slug for most of the roster (#1027).
+    # Accept the stem as an alias; slug and display name keep precedence.
+    if slug:
+        for agent in _load_agents():
+            source = agent.get("source_path") or ""
+            if source and Path(source).stem == slug:
+                return agent
     return None
 
 
 def _identifier(args: dict[str, Any]) -> str:
     # Accept either "agent" or "slug": agency_agents_search returns results keyed
     # by "slug", so callers naturally chain search -> load/inspect/delegate with
-    # slug=. Both name the same thing (a slug or exact display name).
+    # slug=. Both name the same thing (a slug, exact display name, or the
+    # runbook file stem accepted as an alias).
     return str(args.get("agent") or args.get("slug") or "").strip()
 
 
@@ -273,8 +282,8 @@ READ_SCHEMA = {
     "parameters": {
         "type": "object",
         "properties": {
-            "agent": {"type": "string", "description": "Agent slug or exact display name."},
-            "slug": {"type": "string", "description": "Alias for agent. Pass the slug from agency_agents_search results."},
+            "agent": {"type": "string", "description": "Agent slug, exact display name, or runbook file stem."},
+            "slug": {"type": "string", "description": "Alias for agent. A slug from search results, an exact display name, or a runbook file stem."},
             "include_body": {"type": "boolean", "description": "Include full specialist instructions."},
         },
         "required": [],
@@ -291,8 +300,8 @@ PROMPT_SCHEMA = {
     "parameters": {
         "type": "object",
         "properties": {
-            "agent": {"type": "string", "description": "Agent slug or exact display name."},
-            "slug": {"type": "string", "description": "Alias for agent. Pass the slug from agency_agents_search results."},
+            "agent": {"type": "string", "description": "Agent slug, exact display name, or runbook file stem."},
+            "slug": {"type": "string", "description": "Alias for agent. A slug from search results, an exact display name, or a runbook file stem."},
             "task": {"type": "string", "description": "The user's task to pair with the specialist context."},
         },
         "required": [],
@@ -310,8 +319,8 @@ DELEGATE_SCHEMA = {
     "parameters": {
         "type": "object",
         "properties": {
-            "agent": {"type": "string", "description": "Agent slug or exact display name."},
-            "slug": {"type": "string", "description": "Alias for agent. Pass the slug from agency_agents_search results."},
+            "agent": {"type": "string", "description": "Agent slug, exact display name, or runbook file stem."},
+            "slug": {"type": "string", "description": "Alias for agent. A slug from search results, an exact display name, or a runbook file stem."},
             "task": {"type": "string", "description": "Concrete task for the specialist."},
         },
         "required": ["task"],
