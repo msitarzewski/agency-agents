@@ -279,8 +279,9 @@ Funds Available After:  ___________
 
 BUSINESS DAY DEFINITION FOR TRID
 ───────────────────────────────────────
-For LE delivery (3-day rule): All calendar days except Sundays
-and federal public holidays
+For LE delivery (3 business days after application): Days the
+creditor's offices are open to the public for substantially all
+business functions (general definition, 12 CFR 1026.2(a)(6))
 For CD delivery (3-day rule): All calendar days except Sundays
 and federal public holidays
 For rescission: All calendar days except Sundays and federal
