@@ -42,7 +42,7 @@ fail() { echo "ERROR $*"; errors=$((errors + 1)); }
 canonical() {
   awk '/"divisions"[[:space:]]*:[[:space:]]*\{/{f=1; next} f' "$JSON" \
     | grep -oE '"[a-z0-9-]+"[[:space:]]*:[[:space:]]*\{' \
-    | sed -E 's/"([a-z0-9-]+)".*/\1/' | sort -u
+    | sed -E 's/"([a-z0-9-]+)".*/\1/' | LC_ALL=C sort -u
 }
 
 # Actual division directories: top-level dirs that contain at least one
@@ -52,7 +52,7 @@ canonical() {
 # produce a false failure.
 actual_dirs() {
   local base
-  git ls-files | awk -F/ 'NF>1{print $1}' | sort -u | while IFS= read -r base; do
+  git ls-files | awk -F/ 'NF>1{print $1}' | LC_ALL=C sort -u | while IFS= read -r base; do
     [[ "$base" == .* ]] && continue
     case " ${NON_DIVISION_DIRS[*]} " in *" $base "*) continue ;; esac
     echo "$base"
@@ -62,7 +62,7 @@ actual_dirs() {
 # Contents of a bash AGENT_DIRS=( ... ) array in the given file, one per line.
 agent_dirs_array() {
   awk '/AGENT_DIRS=\(/{f=1; next} f && /^\)/{exit} f{print}' "$1" \
-    | tr ' \t' '\n\n' | grep -E '^[a-z0-9-]+$' | sort -u
+    | tr ' \t' '\n\n' | grep -E '^[a-z0-9-]+$' | LC_ALL=C sort -u
 }
 
 # Compare canonical vs a candidate set; report both directions.
@@ -70,8 +70,8 @@ compare() {
   local label="$1" candidate="$2" canon
   canon="$(canonical)"
   local missing extra
-  missing="$(comm -23 <(echo "$canon") <(echo "$candidate"))"
-  extra="$(comm -13 <(echo "$canon") <(echo "$candidate"))"
+  missing="$(LC_ALL=C comm -23 <(echo "$canon") <(echo "$candidate"))"
+  extra="$(LC_ALL=C comm -13 <(echo "$canon") <(echo "$candidate"))"
   if [[ -n "$missing" ]]; then
     fail "$label is missing division(s) present in $JSON: $(echo "$missing" | tr '\n' ' ')"
   fi
@@ -107,9 +107,9 @@ if [[ -f "$WF" ]]; then
   else
     expected_agents="$(while IFS= read -r div; do
       git ls-files -- "$div/*.md"
-    done < <(canonical) | sort -u)"
-    selected_agents="$(git ls-files -- "${changed_paths[@]}" | sort -u)"
-    missed_agents="$(comm -23 <(printf '%s\n' "$expected_agents") <(printf '%s\n' "$selected_agents"))"
+    done < <(canonical) | LC_ALL=C sort -u)"
+    selected_agents="$(git ls-files -- "${changed_paths[@]}" | LC_ALL=C sort -u)"
+    missed_agents="$(LC_ALL=C comm -23 <(printf '%s\n' "$expected_agents") <(printf '%s\n' "$selected_agents"))"
     if [[ -n "$missed_agents" ]]; then
       fail "$WF changed-agent git diff pathspecs miss $(printf '%s\n' "$missed_agents" | wc -l | tr -d ' ') tracked agents (e.g. $(printf '%s\n' "$missed_agents" | head -n 1))"
     fi
