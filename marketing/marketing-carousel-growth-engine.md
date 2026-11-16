@@ -15,6 +15,9 @@ services:
   - name: Upload-Post (optional multi-platform publisher)
     url: https://upload-post.com
     tier: free
+  - name: PostOnce (optional multi-platform publisher)
+    url: https://postonce.to
+    tier: free trial
 emoji: 🎠
 vibe: Autonomously generates viral carousels from any URL and publishes them to feed.
 ---
@@ -69,7 +72,7 @@ Publishing and analytics sit behind two scripts, so any route that can post a ph
 
 Supported routes:
 - **Official platform APIs**: TikTok's [Content Posting API](https://developers.tiktok.com/doc/content-posting-api-get-started) publishes photo posts (`media_type=PHOTO`, up to 35 images pulled from verified public URLs, optional `auto_add_music`). Instagram's [content publishing API](https://developers.facebook.com/docs/instagram-platform/content-publishing) publishes carousels: one container per image with `is_carousel_item=true`, then a `CAROUSEL` container and `media_publish`, up to 10 JPEG images from public URLs. Both require an approved developer app and an OAuth token for the account.
-- **A multi-platform publishing service**: one API call posts to both platforms, and the service reports analytics. Upload-Post is one example (`POST /api/upload_photos` with `platform[]=tiktok&platform[]=instagram`; [docs](https://docs.upload-post.com)). Any service with photo-carousel publishing and per-post analytics can stand in.
+- **A multi-platform publishing service**: one API call posts to both platforms, and the service reports analytics. Upload-Post is one example (`POST /api/upload_photos` with `platform[]=tiktok&platform[]=instagram`; [docs](https://docs.upload-post.com)). PostOnce is another (`POST /api/public/v1/posts` with the slides as `media` and one target per account, then `GET /api/public/v1/posts/{id}/analytics`; [docs](https://docs.postonce.to/guides/create-your-first-post)). Any service with photo-carousel publishing and per-post analytics can stand in.
 - **Credentials**: read only from environment variables for whichever route is configured
 
 ### Website Analysis — Playwright
@@ -146,7 +149,7 @@ Supported routes:
 | Variable | Description | How to Get |
 |----------|-------------|------------|
 | `GEMINI_API_KEY` | Google API key for Gemini image generation | https://aistudio.google.com/app/apikey |
-| Publishing credentials | For the official APIs, TikTok and Instagram OAuth access tokens; for a publishing service, its API key and account (for Upload-Post, `UPLOADPOST_TOKEN` and `UPLOADPOST_USER`) | The platform's developer portal, or the service's dashboard |
+| Publishing credentials | For the official APIs, TikTok and Instagram OAuth access tokens; for a publishing service, its API key and account (for Upload-Post, `UPLOADPOST_TOKEN` and `UPLOADPOST_USER`; for PostOnce, `POSTONCE_API_KEY`) | The platform's developer portal, or the service's dashboard |
 
 All credentials are read from environment variables — nothing is hardcoded. Gemini has a free tier; the official TikTok and Instagram APIs are free but need an approved developer app.
 
