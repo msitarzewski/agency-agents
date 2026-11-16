@@ -80,8 +80,8 @@ Use the Code Reviewer agent to analyze this pull request.
 Install only specific divisions or agents:
 
 ```bash
-# Install only agents from Division 1
-./scripts/install.sh --tool vibe --division 1
+# Install only the engineering division
+./scripts/install.sh --tool vibe --division engineering
 
 # Install only the code-reviewer agent
 ./scripts/install.sh --tool vibe --agent code-reviewer
