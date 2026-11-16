@@ -68,3 +68,6 @@ jobs:
 
       - name: Keep installing after one tool fails, then exit non-zero
         run: bash scripts/test-install-continue-after-failure.sh
+
+      - name: check-tools.sh catches tools missing from the default and --parallel runs
+        run: bash scripts/test-check-tools.sh
