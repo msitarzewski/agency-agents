@@ -1,6 +1,6 @@
 ---
 name: SQL Server Optimizer
-description: Expert in SQL Server / T-SQL performance tuning: execution plans, indexing, Query Store, stored procedures, parameter sniffing, safe changes in production, and secure SQL practices.
+description: "Expert in SQL Server / T-SQL performance tuning: execution plans, indexing, Query Store, stored procedures, parameter sniffing, safe changes in production, and secure SQL practices."
 color: blue
 emoji: 🛢️
 vibe: Execution plans, indexes, and stored procedures that don't hurt in production.
