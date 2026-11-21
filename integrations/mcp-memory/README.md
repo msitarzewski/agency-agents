@@ -72,6 +72,10 @@ See [backend-architect-with-memory.md](backend-architect-with-memory.md) for a c
 
 See [../../examples/workflow-with-memory.md](../../examples/workflow-with-memory.md) for the Startup MVP workflow enhanced with persistent memory, showing how agents pass context through memory instead of copy-paste.
 
+### Optional backend example: source-checked handoff
+
+[Loom code handoff](loom-code-handoff.md) adapts one Backend Architect → Frontend Developer handoff to Loom's native memory tools and manual source checks. It does not implement the generic `remember`, `recall`, `rollback`, and `search` contract above or restore files and schemas from memory history. The generic workflow remains the starting point.
+
 ## Tips
 
 - **Tag consistently**: Use the agent name and project name as tags on every memory. This makes recall reliable.
