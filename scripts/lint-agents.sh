@@ -268,6 +268,28 @@ if [[ ${#files[@]} -eq 0 ]]; then
   exit 1
 fi
 
+# With the optional native helper built, it runs every check below in one
+# process and prints the same report. See find_native_bin in lib.sh.
+find_native_bin "$SCRIPT_DIR"
+if [[ -n "$NATIVE_BIN" ]]; then
+  # Each file as two NUL-terminated fields: the name to report, then the path
+  # to open. They differ only for an absolute path under Git Bash, which a
+  # Windows binary cannot open as written.
+  native_file_list() {
+    local f open
+    for f in "${files[@]}"; do
+      open="$f"
+      if [[ "$f" == /* && ( "${OSTYPE:-}" == msys* || "${OSTYPE:-}" == cygwin* ) ]]; then
+        open="$(cygpath -w "$f")"
+      fi
+      printf '%s\0%s\0' "$f" "$open"
+    done
+  }
+  status=0
+  native_file_list | "$NATIVE_BIN" lint --known-colors "$KNOWN_COLORS" || status=$?
+  exit "$status"
+fi
+
 echo "Linting ${#files[@]} agent files..."
 echo ""
 

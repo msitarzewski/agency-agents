@@ -109,6 +109,33 @@ fence_closes_p() {
 }
 
 # ---------------------------------------------------------------------------
+# 1c. Optional native helper
+# ---------------------------------------------------------------------------
+
+# find_native_bin <scripts-dir> — set NATIVE_BIN to the built scripts/agency-convert
+# binary, or to "" when it has not been built. convert.sh and lint-agents.sh
+# start several processes per agent, which is slow where process creation is
+# (minutes on Windows); the binary runs the same per-agent loop as one process.
+# Nothing builds it automatically:
+#   cargo build --release --manifest-path scripts/agency-convert/Cargo.toml
+# The Bash code stays the reference, and scripts/test-convert-native.sh and
+# scripts/test-lint-native.sh hold the two to identical output: change both
+# together.
+#   AGENCY_CONVERT_NATIVE=0   always use the Bash code
+#   AGENCY_CONVERT_BIN=<path> use this binary instead of the default build path
+find_native_bin() {
+  NATIVE_BIN=""
+  [[ "${AGENCY_CONVERT_NATIVE:-1}" != "0" ]] || return 0
+  local bin
+  for bin in "${AGENCY_CONVERT_BIN:-}" \
+             "$1/agency-convert/target/release/agency-convert" \
+             "$1/agency-convert/target/release/agency-convert.exe"; do
+    if [[ -n "$bin" && -f "$bin" && -x "$bin" ]]; then NATIVE_BIN="$bin"; return 0; fi
+  done
+  return 0
+}
+
+# ---------------------------------------------------------------------------
 # 2. set -e-safe primitives  (absorbs #505 — no more `(( x++ )) || true`)
 # ---------------------------------------------------------------------------
 

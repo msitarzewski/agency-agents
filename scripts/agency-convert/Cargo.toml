@@ -1,0 +1,15 @@
+[package]
+name = "agency-convert"
+version = "0.1.0"
+edition = "2021"
+description = "Native per-agent loop for scripts/convert.sh (optional accelerator)"
+license = "MIT"
+publish = false
+
+[dependencies]
+
+[profile.release]
+opt-level = 3
+lto = true
+codegen-units = 1
+strip = true

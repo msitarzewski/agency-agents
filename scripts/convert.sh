@@ -81,6 +81,24 @@ AGENT_DIRS=(
   research sales security spatial-computing specialized support testing
 )
 
+# --- Optional native per-agent loop ---
+# NATIVE_BIN is the built scripts/agency-convert binary, or "" to run the Bash
+# converters below. See find_native_bin in lib.sh.
+find_native_bin "$SCRIPT_DIR"
+
+# list_agent_files — NUL-separated .md paths under the division dirs, relative
+# to the repo root, in the order the Bash loop visits them.
+list_agent_files() {
+  local dir
+  (
+    cd "$REPO_ROOT"
+    for dir in "${AGENT_DIRS[@]}"; do
+      [[ -d "$dir" ]] || continue
+      find "$dir" -name "*.md" -type f -print0 | sort -z
+    done
+  )
+}
+
 # --- Usage ---
 # usage [status] — print the header between the USAGE sentinels and exit.
 # `--help` exits 0 on stdout; an unknown option exits 1 with the text on
@@ -762,6 +780,24 @@ check_agent_slug_collisions() {
   local dir dirpath file slug relative i
   local seen_slugs=() seen_files=()
   local collisions=0
+  if [[ -n "$NATIVE_BIN" ]]; then
+    local listing
+    listing="$(list_agent_files | "$NATIVE_BIN" slugs --repo-root "$REPO_ROOT")" || return 1
+    while IFS=$'\t' read -r slug relative; do
+      [[ -n "$slug" ]] || continue
+      for i in "${!seen_slugs[@]}"; do
+        if [[ "${seen_slugs[i]}" == "$slug" ]]; then
+          error "duplicate agent slug '$slug': ${seen_files[i]} and $relative"
+          collisions=$((collisions + 1))
+          break
+        fi
+      done
+      seen_slugs+=("$slug")
+      seen_files+=("$relative")
+    done <<< "$listing"
+    (( collisions == 0 ))
+    return
+  fi
   for dir in "${AGENT_DIRS[@]}"; do
     dirpath="$REPO_ROOT/$dir"
     [[ -d "$dirpath" ]] || continue
@@ -795,6 +831,19 @@ run_conversions() {
   fi
 
   clean_tool_output "$tool" || return 1
+
+  if [[ -n "$NATIVE_BIN" ]]; then
+    # Prints the agent count, as the loop below does. aider and windsurf
+    # append to their accumulator file; the others write under $OUT_DIR.
+    local append=""
+    case "$tool" in
+      aider)    append="$AIDER_TMP" ;;
+      windsurf) append="$WINDSURF_TMP" ;;
+    esac
+    list_agent_files | "$NATIVE_BIN" convert --repo-root "$REPO_ROOT" \
+      --out "$OUT_DIR" --tool "$tool" --append "$append"
+    return
+  fi
 
   for dir in "${AGENT_DIRS[@]}"; do
     local dirpath="$REPO_ROOT/$dir"
