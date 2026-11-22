@@ -765,8 +765,8 @@ The Agency works natively with Claude Code, and ships conversion + install scrip
 ```bash
 ./scripts/convert.sh
 # Faster (parallel, output order may vary): ./scripts/convert.sh --parallel
-# Much faster, optional, needs Rust: build the native converter once and
-# convert.sh uses it automatically (same output).
+# Much faster, optional, needs Rust: build the native helper once and
+# convert.sh and lint-agents.sh use it automatically (same output).
 #   cargo build --release --manifest-path scripts/agency-convert/Cargo.toml
 ```
 

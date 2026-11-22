@@ -1,16 +1,19 @@
-//! agency-convert: the per-agent loop of scripts/convert.sh, in one process.
+//! agency-convert: the per-agent loops of scripts/convert.sh and
+//! scripts/lint-agents.sh, each in one process.
 //!
-//! convert.sh stays the entry point and the reference implementation. When this
-//! binary is built, convert.sh pipes it the agent file list and it writes the
-//! same bytes the Bash converters write. scripts/test-convert-native.sh holds
-//! the two to byte-identical output.
+//! The scripts stay the entry points and the reference implementations. When
+//! this binary is built they pipe it the agent file list, and it writes the
+//! same bytes the Bash code writes. scripts/test-convert-native.sh and
+//! scripts/test-lint-native.sh hold the two sides to byte-identical output.
 //!
-//! Usage (called by convert.sh, not by hand):
+//! Usage (called by the scripts, not by hand):
 //!   agency-convert convert --repo-root R --out O --tool T [--append FILE] < files
 //!   agency-convert slugs   --repo-root R                                  < files
+//!   agency-convert lint    --known-colors "a b c"                         < pairs
 //!
-//! stdin is a NUL-separated list of agent paths relative to the repo root, in
-//! the order convert.sh's `find | sort -z` produced them.
+//! For convert and slugs, stdin is a NUL-separated list of agent paths relative
+//! to the repo root, in the order convert.sh's `find | sort -z` produced them.
+//! For lint it is NUL-separated pairs: the name to report, then the path to open.
 //!
 //! Text is handled as bytes throughout: the Bash side goes through awk, tr and
 //! perl, which do not validate UTF-8 either.
@@ -19,6 +22,8 @@ use std::fs;
 use std::io::{self, Read, Write};
 use std::path::{Path, PathBuf};
 use std::process::ExitCode;
+
+mod lint;
 
 const TOOLS: &[&str] = &[
     "antigravity",
@@ -39,7 +44,7 @@ const TOOLS: &[&str] = &[
 
 fn main() -> ExitCode {
     match run() {
-        Ok(()) => ExitCode::SUCCESS,
+        Ok(code) => code,
         Err(msg) => {
             eprintln!("agency-convert: {msg}");
             ExitCode::FAILURE
@@ -47,10 +52,11 @@ fn main() -> ExitCode {
     }
 }
 
-fn run() -> Result<(), String> {
+fn run() -> Result<ExitCode, String> {
     let mut args = std::env::args().skip(1);
-    let mode = args.next().ok_or("missing mode (convert | slugs)")?;
+    let mode = args.next().ok_or("missing mode (convert | slugs | lint)")?;
     let (mut repo_root, mut out, mut tool, mut append) = (None, None, None, None);
+    let mut known_colors = String::new();
     while let Some(flag) = args.next() {
         let value = args
             .next()
@@ -59,13 +65,12 @@ fn run() -> Result<(), String> {
             "--repo-root" => repo_root = Some(PathBuf::from(value)),
             "--out" => out = Some(PathBuf::from(value)),
             "--tool" => tool = Some(value),
+            "--known-colors" => known_colors = value,
             // convert.sh always passes --append; empty means "not a single-file tool".
             "--append" => append = (!value.is_empty()).then(|| PathBuf::from(value)),
             _ => return Err(format!("unknown option: {flag}")),
         }
     }
-    let repo_root = repo_root.ok_or("--repo-root is required")?;
-
     let mut listing = Vec::new();
     io::stdin()
         .read_to_end(&mut listing)
@@ -76,8 +81,21 @@ fn run() -> Result<(), String> {
         .map(|p| String::from_utf8_lossy(p).replace('\\', "/"))
         .collect();
 
+    if mode == "lint" {
+        let mut entries = listing
+            .split(|b| *b == 0)
+            .filter(|p| !p.is_empty())
+            .map(lossy);
+        let mut pairs = Vec::new();
+        while let (Some(name), Some(path)) = (entries.next(), entries.next()) {
+            pairs.push((name, path));
+        }
+        return lint::run(&pairs, &known_colors);
+    }
+
+    let repo_root = repo_root.ok_or("--repo-root is required")?;
     match mode.as_str() {
-        "slugs" => print_slugs(&repo_root, &files),
+        "slugs" => print_slugs(&repo_root, &files).map(|()| ExitCode::SUCCESS),
         "convert" => {
             let out = out.ok_or("--out is required")?;
             let tool = tool.ok_or("--tool is required")?;
@@ -86,7 +104,7 @@ fn run() -> Result<(), String> {
             }
             let count = convert_all(&repo_root, &out, &tool, append.as_deref(), &files)?;
             println!("{count}");
-            Ok(())
+            Ok(ExitCode::SUCCESS)
         }
         _ => Err(format!("unknown mode '{mode}'")),
     }

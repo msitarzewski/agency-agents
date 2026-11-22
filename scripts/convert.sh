@@ -82,23 +82,9 @@ AGENT_DIRS=(
 )
 
 # --- Optional native per-agent loop ---
-# The converters below start several processes per agent per tool, which is
-# slow where process creation is (minutes on Windows). scripts/agency-convert
-# is the same loop as one Rust process. It is used only when it has been built:
-#   cargo build --release --manifest-path scripts/agency-convert/Cargo.toml
-# The Bash converters stay the reference, and scripts/test-convert-native.sh
-# holds the two to identical output: change both together.
-#   AGENCY_CONVERT_NATIVE=0   always use the Bash converters
-#   AGENCY_CONVERT_BIN=<path> use this binary instead of the default build path
-NATIVE_BIN=""
-if [[ "${AGENCY_CONVERT_NATIVE:-1}" != "0" ]]; then
-  for _bin in "${AGENCY_CONVERT_BIN:-}" \
-              "$SCRIPT_DIR/agency-convert/target/release/agency-convert" \
-              "$SCRIPT_DIR/agency-convert/target/release/agency-convert.exe"; do
-    if [[ -n "$_bin" && -f "$_bin" && -x "$_bin" ]]; then NATIVE_BIN="$_bin"; break; fi
-  done
-  unset _bin
-fi
+# NATIVE_BIN is the built scripts/agency-convert binary, or "" to run the Bash
+# converters below. See find_native_bin in lib.sh.
+find_native_bin "$SCRIPT_DIR"
 
 # list_agent_files — NUL-separated .md paths under the division dirs, relative
 # to the repo root, in the order the Bash loop visits them.
