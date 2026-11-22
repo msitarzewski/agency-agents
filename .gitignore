@@ -87,3 +87,6 @@ integrations/vibe/prompts/
 integrations/zcode/agents/
 integrations/dsh/agency-*/
 graphify-out/
+
+# Optional native converter (scripts/agency-convert) build output
+scripts/agency-convert/target/
