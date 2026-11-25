@@ -20,6 +20,7 @@ supported agentic coding tools.
 - **[Mistral Vibe](vibe/README.md)** — `.toml` agents + prompt files generated in `vibe/`
 - **Osaurus** -- `SKILL.md` skills generated in `osaurus/`
 - **[Hermes](hermes/README.md)** -- lazy-router plugin generated in `hermes/`
+- **[DeepSeek Harness](#deepseek-harness)** — `SKILL.md` skills in `dsh/`, installed to `~/.dsh/skills/`
 
 ## Quick Install
 
@@ -264,3 +265,19 @@ directly, run the converter before installing from a fresh clone:
 ```
 
 See [codex/README.md](codex/README.md) for details.
+
+---
+
+## DeepSeek Harness
+
+Each agent becomes a DeepSeek Harness (DSH) skill — a `SKILL.md` prefixed with
+`agency-` — installed to `~/.dsh/skills/` (override with `DSH_HOME`). For
+project-scoped skills, run the installer from your project root with
+`DSH_SKILLS_DIR=.dsh/skills`.
+
+```bash
+./scripts/convert.sh --tool dsh
+./scripts/install.sh --tool dsh
+```
+
+See [dsh/README.md](dsh/README.md) for details.
