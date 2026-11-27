@@ -6,7 +6,7 @@ Localize agent `name` and `description` fields in YAML frontmatter to Simplified
 
 | File | Description |
 |------|-------------|
-| `agent-names-zh.json` | Mapping of English agent names → Chinese translations (130+ entries) |
+| `agent-names-zh.json` | Mapping of English agent names → Chinese translations (covers every agent, 280+ entries) |
 | `localize-agents-zh.ps1` | PowerShell script that reads the JSON and updates installed agent files |
 
 ## Usage
