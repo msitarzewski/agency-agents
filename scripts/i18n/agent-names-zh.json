@@ -288,5 +288,8 @@
   "Master Plan Architect": { "name": "总体规划架构师", "description": "擅长深度架构规划、技术讲解并严格挑刺的总体规划专家" },
   "Pricing Analyst": { "name": "定价分析师", "description": "通过市场调研与竞品分析建立最优定价模型的专家" },
   "Strategy Duel Agent": { "name": "策略对决专家", "description": "运用博弈论与三十六计进行实时策略对决" },
-  "Test Automation Engineer": { "name": "测试自动化工程师", "description": "Playwright 与 Cypress 端到端测试自动化专家，擅长稳定选择器与消除不稳定用例" }
+  "Test Automation Engineer": { "name": "测试自动化工程师", "description": "Playwright 与 Cypress 端到端测试自动化专家，擅长稳定选择器与消除不稳定用例" },
+  "Cold Email Copywriter": { "name": "陌生开发邮件文案师", "description": "撰写简短、有调研支撑、能获得回复的 B2B cold email 首封与跟进邮件，并负责文案测试与发信合规" },
+  "Fact Checker": { "name": "事实核查员", "description": "发布前逐条拆解草稿中的数据、引语与归属，追溯到一手来源并给出核查结论与修改建议" },
+  "Healthcare Interoperability Engineer": { "name": "医疗互操作工程师", "description": "HL7 FHIR R4、HL7 v2、SMART on FHIR 与批量数据集成专家，确保临床数据映射正确、患者隐私最小化并可审计" }
 }
