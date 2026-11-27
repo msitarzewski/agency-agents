@@ -6,14 +6,16 @@ from __future__ import annotations
 import importlib.util
 import json
 import sys
+import tempfile
 import types
 import unittest
+from contextlib import contextmanager
 from enum import Enum
 from pathlib import Path
 from types import SimpleNamespace
 
 ROOT = Path(__file__).resolve().parents[1]
-PLUGIN = ROOT / "integrations" / "hermes" / "agency-agents-router" / "__init__.py"
+BUILDER = ROOT / "scripts" / "build-hermes-plugin.py"
 
 
 class State(str, Enum):
@@ -84,14 +86,38 @@ def child_result(state, *, ready=True, summary=None, error=None):
     )
 
 
-def load_plugin(lifecycle):
+def build_plugin(out_dir: Path) -> Path:
+    spec = importlib.util.spec_from_file_location("agency_agents_hermes_builder", BUILDER)
+    assert spec and spec.loader
+    builder = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(builder)
+    builder.build(ROOT, out_dir)
+    return out_dir / builder.PLUGIN_NAME / "__init__.py"
+
+
+@contextmanager
+def fake_hermes_runtime():
     agent_module = types.ModuleType("agent")
     lifecycle_module = types.ModuleType("agent.subagent_lifecycle")
     setattr(lifecycle_module, "SubagentLaunchRequest", FakeRequest)
+    previous = {
+        name: sys.modules.get(name)
+        for name in ("agent", "agent.subagent_lifecycle")
+    }
     sys.modules["agent"] = agent_module
     sys.modules["agent.subagent_lifecycle"] = lifecycle_module
+    try:
+        yield
+    finally:
+        for name, old in previous.items():
+            if old is None:
+                sys.modules.pop(name, None)
+            else:
+                sys.modules[name] = old
 
-    spec = importlib.util.spec_from_file_location("agency_router_under_test", PLUGIN)
+
+def load_plugin(plugin_path: Path, lifecycle):
+    spec = importlib.util.spec_from_file_location("agency_router_under_test", plugin_path)
     assert spec and spec.loader
     module = importlib.util.module_from_spec(spec)
     spec.loader.exec_module(module)
@@ -101,10 +127,23 @@ def load_plugin(lifecycle):
 
 
 class DelegateBehaviorTests(unittest.TestCase):
+    _tmpdir: tempfile.TemporaryDirectory[str]
+    _plugin_path: Path
+
+    @classmethod
+    def setUpClass(cls) -> None:
+        cls._tmpdir = tempfile.TemporaryDirectory()
+        cls._plugin_path = build_plugin(Path(cls._tmpdir.name) / "hermes")
+
+    @classmethod
+    def tearDownClass(cls) -> None:
+        cls._tmpdir.cleanup()
+
     def invoke(self, lifecycle, slug="ux-architect"):
-        module, context = load_plugin(lifecycle)
-        schema, handler = context.tools["agency_agents_delegate"]
-        payload = json.loads(handler({"slug": slug, "task": "Return ROUTER_OK"}))
+        with fake_hermes_runtime():
+            module, context = load_plugin(self._plugin_path, lifecycle)
+            schema, handler = context.tools["agency_agents_delegate"]
+            payload = json.loads(handler({"slug": slug, "task": "Return ROUTER_OK"}))
         return module, schema, payload
 
     def test_success_returns_child_result_without_toolsets_option(self):
