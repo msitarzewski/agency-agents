@@ -341,20 +341,42 @@ def run_diarization(audio_path: str, hf_token: str,
 def assign_speakers(transcript_segments: list[TranscriptSegment],
                     diarization_segments: list[dict]) -> list[TranscriptSegment]:
     """
-    Assign speaker labels to transcript segments using time overlap.
+    Assign speaker labels to transcript segments using total time overlap.
 
-    For each transcript segment, find the diarization segment with
-    maximum overlap and assign that speaker label.
+    Aggregates each speaker's clipped diarization intervals (merging any
+    overlapping turns for the same speaker) so a speaker split across
+    micro-pauses is not outvoted by a single shorter turn from another speaker.
     """
-    def overlap(seg, dia):
-        return max(0, min(seg.end, dia["end"]) - max(seg.start, dia["start"]))
-
     for seg in transcript_segments:
-        best_match = max(diarization_segments,
-                         key=lambda d: overlap(seg, d),
-                         default=None)
-        if best_match and overlap(seg, best_match) > 0:
-            seg.speaker = best_match["speaker"]
+        intervals_by_speaker: dict[str, list[tuple[float, float]]] = {}
+        for dia in diarization_segments:
+            lo = max(seg.start, dia["start"])
+            hi = min(seg.end, dia["end"])
+            if hi > lo:
+                intervals_by_speaker.setdefault(dia["speaker"], []).append((lo, hi))
+
+        best_speaker = None
+        best_key: tuple[float, float] | None = None
+        for speaker, intervals in intervals_by_speaker.items():
+            intervals.sort()
+            merged_duration = 0.0
+            cur_start, cur_end = intervals[0]
+            earliest = cur_start
+            for start, end in intervals[1:]:
+                if start <= cur_end:
+                    cur_end = max(cur_end, end)
+                else:
+                    merged_duration += cur_end - cur_start
+                    cur_start, cur_end = start, end
+            merged_duration += cur_end - cur_start
+            # Prefer greater total overlap; break exact ties by earlier onset.
+            candidate_key = (merged_duration, -earliest)
+            if best_key is None or candidate_key > best_key:
+                best_key = candidate_key
+                best_speaker = speaker
+
+        if best_speaker is not None:
+            seg.speaker = best_speaker
     return transcript_segments
 ```
 
