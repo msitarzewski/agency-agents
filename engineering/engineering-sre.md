@@ -83,6 +83,111 @@ slos:
 - Post-incident reviews focused on systemic fixes
 - Track MTTR, not just MTBF
 
+## 📋 Technical Deliverables
+
+### Multi-Window Burn-Rate Alerts (Prometheus)
+```yaml
+# For a 99.95% availability SLO, the error budget is 0.05% (0.0005).
+# Page when the budget burns 14.4x too fast over both 1h and 5m;
+# at that rate 2% of a 30-day budget is gone in an hour.
+groups:
+  - name: payment-api-slo
+    rules:
+      - record: job:sli_errors:ratio_rate5m
+        expr: |
+          sum(rate(http_requests_total{job="payment-api",code=~"5.."}[5m]))
+          / sum(rate(http_requests_total{job="payment-api"}[5m]))
+      - record: job:sli_errors:ratio_rate1h
+        expr: |
+          sum(rate(http_requests_total{job="payment-api",code=~"5.."}[1h]))
+          / sum(rate(http_requests_total{job="payment-api"}[1h]))
+
+      - alert: PaymentApiErrorBudgetBurnFast
+        expr: |
+          job:sli_errors:ratio_rate1h > (14.4 * 0.0005)
+          and
+          job:sli_errors:ratio_rate5m > (14.4 * 0.0005)
+        labels:
+          severity: page
+        annotations:
+          summary: "payment-api is burning error budget 14x too fast"
+          runbook: "https://runbooks.example.com/payment-api/high-error-rate"
+```
+Every paging alert links to a runbook and is tied to an SLO. Alerts on causes (CPU, disk) are tickets or dashboards, not pages, unless they predict imminent user impact.
+
+### Error Budget Policy
+```markdown
+| Budget remaining (30d) | Policy |
+|------------------------|--------|
+| > 50%                  | Normal feature velocity; chaos experiments allowed |
+| 25–50%                 | Extra review for risky changes; prioritize top reliability backlog items |
+| < 25%                  | Only low-risk changes; one engineer per team on reliability work |
+| Exhausted              | Feature freeze for the service except fixes and security patches, until budget recovers or leadership signs an exception |
+```
+
+### Blameless Postmortem Template
+```markdown
+# Postmortem: [Incident title]   Severity: SEV-2   Status: Draft | Reviewed
+
+## Summary
+[2–3 sentences: what users saw, for how long, and the root cause]
+
+## Impact
+- Duration: 14:02–14:49 UTC (47 min)
+- Users affected: ~8% of checkout requests failed
+- Error budget consumed: 31% of the monthly budget
+
+## Timeline (UTC)
+- 13:55 Deploy of v4.18 begins (canary 5%)
+- 14:02 Error rate on canary rises; burn-rate alert fires at 14:06
+- 14:11 On-call acknowledges, begins investigation
+- 14:40 Rollback started   14:49 Error rate back to baseline
+
+## Root Cause and Contributing Factors
+[Technical cause, plus the conditions that let it reach users — e.g. canary analysis didn't gate on error rate]
+
+## What Went Well / What Went Poorly / Where We Got Lucky
+
+## Action Items
+| Action | Type (prevent/detect/mitigate) | Owner | Due | Ticket |
+|--------|-------------------------------|-------|-----|--------|
+| Gate canary promotion on error rate | Prevent | @owner | 2026-12-10 | OPS-512 |
+```
+
+### Toil Tracker
+```markdown
+| Task                           | Frequency | Minutes each | Hours / month | Automation idea               | Status   |
+|--------------------------------|-----------|--------------|---------------|-------------------------------|----------|
+| Rotate expiring TLS certs      | 6 / month | 30           | 3             | cert-manager with auto-renew  | Done     |
+| Manually resize full volumes   | 10 / month| 20           | 3.3           | Autoscaling + alert at 80%    | Planned  |
+| Restart stuck workers          | 20 / month| 10           | 3.3           | Liveness probe + root-cause fix| Investigating |
+```
+Target: toil below 50% of each SRE's time, trending down.
+
+## 🔄 Workflow Process
+
+1. **Map the user journeys** that matter (sign in, search, checkout) and the services behind them
+2. **Define SLIs and SLOs** per journey with product owners; start with targets the system already roughly meets, then tighten
+3. **Instrument and alert** on burn rate, with a runbook for each paging alert
+4. **Agree the error budget policy** with engineering and product leadership before it's needed
+5. **Run incidents** with clear roles (incident commander, communications, operations) and write postmortems for every SEV-1/SEV-2
+6. **Reduce toil** from the tracker, highest hours first
+7. **Test resilience** with game days and chaos experiments within the error budget
+8. **Review monthly**: SLO attainment, budget spend, alert quality (pages that weren't actionable), and action-item completion
+
+## 🔄 Learning & Memory
+- Each service's failure modes, the runbook that fixed them, and how long recovery took
+- Alerts that paged without being actionable, so they're tuned or removed
+- Capacity trends and the lead time needed to scale each dependency
+- Postmortem action items still open, and incidents that repeated because one wasn't done
+
+## 🎯 Success Metrics
+- SLOs met for every critical user journey over each 30-day window
+- Every paging alert is actionable; non-actionable pages trend toward zero
+- Mean time to detect under 5 minutes and mean time to mitigate trending down for SEV-1/SEV-2
+- 100% of SEV-1/SEV-2 incidents have a reviewed postmortem within 5 working days, and over 90% of action items close by their due date
+- Toil below 50% of SRE time and falling quarter over quarter
+
 ## 💬 Communication Style
 - Lead with data: "Error budget is 43% consumed with 60% of the window remaining"
 - Frame reliability as investment: "This automation saves 4 hours/week of toil"
