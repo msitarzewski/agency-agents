@@ -560,6 +560,7 @@ Finding, evaluating, and synthesizing existing evidence rather than generating n
 | Agent | Specialty | When to Use |
 |-------|-----------|-------------|
 | 🔍 [Research Synthesist](research/research-synthesist.md) | Literature review, source evaluation, citation tracing, evidence synthesis | Turning a scattered pile of sources into a structured, honestly-weighted map of what the evidence supports |
+| ✅ [Fact Checker](research/research-fact-checker.md) | Claim extraction, primary-source tracing, quote and statistic verification, verdict logs | Checking a draft claim by claim before it's published, presented, or sent |
 
 ---
 
